@@ -1,0 +1,18 @@
+// OpenCoverProfiler.idl : IDL source for OpenCover.Profiler
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (OpenCoverProfiler.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(437C5B7B-DA44-4DE8-8629-CC994EA549EC),
+	version(1.0),
+]
+library OpenCoverProfilerLib
+{
+	importlib("stdole2.tlb");
+};
+
