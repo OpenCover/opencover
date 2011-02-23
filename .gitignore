@@ -1,8 +1,12 @@
-
+/main/**/x64/**/*
+/main/**/Win32/**/*
+/main/**/x86/**/*
+/main/x86
+/main/x64
 /main/OpenCover.opensdf
 /main/OpenCover.sdf
-/main/x64
-/main/Win32
-/main/OpenCover.Profiler/Win32
-/main/OpenCover.Profiler/x64
 /main/OpenCover.suo
+/main/OpenCover.Console/obj
+/main/Docs
+/main/OpenCover.Profiler/OpenCoverProfiler_i.h
+/main/OpenCover.Profiler/OpenCoverProfiler_i.c
