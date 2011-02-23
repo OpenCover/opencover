@@ -1,0 +1,497 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.Web.CreateVirtualDirectory-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;mkiisdir&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;mkiisdir&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;mkiisdir&gt;</h1>
+    <p> Creates or modifies a virtual directory of a web site hosted on Internet Information Server. </p>
+    <p> If the virtual directory does not exist it is created, and if it already exists it is modified. Only the IIS-properties specified will be set. If set by other means (e.g. the Management Console), the unspecified properties retain their current value, otherwise they are inherited from the parent. </p>
+    <p> For a list of optional parameters see <a href="ms-help://MS.VSCC/MS.MSDNVS/iisref/html/psdk/asp/aore8v5e.htm">IIsWebVirtualDir</a>. </p>
+    <p> More information on metabase parameters is available <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/iissdk/iis/alphabeticmetabasepropertylist.asp">here</a>. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">dirpath</td>
+          <td style="text-align: center;">directory</td>
+          <td> The file system path. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">accessexecute</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether the file or the contents of the folder may be executed, regardless of file type. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessnoremoteexecute</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether remote requests to execute applications are denied; only requests from the same computer as the IIS server succeed if <code>accessexecute</code> is set to <b>true</b>. You cannot set <code>accessnoremoteexecute</code> to <b>false</b> to enable remote requests, and set <code>accessexecute</code> to <b>false</b> to disable local requests. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessnoremoteread</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether remote requests to view files are denied; only requests from the same computer as the IIS server succeed if <code>accessexecute</code> is set to <b>true</b>. You cannot set <code>accessnoremoteread</code> to <b>false</b> to enable remote requests, and set <code>accessread</code> to <b>false</b> to disable local requests. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessnoremotescript</td>
+          <td style="text-align: center;">bool</td>
+          <td> A value of true indicates that remote requests to view dynamic content are denied; only requests from the same computer as the IIS server succeed if the AccessScript property is set to true. You cannot set AccessNoRemoteScript to false to enable remote requests, and set AccessScript to false to disable local requests. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessnoremotewrite</td>
+          <td style="text-align: center;">bool</td>
+          <td> indicates that remote requests to create or change files are denied; only requests from the same computer as the IIS server succeed if the AccessWrite property is set to true. You cannot set AccessNoRemoteWrite to false to enable remote requests, and set AccessWrite to false to disable local requests. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessread</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether the file or the contents of the folder may be read. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessscript</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether the file or the contents of the folder may be executed if they are script files or static content. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accesssource</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether users are allowed to access source code if either Read or Write permissions are set. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessssl</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether file access requires SSL file permission processing, with or without a client certificate. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accessssl128</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether file access requires SSL file permission processing with a minimum key size of 128 bits, with or without a client certificate. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accesssslmapcert</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether SSL file permission processing maps a client certificate to a Microsoft Windows ® operating system user-account. <code>accesssslnegotiatecert</code> must also be set to <b>true</b> for the mapping to occur. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accesssslnegotiatecert</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether SSL file access processing requests a certificate from the client. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accesssslrequirecert</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether SSL file access processing requests a certificate from the client. If the client provides no certificate, the connection is closed. <code>accesssslnegotiatecert</code> must also be set to <b>true</b> when using <code>accesssslrequirecert</code>. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">accesswrite</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether users are allowed to upload files and their associated properties to the enabled directory on your server or to change content in a Write-enabled file. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">anonymouspasswordsync</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether IIS should handle the user password for anonymous users attempting to access resources. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">appallowclientdebug</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether ASP client-side debugging is enabled. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">appallowdebugging</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether ASP debugging is enabled on the server. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">appcreate</td>
+          <td style="text-align: center;">
+            <a href="../enums/NAnt.Contrib.Tasks.Web.CreateVirtualDirectory.AppType.html">AppType</a>
+          </td>
+          <td> Specifies what type of application to create for this virtual directory. The default is <code>Pooled</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">appfriendlyname</td>
+          <td style="text-align: center;">string</td>
+          <td> The user-friendly name of the package or application. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">apppoolid</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the application pool where the application is routed (IIS 6.0 or higher). </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspallowsessionstate</td>
+          <td style="text-align: center;">bool</td>
+          <td> Enables session state persistence for the ASP application. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspbufferingon</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether output from an ASP application will be buffered. If <b>true</b>, all output from the application is collected in the buffer before the buffer is flushed to the client. With buffering on, the ASP application has to completely process the ASP script before the client receives any output. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspenableapplicationrestart</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether an ASP application can be automatically restarted. When changes are made to Global.asa or metabase properties that affect an application, the application will not restart unless the <code>aspenableapplicationrestart</code> property is set to <b>false</b>. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspenableasphtmlfallback</td>
+          <td style="text-align: center;">bool</td>
+          <td> Controls the behavior of ASP when a new request is to be rejected due to a full request queue. If <b>true</b>, an .htm file with a similar name as the requested .asp file, will be sent instead of the .asp file. The naming convention for the .htm file is the name of the .asp file with _asp appended. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspenablechunkedencoding</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether HTTP 1.1 chunked transfer encoding is enabled for the World Wide Web Publishing Service (WWW service). The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspenableparentpaths</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether an ASP page allows paths relative to the current directory. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspenabletypelibcache</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether type libraries are cached on the server. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">asperrorstontlog</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies which ASP errors are written to the Windows event log. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspexceptioncatchenable</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether ASP pages trap exceptions thrown by components. If set to <b>false</b>, the Microsoft Script Debugger tool does not catch exceptions sent by the component that you are debugging. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">asplogerrorrequests</td>
+          <td style="text-align: center;">bool</td>
+          <td> Controls whether the Web server writes ASP errors to the application section of the Windows event log. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspscripterrormessage</td>
+          <td style="text-align: center;">string</td>
+          <td>
+          </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspscripterrorsenttobrowser</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the Web server writes debugging specifics (file name, error, line number, description) to the client browser, in addition to logging them to the Windows Event Log. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">aspthreadgateenabled</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether IIS thread gating is enabled (only applies to IIS 4 and 5). The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">asptrackthreadingmodel</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether IIS checks the threading model of any components that your application creates. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authanonymous</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies Anonymous authentication as one of the possible authentication schemes returned to clients as being available. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authbasic</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies Basic authentication as one of the possible authentication schemes returned to clients as being available. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authntlm</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies Integrated Windows authentication as one of the possible authentication schemes returned to clients as being available. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authpersistsinglerequest</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies that authentication persists only for a single request on a connection. IIS resets the authentication at the end of each request, and forces re-authentication on the next request of the session. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authpersistsinglerequestalwaysifproxy</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether authentication is valid for a single request if by proxy. IIS will reset the authentication at the end of the request and force re-authentication on the next request if the current authenticated request is by proxy of any type. Applies to IIS 5.0 and 5.1. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">authpersistsinglerequestifproxy</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies authentication will persist only across single requests on a connection if the connection is by proxy. Applies to IIS 5.0 and 5.1. The default is <b>false</b></td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">cachecontrolnocache</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the HTTP 1.1 directive to prevent caching of content should be sent to clients. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">cacheisapi</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether ISAPI extensions are cached in memory after first use. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">contentindexed</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the installed content indexer should index content under this directory tree. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">cpuappenabled</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether process accounting and throttling should be performed for ISAPI extensions and ASP applications. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">cpucgienabled</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether IIS should perform process accounting for CGI applications. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">createcgiwithnewconsole</td>
+          <td style="text-align: center;">bool</td>
+          <td> Indicates whether a CGI application runs in its own console. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">createprocessasuser</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether a CGI process is created in the system context or in the context of the requesting user. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">defaultdoc</td>
+          <td style="text-align: center;">string</td>
+          <td> One or more file names of default documents that will be returned to the client if no file name is included in the client's request. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dirbrowseshowdate</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether date information is displayed when browsing directories. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dirbrowseshowextension</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether file extensions are displayed when browsing directories. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dirbrowseshowlongdate</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether date information is displayed in extended format when displaying directories. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dirbrowseshowsize</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether file size information is displayed when displaying directories. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dirbrowseshowtime</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether file creation time is displayed when browsing directories. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">dontlog</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether client requests are written to the IIS log files. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">enabledefaultdoc</td>
+          <td style="text-align: center;">bool</td>
+          <td> When set to true, the default document (specified by the DefaultDoc property) for a directory is loaded when the directory is browsed. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">enabledirbrowsing</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether directory browsing is enabled. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">enabledocfooter</td>
+          <td style="text-align: center;">bool</td>
+          <td> Enables or disables custom footers. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">enablereversedns</td>
+          <td style="text-align: center;">bool</td>
+          <td> Enables or disables reverse Domain Name Server (DNS) lookups for the World Wide Web Publishing Service (WWW service). The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">ssiexecdisable</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether server-side include (SSI) #exec directives are disabled under this path. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">uncauthenticationpassthrough</td>
+          <td style="text-align: center;">bool</td>
+          <td>
+          </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">uncpassword</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the encrypted password used to gain access to UNC (Universal Naming Convention) virtual roots. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">uncusername</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the user name for Universal Naming Convention (UNC) virtual roots. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">vdirname</td>
+          <td style="text-align: center;">string</td>
+          <td> Name of the IIS virtual directory. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">iisserver</td>
+          <td style="text-align: center;">string</td>
+          <td> The IIS server, which can be specified using the format <code>[host]:[port]</code>. The default is <code>localhost:80</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">website</td>
+          <td style="text-align: center;">string</td>
+          <td> The website on the IIS server. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p> Create a virtual directory named <code>Temp</code> pointing to <code>c:\temp</code> on the local machine. </p>
+        <pre class="code">
+&lt;mkiisdir dirpath="c:\temp" vdirname="Temp" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Create a virtual directory named <code>Temp</code> pointing to <code>c:\temp</code> on machine <code>Staging</code>. </p>
+        <pre class="code">
+&lt;mkiisdir iisserver="Staging" dirpath="c:\temp" vdirname="Temp" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Configure the home directory of for http://svc.here.dev/ to point to D:\Develop\Here and require authentication </p>
+        <pre class="code">
+&lt;mkiisdir iisserver="svc.here.dev" dirpath="D:\Develop\Here" vdirname="/" authanonymous="false"/&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Create a virtual directory named <code>WebServices/Dev</code> pointing to <code>c:\MyProject\dev</code> on the web site running on port <code>81</code> of machine <code>MyHost</code>. </p>
+        <pre class="code">
+&lt;mkiisdir iisserver="MyHost:81" dirpath="c:\MyProject\dev" vdirname="WebServices/Dev" /&gt;
+    </pre> Note that if <code>WebServices</code> is neither an existing virtual directory nor an existing physical subdirectory of the web root, your IIS Management Console will get confused. Even though <code>http://MyHost:81/WebServices/Dev/theService.asmx</code> may be a perfectly working webservice, the Management Console will not show it. </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.ValidateXmlTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;validatexml&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;validatexml&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;validatexml&gt;</h1>
+    <p> Validates a set of XML files based on a set of XML Schemas (XSD). </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Element-->
+    <h4>
+      <a id="files">
+      </a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/fileset.html">files</a>&gt;
+                </h4>
+    <div class="nested-element"> The XML files that must be validated. <p /></div>
+    <h4>
+      <a id="files">
+      </a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/fileset.html">files</a>&gt;
+                </h4>
+    <!--Collection-->
+    <h4>
+      <a id="schemas">
+      </a>
+            &lt;schemas&gt;
+        </h4>
+    <div class="nested-element"> The XML Schemas (XSD) to use for validation. <h5>&lt;schema&gt;</h5><div class="nested-element"><p> Represents the schema collection element. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top" class="required">source</td><td style="text-align: center;">string</td><td> Location of this schema. Could be a local file path or an HTTP URL. </td><td style="text-align: center;">True</td></tr><tr><td valign="top">namespace</td><td style="text-align: center;">string</td><td> Namespace URI associated with this schema. If not present, it is assumed that the schema's targetNamespace value is to be used. </td><td style="text-align: center;">False</td></tr></table></div></div><h5>&lt;/schema&gt;</h5></div>
+    <h4>&lt;/schemas&gt;</h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <pre class="code">
+&lt;validatexml&gt;
+    &lt;schemas&gt;
+        &lt;schema source="rcf-schema.xsd" /&gt;
+        &lt;schema namespace="urn:schemas-company-com:base" source="base-schema.xsd" /&gt;
+    &lt;/schemas&gt;
+    &lt;files&gt;
+        &lt;include name="*.xml" /&gt;
+    &lt;/files&gt;
+&lt;/validatexml&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

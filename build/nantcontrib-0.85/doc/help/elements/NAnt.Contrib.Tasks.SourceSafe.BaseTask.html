@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.SourceSafe.BaseTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>BaseTask Element</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <span>Element Reference</span>
+          <img alt="-&gt;" src="../images/arrow.gif" /> BaseTask</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>BaseTask</h1>
+    <p> The base abstract class for all Visual Source Safe Tasks. Provides the core attributes, and functionality for opening an item in a Visual Source Safe database. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">dbpath</td>
+          <td style="text-align: center;">file</td>
+          <td> The path to the folder that contains "srcsafe.ini". </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">path</td>
+          <td style="text-align: center;">string</td>
+          <td> The Visual SourceSafe project or file path you wish the perform the action on (starting with "$/"). </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">password</td>
+          <td style="text-align: center;">string</td>
+          <td> The password to use to login to the SourceSafe database. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">user</td>
+          <td style="text-align: center;">string</td>
+          <td>
+            <i>Deprecated.</i>  The name of the user needed to access the Visual SourceSafe database. When no <code>username</code> is specified and "Use network name for automatic user log in" is enabled, then the current Windows username will be used to log in. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">username</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the user needed to access the Visual SourceSafe database. When no <code>username</code> is specified and "Use network name for automatic user log in" is enabled for the Visual SourceSafe database, then the current Windows username will be used to log in. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">version</td>
+          <td style="text-align: center;">string</td>
+          <td> A version of the path to reference. Accepts multiple forms, including the label, version number, or date of the version. If omitted, the latest version is used. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

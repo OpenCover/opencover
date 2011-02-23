@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.StarTeam.StarTeamAutoLabel-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;stautolabel&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;stautolabel&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;stautolabel&gt;</h1>
+    <p> Task for supporting labeling of repositories with incremented version numbers. The version number calculated will be concatenated to the <code>label</code>. </p>
+    <p> Instruments root of repository with <code>versionnumber.xml</code> file. </p>
+    <p> If this file is not present, it is created and checked into StarTeam. The default version number is 1.0.0. By default the build number is incremented. Properties are present to allow setting and incrementing of major, minor, and build versions. </p>
+    <p> When label is created, properties are set to expose version information and the new label : </p>
+    <ul style="list-style-type: disc;">
+      <li>label</li>
+      <li>Version.text</li>
+      <li>Version.major</li>
+      <li>Version.minor</li>
+      <li>Version.build</li>
+    </ul>
+    <p class="i2">
+      <b>Note:</b>  Incrementing or setting major or minor versions does NOT reset the build version. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">buildversion</td>
+          <td style="text-align: center;">int</td>
+          <td> Build version number used for label. If this value is set. <code>incrementbuild</code> is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">incrementbuild</td>
+          <td style="text-align: center;">bool</td>
+          <td> Increment build version number. The default is <b>true</b>. If <code>buildversion</code> is set, this property is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">incrementmajor</td>
+          <td style="text-align: center;">bool</td>
+          <td> Increment major version number. The default is <b>false</b>. If <code>majorversion</code> is set, this property is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">incrementminor</td>
+          <td style="text-align: center;">bool</td>
+          <td> Increment minor version number. The default is <b>false</b>. If <code>minorversion</code> is set, this property is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">majorversion</td>
+          <td style="text-align: center;">int</td>
+          <td> Major version number used for label. If this value is set, <code>incrementmajor</code> is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">minorversion</td>
+          <td style="text-align: center;">int</td>
+          <td> Minor version number used for label. If this value is set, <code>incrementminor</code> is ignored. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">versionfile</td>
+          <td style="text-align: center;">string</td>
+          <td> Allows user to specify the filename where the version xml is stored. The default is <code>versionnumber.xml</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">label</td>
+          <td style="text-align: center;">string</td>
+          <td> The name to be given to the label; required. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">buildlabel</td>
+          <td style="text-align: center;">bool</td>
+          <td> Should label be marked build : default is true</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">description</td>
+          <td style="text-align: center;">string</td>
+          <td> Optional description of the label to be stored in the StarTeam project.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">password</td>
+          <td style="text-align: center;">string</td>
+          <td> The password used for login. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">projectname</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the StarTeam project to be acted on </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">revisionlabel</td>
+          <td style="text-align: center;">bool</td>
+          <td> Should label created be a revision label. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">servername</td>
+          <td style="text-align: center;">string</td>
+          <td> Name of StarTeamServer. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">serverport</td>
+          <td style="text-align: center;">string</td>
+          <td> Port number of the StarTeam connection. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timestamp</td>
+          <td style="text-align: center;">string</td>
+          <td> Optional: If this property is set the label will be created as of the datetime specified. Please provide a datetime format that can be parsed via <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemDateTimeClassParseTopic.asp">Parse</a>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">url</td>
+          <td style="text-align: center;">string</td>
+          <td> One stop to set all parameters needed to connect to a StarTeam server. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">username</td>
+          <td style="text-align: center;">string</td>
+          <td> The StarTeam user name used for login. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">viewname</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the StarTeam view to be acted on. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Increment the build version.</p>
+        <pre class="code">
+&lt;stautolabel url="${ST.url}" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Set the major version.</p>
+        <pre class="code">
+&lt;stautolabel majorversion="2" url="${ST.url}" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Increment the minor version.</p>
+        <pre class="code">
+&lt;stautolabel incrementminor="true" url="${ST.url}" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Example <code>versionnumber.xml</code> file.</p>
+        <pre class="code">
+&lt;?xml version="1.0"?&gt;
+&lt;stautolabel&gt;
+    &lt;version major="1" minor="0" build="0" /&gt;
+&lt;/stautolabel&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

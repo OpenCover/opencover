@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Compagny.Argos.Test</name>
+    </assembly>
+    <members>
+        <member name="T:Compagny.Argos.Test.DAO.DAOFactoryTest">
+            <summary>
+            Suite de tests pour DAOFactory.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.DAO.DAOFactoryTest.ConnectionString">
+            <summary>
+            Teste l'assignation de la chaîne de connection dans la méthode instance de DAOFactory.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.DAO.DAOFactoryTest.ConcreteDAO">
+            <summary>
+            Teste la propriété ConcreteDAO de DAOFactory.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.DAO.DAOFactoryTest.Error">
+            <summary>
+            Teste faux .
+            </summary>
+        </member>
+        <member name="T:Compagny.Argos.Test.DAO.DAOManagerTest">
+            <summary>
+            Suite de tests pour DAOManager.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.DAO.DAOManagerTest.DAO">
+            <summary>
+            Teste la propriété DAO de DAOManager.
+            </summary>
+        </member>
+        <member name="T:Compagny.Argos.Test.Service.DebiteurManagerTest">
+            <summary>
+            Suite de tests DebiteurManager.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.DebiteurManagerTest.Init">
+            <summary>
+            Initialisation des tests pour DebiteurManager
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.DebiteurManagerTest.Dispose">
+            <summary>
+            Ménage à la fin des tests
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.DebiteurManagerTest.Save">
+            <summary>
+            Teste la persistance d'un débiteur
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.DebiteurManagerTest.load">
+            <summary>
+            Teste la récupération d'un débiteur
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.DebiteurManagerTest.LoadDebiteurBadId">
+            <summary>
+            Test la récupération d'un débiteur avec un Id invalide.
+            </summary>
+        </member>
+        <member name="T:Compagny.Argos.Test.Service.NotificationManagerTest">
+            <summary>
+            Suite de tests pour NotificationManager.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.Init">
+            <summary>
+            Initialisation
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.Dispose">
+            <summary>
+            Ménage à la fin des tests.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.Save">
+            <summary>
+            Teste une sauvegarde
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.SaveErreurOpposition">
+            <summary>
+            Teste la persistence d'une notification qui n'est pas rattachée à une notification.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.Load">
+            <summary>
+            Teste la récupération d'une notification
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.NotificationManagerTest.LoadNotificationBadId">
+            <summary>
+            Teste le chargement d'une Notification avec un mauvais id 
+            </summary>
+        </member>
+        <member name="T:Compagny.Argos.Test.Service.OppositionManagerTest">
+            <summary>
+            Suite de tests pour OppositionManager.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.OppositionManagerTest.Init">
+            <summary>
+            Initialisation des tests pour OppositionManager
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.OppositionManagerTest.Dispose">
+            <summary>
+            Ménage à la fin des tests.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.OppositionManagerTest.Save">
+            <summary>
+            Teste la persistence d'une opposition
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.OppositionManagerTest.Load">
+            <summary>
+            Teste la récupération d'une opposition.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Service.OppositionManagerTest.LoadOppositionBadId">
+            <summary>
+            Teste la récupération d'une opposition avec un Id invalide.
+            </summary>
+        </member>
+        <member name="T:Compagny.Argos.Test.Web.GuestBookTest">
+            <summary>
+            Suite de tests pour TestGuestBook.
+            </summary>
+        </member>
+        <member name="M:Compagny.Argos.Test.Web.GuestBookTest.LayoutTest">
+            <summary>
+            Test la page guestbook.aspx.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.Perforce.P4Info-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;p4info&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;p4info&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;p4info&gt;</h1>
+    <p> Returns information from the "p4 info" command back into variables for use within the build process. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">client</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the property to store the p4 client name in. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">host</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the property to store the p4 host name in. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">root</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the property to store the p4 client root in. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">user</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the property to store the p4 user name in. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Fill the variables using the task.</p>
+        <pre class="code">
+&lt;p4info user="myuser" client="myclient" host="myhost" root="myroot" /&gt;
+&lt;echo message="User: ${myuser} - Client: ${myclient} - Host: ${myhost} - Root: ${myroot}" /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

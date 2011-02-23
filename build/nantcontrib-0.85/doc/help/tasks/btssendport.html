@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.BizTalk.SendPort-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;btssendport&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;btssendport&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;btssendport&gt;</h1>
+    <p> Allows BizTalk send ports to be controlled. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">action</td>
+          <td style="text-align: center;">
+            <a href="../enums/NAnt.Contrib.Tasks.BizTalk.SendPort.SendPortAction.html">SendPortAction</a>
+          </td>
+          <td> The action that should be performed on the send port. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">port</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the send port on which the perform the action. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">server</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the BizTalk server on which to perform the action. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p> Starts the "UmeHttpSendPort" port on server "SV-ARD-EAI". </p>
+        <pre class="code">
+&lt;btssendport action="Start" port="UmeHttpSendPort" server="SV-ARD-EAI" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Unenlists the "UmeHttpSendPort" on server "SV-ARD-EAI". </p>
+        <pre class="code">
+&lt;btssendport action="UnEnlist" port="UmeHttpSendPort" server="SV-ARD-EAI" /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

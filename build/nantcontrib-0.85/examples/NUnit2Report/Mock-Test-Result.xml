@@ -1,0 +1,55 @@
+<?xml version="1.0" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="G:\Program Files\NUnit V2.0\bin\mock-assembly.dll" total="5" failures="0" not-run="2" date="18/02/2003" time="18:36">
+  <test-suite name="G:\Program Files\NUnit V2.0\bin\mock-assembly.dll" success="True" time="0,0600864">
+    <results>
+      <test-suite name="NUnit" success="True" time="0,0600864">
+        <results>
+          <test-suite name="Tests" success="True" time="0,050072">
+            <results>
+              <test-suite name="TestAssembly" success="True" time="0,0200288">
+                <results>
+                  <test-suite name="MockTestFixture" success="True" time="0,0100144">
+                    <results>
+                      <test-case name="NUnit.Tests.TestAssembly.MockTestFixture.MyTest" executed="True" success="True" time="0.000" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="Assemblies" success="True" time="0,0200288">
+                <results>
+                  <test-suite name="MockTestFixture" success="True" time="0,0100144">
+                    <results>
+                      <test-case name="NUnit.Tests.Assemblies.MockTestFixture.MockTest1" executed="True" success="True" time="0.000" />
+                      <test-case name="NUnit.Tests.Assemblies.MockTestFixture.MockTest2" executed="True" success="True" time="0.000" />
+                      <test-case name="NUnit.Tests.Assemblies.MockTestFixture.MockTest3" executed="True" success="True" time="0.000" />
+                      <test-case name="NUnit.Tests.Assemblies.MockTestFixture.MockTest5" executed="False">
+                        <reason>
+                          <message><![CDATA[Method MockTest5's signature is not correct: it must be a public method.]]></message>
+                        </reason>
+                      </test-case>
+                      <test-case name="NUnit.Tests.Assemblies.MockTestFixture.MockTest4" executed="False">
+                        <reason>
+                          <message><![CDATA[ignoring this test method for now]]></message>
+                        </reason>
+                      </test-case>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+              <test-suite name="Singletons" success="True" time="0">
+                <results>
+                  <test-suite name="OneTestCase" success="True" time="0">
+                    <results>
+                      <test-case name="NUnit.Tests.Singletons.OneTestCase.TestCase" executed="True" success="True" time="0.000" />
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

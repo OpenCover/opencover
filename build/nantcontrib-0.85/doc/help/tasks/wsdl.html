@@ -1,0 +1,225 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.WsdlTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;wsdl&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;wsdl&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;wsdl&gt;</h1>
+    <p>Generates code for web service clients and xml web services using ASP.NET from WSDL contract files, XSD Schemas and .discomap discovery documents. Can be used in conjunction with .disco files.</p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">baseurl</td>
+          <td style="text-align: center;">string</td>
+          <td>Base Url to use when calculating the Url fragment. The UrlKey attribute must also be specified. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">domain</td>
+          <td style="text-align: center;">string</td>
+          <td>Domain of an account with credentials to access a server that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">forserver</td>
+          <td style="text-align: center;">bool</td>
+          <td>Compiles server-side ASP.NET abstract classes based on the web service contract. The default is to create client side proxy classes. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">language</td>
+          <td style="text-align: center;">string</td>
+          <td>Language of generated code. 'CS', 'VB', 'JS', or the fully-qualified name of a class implementing System.CodeDom.Compiler.CodeDomCompiler. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">namespace</td>
+          <td style="text-align: center;">string</td>
+          <td>Microsoft.NET namespace of generated classes.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">nologo</td>
+          <td style="text-align: center;">bool</td>
+          <td>Suppresses the banner.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">outfile</td>
+          <td style="text-align: center;">string</td>
+          <td>Output filename of the created proxy. Default name is derived from the service name.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">password</td>
+          <td style="text-align: center;">string</td>
+          <td>Password of an account with credentials to access a server that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">path</td>
+          <td style="text-align: center;">string</td>
+          <td>URL or Path to a WSDL, XSD, or .discomap document.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">protocol</td>
+          <td style="text-align: center;">string</td>
+          <td>Override default protocol to implement. Choose from 'SOAP', 'HttpGet', 'HttpPost', or a custom protocol as specified in the configuration file.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">proxy</td>
+          <td style="text-align: center;">string</td>
+          <td>URL of a proxy server to use for HTTP requests. The default is to use the system proxy setting.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">proxydomain</td>
+          <td style="text-align: center;">string</td>
+          <td>Domain of an account with credentials to access a proxy that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">proxypassword</td>
+          <td style="text-align: center;">string</td>
+          <td>Password of an account with credentials to access a proxy that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">proxyusername</td>
+          <td style="text-align: center;">string</td>
+          <td>Username of an account with credentials to access a proxy that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">urlkey</td>
+          <td style="text-align: center;">string</td>
+          <td>Configuration key to use in the code generation to read the default value for the Url property. The default is not to read from the config file.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">username</td>
+          <td style="text-align: center;">string</td>
+          <td>Username of an account with credentials to access a server that requires authentication.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timeout</td>
+          <td style="text-align: center;">int</td>
+          <td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Framework-configurable parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">exename</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the executable that should be used to launch the external program. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">useruntimeengine</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Core.Types.Argument-->
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;arg&gt;
+                </h4>
+    <div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div>
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;/arg&gt;
+                </h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Generate a proxy class for a web service.</p>
+        <pre class="code">&lt;wsdl path="http://www.somewhere.com/myservice.wsdl"
+                language="CS" namespace="MyCompany.MyService" outfile="MyService.cs" /&gt;</pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

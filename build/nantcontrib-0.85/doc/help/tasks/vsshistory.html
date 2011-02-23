@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.SourceSafe.History-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;vsshistory&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;vsshistory&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;vsshistory&gt;</h1>
+    <p> Generates an XML file showing all changes made to a Visual SourceSafe project/file between specified labels or dates (by a given user). </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">output</td>
+          <td style="text-align: center;">file</td>
+          <td> Output file to save history to (as XML). </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">fromdate</td>
+          <td style="text-align: center;">datetime</td>
+          <td> Start date for comparison. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">fromlabel</td>
+          <td style="text-align: center;">string</td>
+          <td> The value of the label to start comparing to. If it is not included, the compare will start with the very first history item. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">recursive</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether to perform the comparison recursively. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">todate</td>
+          <td style="text-align: center;">datetime</td>
+          <td> End date for comparison. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">tolabel</td>
+          <td style="text-align: center;">string</td>
+          <td> The value of the label to compare up to. If it is not included, the compare will end with the last history item. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">user</td>
+          <td style="text-align: center;">string</td>
+          <td> Name of the user whose changes you want to see. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">dbpath</td>
+          <td style="text-align: center;">file</td>
+          <td> The path to the folder that contains "srcsafe.ini". </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">path</td>
+          <td style="text-align: center;">string</td>
+          <td> The Visual SourceSafe project or file path you wish the perform the action on (starting with "$/"). </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">password</td>
+          <td style="text-align: center;">string</td>
+          <td> The password to use to login to the SourceSafe database. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">username</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the user needed to access the Visual SourceSafe database. When no <code>username</code> is specified and "Use network name for automatic user log in" is enabled for the Visual SourceSafe database, then the current Windows username will be used to log in. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p> Write all changes between "Release1" and "Release2" to XML file "changelog.xml". </p>
+        <pre class="code">
+&lt;vsshistory
+    dbpath="C:\VSS\srcsafe.ini"
+    path="$/My Project"
+    fromlabel="Release1"
+    tolabel="Release2"
+    output="changelog.xml" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Write all changes between January 1st 2004 and March 31st 2004 to XML file "history.xml". </p>
+        <pre class="code">
+&lt;vsshistory
+    dbpath="C:\VSS\srcsafe.ini"
+    path="$/My Project"
+    fromdate="01/01/2004"
+    todate="03/31/2004"
+    output="history.xml"
+    /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

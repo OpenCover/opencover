@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting ToString-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>fileset::to-string Function</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="index.html">Function Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> fileset::to-string</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>fileset::to-string</h1>
+    <p> Returns a delimited string of all the filenames within a <a href="http://nant.sourceforge.net/help/types/fileset.html">&lt;fileset&gt;</a> with each filename separated by the specified delimiter string. </p>
+    <h3>Usage</h3>
+    <code>string fileset::to-string(<span class="parameter">fileset</span>, <span class="parameter">delimiter</span>)
+            </code>
+    <p />
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>fileset</td>
+          <td>string</td>
+          <td>The id of the fileset to check.</td>
+        </tr>
+        <tr>
+          <td>delimiter</td>
+          <td>string</td>
+          <td>String to separate filenames with.</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Return Value</h3>A delimited string of the filenames within the specified FileSet.<h3>Exceptions</h3>
+            The function will fail in any of the following circumstances:
+            <div style="margin-left: 40px;"><ul><li><i>fileset</i> is not a valid refid to a defined fileset.</li></ul></div><h3>Examples</h3><ul class="examples"><li><p> Displays a space-pipe-space separated string fo the files within a defined FileSet. </p><pre class="code">
+&lt;fileset id="test.fileset"&gt;
+    &lt;include name="**/*.cs"&gt;
+&lt;/fileset&gt;
+&lt;echo message="${fileset::to-string('test.fileset', ' | ')}"&gt;
+    </pre></li></ul><h3>Requirements</h3><div style="margin-left: 20px;"><b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div></body>
+</html>

@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Types.AssemblySet-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>AssemblySet Element</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <span>Element Reference</span>
+          <img alt="-&gt;" src="../images/arrow.gif" /> AssemblySet</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>AssemblySet</h1>
+    <p> Represents a set of assemblies via their identity information. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">id</td>
+          <td style="text-align: center;">string</td>
+          <td> The ID used to be referenced later. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">refid</td>
+          <td style="text-align: center;">string</td>
+          <td> The ID to use as the reference. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Contrib.Types.Assembly-->
+    <h4>
+      <a id="assembly">
+      </a>
+                    &lt;assembly&gt;
+                </h4>
+    <div class="nested-element"> The assemblies to include. <p> Represents a single assembly in an <a href="../elements/NAnt.Contrib.Types.AssemblySet.html">AssemblySet</a>. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top" class="required">name</td><td style="text-align: center;">string</td><td> The name of the assembly. </td><td style="text-align: center;">True</td></tr><tr><td valign="top">culture</td><td style="text-align: center;">string</td><td> The culture for the assembly. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> If <code>true</code> then the assembly will be included. The default is <code>true</code>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">public-key-token</td><td style="text-align: center;">string</td><td> The public key token of the assembly. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Opposite of <code>if</code>. If <code>false</code> then the assembly will be included. The default is <code>false</code>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">version</td><td style="text-align: center;">string</td><td> The version of the assembly. </td><td style="text-align: center;">False</td></tr></table></div></div>
+    <h4>
+      <a id="assembly">
+      </a>
+                    &lt;/assembly&gt;
+                </h4>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

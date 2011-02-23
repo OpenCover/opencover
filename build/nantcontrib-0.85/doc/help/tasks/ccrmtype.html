@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.ClearCase.ClearCaseRmType-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;ccrmtype&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;ccrmtype&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;ccrmtype&gt;</h1>
+    <p> Removes elements from a ClearCase VOB. </p>
+    <p> This task uses the <code>cleartool rmtype</code> command to remove a ClearCase object. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">typekind</td>
+          <td style="text-align: center;">
+            <a href="../enums/NAnt.Contrib.Types.ClearCase.TypeKind.html">TypeKind</a>
+          </td>
+          <td> The kind of type to remove. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">typename</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the object to remove. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">comment</td>
+          <td style="text-align: center;">string</td>
+          <td> Specify a comment. Only one of <code>comment</code> or <code>commentfile</code> may be used. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">commentfile</td>
+          <td style="text-align: center;">file</td>
+          <td> Specify a file containing a comment. Only one of <code>comment</code> or <code>commentfile</code> may be used. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">ignore</td>
+          <td style="text-align: center;">bool</td>
+          <td> Used with <code>Trigger</code> types only. Forces removal of <code>Trigger</code> type even if a pre-operation trigger would prevent its removal. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">removeall</td>
+          <td style="text-align: center;">bool</td>
+          <td> Removes all instances of a type and the type object itself. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timeout</td>
+          <td style="text-align: center;">int</td>
+          <td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Framework-configurable parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">exename</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the executable that should be used to launch the external program. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">useruntimeengine</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Core.Types.Argument-->
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;arg&gt;
+                </h4>
+    <div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div>
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;/arg&gt;
+                </h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p> Performs a ClearCase rmtype to remove a <code>Label</code> type named <code>VERSION_1</code>. Comment text from the file <code>acomment.txt</code> is added as a comment. All instances of the type are removed, including the type object itself. </p>
+        <pre class="code">
+&lt;ccrmtype typekind="Label"
+        typename="VERSION_1"
+        commentfile="acomment.txt"
+        removeall="true" /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

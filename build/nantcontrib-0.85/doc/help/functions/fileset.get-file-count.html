@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting GetFileCount-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>fileset::get-file-count Function</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="index.html">Function Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> fileset::get-file-count</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>fileset::get-file-count</h1>
+    <p> Determines the number of files within a <a href="http://nant.sourceforge.net/help/types/fileset.html">&lt;fileset&gt;</a>. </p>
+    <h3>Usage</h3>
+    <code>int fileset::get-file-count(<span class="parameter">fileset</span>)
+            </code>
+    <p />
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>fileset</td>
+          <td>string</td>
+          <td>The id of the FileSet to scan.</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Return Value</h3>The number of files included in the FileSet<h3>Exceptions</h3>
+            The function will fail in any of the following circumstances:
+            <div style="margin-left: 40px;"><ul><li><i>fileset</i> is not a valid refid to a defined fileset.</li></ul></div><h3>Examples</h3><ul class="examples"><li><p> Define a fileset and check the number of files in it. </p><pre class="code">
+&lt;fileset id="test.fileset"&gt;
+    &lt;include name="**/*.cs"&gt;
+&lt;/fileset&gt;
+&lt;echo message="FileSet contains ${fileset::get-file-count('test.fileset')} files." /&gt;
+    </pre></li></ul><h3>Requirements</h3><div style="margin-left: 20px;"><b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div></body>
+</html>

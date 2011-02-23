@@ -1,5 +1,12 @@
 <?xml version="1.0"?>
-<project name="NAnt" default="build">
-	<target name="build">
-	</target>
+<project name="NAnt Examples" default="rebuild">
+    <target name="*">
+        <nant target="${target::get-current-target()}">
+            <buildfiles>
+                <include name="build/**/*.build" />
+                <exclude name="default.build" />
+		<exclude name="build/nant*/**/*.build" />
+            </buildfiles>
+        </nant>
+    </target>
 </project>

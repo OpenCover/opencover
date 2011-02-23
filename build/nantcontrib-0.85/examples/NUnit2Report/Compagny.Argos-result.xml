@@ -1,0 +1,77 @@
+<?xml version="1.0" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="D:\VSS\Compagny.Argos\scr\Compagny.Argos.Test\bin\Debug\Compagny.Argos.Test.dll" total="14" failures="1" not-run="0" date="31/01/2003" time="09:15">
+  <test-suite name="D:\VSS\Compagny.Argos\scr\Compagny.Argos.Test\bin\Debug\Compagny.Argos.Test.dll" success="False" time="1,0625">
+    <results>
+      <test-suite name="Compagny" success="False" time="1,046875">
+        <results>
+          <test-suite name="Argos" success="False" time="1,046875">
+            <results>
+              <test-suite name="Test" success="False" time="1,03125">
+                <results>
+                  <test-suite name="DAO" success="False" time="0,09375">
+                    <results>
+                      <test-suite name="DAOFactoryTest" success="False" time="0,0625">
+                        <results>
+                          <test-case name="Compagny.Argos.Test.DAO.DAOFactoryTest.ConnectionString" executed="True" success="True" time="0.016" />
+                          <test-case name="Compagny.Argos.Test.DAO.DAOFactoryTest.ConcreteDAO" executed="True" success="True" time="0.000" />
+                          <test-case name="Compagny.Argos.Test.DAO.DAOFactoryTest.Error" executed="True" success="False" time="0.016">
+                            <failure>
+                              <message><![CDATA[Test Error  
+expected:<1>
+ but was:<0>]]></message>
+                              <stack-trace><![CDATA[   at Compagny.Argos.Test.DAO.DAOFactoryTest.Error() in D:\VSS\Compagny.Argos\scr\Compagny.Argos.Test\DAO\DAOFactoryTest.cs:line 66
+]]></stack-trace>
+                            </failure>
+                          </test-case>
+                        </results>
+                      </test-suite>
+                      <test-suite name="DAOManagerTest" success="True" time="0,015625">
+                        <results>
+                          <test-case name="Compagny.Argos.Test.DAO.DAOManagerTest.DAO" executed="True" success="True" time="0.016" />
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                  <test-suite name="Service" success="True" time="0,9375">
+                    <results>
+                      <test-suite name="DebiteurManagerTest" success="True" time="0,78125">
+                        <results>
+                          <test-case name="Compagny.Argos.Test.Service.DebiteurManagerTest.Save" executed="True" success="True" time="0.719" />
+                          <test-case name="Compagny.Argos.Test.Service.DebiteurManagerTest.load" executed="True" success="True" time="0.047" />
+                          <test-case name="Compagny.Argos.Test.Service.DebiteurManagerTest.LoadDebiteurBadId" executed="True" success="True" time="0.016" />
+                        </results>
+                      </test-suite>
+                      <test-suite name="NotificationManagerTest" success="True" time="0,09375">
+                        <results>
+                          <test-case name="Compagny.Argos.Test.Service.NotificationManagerTest.Save" executed="True" success="True" time="0.047" />
+                          <test-case name="Compagny.Argos.Test.Service.NotificationManagerTest.SaveErreurOpposition" executed="True" success="True" time="0.000" />
+                          <test-case name="Compagny.Argos.Test.Service.NotificationManagerTest.Load" executed="True" success="True" time="0.031" />
+                          <test-case name="Compagny.Argos.Test.Service.NotificationManagerTest.LoadNotificationBadId" executed="True" success="True" time="0.000" />
+                        </results>
+                      </test-suite>
+                      <test-suite name="OppositionManagerTest" success="True" time="0,0625">
+                        <results>
+                          <test-case name="Compagny.Argos.Test.Service.OppositionManagerTest.Save" executed="True" success="True" time="0.016" />
+                          <test-case name="Compagny.Argos.Test.Service.OppositionManagerTest.Load" executed="True" success="True" time="0.016" />
+                          <test-case name="Compagny.Argos.Test.Service.OppositionManagerTest.LoadOppositionBadId" executed="True" success="True" time="0.016" />
+                        </results>
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                  <test-suite name="Web" success="True" time="0">
+                    <results>
+                      <test-suite name="GuestBookTest" success="True" time="0">
+                        <results />
+                      </test-suite>
+                    </results>
+                  </test-suite>
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

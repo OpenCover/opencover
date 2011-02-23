@@ -1,0 +1,37 @@
+<project name="OpenCover" default="rebuild">
+    <property name="configuration" value="debug"/>
+    <property name="platform" value="x86"/>
+	<property name="solution.path" value="../main"/>
+	
+    <target name="clean" description="Delete all previously compiled binaries.">
+        <delete>
+            <fileset>
+                <include name="${solution.path}/**/bin/**" />
+                <include name="${solution.path}/**/obj/**" />
+                <include name="${solution.path}/**/*.suo" />
+                <include name="${solution.path}/**/*.user" />
+				<include name="${solution.path}/**/${platform}/**" />
+				<include name="${solution.path}/Docs/**" />
+            </fileset>
+        </delete>
+    </target>
+    
+    <target name="build" description="Build all targets.">
+        <call target="build.opencover"/>
+    </target>
+    
+    <target name="rebuild" depends="clean, build" />
+
+    <target name="build.opencover">
+        <loadtasks assembly="nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
+		<msbuild project="${solution.path}/opencover.sln">
+			<arg value="/p:Configuration=${configuration}" />
+			<arg value="/p:Platform=${platform}" />
+			<arg value="/t:Rebuild" />
+		</msbuild>
+	  
+        <property name="expected.output" value="${solution.path}/${platform}/${configuration}/OpenCover.Console.exe"/>
+        <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
+    </target>
+    
+</project>

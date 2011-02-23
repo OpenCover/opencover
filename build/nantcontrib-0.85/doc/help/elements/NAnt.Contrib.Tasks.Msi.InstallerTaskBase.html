@@ -1,0 +1,2122 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.Msi.InstallerTaskBase-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>InstallerTaskBase Element</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <span>Element Reference</span>
+          <img alt="-&gt;" src="../images/arrow.gif" /> InstallerTaskBase</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>InstallerTaskBase</h1>
+    <p> Base class for msi/msm installer tasks </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">output</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the file that will be generated when the task completes execution (eg. MyInstall.msi or MyMergeModule.msm). </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top" class="required">sourcedir</td>
+          <td style="text-align: center;">string</td>
+          <td> A directory relative to the NAnt script in which the msi task resides from which to retrieve files that will be installed by the msi database. All files that will be included in your installation need to be located directly within or in subdirectories of this directory. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">debug</td>
+          <td style="text-align: center;">bool</td>
+          <td> Causes the generated msi database file to contain debug messages for errors created by inconsistencies in creation of the database. This makes the file slightly larger and should be avoided when generating a production release of your software. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">errortemplate</td>
+          <td style="text-align: center;">string</td>
+          <td> A .mst file to use as the starting database containing strings displayed to the user when errors occur during installation. A .mst template is included with the msi task, you only need to supply this value if you want to override the default error template and cannot perform something through the features of the msi task. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">template</td>
+          <td style="text-align: center;">string</td>
+          <td> A installer file to use as the starting database in which all files and entries will be made, and then copied to the filename specified by the output parameter. Install templates are included with the install tasks, you only need to supply this value if you want to override the default template. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Element-->
+    <h4>
+      <a id="summaryinformation">
+      </a>
+                    &lt;summaryinformation&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Sets various properties in the SummaryInformation stream (http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/summary_information_stream.asp) </p>
+      <p> All of the sub-elements are optional. </p>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;title&gt;</h4>
+      <ul xmlns=""> Briefly describes the type of installer package. Phrases such as "Installation Database" or "Transform" or "Patch" may be used for this property. <br></br>Default value: Value of the <code xmlns="http://www.w3.org/1999/xhtml">ProductName</code> property, if defined. </ul>
+      <h4 xmlns="">&lt;/title&gt;</h4>
+      <h4 xmlns="">&lt;subject&gt;</h4>
+      <ul xmlns=""> A short description of the product to be installed. This value is typically set from the installer property <code xmlns="http://www.w3.org/1999/xhtml">ProductName</code><br></br>Default value: Value of the <code xmlns="http://www.w3.org/1999/xhtml">ProductName</code> property, if defined. </ul>
+      <h4 xmlns="">&lt;/subject&gt;</h4>
+      <h4 xmlns="">&lt;author&gt;</h4>
+      <ul xmlns=""> The manufacturer of the installation database. This value is typically set from the installer property <code xmlns="http://www.w3.org/1999/xhtml">Manufacturer</code>. <br></br>Default value: Value of the <code xmlns="http://www.w3.org/1999/xhtml">Manufacturer</code> property, if defined. </ul>
+      <h4 xmlns="">&lt;/author&gt;</h4>
+      <h4 xmlns="">&lt;keywords&gt;</h4>
+      <ul xmlns=""> Used by file browsers to hold keywords that permit the database file to be found in a keyword search. The set of keywords typically includes "Installer" as well as product-specific keywords, and may be localized. <br></br>Default value: Value of the <code xmlns="http://www.w3.org/1999/xhtml">Keywords</code> property, if defined. </ul>
+      <h4 xmlns="">&lt;/keywords&gt;</h4>
+      <h4 xmlns="">&lt;comments&gt;</h4>
+      <ul xmlns=""> A general description/purpose of the installer database. <br></br>Default value: Value of the <code xmlns="http://www.w3.org/1999/xhtml">Comments</code> property, if defined. </ul>
+      <h4 xmlns="">&lt;/comments&gt;</h4>
+      <h4 xmlns="">&lt;template&gt;</h4>
+      <ul xmlns="">
+        <p xmlns="http://www.w3.org/1999/xhtml"> Indicates the platform and language versions that are supported by the database. The Template Summary Property of a patch package is a semicolon-delimited list of the product codes that can accept the patch. </p>
+        <p xmlns="http://www.w3.org/1999/xhtml"> See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/template_summary_property.asp for more information. </p>
+      </ul>
+      <h4 xmlns="">&lt;/template&gt;</h4>
+      <h4 xmlns="">&lt;revisionnumber&gt;</h4>
+      <ul xmlns=""> Contains the package code (GUID) for the installer package. The package code is a unique identifier of the installer package. Note: Default behavior - a new GUID is generated every time </ul>
+      <h4 xmlns="">&lt;/revisionnumber&gt;</h4>
+      <h4 xmlns="">&lt;creatingapplication&gt;</h4>
+      <ul xmlns=""> The name of the application used to author the database. Note: Default value is NAnt. </ul>
+      <h4 xmlns="">&lt;/creatingapplication&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Define specific summary information.</p>
+        <pre class="code">&lt;summaryinformation&gt;
+    &lt;title&gt;Installation Database&lt;/title&gt;
+    &lt;subject&gt;${install.productname}&lt;/subject&gt;
+    &lt;author&gt;${install.manufacturer}&lt;/author&gt;
+    &lt;keywords&gt;MSI, database, NAnt, Installer&lt;/keywords&gt;
+    &lt;comments&gt;This installer database contains the logic and data required to install NAnt&lt;/comments&gt;
+    &lt;template&gt;;1033&lt;/template&gt;
+    &lt;creatingapplication&gt;NAnt - http://nant.sf.net &lt;/creatingapplication&gt;
+&lt;/summaryinformation&gt; 
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="summaryinformation">
+      </a>
+                    &lt;/summaryinformation&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="properties">
+      </a>
+                    &lt;properties&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Name/value pairs which will be set in the PROPERTY table of the installer database. </p>
+      <p> The properties element contains within it one to any number of property elements.<br xmlns=""></br><a href="http://msdn.microsoft.com/library/en-us/msi/setup/protected_properties.asp">Public property</a> names cannot contain lowercase letters.<br xmlns=""></br><a href="http://msdn.microsoft.com/library/en-us/msi/setup/protected_properties.asp">Private property</a> names must contain some lowercase letters.<br xmlns=""></br> Property names prefixed with % represent system and user environment variables. These are never entered into the <a href="http://msdn.microsoft.com/library/en-us/msi/setup/property_table.asp">Property table</a>. The permanent settings of environment variables can only be modified using the <a href="http://msdn.microsoft.com/library/en-us/msi/setup/environment_table.asp">Environment Table</a>. More information is available <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/properties.asp">here</a>. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A name used to refer to the property.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>string</td>
+            <td>The value of the property. This value can contain references to other, predefined properties to build a compound property.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Define the required properties.</p>
+        <pre class="code">&lt;properties&gt;
+    &lt;property name="ProductName" value="My Product" /&gt;
+    &lt;property name="ProductVersion" value="1.0.0" /&gt;
+    &lt;property name="Manufacturer" value="ACME Inc." /&gt;
+    &lt;property name="ProductCode" value="{29D8F096-3371-4cba-87E1-A8C6511F7B4C}" /&gt;
+    &lt;property name="UpgradeCode" value="{69E66919-0DE1-4280-B4C1-94049F76BA1A}" /&gt;
+&lt;/properties&gt; 
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="properties">
+      </a>
+                    &lt;/properties&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="search">
+      </a>
+                    &lt;search&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Contains within it one to any number of app, registry, ini, or dirfile elements. These elements are used to search for an existing filesystem directory, file, or Windows Registry setting. A property in the installer database is then set with the value obtained from the search. </p>
+      <h3>&lt;app&gt;</h3>
+      <p> More information on these attributes can be found at: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/complocator_table.asp </p>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>componentid</td>
+            <td>string</td>
+            <td>The component ID of the component whose key path is to be used for the search.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>msi:MSILocatorTypeDirFile</td>
+            <td>Valid input: <code>file</code> or <code>directory</code></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>setproperty</td>
+            <td>string</td>
+            <td>A name used to refer to the property within the Msi database. Set at install time.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>&lt;/app&gt;</h3>
+      <h3>&lt;registry&gt;</h3>
+      <p> More information on these attributes can be found at: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/reglocator_table.asp </p>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>msi:MSILocatorTypeDirFileReg64</td>
+            <td>Valid input: <code>registry</code>, <code>file</code>, <code>directory</code>, <code>64bit</code></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>path</td>
+            <td>string</td>
+            <td>Depending on the <code>type</code> specified: <ul style="list-style-type: disc;"><li>Path is a directory.</li><li>Path is a registry key.</li></ul></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>root</td>
+            <td>msi:MSIRegistryKeyRoot</td>
+            <td>Valid input: <ul style="list-style-type: disc;"><li><code>dependent</code> - If this is a per-user installation, the registry value is written under HKEY_CURRENT_USER. If this is a per-machine installation, the registry value is written under HKEY_LOCAL_MACHINE. Note that a per-machine installation is specified by setting the ALLUSERS property to 1.</li><li><code>machine</code> represents HKEY_LOCAL_MACHINE</li><li><code>classes</code> represents HKEY_CLASSES_ROOT</li><li><code>user</code> represents HKEY_CURRENT_USER</li><li><code>users</code> represents HKEY_USERS</li></ul></td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <ul xmlns="">
+        <h3 xmlns="http://www.w3.org/1999/xhtml">Nested Elements:</h3>
+        <h4>&lt;value&gt;</h4>
+        <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3>
+        <div class="table" xmlns="http://www.w3.org/1999/xhtml">
+          <table>
+            <tr>
+              <th>Attribute</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Required</th>
+            </tr>
+            <tr>
+              <td>name</td>
+              <td>string</td>
+              <td>Depending on the <code>type</code> specified: <ul style="list-style-type: disc;"><li>Key path is a file name.</li><li>Key path is a registry value.</li></ul></td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>setproperty</td>
+              <td>string</td>
+              <td>A name used to refer to the property within the Msi database. Set at install time.</td>
+              <td>True</td>
+            </tr>
+          </table>
+        </div>
+        <h4>&lt;/value&gt;</h4>
+      </ul>
+      <h3>&lt;/registry&gt;</h3>
+      <h3>&lt;ini&gt;</h3>
+      <p> More information on these attributes can be found at: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/inilocator_table.asp </p>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>filename</td>
+            <td>string</td>
+            <td>The .ini file name. (The .ini file must be present in the default Microsoft Windows directory.) </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>section</td>
+            <td>string</td>
+            <td>Section name within the .ini file. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>key</td>
+            <td>string</td>
+            <td>Key value within the section. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>field</td>
+            <td>msi:nonNegativeInt</td>
+            <td>The field in the .ini line. If Field is Null or 0, then the entire line is read. This must be a non-negative number. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>msi:MSILocatorTypeDirFileRaw</td>
+            <td>Valid input: <code>file</code> ,<code>directory</code>, or <code>raw</code></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>setproperty</td>
+            <td>string</td>
+            <td>A name used to refer to the property within the Msi database. Set at install time.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>&lt;/ini&gt;</h3>
+      <h3>&lt;dirfile&gt;</h3>
+      <p> More information on these attributes can be found at: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/drlocator_table.asp and http://msdn.microsoft.com/library/default.asp?url=/library/en-us/msi/setup/signature_table.asp </p>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>parent</td>
+            <td>string</td>
+            <td>An identifier to RegLocator, IniLocator, or CompLocator tables. If it does not expand to a full path, then all the fixed drives of the user's system are searched by using the Path. <br xmlns=""></br>In order to determine what the key is for a table, prefix the property name assigned to that locator with SIG_ </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>path</td>
+            <td>string</td>
+            <td>the path on the user's system. This is a either a full path or a relative subpath below the directory specified in the Parent column. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>depth</td>
+            <td>msi:nonNegativeInt</td>
+            <td>The depth below the path that the installer searches for the file or directory. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>setproperty</td>
+            <td>string</td>
+            <td>A name used to refer to the property within the Msi database. Set at install time.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <ul xmlns="">
+        <h3 xmlns="http://www.w3.org/1999/xhtml">Nested Elements:</h3>
+        <h4>&lt;file&gt;</h4>
+        <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3>
+        <div class="table" xmlns="http://www.w3.org/1999/xhtml">
+          <table>
+            <tr>
+              <th>Attribute</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Required</th>
+            </tr>
+            <tr>
+              <td>name</td>
+              <td>string</td>
+              <td>The name of the file.</td>
+              <td>True</td>
+            </tr>
+            <tr>
+              <td>minversion</td>
+              <td>string</td>
+              <td>The minimum version of the file, with a language comparison. If this field is specified, then the file must have a version that is at least equal to MinVersion. If the file has an equal version to the MinVersion field value but the language specified in the Languages column differs, the file does not satisfy the signature filter criteria.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>maxversion</td>
+              <td>string</td>
+              <td>The maximum version of the file. If this field is specified, then the file must have a version that is at most equal to MaxVersion.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>minsize</td>
+              <td>msi:nonNegativeInt</td>
+              <td>The minimum size of the file. If this field is specified, then the file under inspection must have a size that is at least equal to MinSize. This must be a non-negative number.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>maxsize</td>
+              <td>msi:nonNegativeInt</td>
+              <td>The maximum size of the file. If this field is specified, then the file under inspection must have a size that is at most equal to MaxSize. This must be a non-negative number.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>mindate</td>
+              <td>msi:nonNegativeInt</td>
+              <td>The minimum modification date and time of the file. If this field is specified, then the file under inspection must have a modification date and time that is at least equal to MinDate. This must be a non-negative number.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>maxdate</td>
+              <td>msi:nonNegativeInt</td>
+              <td>The maximum creation date of the file. If this field is specified, then the file under inspection must have a creation date that is at most equal to MaxDate. This must be a non-negative number.</td>
+              <td>False</td>
+            </tr>
+            <tr>
+              <td>languages</td>
+              <td>string</td>
+              <td>The languages supported by the file.</td>
+              <td>False</td>
+            </tr>
+          </table>
+        </div>
+        <h4>&lt;/file&gt;</h4>
+      </ul>
+      <h3>&lt;/dirfile&gt;</h3>
+      <h3>Examples</h3>
+      <li>
+        <p>Get the path of the web directory and the version of IIS. Create new properties in the Msi file with those values.</p>
+        <pre class="code">&lt;search&gt;
+    &lt;registry type="registry" path="Software\Microsoft\InetStp" root="machine" &gt;
+        &lt;value name="PathWWWRoot" setproperty="IISWWWROOT" /&gt;
+    &lt;/registry&gt;
+    &lt;registry type="registry" path="SYSTEM\CurrentControlSet\Services\W3SVC\Parameters" root="machine" &gt;
+            &lt;value name="MajorVersion" setproperty="IISVERSION" /&gt;
+    &lt;/registry&gt;
+&lt;/search&gt; 
+    </pre>
+      </li>
+      <li>
+        <p>Shows two ways to get the default key value for the specified key. Create new properties in the Msi file with those values.</p>
+        <pre class="code">&lt;search&gt;
+    &lt;registry type="registry" path="Software\Microsoft\MessengerService" root="machine" &gt;
+        &lt;value setproperty="MSGSRVNAME" /&gt;
+        &lt;value name="" setproperty="MSGSRVNAME2" /&gt;
+    &lt;/registry&gt;
+&lt;/search&gt; 
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="search">
+      </a>
+                    &lt;/search&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="launchconditions">
+      </a>
+                    &lt;launchconditions&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Contains within it one to any number of launchcondition elements. Launch conditions are conditions that all must be satisfied for the installation to begin. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A name used to identify the launch condition.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>condition</td>
+            <td>string</td>
+            <td>Expression that must evaluate to True for installation to begin.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;description&gt;</h4>
+      <ul xmlns=""> Localizable text to display when the condition fails and the installation must be terminated. </ul>
+      <h4 xmlns="">&lt;/description&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Create a check to make sure that IIS 5.x is installed.</p>
+        <pre class="code">&lt;launchconditions&gt;
+    &lt;launchcondition name="CheckIIS" condition="(IISVERSION = &amp;quot;#5&amp;quot;)" &gt;
+        &lt;description&gt;
+            This setup requires Internet information Server 5.x.  Please install Internet Information Server and run this setup again.
+        &lt;/description&gt;
+    &lt;/launchcondition&gt;
+&lt;/launchconditions&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="launchconditions">
+      </a>
+                    &lt;/launchconditions&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="tables">
+      </a>
+                    &lt;tables&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates custom tables not directly managed by default features of the installer task. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A unique name used to identify the table.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;columns&gt;</h4>
+      <ul xmlns="">
+        <h4>&lt;column&gt;</h4>
+        <ul> Defines the columns making up the table <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3><div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>name</td><td>string</td><td>A unique name used to define the column.</td><td>True</td></tr><tr><td>nullable</td><td>bool</td><td>When set to <code>true</code>, allows the column to accept null values; <code>false</code> does not allow null values.</td><td>True</td></tr><tr><td>category</td><td>msi:MSITableColumnCategoryType</td><td>Valid input: <ul style="list-style-type: disc;"><li><code>Text</code></li><li><code>UpperCase</code></li><li><code>LowerCase</code></li><li><code>Integer</code></li><li><code>DoubleInteger</code></li><li><code>Time/Date</code></li><li><code>Identifier</code></li><li><code>Property</code></li><li><code>Filename</code></li><li><code>WildCardFilename</code></li><li><code>Path</code></li><li><code>Paths</code></li><li><code>AnyPath</code></li><li><code>DefaultDir</code></li><li><code>RegPath</code></li><li><code>Formatted</code></li><li><code>Template</code></li><li><code>Condition</code></li><li><code>GUID</code></li><li><code>Version</code></li><li><code>Language</code></li><li><code>Binary</code></li><li><code>Cabinet</code></li><li><code>Shortcut</code></li></ul> More information here: <a href="http://msdn.microsoft.com/library/en-us/msi/setup/column_data_types.asp" xmlns="">http://msdn.microsoft.com/library/en-us/msi/setup/column_data_types.asp</a></td><td>False</td></tr><tr><td>type</td><td>string</td><td>Overrides the <code>category</code> specification. An example of valid input would be: <code>S255</code></td><td>False</td></tr><tr><td>key</td><td>bool</td><td>When set to <code>true</code>, the column is used to form the primary key for the table; <code>false</code> specifies that the column is not used to form the primary key.</td><td>False</td></tr><tr><td>minvalue</td><td>int</td><td>This field applies to columns having numeric value. The field contains the minimum permissible value. This can be the minimum value for an integer or the minimum value for a date or version string.</td><td>False</td></tr><tr><td>maxvalue</td><td>int</td><td>This field applies to columns having numeric value. The field is the maximum permissible value. This may be the maximum value for an integer or the maximum value for a date or version string. </td><td>False</td></tr><tr><td>keytable</td><td>string</td><td>This field applies to columns that are external keys. The field identified in Column must link to the column number specified by KeyColumn in the table named in KeyTable. This can be a list of tables separated by semicolons.</td><td>False</td></tr><tr><td>keycolumn</td><td>int</td><td>This field applies to table columns that are external keys. The field identified in Column must link to the column number specified by KeyColumn in the table named in KeyTable. The permissible range of the KeyColumn field is 1-32.</td><td>False</td></tr><tr><td>set</td><td>string</td><td>This is a list of permissible values for this field separated by semicolons. This field is usually used for enums.</td><td>False</td></tr><tr><td>description</td><td>string</td><td>A description of the data that is stored in the column. </td><td>False</td></tr></table></div></ul>
+        <h4>&lt;/column&gt;</h4>
+      </ul>
+      <h4 xmlns="">&lt;/columns&gt;</h4>
+      <h4 xmlns="">&lt;rows&gt;</h4>
+      <ul xmlns="">
+        <h4>&lt;row&gt;</h4>
+        <ul> Defines the data for a row in the table <h4>&lt;columns&gt;</h4><ul><h4>&lt;column&gt;</h4><ul> Defines data for a specific cell in the row <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3><div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>name</td><td>string</td><td>Name of the column to populate.</td><td>True</td></tr><tr><td>value</td><td>string</td><td>Value to populate the cell with.</td><td>True</td></tr></table></div></ul><h4>&lt;/column&gt;</h4></ul><h4>&lt;/columns&gt;</h4></ul>
+        <h4>&lt;/row&gt;</h4>
+      </ul>
+      <h4 xmlns="">&lt;/rows&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p> Build the IniFile table. Since the WriteIniValues and RemoveIniValues actions exist in the template, they will use this table. </p>
+        <pre class="code">&lt;tables&gt;
+    &lt;table name="IniFile"&gt;
+        &lt;columns&gt;
+            &lt;column name="IniFile" nullable="false" category="Identifier" key="true" description="The key for this table." /&gt;
+            &lt;column name="FileName" nullable="false" category="Text" description="The localizable name of the .ini file in which to write the information. " /&gt;
+            &lt;column name="DirProperty" nullable="true" category="Identifier" description="Name of a property having a value that resolves to the full path of the folder containing the .ini file. " /&gt; 
+            &lt;column name="Section" nullable="false" category="Formatted" description="The localizable .ini file section." /&gt;
+            &lt;column name="Key" nullable="false" category="Formatted" description="The localizable .ini file key within the section" /&gt;
+            &lt;column name="Value" nullable="false" category="Formatted" description="The localizable value to be written. " /&gt;
+            &lt;column name="Action" nullable="false" category="Integer" description="The type of modification to be made. " /&gt;
+            &lt;column name="Component_" nullable="false" category="Identifier" description="External key into the first column of the Component table referencing the component that controls the installation of the .ini value. " /&gt;
+        &lt;/columns&gt;
+        &lt;rows&gt;
+            &lt;row&gt;
+                &lt;columns&gt;
+                    &lt;column name="IniFile" value="MyInternetShortcut" /&gt;
+                    &lt;column name="FileName" value="MyInternetAddr.url" /&gt;
+                    &lt;column name="DirProperty" value="D__MYDIR" /&gt;
+                    &lt;column name="Section" value="InternetShortcut" /&gt;
+                    &lt;column name="Key" value="URL" /&gt;
+                    &lt;column name="Value" value="[TARGETURL]" /&gt;
+                    &lt;column name="Action" value="0" /&gt;
+                    &lt;column name="Component_" value="C__Documentation" /&gt;
+                &lt;/columns&gt;
+            &lt;/row&gt;
+        &lt;/rows&gt;
+    &lt;/table&gt;
+&lt;/tables&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="tables">
+      </a>
+                    &lt;/tables&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="directories">
+      </a>
+                    &lt;directories&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Specifies the directory layout for the product. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A name used to refer to the directory.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>foldername</td>
+            <td>string</td>
+            <td>The directory's name (localizable)under the parent directory.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>root</td>
+            <td>string</td>
+            <td>A reference to the directory's parent directory. This can be a property name or one of the predefined directories included with the default template: <ul style="list-style-type: disc;"><li><code>AdminToolsFolder</code></li><li><code>AppDataFolder</code></li><li><code>CommonAppDataFolder</code></li><li><code>CommonFiles64Folder</code></li><li><code>CommonFilesFolder</code></li><li><code>DesktopFolder</code></li><li><code>FavoritesFolder</code></li><li><code>FontsFolder</code></li><li><code>LocalAppDataFolder</code></li><li><code>MyPicturesFolder</code></li><li><code>PersonalFolder</code></li><li><code>ProgramFilesFolder</code></li><li><code>ProgramMenuFolder</code></li><li><code>ProgramFiles64Folder</code></li><li><code>SendToFolder</code></li><li><code>StartMenuFolder</code></li><li><code>StartupFolder</code></li><li><code>System16Folder</code></li><li><code>System64Folder</code></li><li><code>SystemFolder</code></li><li><code>TARGETDIR</code></li><li><code>TempFolder</code></li><li><code>TemplateFolder</code></li><li><code>WindowsFolder</code></li><li><code>WindowsVolume</code></li></ul></td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;directory&gt;</h4>
+      <ul xmlns=""> Sub directories. Note, this element can contain nested &lt;directory/&gt; sub elements. <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3><div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>name</td><td>string</td><td>A name used to refer to the directory.</td><td>True</td></tr><tr><td>foldername</td><td>string</td><td>The directory's name (localizable)under the parent directory.</td><td>True</td></tr></table></div></ul>
+      <h4 xmlns="">&lt;/directory&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Define a sample directory structure.</p>
+        <pre class="code">&lt;directories&gt;
+    &lt;directory name="D__ACME" foldername="ACME" root="TARGETDIR" &gt;
+        &lt;directory name="D__ACME_MyProduct" foldername="My Product" /&gt;
+    &lt;/directory&gt;
+&lt;/directories&gt; 
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="directories">
+      </a>
+                    &lt;/directories&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="environment">
+      </a>
+                    &lt;environment&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Used to modify the environment variables of the target computer at runtime. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>The localizable name of the environment variable. The key values are written or removed depending upon which of the characters in the following table are prefixed to the name. There is no effect in the ordering of the symbols used in a prefix. <div class="table"><table><tr><th>Prefix</th><th>Description</th></tr><tr><td>=</td><td>Create the environment variable if it does not exist, and then set it during installation. If the environment variable exists, set it during the installation.</td></tr><tr><td>+</td><td>Create the environment variable if it does not exist, then set it during installation. This has no effect on the value of the environment variable if it already exists.</td></tr><tr><td>-</td><td>Remove the environment variable when the component is removed. This symbol can be combined with any prefix.</td></tr><tr><td>!</td><td>Remove the environment variable during an installation. The installer only removes an environment variable during an installation if the name and value of the variable match the entries in the Name and Value fields of the Environment table. If you want to remove an environment variable, regardless of its value, use the '!' syntax, and leave the Value field empty.</td></tr><tr><td>*</td><td>This prefix is used with Microsoft® Windows® NT/Windows® 2000 to indicate that the name refers to a system environment variable. If no asterisk is present, the installer writes the variable to the user's environment. Microsoft Windows 95/98 ignores the asterisk and add the environment variable to autoexec.bat. This symbol can be combined with any prefix. A package that is used for per-machine installations should write environment variables to the machine's environment by including * in the Name column. For more information, see <a href="http://msdn.microsoft.com/library/en-us/msi/setup/environment_table.asp" xmlns="">http://msdn.microsoft.com/library/en-us/msi/setup/environment_table.asp</a></td></tr><tr><td>=-</td><td>The environment variable is set on install and removed on uninstall. This is the usual behavior.</td></tr><tr><td>!-</td><td>Removes an environment variable during an install or uninstall.</td></tr></table></div> More information can be found here: <a href="http://msdn.microsoft.com/library/en-us/msi/setup/environment_table.asp" xmlns="">http://msdn.microsoft.com/library/en-us/msi/setup/environment_table.asp</a></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>append</td>
+            <td>string</td>
+            <td>Localizable value that is to be set as a <a href="http://msdn.microsoft.com/library/en-us/msi/setup/formatted.asp" xmlns="">formatted</a> string</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>component</td>
+            <td>string</td>
+            <td>Refrence to a component. Allows the variabled to be modified when the component is un/installed.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Append the installation path to the user PATH variable.</p>
+        <pre class="code">&lt;environment&gt;
+    &lt;variable name="PATH" append="'[TARGETDIR]'" component="C__MainFiles" /&gt;
+&lt;/environment&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="environment">
+      </a>
+                    &lt;/environment&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="components">
+      </a>
+                    &lt;components&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Groups sets of files into named sets, these can be used to install and perform operations on a set of files as one entity. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A name used to refer to the component.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>id</td>
+            <td>string</td>
+            <td>A string GUID unique to this component, version, and language.<br xmlns=""></br>Note that the letters of these GUIDs must be uppercase. Utilities such as GUIDGEN can generate GUIDs containing lowercase letters. The lowercase letters must be changed to uppercase to make these valid component code GUIDs. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>attr</td>
+            <td>int</td>
+            <td>This column contains a bit flag that specifies options for remote execution. Add the indicated bit to the total value in the column to include an option. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>0</td><td>Component cannot be run from source. <br xmlns=""></br> Set this bit for all components belonging to a feature to prevent the feature from being run-from-network or run-from-source. Note that if a feature has no components, the feature always shows run-from-source and run-from-my-computer as valid options. </td></tr><tr><td>1</td><td>Component can only be run from source. <br xmlns=""></br> Set this bit for all components belonging to a feature to prevent the feature from being run-from-my-computer. Note that if a feature has no components, the feature always shows run-from-source and run-from-my-computer as valid options. </td></tr><tr><td>2</td><td>Component can run locally or from source.</td></tr><tr><td>4</td><td>If this bit is set, the value in the key element is used as a key into the Registry table.<br xmlns=""></br> If the Value field of the corresponding record in the Registry table is null, the Name field in that record must not contain "+", "-", or "*". For more information, see the description of the Name field in Registry table.<br xmlns=""></br> Setting this bit is recommended for registry entries written to the HKCU hive. This ensures the installer writes the necessary HKCU registry entries when there are multiple users on the same machine. </td></tr><tr><td>16</td><td>If this bit is set, the installer does not remove the component during an uninstall. The installer registers an extra system client for the component in the Windows Installer registry settings. </td></tr><tr><td>32</td><td>If this bit is set, the value in the KeyPath column is a key into the ODBCDataSource table.</td></tr><tr><td>64</td><td>If this bit is set, the installer reevaluates the value of the statement in the Condition column upon a reinstall. If the value was previously False and has changed to True, the installer installs the component. If the value was previously True and has changed to False, the installer removes the component even if the component has other products as clients. <br xmlns=""></br>This bit should only be set for transitive components. See Using Transitive Components. </td></tr><tr><td>128</td><td>If this bit is set, the installer does not install or reinstall the component if a key path file or a key path registry entry for the component already exists. The application does register itself as a client of the component. <br xmlns=""></br> Use this flag only for components that are being registered by the Registry table. </td></tr><tr><td>256</td><td>Set this bit to mark this as a 64-bit component. This attribute facilitates the installation of packages that include both 32-bit and 64-bit components. If this bit is not set, the component is registered as a 32-bit component. </td></tr></table></div></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>directory</td>
+            <td>string</td>
+            <td>Refrence to a directory. Defines the directory location for where the files assigned to the component are to be placed.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>feature</td>
+            <td>string</td>
+            <td>Refrence to a feature. Maps a feature to the component. Used to determine if the component is to be installed or not.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>condition</td>
+            <td>string</td>
+            <td>A conditional statement that can control whether a component is installed. If the condition is null or evaluates to true, then the component is enabled. If the condition evaluates to False, then the component is disabled and is not installed.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>fileattr</td>
+            <td>int</td>
+            <td>Integer containing bit flags representing file attributes.<br xmlns=""></br> The following table shows the definition of the bit field. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>1</td><td>Read-Only</td></tr><tr><td>2</td><td>Hidden</td></tr><tr><td>4</td><td>System</td></tr><tr><td>512</td><td>The file is vital for the proper operation of the component to which it belongs</td></tr><tr><td>1024</td><td>The file contains a valid checksum. A checksum is required to repair a file that has become corrupted.</td></tr><tr><td>4096</td><td>This bit must only be added by a patch and if the file is being added by the patch.</td></tr><tr><td>8192</td><td>The file's source type is uncompressed. If set, ignore the Word Count Summary Property. If neither msidbFileAttributesNoncompressed or msidbFileAttributesCompressed are set, the compression state of the file is specified by the Word Count Summary Property. Do not set both msidbFileAttributesNoncompressed and msidbFileAttributesCompressed.</td></tr><tr><td>16384</td><td>The file's source type is compressed. If set, ignore the Word Count Summary Property. If neither msidbFileAttributesNoncompressed or msidbFileAttributesCompressed are set, the compression state of the file is specified by the Word Count Summary Property. Do not set both msidbFileAttributesNoncompressed and msidbFileAttributesCompressed.</td></tr></table></div></td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>checkinterop</td>
+            <td>bool</td>
+            <td>Used to determine if file(s) in the fileset are interop file(s). If <code>true</code>, extra information will be added in the install package to register each interop file. If <code>false</code>, the file(s) will not be not be checked and the extra registration information will not be added to the msi. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>installassembliestogac</td>
+            <td>bool</td>
+            <td>Used to determine if assemblies should be installed to the Global Assembly Cache. If <code>true</code>, all assemblies in the fileset will be added to the GAC. If <code>false</code>, the assemblies will be installed to the specified directory (as a normal file would). Note: If an assembly is specified to be installed into the GAC, it will not also be installed to the directory specified.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>keepsubdirs</td>
+            <td>bool</td>
+            <td>Used to determine if directories in the fileset should be built. If <code>true</code>, all subdirectories of the fileset basedir will be built. If <code>false</code> the directories structure will be flattened. The default is <code>false</code>.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;keyfile&gt;</h4>
+      <ul xmlns=""> This value points to a file or folder belonging to the component that the installer uses to detect the component. Two components cannot share the same key path value. <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3><div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>file</td><td>string</td><td>Name of the key (file) to use. Also, this could be an id of a registry key value.</td><td>True</td></tr></table></div></ul>
+      <h4 xmlns="">&lt;/keyfile&gt;</h4>
+      <h4 xmlns="">&lt;fileset&gt;</h4>
+      <ul xmlns=""> Specifies the files to include with the component </ul>
+      <h4 xmlns="">&lt;/fileset&gt;</h4>
+      <h4 xmlns="">&lt;forceid&gt;</h4>
+      <ul xmlns=""> Used to force specific attributes on a per file basis <h3 xmlns="http://www.w3.org/1999/xhtml">Parameters</h3><div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>file</td><td>string</td><td>Name of the file, in the fileset, to override.</td><td>True</td></tr><tr><td>id</td><td>string</td><td>Unique GUID to assign to the file.</td><td>True</td></tr><tr><td>attr</td><td>int</td><td>Integer containing bit flags representing file attributes.<br xmlns=""></br> The following table shows the definition of the bit field. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>1</td><td>Read-Only</td></tr><tr><td>2</td><td>Hidden</td></tr><tr><td>4</td><td>System</td></tr><tr><td>512</td><td>The file is vital for the proper operation of the component to which it belongs</td></tr><tr><td>1024</td><td>The file contains a valid checksum. A checksum is required to repair a file that has become corrupted.</td></tr><tr><td>4096</td><td>This bit must only be added by a patch and if the file is being added by the patch.</td></tr><tr><td>8192</td><td>The file's source type is uncompressed. If set, ignore the Word Count Summary Property. If neither msidbFileAttributesNoncompressed or msidbFileAttributesCompressed are set, the compression state of the file is specified by the Word Count Summary Property. Do not set both msidbFileAttributesNoncompressed and msidbFileAttributesCompressed.</td></tr><tr><td>16384</td><td>The file's source type is compressed. If set, ignore the Word Count Summary Property. If neither msidbFileAttributesNoncompressed or msidbFileAttributesCompressed are set, the compression state of the file is specified by the Word Count Summary Property. Do not set both msidbFileAttributesNoncompressed and msidbFileAttributesCompressed.</td></tr></table></div></td><td>False</td></tr><tr><td>version</td><td>string</td><td>This field is the version string for a versioned file. This field is blank for non-versioned files.</td><td>False</td></tr><tr><td>language</td><td>string</td><td>A list of decimal language IDs separated by commas.</td><td>False</td></tr><tr><td>checkinterop</td><td>bool</td><td>Used to determine if file is an interop file. If <code>true</code>, extra information will be added in the install package to register the interop file. If <code>false</code>, the file will not be not be checked and the extra registration information will not be added to the msi.</td><td>False</td></tr><tr><td>installtogac</td><td>bool</td><td>If <code>true</code>, and if the file is an assembly, it will be installed to the GAC. If <code>false</code>, the file will be installed to the directory specified by the component. Note: If an assembly is specified to be installed into the GAC, it will not also be installed to the directory specified.</td><td>False</td></tr></table></div></ul>
+      <h4 xmlns="">&lt;/forceid&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Define a sample component structure.</p>
+        <pre class="code">&lt;components&gt;
+    &lt;component name="C__MainFiles" id="{26AA7144-E683-441D-9843-3C79AEC1C636}" attr="2" directory="TARGETDIR" feature="F__MainFiles" &gt;
+        &lt;key file="default.aspx" /&gt;
+        &lt;fileset basedir="${install.dir}"&gt;
+            &lt;include name="*.*" /&gt;
+        &lt;/fileset&gt;
+    &lt;/component&gt;
+&lt;/components&gt; 
+    </pre>
+      </li>
+      <li>
+        <p>Install files to TARGETDIR and assemblies to the GAC (Global Assembly Cache). Do not install MyOtherAssembly.dll to the GAC, but rather install it with the other files (to TARGETDIR)</p>
+        <pre class="code">&lt;components&gt;
+    &lt;component name="C__MainFiles" id="{26AA7144-E683-441D-9843-3C79AEC1C636}" attr="2" directory="TARGETDIR" feature="F__MainFiles" installassembliestogac="true" &gt;
+        &lt;key file="MyAssemblyName.xml" /&gt;
+        &lt;fileset basedir="${install.dir}"&gt;
+            &lt;include name="*.*" /&gt;
+        &lt;/fileset&gt;
+        &lt;forceid file="MyOtherAssembly.dll" id="_4EB7CCB23D394958988ED817DA00B9D1" installtogac="false" /&gt;
+    &lt;/component&gt;
+&lt;/components&gt; 
+    </pre>
+      </li>
+      <li>
+        <p>Assign a registry entry to a specific component.</p>
+        <pre class="code">&lt;components&gt;
+    &lt;component name="C__RegistryEntry" id="{06C654AA-273D-4E39-885C-3E5225D9F336}" attr="4" directory="TARGETDIR" feature="F__DefaultFeature" &gt;
+        &lt;key file="R__822EC365A8754FACBF6C713BFE4E57F0" /&gt;
+    &lt;/component&gt;
+&lt;/components&gt; 
+.
+.
+.
+&lt;registry&gt;
+    &lt;key path="SOFTWARE\MyCompany\MyProduct\" root="machine" component="C__RegistryEntry"&gt;
+         &lt;value id="R__822EC365A8754FACBF6C713BFE4E57F0" name="MyKeyName" value="MyKeyValue" /&gt;
+    &lt;/key&gt;
+&lt;/registry&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="components">
+      </a>
+                    &lt;/components&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="dialogs">
+      </a>
+                    &lt;dialogs&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates custom dialogs that can gather information not handled by the default installer template. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A name used to refer to the dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>hcenter</td>
+            <td>int</td>
+            <td>Horizontal position of the dialog box. The range is 0 to 100, with 0 at the left edge of the screen and 100 at the right edge.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>vcenter</td>
+            <td>int</td>
+            <td>Vertical position of the dialog box. The range is 0 to 100, with 0 at the top edge of the screen and 100 at the bottom edge.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>width</td>
+            <td>int</td>
+            <td>Width of the rectangular boundary of the dialog box. This number must be non-negative.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>height</td>
+            <td>int</td>
+            <td>Height of the rectangular boundary of the dialog box. This number must be non-negative.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>attr</td>
+            <td>int</td>
+            <td>A 32-bit word that specifies the attribute flags to be applied to this dialog box. This number must be non-negative. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>1</td><td>Visible</td></tr><tr><td>2</td><td>Modal</td></tr><tr><td>4</td><td>Minimize</td></tr><tr><td>8</td><td>SysModal</td></tr><tr><td>16</td><td>KeepModeless</td></tr><tr><td>32</td><td>TrackDiskSpace</td></tr><tr><td>64</td><td>UseCustomPalette</td></tr><tr><td>128</td><td>RTLRO</td></tr><tr><td>256</td><td>RightAligned</td></tr><tr><td>512</td><td>LeftScroll</td></tr><tr><td>896</td><td>BiDi</td></tr><tr><td>65536</td><td>Error</td></tr></table></div> More information here: <a href="http://msdn.microsoft.com/library/en-us/msi/setup/dialog_style_bits.asp" xmlns="">http://msdn.microsoft.com/library/en-us/msi/setup/dialog_style_bits.asp</a></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>title</td>
+            <td>string</td>
+            <td>A localizable text string specifying the title to be displayed in the title bar of the dialog box.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>firstcontrol</td>
+            <td>string</td>
+            <td>An external key to the second column of the Control table. Combining this field with the Dialog field identifies a unique control in the Control table. This defines the control that takes the focus when the dialog box is created. This column is ignored in an Error dialog box. <br xmlns=""></br> Because static text cannot take the focus, a Text control that describes an Edit, PathEdit, ListView, ComboBox or VolumeSelectCombo control must be made the first control in the dialog box to ensure compatibility with screen readers. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>defaultcontrol</td>
+            <td>string</td>
+            <td>An external key to the second column of the Control table. Combining this field with the Dialog field results in a primary key into the Control table that defines the default control. Hitting the Return key is equivalent to clicking on the default control. If this column is left blank, then there is no default control. This column is ignored in the Error dialog box. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>cancelcontrol</td>
+            <td>string</td>
+            <td>An external key to the second column of the Control table. Combining this field with the Dialog field results in a primary key of the Control table that defines the cancel control. Hitting the ESC key or clicking the Close button in the dialog box is equivalent to clicking on the cancel control. This column is ignored in an Error dialog box. <br xmlns=""></br> The cancel control is hidden during rollback or the removal of backed up files. The protected UI handler hides the control upon receiving a INSTALLMESSAGE_COMMONDATA message. </td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add a web folder dialog:</p>
+        <pre class="code">&lt;dialogs&gt;
+    &lt;dialog name="WebFolderDlg" hcenter="50" vcenter="50" width="370" height="270" attr="39" title="[ProductName] [Setup]" firstcontrol="Next" defaultcontrol="Next" cancelcontrol="Cancel" /&gt;
+&lt;/dialogs&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="dialogs">
+      </a>
+                    &lt;/dialogs&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="controls">
+      </a>
+                    &lt;controls&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates user interface controls displayed on custom dialogs. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>Name of the control. This name must be unique within a dialog box but can be repeated on different dialog boxes.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>dialog</td>
+            <td>string</td>
+            <td>Refrence to a dialog. Used to associate the control with the dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>string</td>
+            <td>The type of the control. <div class="table"><table><tr><th>Control name</th><th>Description</th></tr><tr><td>Billboard</td><td>Displays billboards based on progress messages.</td></tr><tr><td>Bitmap</td><td>Displays a static picture of a bitmap.</td></tr><tr><td>CheckBox</td><td>A two-state check box.</td></tr><tr><td>ComboBox</td><td>A drop-down list with an edit field.</td></tr><tr><td>DirectoryCombo</td><td>Select all except the last segment of the path.</td></tr><tr><td>DirectoryList</td><td>Displays folders below the main part of path.</td></tr><tr><td>Edit</td><td>A regular edit field for any string or integer.</td></tr><tr><td>GroupBox</td><td>Displays a rectangle that groups other controls together.</td></tr><tr><td>Icon</td><td>Displays a static picture of an icon.</td></tr><tr><td>Line</td><td>Displays a horizontal line.</td></tr><tr><td>ListBox</td><td>A drop-down list without an edit field.</td></tr><tr><td>ListView</td><td>Displays a column of values with icons for selection.</td></tr><tr><td>MaskedEdit</td><td>An edit field with a mask in the text field.</td></tr><tr><td>PathEdit</td><td>Displays folder name or entire path in an edit field.</td></tr><tr><td>ProgressBar</td><td>Bar graph that changes length as it receives progress messages.</td></tr><tr><td>PushButton</td><td>Displays a basic push button.</td></tr><tr><td>RadioButtonGroup</td><td>A group of radio buttons.</td></tr><tr><td>ScrollableText</td><td>Displays a long string of text.</td></tr><tr><td>SelectionTree</td><td>Displays information from the Feature table and enables the user to change their selection state.</td></tr><tr><td>Text</td><td>Displays static text.</td></tr><tr><td>VolumeCostList</td><td>Displays costing information on different volumes.</td></tr><tr><td>VolumeSelectCombo</td><td>Selects volume from an alphabetical list.</td></tr></table></div> More information found here: <a href="http://msdn.microsoft.com/library/en-us/msi/setup/controls.asp" xmlns="">http://msdn.microsoft.com/library/en-us/msi/setup/controls.asp</a></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>x</td>
+            <td>int</td>
+            <td>Horizontal coordinate of the upper-left corner of the rectangular boundary of the control. This must be a non-negative number.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>y</td>
+            <td>int</td>
+            <td>Vertical coordinate of the upper-left corner of the rectangular boundary of the control. This must be a non-negative number.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>width</td>
+            <td>int</td>
+            <td>Width of the rectangular boundary of the control. This must be a non-negative number.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>height</td>
+            <td>int</td>
+            <td>Height of the rectangular boundary of the control. This must be a non-negative number.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>attr</td>
+            <td>int</td>
+            <td>A 32-bit word that specifies the bit flags to be applied to this control. This must be a non-negative number, and the allowed values depend upon the type of control.For a list of all control attributes, and the value to enter in this field, see <a href="http://msdn.microsoft.com/library/en-us/msi/setup/control_attributes.asp" xmlns="">Control Attributes</a>.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>property</td>
+            <td>string</td>
+            <td>The name of a defined property to be linked to this control. Radio button, list box, and combo box values are tied into a group by being linked to the same property. This column is required for active controls and is ignored by static controls.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>text</td>
+            <td>string</td>
+            <td>A localizable string used to set the initial text contained in a control. The string can also contain embedded properties.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>nextcontrol</td>
+            <td>string</td>
+            <td>The name of another control on the same dialog box. If the focus in the dialog box is on the control in the Control column, hitting the tab key moves the focus to the control listed here. Therefore this is used to specify the tab order of the controls on the dialog box. The links between the controls must form a closed cycle. Some controls, such as static text controls, can be left out of the cycle. In that case, this field may be left blank. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>help</td>
+            <td>string</td>
+            <td>Optional, localizable text strings that are used with the Help button. The string is divided into two parts by a separator character (|). The first part of the string is used as ToolTip text. This text is used by screen readers for controls that contain a picture. The second part of the string is reserved for future use. The separator character is required even if only one of the two kinds of text is present.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>remove</td>
+            <td>bool</td>
+            <td>If <code>true</code>, the control is removed. If <code>false</code>, the control is added.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Remove the Browse button from the customize dialog and add controls for a web dialog</p>
+        <pre class="code">&lt;controls&gt;
+    &lt;!-- Remove the Browse button from customize dialog --&gt;
+    &lt;control dialog="CustomizeDlg" name="Browse" type="PushButton"
+        x="304" y="200" width="56" height="17" attr="3" remove="true" /&gt;
+    &lt;control dialog="CustomizeDlg" name="Tree" type="SelectionTree"
+        x="25" y="85" width="175" height="95" attr="7" remove="true" /&gt;
+
+    &lt;!-- Re add the tree control with the proper next control --&gt;
+    &lt;control dialog="CustomizeDlg" name="Tree" type="SelectionTree"
+        x="25" y="85" width="175" height="95" attr="7" 
+        property="_BrowseProperty" text="Tree of selections" nextcontrol="Reset" /&gt;
+
+    &lt;!-- Adds the controls associated with the webfolder dialog --&gt;
+    &lt;control dialog="WebFolderDlg" name="BannerBitmap" type="Bitmap" 
+        x="0" y="0" width="374" height="44" attr="1" 
+        text="[BannerBitmap]" nextcontrol="VDirLabel" /&gt;
+    &lt;control dialog="WebFolderDlg" name="Title" type="Text" 
+        x="15" y="6" width="200" height="15" attr="196611" 
+        text="[DlgTitleFont]Virtual Directory Information" /&gt;
+    &lt;control dialog="WebFolderDlg" name="Description" type="Text" 
+        x="25" y="23" width="280" height="15" attr="196611" 
+        text="Please enter your virtual directory and port information." /&gt;
+    &lt;control dialog="WebFolderDlg" name="BannerLine" type="Line" 
+        x="0" y="44" width="374" height="0" attr="1" /&gt;
+    &lt;control dialog="WebFolderDlg" name="VDirLabel" type="Text" 
+        x="18" y="73" width="348" height="15" attr="3" 
+        text="&amp;Virtual directory:" 
+        nextcontrol="Edit_VDir" /&gt;            
+    &lt;control dialog="WebFolderDlg" name="Edit_VDir" type="Edit" 
+        x="18" y="85" width="252" height="18" attr="7" 
+        property="TARGETVDIR" 
+        text="[TARGETVDIR]" 
+        nextcontrol="PortLabel" /&gt;
+    &lt;control dialog="WebFolderDlg" name="PortLabel" type="Text" 
+        x="18" y="110" width="348" height="15" attr="3" 
+        text="&amp;Port:" 
+        nextcontrol="Edit_Port" /&gt;            
+    &lt;control dialog="WebFolderDlg" name="Edit_Port" type="Edit" 
+        x="18" y="122" width="48" height="18" attr="7" 
+        property="TARGETPORT" 
+        text="[TARGETPORT]" 
+        nextcontrol="Back" /&gt;
+    &lt;control dialog="WebFolderDlg" name="BottomLine" type="Line" 
+        x="0" y="234" width="374" height="0" attr="1" /&gt;                
+    &lt;control dialog="WebFolderDlg" name="Back" type="PushButton" 
+        x="180" y="243" width="56" height="17" attr="3" 
+        text="[ButtonText_Back]" nextcontrol="Next" /&gt;
+    &lt;control dialog="WebFolderDlg" name="Next" type="PushButton" 
+        x="236" y="243" width="56" height="17" attr="3" 
+        text="[ButtonText_Next]" nextcontrol="Cancel" /&gt;
+    &lt;control dialog="WebFolderDlg" name="Cancel" type="PushButton" 
+        x="304" y="243" width="56" height="17" attr="3" 
+        text="[ButtonText_Cancel]" nextcontrol="BannerBitmap" /&gt;
+&lt;/controls&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="controls">
+      </a>
+                    &lt;/controls&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="controlconditions">
+      </a>
+                    &lt;controlconditions&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Used to validate and perform operations as the result of information entered by the user into controls on custom dialogs. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>dialog</td>
+            <td>string</td>
+            <td>Refrence to a dialog. Used to associate the control with the dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>control</td>
+            <td>string</td>
+            <td>Refrence to a control. Maps to a control for the specified dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>action</td>
+            <td>string</td>
+            <td>The action that is to be taken on the control. The possible actions are shown in the following table. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>Default</td><td>Set control as the default.</td></tr><tr><td>Disable</td><td>Disable the control.</td></tr><tr><td>Enable</td><td>Enable the control.</td></tr><tr><td>Hide</td><td>Hide the control.</td></tr><tr><td>Show</td><td>Display the control.</td></tr></table></div></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>condition</td>
+            <td>string</td>
+            <td>A conditional statement that specifies under which conditions the action should be triggered. If this statement does not evaluate to TRUE, the action does not take place. If it is set to 1, the action is always applied. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>remove</td>
+            <td>bool</td>
+            <td>If <code>true</code>, the control condition is removed. If <code>false</code>, the control condition is added.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Remove the control condition for the Browse button from the customize dialog and add control conditions for a web dialog</p>
+        <pre class="code">&lt;controlconditions&gt;
+    &lt;!-- Remove control condition for Browse button on customizeDlg --&gt;
+    &lt;controlcondition dialog="CustomizeDlg" control="Browse" action="Hide"
+        condition="Installed" remove="true" /&gt;
+    &lt;!-- Add control conditions for the web folder dialog --&gt;
+    &lt;controlcondition dialog="WebFolderDlg" control="Back" action="Disable"
+        condition="ShowUserRegistrationDlg=""" /&gt;
+    &lt;controlcondition dialog="WebFolderDlg" control="Back" action="Enable"
+        condition="ShowUserRegistrationDlg&lt;&gt;""" /&gt;
+&lt;/controlconditions&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="controlconditions">
+      </a>
+                    &lt;/controlconditions&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="controlevents">
+      </a>
+                    &lt;controlevents&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Used to route the flow of the installation process as the result of events raised by the user interacting with controls on dialogs. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>dialog</td>
+            <td>string</td>
+            <td>Refrence to a dialog. Used to associate the control with the dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>control</td>
+            <td>string</td>
+            <td>Refrence to a control. Maps to a control for the specified dialog.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>An identifier that specifies the type of event that should take place when the user interacts with the control specified by Dialog_ and Control_. For a list of possible values see <a href="http://msdn.microsoft.com/library/en-us/msi/setup/controlevent_overview.asp" xmlns="">ControlEvent Overview</a>. <br xmlns=""></br> To set a property with a control, put [Property_Name] in this field and the new value in the argument field. Put { } into the argument field to enter the null value. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>argument</td>
+            <td>string</td>
+            <td>A value used as a modifier when triggering a particular event.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>condition</td>
+            <td>string</td>
+            <td>A conditional statement that determines whether the installer activates the event in the Event column. The installer triggers the event if the conditional statement in the Condition field evaluates to True. Therefore put a 1 in this column to ensure that the installer triggers the event. The installer does not trigger the event if the Condition field contains a statement that evaluates to False. The installer does not trigger an event with a blank in the Condition field unless no other events of the control evaluate to True. If none of the Condition fields for the control named in the Control_ field evaluate to True, the installer triggers the one event having a blank Condition field, and if more than one Condition field is blank it triggers the one event of these with the largest value in the Ordering field.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>order</td>
+            <td>int</td>
+            <td>An integer used to order several events tied to the same control. This must be a non-negative number.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>remove</td>
+            <td>bool</td>
+            <td>If <code>true</code>, the control condition is removed. If <code>false</code>, the control condition is added.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Remove the control events for the Browse button from the customize dialog and add events conditions for a web dialog</p>
+        <pre class="code">
+          <!-- Make sure the dialog is put into the execute order -->
+&lt;controlevents&gt;
+    &lt;!-- Remove the old control events --&gt;
+    &lt;controlevent dialog="UserRegistrationDlg" control="Next" name="NewDialog" 
+        argument="SetupTypeDlg" condition="ProductID" remove="true" /&gt;
+    &lt;controlevent dialog="SetupTypeDlg" control="Back" name="NewDialog" 
+        argument="LicenseAgreementDlg" condition="ShowUserRegistrationDlg &lt;&gt; 1" remove="true" /&gt;
+    &lt;controlevent dialog="SetupTypeDlg" control="Back" name="NewDialog" 
+        argument="UserRegistrationDlg" condition="ShowUserRegistrationDlg = 1" remove="true" /&gt;
+    &lt;!-- Remove control events for Browse button on CustomizeDlg --&gt;
+    &lt;controlevent dialog="CustomizeDlg" control="Browse" name="SelectionBrowse" 
+        argument="BrowseDlg" condition="1" remove="true" /&gt;                
+
+    &lt;!-- Add new control events for the web dialog --&gt;
+    &lt;controlevent dialog="UserRegistrationDlg" control="Next" name="NewDialog" 
+        argument="WebFolderDlg" condition="ProductID" /&gt;                        
+    &lt;controlevent dialog="SetupTypeDlg" control="Back" name="NewDialog" 
+        argument="WebFolderDlg" condition="ShowWebFolderDlg &lt;&gt; 1" /&gt;
+    &lt;controlevent dialog="SetupTypeDlg" control="Back" name="NewDialog" 
+        argument="WebFolderDlg" condition="ShowWebFolderDlg = 1" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Cancel" name="SpawnDialog" 
+        argument="CancelDlg" order="0" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Back" name="NewDialog" 
+        argument="LicenseAgreementDlg" condition="ShowUserRegistrationDlg&lt;&gt;1" 
+        order="0" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Back" name="NewDialog" 
+        argument="UserRegistrationDlg" condition="ShowUserRegistrationDlg=1" 
+        order="0" /&gt;
+    &lt;!-- Virtual Directory Control Events --&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Next" name="DoAction" 
+        argument="WEBCA_CreateURLs" condition="1" order="0" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Next" name="DoAction" 
+        argument="WEBCA_EvaluateURLsMB" condition="1" order="1" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Next" name="SetTargetPath" 
+        argument="TARGETDIR" condition="1" order="2" /&gt;
+    &lt;controlevent dialog="WebFolderDlg" control="Next" name="NewDialog" 
+        argument="SetupTypeDlg" condition="1" order="3" /&gt;
+&lt;/controlevents&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="controlevents">
+      </a>
+                    &lt;/controlevents&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="registry">
+      </a>
+                    &lt;registry&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Makes modifications to the Windows Registry of the target computer at runtime. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>component</td>
+            <td>string</td>
+            <td>Refrence to a component. The component that controls the installation of the registry value.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>root</td>
+            <td>msi:MSIRegistryKeyRoot</td>
+            <td>Valid input: <ul style="list-style-type: disc;"><li><code>dependent</code> - If this is a per-user installation, the registry value is written under HKEY_CURRENT_USER. If this is a per-machine installation, the registry value is written under HKEY_LOCAL_MACHINE. Note that a per-machine installation is specified by setting the ALLUSERS property to 1.</li><li><code>machine</code> represents HKEY_LOCAL_MACHINE</li><li><code>classes</code> represents HKEY_CLASSES_ROOT</li><li><code>user</code> represents HKEY_CURRENT_USER</li><li><code>users</code> represents HKEY_USERS</li></ul></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>path</td>
+            <td>string</td>
+            <td>Registry key.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;value&gt;</h4>
+      <ul xmlns=""> Specifies the registry value to add to the target machine. <div class="table" xmlns="http://www.w3.org/1999/xhtml"><table><tr><th>Attribute</th><th>Type</th><th>Description</th><th>Required</th></tr><tr><td>name</td><td>string</td><td>The registry value name (localizable). If this is Null, then the data entered into the Value column are written to the default registry key. <br xmlns=""></br> If the Value column is Null, then the strings shown in the following table in the Name column have special significance. <div class="table"><table><tr><th>String</th><th>Description</th></tr><tr><td>+</td><td>The key is to be created, if absent, when the component is installed.</td></tr><tr><td>-</td><td>The key is to be deleted, if present, with all of its values and subkeys, when the component is uninstalled.</td></tr><tr><td>*</td><td>The key is to be created, if absent, when the component is installed. Additionally, the key is to be deleted, if present, with all of its values and subkeys, when the component is uninstalled.</td></tr></table></div></td><td>False</td></tr><tr><td>value</td><td>string</td><td>The localizable registry value. The field is <a href="http://msdn.microsoft.com/library/en-us/msi/setup/formatted.asp" xmlns="">Formatted</a>. If the value is attached to one of the following prefixes (i.e. #%value) then the value is interpreted as described in the table. Note that each prefix begins with a number sign (#). If the value begins with two or more consecutive number signs (#), the first # is ignored and value is interpreted and stored as a string. <div class="table"><table><tr><th>Prefix</th><th>Description</th></tr><tr><td>#x</td><td>The value is interpreted and stored as a hexadecimal value (REG_BINARY).</td></tr><tr><td>#%</td><td>The value is interpreted and stored as an expandable string (REG_EXPAND_SZ).</td></tr><tr><td>#</td><td>The value is interpreted and stored as an integer (REG_DWORD).</td></tr></table></div><ul style="list-style-type: disc;"><li>If the value contains the sequence tilde [~], then the value is interpreted as a Null-delimited list of strings (REG_MULTI_SZ). For example, to specify a list containing the three strings a, b and c, use "a[~]b[~]c." </li><li>The sequence [~] within the value separates the individual strings and is interpreted and stored as a Null character.</li><li>If a [~] precedes the string list, the strings are to be appended to any existing registry value strings. If an appending string already occurs in the registry value, the original occurrence of the string is removed.</li><li>If a [~] follows the end of the string list, the strings are to be prepended to any existing registry value strings. If a prepending string already occurs in the registry value, the original occurrence of the string is removed.</li><li>If a [~] is at both the beginning and the end or at neither the beginning nor the end of the string list, the strings are to replace any existing registry value strings.</li><li>Otherwise, the value is interpreted and stored as a string (REG_SZ). </li></ul></td><td>False</td></tr><tr><td>dword</td><td>string</td><td>A dword value to input, if the value attribute is null. This removes the requirement of adding "#" before the value.</td><td>False</td></tr><tr><td>id</td><td>string</td><td>Primary key used to identify a registry record.</td><td>False</td></tr></table></div></ul>
+      <h4 xmlns="">&lt;/value&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Add the a couple registry entries on the target machine.</p>
+        <pre class="code">&lt;registry&gt;
+    &lt;key component="C__MainFiles" root="machine" path="SOFTWARE\ACME\My Product\" &gt;
+        &lt;value name="ProductVersion" value="1.0.0" /&gt;
+        &lt;value name="ProductDir" value="[TARGETDIR]" /&gt;
+        &lt;value name="VirtualDir" value="[TARGETVDIR]" /&gt;
+    &lt;/key&gt;
+&lt;/registry&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Add a default key value to the specified registry key path</p>
+        <pre class="code">&lt;registry&gt;
+    &lt;key component="C__MainFiles" root="machine" path="SOFTWARE\ACME\My Product\" &gt;
+        &lt;value value="1.0.0" /&gt;
+    &lt;/key&gt;
+&lt;/registry&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Another way to add a default key value to the specified registry key path</p>
+        <pre class="code">&lt;registry&gt;
+    &lt;key component="C__MainFiles" root="machine" path="SOFTWARE\ACME\My Product\" &gt;
+        &lt;value name="" value="1.0.0" /&gt;
+    &lt;/key&gt;
+&lt;/registry&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Specify hexadecimal value (REG_BINARY) for the default key</p>
+        <pre class="code">&lt;registry&gt;
+    &lt;key component="C__MainFiles" root="machine" path="SOFTWARE\ACME\My Product\" &gt;
+        &lt;value&gt;
+1a,81,0a,03,01,00,06,00,00,00,d3,15,fd,00,01,00,00,00,00,00,01,
+00,00,00,00,00,00,00,00,00,00,00,b0,90,ce,09,01,00,00,00,00,00,ff,ff,ff,00,
+00,00,00,00,00,00,00,00,6d,7a,0a,03,01,00,00,00,00,00,00,00,38,40,00,00,00,
+00,00,00,00,00,00,00,00,00,90,01,00,00,00,00,00,01,00,00,00,00,0f,00,00,00,
+f0,ff,ff,ff,54,69,6d,65,73,20,4e,65,77,20,52,6f,6d,61,6e,f4,6f,d4,08,02,00
+        &lt;/value&gt;
+    &lt;/key&gt;
+&lt;/registry&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="registry">
+      </a>
+                    &lt;/registry&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="icons">
+      </a>
+                    &lt;icons&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Stores icons to be used with shortcuts, file extensions, CLSIDs or similar uses. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>Name of the icon file.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>string</td>
+            <td>The binary icon data in PE (.dll or .exe) or icon (.ico) format.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add a compiled help icon to the msi database; To be used with a shortcut.</p>
+        <pre class="code">&lt;icons&gt;
+    &lt;icon name="CHMICON" value="${resource.dir}\chm.ico" /&gt;
+&lt;/icons&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="icons">
+      </a>
+                    &lt;/icons&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="shortcuts">
+      </a>
+                    &lt;shortcuts&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates shortcuts on the target computer. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>Unique name identifying the shortcut.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>directory</td>
+            <td>string</td>
+            <td>Reference to a directory. The location of where the shortcut should be created.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>filename</td>
+            <td>string</td>
+            <td>The localizable name of the shortcut to be created.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>component</td>
+            <td>string</td>
+            <td>Reference to a component. The installer uses the installation state of this specified component to determine whether the shortcut is created or deleted. This component must have a valid key path for the shortcut to be installed. If the Target column contains the name of a feature, the file launched by the shortcut is the key file of the component listed in this column. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>target</td>
+            <td>string</td>
+            <td>The shortcut target. The installer evaluates this field as a Formatted string. The field should contains a property identifier enclosed by square brackets ([ ]), that is expanded into the file or a folder pointed to by the shortcut.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>arguments</td>
+            <td>string</td>
+            <td>The command-line arguments for the shortcut. <br xmlns=""></br>Note that the resolution of properties in the Arguments field is limited. A property formatted as [Property] in this field can only be resolved if the property already has the intended value when the component owning the shortcut is installed. For example, for the argument "[#MyDoc.doc]" to resolve to the correct value, the same process must be installing the file MyDoc.doc and the component that owns the shortcut. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>hotkey</td>
+            <td>string</td>
+            <td>The hotkey for the shortcut. The low-order byte contains the virtual-key code for the key, and the high-order byte contains modifier flags. This must be a non-negative number. Authors of installation packages are generally recommend not to set this option, because this can add duplicate hotkeys to a users desktop. In addition, the practice of assigning hotkeys to shortcuts can be problematic for users using hotkeys for accessibility.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>icon</td>
+            <td>string</td>
+            <td>Reference to an icon. </td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>iconindex</td>
+            <td>int</td>
+            <td>The icon index for the shortcut. This must be a non-negative number.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>showcmd</td>
+            <td>int</td>
+            <td>The Show command for the application window. <br xmlns=""></br>The following values may be used. The values are as defined for the Windows API function ShowWindow. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>1</td><td>SW_SHOWNORMAL</td></tr><tr><td>3</td><td>SW_SHOWMAXIMIZED</td></tr><tr><td>7</td><td>SW_SHOWMINNOACTIVE</td></tr></table></div></td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>wkdir</td>
+            <td>string</td>
+            <td>The name of the property that has the path of the working directory for the shortcut.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;description&gt;</h4>
+      <ul xmlns=""> The localizable description of the shortcut. </ul>
+      <h4 xmlns="">&lt;/description&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Add a compiled help icon to the msi database; To be used with a shortcut.</p>
+        <pre class="code">&lt;shortcuts&gt;
+    &lt;shortcut name="HelpFiles" directory="D__PROGRAMMENU_ACME_MYPRODUCT" filename="Help File" component="C__MainFiles" target="[$C__MainFiles]\Help.chm" icon="CHMICON" iconindex="0" showcmd="3" &gt;
+        &lt;description&gt;My Product help documentation&lt;/description&gt;
+    &lt;/shortcut&gt;
+&lt;/shortcuts&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="shortcuts">
+      </a>
+                    &lt;/shortcuts&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="binaries">
+      </a>
+                    &lt;binaries&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Stores the binary data for items such as bitmaps, animations, and icons. The binary table is also used to store data for custom actions. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>A unique key that identifies the particular binary data. If the binary data is for a control, the key appears in the Text column of the associated control in the Control table. This key must be unique among all controls requiring binary data.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>string</td>
+            <td>The binary file to add.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add the custom action dll to create/modify virtual directories</p>
+        <pre class="code">&lt;binaries&gt;
+    &lt;binary name="MSVBDPCADLL" value="${resource.dir}\MSVBDPCA.DLL" /&gt;
+&lt;/binaries&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="binaries">
+      </a>
+                    &lt;/binaries&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="customactions">
+      </a>
+                    &lt;customactions&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Used to configure executables that may be run during steps in the installation process to do things outside the bounds of MSI technology's feature set. This is the main spot you can extend MSI technology to perform custom processes via compiled code. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>action</td>
+            <td>string</td>
+            <td>Name of the action. The action normally appears in a sequence table unless it is called by another custom action. If the name matches any built-in action, then the custom action is never called. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>string</td>
+            <td>A field of flag bits specifying the basic type of custom action and options. See <a href="http://msdn.microsoft.com/library/en-us/msi/setup/summary_list_of_all_custom_action_types.asp" xmlns="">Summary List of All Custom Action Types</a> for a list of the basic types. See <a href="http://msdn.microsoft.com/library/en-us/msi/setup/custom_action_return_processing_options.asp" xmlns="">Custom Action Return Processing Options</a>, <a href="http://msdn.microsoft.com/library/en-us/msi/setup/custom_action_execution_scheduling_options.asp" xmlns="">Custom Action Execution Scheduling Options</a>, <a href="http://msdn.microsoft.com/library/en-us/msi/setup/custom_action_hidden_target_option.asp" xmlns="">Custom Action Hidden Target Option</a>, and <a href="http://msdn.microsoft.com/library/en-us/msi/setup/custom_action_in_script_execution_options.asp" xmlns="">Custom Action In-Script Execution Options</a>. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>source</td>
+            <td>string</td>
+            <td>A property name or external key into another table. For a discussion of the possible custom action sources, see <a href="http://msdn.microsoft.com/library/en-us/msi/setup/custom_action_sources.asp" xmlns="">Custom Action Sources</a> and the <a href="http://msdn.microsoft.com/library/en-us/msi/setup/summary_list_of_all_custom_action_types.asp" xmlns="">Summary List of All Custom Action Types</a>. For example, the Source column may contain an external key into the first column of one of the following tables containing the source of the custom action code. <br xmlns=""></br> Directory table for calling existing executables.<br xmlns=""></br> File table for calling executables and DLLs that have just been installed.<br xmlns=""></br> Binary table for calling executables, DLLs, and data stored in the database.<br xmlns=""></br> Property table for calling executables whose paths are held by a property. </td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>target</td>
+            <td>string</td>
+            <td>An execution parameter that depends on the basic type of custom action. See the Summary List of All Custom Action Types for a description of what should be entered in this field for each type of custom action. For example, this field may contain the following depending on the custom action. <div class="table"><table><tr><th>Target</th><th>Custom Action</th></tr><tr><td>Entry point (required)</td><td>Calling a DLL.</td></tr><tr><td>Executable name with arguments (required)</td><td>Calling an existing executable.</td></tr><tr><td>Command line arguments (optional)</td><td>Calling an executable just installed.</td></tr><tr><td>Target file name (required)</td><td>Creating a file from custom data.</td></tr><tr><td>Null</td><td>Executing script code.</td></tr></table></div></td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add some custom actions related to the virtual directory dialog and custom action.</p>
+        <pre class="code">&lt;customactions&gt;
+    &lt;!-- Custom actions creating entry points into the custom action dll specified in the binary table --&gt;
+    &lt;customaction action="WEBCA_GatherWebFolderProperties" type="1" source="MSVBDPCADLL" target="GatherWebFolderProperties" /&gt;
+    &lt;customaction action="WEBCA_ApplyWebFolderProperties" type="1537" source="MSVBDPCADLL" target="ApplyWebFolderProperties" /&gt;
+    &lt;customaction action="WEBCA_RollbackApplyWebFolderProperties" type="1281" source="MSVBDPCADLL" target="RollbackApplyWebFolderProperties" /&gt;
+    &lt;customaction action="WEBCA_CreateURLs" type="1" source="MSVBDPCADLL" target="CreateURLs" /&gt;
+    &lt;customaction action="WEBCA_EvaluateURLs" type="1" source="MSVBDPCADLL" target="EvaluateURLs" /&gt;
+    &lt;customaction action="WEBCA_EvaluateURLsNoFail" type="1" source="MSVBDPCADLL" target="EvaluateURLsNoFail" /&gt;
+    &lt;customaction action="WEBCA_EvaluateURLsMB" type="1" source="MSVBDPCADLL" target="EvaluateURLsMB" /&gt;
+    &lt;customaction action="WEBCA_CreateAppRoots" type="1" source="MSVBDPCADLL" target="CreateAppRoots" /&gt;
+    
+    &lt;!-- Custom actions to set default control values in the webfolder dialog --&gt;
+    &lt;customaction action="WEBCA_TARGETVDIR" type="307" source="TARGETVDIR" target="Default VDir" /&gt;
+    &lt;customaction action="WEBCA_TARGETPORT" type="307" source="TARGETPORT" target="80" /&gt;
+&lt;/customactions&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="customactions">
+      </a>
+                    &lt;/customactions&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="sequences">
+      </a>
+                    &lt;sequences&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Used to modify the sequence of tasks/events that execute during the overall installation process. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>type</td>
+            <td>msi:MSISequenceTable</td>
+            <td>Valid inputs: <ul style="list-style-type: disc;"><li><code>installexecute</code> represents <a href="http://msdn.microsoft.com/library/en-us/msi/setup/installexecutesequence_table.asp" xmlns="">InstallExecuteSequence Table</a>.</li><li><code>installui</code> represents <a href="http://msdn.microsoft.com/library/en-us/msi/setup/installuisequence_table.asp" xmlns="">InstallUISequence Table</a></li><li><code>adminexecute</code> represents <a href="http://msdn.microsoft.com/library/en-us/msi/setup/adminexecutesequence_table.asp" xmlns="">AdminExecuteSequence Table</a></li><li><code>adminui</code> represents <a href="http://msdn.microsoft.com/library/en-us/msi/setup/adminuisequence_table.asp" xmlns="">AdminUISequence Table</a></li><li><code>advtexecute</code> represents <a href="http://msdn.microsoft.com/library/en-us/msi/setup/advtuisequence_table.asp" xmlns="">AdvtUISequence Table</a></li></ul></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>action</td>
+            <td>string</td>
+            <td>Name of the action to execute. This is either a built-in action or a custom action.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>value</td>
+            <td>int</td>
+            <td>Number that determines the sequence position in which this action is to be executed. <br xmlns=""></br> A positive value represents the sequence position. A Null value indicates that the action is not executed. The following negative values indicate that this action is to be executed if the installer returns the associated termination flag. No more than one action may have a negative value entered in the Sequence field. <div class="table"><table><tr><th>Value</th><th>Description</th></tr><tr><td>-1</td><td>Successful completion.</td></tr><tr><td>-2</td><td>User terminates install.</td></tr><tr><td>-3</td><td>Fatal exit terminates.</td></tr><tr><td>-4</td><td>Install is suspended.</td></tr></table></div></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>condition</td>
+            <td>string</td>
+            <td>This field contains a conditional expression. If the expression evaluates to False, then the action is skipped. If the expression syntax is invalid, then the sequence terminates, returning iesBadActionData. </td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add the sequences to support virtual directories</p>
+        <pre class="code">&lt;sequences&gt;
+    &lt;sequence type="installexecute" action="WEBCA_TARGETVDIR" value="750" condition="TARGETVDIR=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_TARGETPORT" value="750" condition="TARGETPORT=&amp;quot;&amp;quot;" /&gt;                                    
+    &lt;sequence type="installexecute" action="WEBCA_CreateURLs" value="752" condition="NOT Installed" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_EvaluateURLs" value="753" condition="NOT Installed" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_GatherWebFolderProperties" value="3701" condition="NOT Installed" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_ApplyWebFolderProperties" value="3701" condition="NOT Installed" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_RollbackApplyWebFolderProperties" value="3701" condition="NOT Installed" /&gt;
+    &lt;sequence type="installexecute" action="WEBCA_CreateAppRoots" value="3701" condition="NOT Installed" /&gt;
+    &lt;sequence type="installui" action="WEBCA_TARGETVDIR" value="750" condition="TARGETVDIR=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="installui" action="WEBCA_TARGETPORT" value="750" condition="TARGETPORT=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="installui" action="WEBCA_CreateURLs" value="752" condition="NOT Installed" /&gt;
+    &lt;sequence type="installui" action="WEBCA_EvaluateURLsNoFail" value="753" condition="NOT Installed" /&gt;
+    &lt;sequence type="adminexecute" action="WEBCA_TARGETVDIR" value="750" condition="TARGETVDIR=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="adminexecute" action="WEBCA_TARGETPORT" value="750" condition="TARGETPORT=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="adminexecute" action="WEBCA_CreateURLs" value="752" condition="NOT Installed" /&gt;
+    &lt;sequence type="adminexecute" action="WEBCA_EvaluateURLs" value="753" condition="NOT Installed" /&gt;
+    &lt;sequence type="adminui" action="WEBCA_TARGETVDIR" value="750" condition="TARGETVDIR=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="adminui" action="WEBCA_TARGETPORT" value="750" condition="TARGETPORT=&amp;quot;&amp;quot;" /&gt;
+    &lt;sequence type="adminui" action="WEBCA_CreateURLs" value="752" condition="NOT Installed" /&gt;
+    &lt;sequence type="adminui" action="WEBCA_EvaluateURLsNoFail" value="753" condition="NOT Installed" /&gt;                        
+&lt;/sequences&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="sequences">
+      </a>
+                    &lt;/sequences&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="actiontext">
+      </a>
+                    &lt;actiontext&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates text to be displayed in a progress dialog box and written to the log for actions that take a long time to execute. The text displayed consists of the action description and optionally formatted data from the action. The entries in the ActionText table typically refer to actions in sequence tables. </p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>Unique name identifying the action.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>template</td>
+            <td>string</td>
+            <td>A localized format template is used to format action data records for display during action execution. If no template is supplied, then the action data will not be displayed.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Nested Elements:</h3>
+      <h4 xmlns="">&lt;description&gt;</h4>
+      <ul xmlns=""> Localized description displayed in the progress dialog box or written to the log when the action is executing. </ul>
+      <h4 xmlns="">&lt;/description&gt;</h4>
+      <h3>Examples</h3>
+      <li>
+        <p>Add the related action text for the web folder actions.</p>
+        <pre class="code">&lt;actiontext&gt;
+    &lt;action name="WEBCA_GatherWebFolderProperties" &gt;
+        &lt;description&gt;Gathering web folder properties&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_ApplyWebFolderProperties" &gt;
+        &lt;description&gt;Applying web folder properties&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_RollbackApplyWebFolderProperties" &gt;
+        &lt;description&gt;Removing web folder properties&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_CreateURLs" &gt;
+        &lt;description&gt;Creating URLs&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_EvaluateURLs" &gt;
+        &lt;description&gt;Evaluating URLs&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_EvaluateURLsNoFail" &gt;
+        &lt;description&gt;Evaluating URLs and do not fail if URL is invalid&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_EvaluateURLsMB" &gt;
+        &lt;description&gt;Evaluating URLs&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_CreateAppRoots" &gt;
+        &lt;description&gt;Creating application roots&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_TARGETVDIR" &gt;
+        &lt;description&gt;Set TARGETVDIR property to the specified virtual dir&lt;/description&gt;
+    &lt;/action&gt;
+    &lt;action name="WEBCA_TARGETPORT" &gt;
+        &lt;description&gt;Set TARGETPORT property to the specified virtual dir port&lt;/description&gt;
+    &lt;/action&gt;
+&lt;/actiontext&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="actiontext">
+      </a>
+                    &lt;/actiontext&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="appmappings">
+      </a>
+                    &lt;appmappings&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Adds Verbs and a handler for the specified file type. </p>
+      <p class="i2">
+        <b>Note:</b> This not an officially Microsoft supported table.</p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>directory</td>
+            <td>string</td>
+            <td>Refrence to a directory. The directory to add the specific verb/handler to IIS for the specified file type.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>extension</td>
+            <td>string</td>
+            <td>File name extension to specifically handle</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>exepath</td>
+            <td>string</td>
+            <td>Path to the Internet Server API (ISAPI) or Common Gateway Interface (CGI) program to run to process a request.</td>
+            <td>False</td>
+          </tr>
+          <tr>
+            <td>verbs</td>
+            <td>string</td>
+            <td>Internet Information Services verbs that are allowed for the executable file. Only verbs entered in this field will be allowed.</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Add the aspx app mapping</p>
+        <pre class="code">&lt;appmappings&gt;
+    &lt;appmapping directory="D__ACME_MyProduct" extension=".aspx" exepath="[DOTNETFOLDER]aspnet_isapi.dll" verbs="GET,HEAD,POST,DEBUG" /&gt;
+&lt;/appmappings&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="appmappings">
+      </a>
+                    &lt;/appmappings&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="urlproperties">
+      </a>
+                    &lt;urlproperties&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Determines the local path equivalent for a url and stores this information in a property. </p>
+      <p class="i2">
+        <b>Note:</b> This not an officially Microsoft supported table.</p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>The name of the URLProperty to convert</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>property</td>
+            <td>string</td>
+            <td>The name of the property to store the directory information.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Convert the TARGETURL property to a directory and store that information in TARGETDIR</p>
+        <pre class="code">&lt;urlproperties&gt;
+    &lt;urlproperty name="TARGETURL" property="TARGETDIR" /&gt;
+&lt;/urlproperties&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="urlproperties">
+      </a>
+                    &lt;/urlproperties&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="vdirproperties">
+      </a>
+                    &lt;vdirproperties&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Creates a URLProperty representing the virtual directory and port. </p>
+      <p class="i2">
+        <b>Note:</b> This not an officially Microsoft supported table.</p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>name</td>
+            <td>string</td>
+            <td>Property containing the virtual directory</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>portproperty</td>
+            <td>string</td>
+            <td>Property containing the network port number to use.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>urlproperty</td>
+            <td>string</td>
+            <td>URLProperty to store the url in</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Convert the virtual directory and port to a url and store the value in a property.</p>
+        <pre class="code">&lt;vdirproperties&gt;
+    &lt;vdirproperty name="TARGETVDIR" portproperty="TARGETPORT" urlproperty="TARGETURL" /&gt;
+&lt;/vdirproperties&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="vdirproperties">
+      </a>
+                    &lt;/vdirproperties&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="approots">
+      </a>
+                    &lt;approots&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Create a Web application definition and marks it as running in-process or out-of-process. If an application already exists at the specified path, you can use this method to reconfigure the application from in-process to out-of-process, or the reverse. </p>
+      <p class="i2">
+        <b>Note:</b> This not an officially Microsoft supported table.</p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>component</td>
+            <td>string</td>
+            <td>Reference to a component. Determines when the approot will be created.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>urlproperty</td>
+            <td>string</td>
+            <td>URLProperty with stored url</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>inprocflag</td>
+            <td>int</td>
+            <td>Specifies whether the application being created is to run in-process (0), out-of-process (1), or in a pooled process (2). If the application already exists and is running, changing the value of this flag will cause the application definition to be deleted and a new application created to run in the specified process space.</td>
+            <td>True</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Convert the virtual directory and port to a url and store the value in a property.</p>
+        <pre class="code">&lt;approots&gt;
+    &lt;approot component="C__MainFiles" urlproperty="TARGETURL" inprocflag="2" /&gt;
+&lt;/approots&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="approots">
+      </a>
+                    &lt;/approots&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="iisproperties">
+      </a>
+                    &lt;iisproperties&gt;
+                </h4>
+    <div class="nested-element">
+      <p> Specifies directory security in IIS. Can also configure the default documents supported by each directory. </p>
+      <p class="i2">
+        <b>Note:</b> This not an officially Microsoft supported table.</p>
+      <h3>Parameters</h3>
+      <div class="table">
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Required</th>
+          </tr>
+          <tr>
+            <td>directory</td>
+            <td>string</td>
+            <td>Reference to a directory. This is the directory that gets modified with the specific attributes.</td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>attr</td>
+            <td>int</td>
+            <td>Attributes to set for the directory. <div class="table"><table><tr><th>Value</th><th>Flag Name</th><th>Description</th></tr><tr><td>1</td><td>AccessRead</td><td>The file or the contents of the folder may be read through Microsoft Internet Explorer.</td></tr><tr><td>2</td><td>AccessWrite</td><td>Users are allowed to upload files and their associated properties to the enabled directory on your server or to change content in a Write-enabled file. Write can be implemented only with a browser that supports the PUT feature of the HTTP 1.1 protocol standard.</td></tr><tr><td>4</td><td>AccessExecute</td><td>The file or the contents of the folder may be executed, regardless of file type.</td></tr><tr><td>8</td><td>AccessSSL</td><td>File access requires SSL file permission processing, with or without a client certificate.</td></tr><tr><td>16</td><td>AccessSource</td><td>Users are allowed to access source code if either Read or Write permissions are set. Source code includes scripts in Microsoft ® Active Server Pages (ASP) applications.</td></tr><tr><td>32</td><td>AccessSSLNegotiateCert</td><td>SSL file access processing requests a certificate from the client. A value of false indicates that access continues if the client does not have a certificate. Some versions of Internet Explorer will close the connection if the server requests a certificate and a certificate is not available (even if AccessSSLRequireCert is also set to true).</td></tr><tr><td>64</td><td>AccessSSLRequireCert</td><td>SSL file access processing requests a certificate from the client. If the client provides no certificate, the connection is closed. AccessSSLNegotiateCert must also be set to true when using AccessSSLRequireCert.</td></tr><tr><td>128</td><td>AccessSSLMapCert</td><td>SSL file permission processing maps a client certificate to a Microsoft Windows ® operating system user-account. The AccessSSLNegotiateCert property must also be set to true for the mapping to occur.</td></tr><tr><td>256</td><td>AccessSSL128</td><td>File access requires SSL file permission processing with a minimum key size of 128 bits, with or without a client certificate.</td></tr><tr><td>512</td><td>AccessScript</td><td>The file or the contents of the folder may be executed if they are script files or static content. A value of false only allows static files, such as HTML files, to be served.</td></tr><tr><td>1024</td><td>AccessNoRemoteWrite</td><td>Remote requests to create or change files are denied; only requests from the same computer as the IIS server succeed if the AccessWrite property is set to true. You cannot set AccessNoRemoteWrite to false to enable remote requests, and set AccessWrite to false to disable local requests.</td></tr><tr><td>4096</td><td>AccessNoRemoteRead</td><td>Remote requests to view files are denied; only requests from the same computer as the IIS server succeed if the AccessRead property is set to true. You cannot set AccessNoRemoteRead to false to enable remote requests, and set AccessRead to false to disable local requests.</td></tr><tr><td>8192</td><td>AccessNoRemoteExecute</td><td>Remote requests to execute applications are denied; only requests from the same computer as the IIS server succeed if the AccessExecute property is set to true. You cannot set AccessNoRemoteExecute to false to enable remote requests, and set AccessExecute to false to disable local requests.</td></tr><tr><td>16384</td><td>AccessNoRemoteScript</td><td>Requests to view dynamic content are denied; only requests from the same computer as the IIS server succeed if the AccessScript property is set to true. You cannot set AccessNoRemoteScript to false to enable remote requests, and set AccessScript to false to disable local requests.</td></tr><tr><td>32768</td><td>AccessNoPhysicalDir</td><td>Access to the physical path is not allowed.</td></tr></table></div></td>
+            <td>True</td>
+          </tr>
+          <tr>
+            <td>defaultdoc</td>
+            <td>string</td>
+            <td>Adds a filename to the <a href="http://msdn.microsoft.com/library/en-us/iissdk/iis/ref_mb_defaultdoc.asp" xmlns="">Default Documents</a> to process. Add multiple separated with a comma (Eg. "Default.aspx,Default.htm")</td>
+            <td>False</td>
+          </tr>
+        </table>
+      </div>
+      <h3>Examples</h3>
+      <li>
+        <p>Specify permissions for the directory structure.</p>
+        <pre class="code">&lt;iisproperties&gt;
+    &lt;iisproperty directory="TARGETDIR" attr="626" defaultdoc="Default.aspx" /&gt;
+    &lt;iisproperty directory="D__BIN" attr="112" /&gt;
+    &lt;iisproperty directory="D__SomeSubDir" attr="114" /&gt;
+&lt;/iisproperties&gt;
+    </pre>
+      </li>
+      <p> Represents the an element based on a schema definition. </p>
+      <p />
+    </div>
+    <h4>
+      <a id="iisproperties">
+      </a>
+                    &lt;/iisproperties&gt;
+                </h4>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

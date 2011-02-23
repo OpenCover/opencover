@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.FxCopTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;fxcop&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;fxcop&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;fxcop&gt;</h1>
+    <p> Analyzes managed code assemblies and reports information about the assemblies, such as possible design, localization, performance, and security improvements. </p>
+    <p class="i2">
+      <b>Note:</b>  this task relies on fxcopcmd.exe being in your PATH environment variable. You can download the latest FxCop from <a href="http://www.gotdotnet.com/team/fxcop/">http://www.gotdotnet.com/team/fxcop/</a>. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">analysisReportFilename</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the file name for the analysis report. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">applyOutXsl</td>
+          <td style="text-align: center;">bool</td>
+          <td> Applies the XSL transformation specified in /outXsl to the analysis report before saving the file. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">basedir</td>
+          <td style="text-align: center;">directory</td>
+          <td> The directory in which the command will be executed. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">consoleXsl</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the XSL or XSLT file that contains a transformation to be applied to the analysis output before it is displayed in the console. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">directOutputToConsole</td>
+          <td style="text-align: center;">bool</td>
+          <td> Directs analysis output to the console or to the Output window in Visual Studio .NET. By default, the XSL file FxCopConsoleOutput.xsl is applied to the output before it is displayed. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failOnAnalysisError</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if the task should fail when analysis errors occur </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">includeSummaryReport</td>
+          <td style="text-align: center;">bool</td>
+          <td> Includes a summary report with the informational messages returned by FxCopCmd. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">outputXslFilename</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the XSL or XSLT file that is referenced by the xml-stylesheet processing instruction in the analysis report. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">platformDirectory</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the location of the version of Mscorlib.dll that was used when building the target assemblies if this version is not installed on the computer running FxCopCmd. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">projectFile</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the filename of FxCop project file. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">saveResults</td>
+          <td style="text-align: center;">bool</td>
+          <td> Saves the results of the analysis in the project file. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">typeList</td>
+          <td style="text-align: center;">string</td>
+          <td> Comma-separated list of type names to analyze. This option disables analysis of assemblies, namespaces, and resources; only the specified types and their members are included in the analysis. Use the wildcard character '*' at the end of the name to select multiple types. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timeout</td>
+          <td style="text-align: center;">int</td>
+          <td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Framework-configurable parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">exename</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the executable that should be used to launch the external program. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">useruntimeengine</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Element-->
+    <h4>
+      <a id="dependencyDirectories">
+      </a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/dirset.html">dependencyDirectories</a>&gt;
+                </h4>
+    <div class="nested-element"> Specifies additional directories to search for assembly dependencies. FxCopCmd always searches the target assembly directory and the current working directory. <p /></div>
+    <h4>
+      <a id="dependencyDirectories">
+      </a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/dirset.html">dependencyDirectories</a>&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="targets">
+      </a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/fileset.html">targets</a>&gt;
+                </h4>
+    <div class="nested-element"> Specifies the target assembly to analyze. <p /></div>
+    <h4>
+      <a id="targets">
+      </a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/fileset.html">targets</a>&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="imports">
+      </a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/fileset.html">imports</a>&gt;
+                </h4>
+    <div class="nested-element"> Specifies the name of an analysis report or project file to import. Any messages in the imported file that are marked as excluded are not included in the analysis results. <p /></div>
+    <h4>
+      <a id="imports">
+      </a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/fileset.html">imports</a>&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="rules">
+      </a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/fileset.html">rules</a>&gt;
+                </h4>
+    <div class="nested-element"> Specifies the filename(s) of FxCop project file(s). <p /></div>
+    <h4>
+      <a id="rules">
+      </a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/fileset.html">rules</a>&gt;
+                </h4>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Core.Types.Argument-->
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;arg&gt;
+                </h4>
+    <div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div>
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;/arg&gt;
+                </h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <pre class="code">
+&lt;fxcop directOutputToConsole="true" projectFile="${build.dir}\Sample.fxcop"&gt;
+    &lt;targets&gt;
+        &lt;include name="${build.dir}\bin\*.dll" /&gt;
+    &lt;/targets&gt;
+    &lt;rules&gt;
+        &lt;include name="${build.dir}\rules\*.dll" /&gt;
+    &lt;/rules&gt;
+&lt;/fxcop&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

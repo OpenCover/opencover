@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.StarTeam.LabelTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>LabelTask Element</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <span>Element Reference</span>
+          <img alt="-&gt;" src="../images/arrow.gif" /> LabelTask</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>LabelTask</h1>
+    <p> Allows creation of view labels in StarTeam repositories. </p>
+    <p>Often when building projects you wish to label the source control repository.</p>
+    <p>By default this task creates view labels with the build option turned on.</p>
+    <p>This task was ported from the Ant task http://jakarta.apache.org/ant/manual/OptionalTasks/starteam.html#stlabel </p>
+    <p>You need to have the StarTeam SDK installed for this task to function correctly.</p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top" class="required">label</td>
+          <td style="text-align: center;">string</td>
+          <td> The name to be given to the label; required. </td>
+          <td style="text-align: center;">True</td>
+        </tr>
+        <tr>
+          <td valign="top">buildlabel</td>
+          <td style="text-align: center;">bool</td>
+          <td> Should label be marked build : default is true</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">description</td>
+          <td style="text-align: center;">string</td>
+          <td> Optional description of the label to be stored in the StarTeam project.</td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">revisionlabel</td>
+          <td style="text-align: center;">bool</td>
+          <td> Should label created be a revision label. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timestamp</td>
+          <td style="text-align: center;">string</td>
+          <td> Optional: If this property is set the label will be created as of the datetime specified. Please provide a datetime format that can be parsed via <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemDateTimeClassParseTopic.asp">Parse</a>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">password</td>
+          <td style="text-align: center;">string</td>
+          <td> The password used for login. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">projectname</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the StarTeam project to be acted on </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">servername</td>
+          <td style="text-align: center;">string</td>
+          <td> Name of StarTeamServer. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">serverport</td>
+          <td style="text-align: center;">string</td>
+          <td> Port number of the StarTeam connection. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">url</td>
+          <td style="text-align: center;">string</td>
+          <td> One stop to set all parameters needed to connect to a StarTeam server. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">username</td>
+          <td style="text-align: center;">string</td>
+          <td> The StarTeam user name used for login. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">viewname</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the StarTeam view to be acted on. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Creates a label in a StarTeam repository.</p>
+        <pre class="code">
+&lt;!-- 
+  constructs a 'url' containing connection information to pass to the task 
+  alternatively you can set each attribute manually 
+--&gt;
+&lt;property name="ST.url" value="user:pass@serverhost:49201/projectname/viewname" /&gt;
+&lt;stlabel label="3.1 (label title goes here)" description="This is a label description" url="${ST.url}" /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

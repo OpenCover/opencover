@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<project name="NUnit2Report" default="rebuild">
+    <target name="clean" >
+        <delete>
+            <fileset>
+                <include name="NUnit-NoFrame-Report/**" />
+                <include name="NUnit-Frame-Report/**" />
+                <include name="Mock-NoFrame-Report/**" />
+                <include name="Mock-Frame-Report/**" />
+                <include name="Compagny-Argos-NoFrame-Report/**" />
+                <include name="Compagny-Argos-Frame-Report/**" />
+            </fileset>
+        </delete>
+    </target>
+    <target name="build">
+        <loadtasks assembly="../../bin/NAnt.Contrib.Tasks.dll" />
+
+        <!-- By default the report is in english and format is NoFrames-->
+        <nunit2report todir="Compagny-Argos-NoFrame-Report">
+            <fileset>
+                <include name="Compagny.Argos-result.xml" />
+            </fileset>
+            <summaries>
+                <include name="Compagny.Argos.Test.xml" />
+            </summaries>
+        </nunit2report>
+
+        <!-- The same report with frames in french-->
+        <nunit2report format="Frames" lang="fr" todir="Compagny-Argos-Frame-Report">
+            <fileset>
+                <include name="Compagny.Argos-Result.xml" />
+            </fileset>
+            <summaries>
+                <include name="Compagny.Argos.Test.xml" />
+            </summaries>
+        </nunit2report>
+
+        <echo message="Compagny report generated." />
+
+        <!-- Example 2 -->
+        <nunit2report todir="NUnit-NoFrame-Report" >
+            <fileset>
+                <include name="NUnit-Result.xml" />
+            </fileset>
+        </nunit2report>
+
+        <!-- The same report with frame -->
+        <nunit2report format="Frames" todir="NUnit-Frame-Report">
+            <fileset>
+                <include name="NUnit-Result.xml" />
+            </fileset>
+        </nunit2report>
+
+        <echo message="NUnit report generated."/>
+
+        <!-- Example 3 : Mock test lang="fr" -->
+        <nunit2report lang="fr" todir="Mock-NoFrame-Report" >
+            <fileset>
+                <include name="Mock-Test-Result.xml" />
+            </fileset>
+        </nunit2report>
+        <nunit2report format="Frames" todir="Mock-Frame-Report">
+            <fileset>
+                <include name="Mock-Test-Result.xml" />
+            </fileset>
+        </nunit2report>
+
+        <echo message="Mock report generated."/>
+    </target>
+    <target name="rebuild" depends="clean, build" />
+</project>

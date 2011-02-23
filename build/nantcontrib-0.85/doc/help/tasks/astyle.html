@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.Astyle-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;astyle&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;astyle&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;astyle&gt;</h1>
+    <p> Formats source code in a given directory to a specified code format. </p>
+    <p> Most examples inline have been produced by Tal Davidson and team and are part of the astyle documentation. They have been included in the task documentation as an easy reference. </p> NOTE: This task relies on the astyle.exe file being in your path variable. Please download the astyle.exe from http://astyle.sourceforge.net. <h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">brackets-attach</td><td style="text-align: center;">bool</td><td><b>true</b> if brackets should be attached. <pre class="code">
+   if (isFoo){
+       bar();
+   } else {
+       anotherBar();
+   }
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">brackets-linux</td><td style="text-align: center;">bool</td><td><b>true</b> if brackets should be put on a new line and indented. <pre class="code">
+   namespace foospace
+   {
+       int Foo()
+       {
+           if (isBar) {
+               bar();
+               return 1;
+           } else
+               return 0;
+       }
+   }
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">brackets-newline</td><td style="text-align: center;">bool</td><td><b>true</b> if brackets should be put on a new line. <pre class="code">
+   if (isFoo)
+   {
+       bar();
+   }
+   else
+   {
+       anotherBar();
+   }
+   
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">break-blocks</td><td style="text-align: center;">bool</td><td><b>true</b> to break block statements with an empty line. <pre class="code">
+   isFoo = true;
+   if (isFoo) {
+       bar();
+   } else {
+       anotherBar();
+   }
+   isBar = false;
+
+   becomes:
+
+   isFoo = true;
+
+   if (isFoo) {
+       bar();
+   } else {
+       anotherBar();
+   }
+
+   isBar = false;
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">break-blocks-all</td><td style="text-align: center;">bool</td><td><b>true</b> to break all block statements, even on nested ifs with an empty line. <pre class="code">
+   isFoo = true;
+   if (isFoo) {
+       bar();
+   } else {
+       anotherBar();
+   }
+   isBar = false;
+
+   becomes:
+
+   isFoo = true;
+
+   if (isFoo) {
+       bar();
+
+   } else {
+       anotherBar();
+   }
+
+   isBar = false;
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">break-closing</td><td style="text-align: center;">bool</td><td><b>true</b> if the line after a bracket (i.e. an else statement after the closing if) should be placed on the next line. <pre class="code">
+   if (isFoo){
+       bar();
+   }else {
+       anotherBar();
+   }
+
+   becomes:
+
+   if (isFoo) {
+       bar();
+   }
+   else {
+       anotherBar();
+   }
+   
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">break-elseif</td><td style="text-align: center;">bool</td><td><b>true</b> to put the if component of an else if on a new line. <pre class="code">
+   if (isFoo) {
+       bar();
+   } else if (isBar()){
+       anotherBar();
+   }
+
+   becomes:
+
+   if (isFoo) {
+       bar();
+   } else
+       if (isBar()){
+           anotherBar();
+       } 
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">cleanup</td><td style="text-align: center;">bool</td><td> Astyle leaves the original files around, renamed with a different suffix. Setting this to <pre class="code">true</pre> will remove these files. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">commandline</td><td style="text-align: center;">string</td><td> The command-line arguments for the program. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">convert-tabs</td><td style="text-align: center;">bool</td><td><b>true</b> to convert tabs to spaces. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">fill-empty-lines</td><td style="text-align: center;">bool</td><td><b>true</b> if empty lines should be filled with the whitespace of the previous line. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-blocks</td><td style="text-align: center;">bool</td><td><b>true</b> if block statements should be indented. The default: if (isFoo) { bar(); } else anotherBar(); becomes: if (isFoo) { bar(); } else anotherBar(); </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-brackets</td><td style="text-align: center;">bool</td><td><pre class="code">true</pre> if bracket statements should be indented. <pre class="code">
+   The default:
+
+   if (isFoo)
+   {
+       bar();
+   }
+   else
+   {
+       anotherBar();
+   }
+
+   becomes:
+
+   if (isFoo)
+       {
+       bar();
+       }
+   else
+       {
+       anotherBar();
+       }
+       
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-cases</td><td style="text-align: center;">bool</td><td><b>true</b> if case statements should be indented. <pre class="code">
+   The default:
+
+   switch (foo)
+   {
+   case 1:
+       {
+           a += 2;
+           break;
+       }
+
+   default:
+       {
+           a += 2;
+           break;
+       }
+   }
+
+   becomes:
+
+   switch (foo)
+   {
+       case 1:
+       {
+           a += 2;
+           break;
+       }
+
+       default:
+       {
+           a += 2;
+           break;
+       }
+   }
+   
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-classes</td><td style="text-align: center;">bool</td><td><b>true</b> if class statements should be indented. <pre class="code">
+   The default:
+
+   class Foo
+   {
+   public:
+       Foo();
+       virtual ~Foo();
+   };
+
+   becomes:
+
+   class Foo
+   {
+       public:
+           Foo();
+           virtual ~Foo();
+   };
+   
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-labels</td><td style="text-align: center;">bool</td><td><b>true</b> if label statements should be indented. <pre class="code">
+   The default:
+
+   int foospace()
+   {
+       while (isFoo)
+       {
+           ...
+           goto error;
+
+   error:
+           ...
+       }
+   }
+
+   becomes:
+
+   int foospace()
+   {
+       while (isFoo)
+       {
+           ...
+           goto error;
+
+       error:
+           ...
+       }
+   }
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-max</td><td style="text-align: center;">int</td><td> Indicate the maximum number of spaces to indent relative to a previous line. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-min</td><td style="text-align: center;">int</td><td> Indicate the maximum number of spaces to indent relative to a previous line. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-namespaces</td><td style="text-align: center;">bool</td><td><b>true</b> if namespace statements should be indented. <pre class="code">
+   The default:
+
+   namespace foospace
+   {
+   class Foo
+   {
+       public:
+           Foo();
+           virtual ~Foo();
+   };
+   }
+
+   becomes:
+
+   namespace foospace
+   {
+       class Foo
+       {
+           public:
+               Foo();
+               virtual ~Foo();
+       };
+   }
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-num-spaces</td><td style="text-align: center;">int</td><td> Indicate the maximum number of spaces to indent relative to a previous line. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-num-tabs</td><td style="text-align: center;">int</td><td> Indicate that tabs should be used to indent sources. The number specified indicates the maximum number of spaces the tab character will represent. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-num-tabs-force</td><td style="text-align: center;">int</td><td> Indent using tab characters. Treat each tab as # spaces. Uses tabs as indents in areas '--indent=tab' prefers to use spaces, such as inside multi-line statements. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">indent-switches</td><td style="text-align: center;">bool</td><td><b>true</b> if switch statements should be indented. <pre class="code">
+       The default:
+
+       switch (foo)
+       {
+       case 1:
+           a += 2;
+           break;
+
+       default:
+           a += 2;
+           break;
+       }
+
+       becomes:
+
+       switch (foo)
+       {
+           case 1:
+               a += 2;
+               break;
+
+           default:
+               a += 2;
+               break;
+       }
+       
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">nobreak-complex</td><td style="text-align: center;">bool</td><td><b>true</b> to keep complex statements on the same line. <pre class="code">
+   if (isFoo)
+   {  
+       isFoo = false; cout &lt;&lt; isFoo &lt;&lt; endl;
+   }
+
+   remains as is.
+
+   if (isFoo) DoBar();
+
+   remains as is.
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">nobreak-singlelineblocks</td><td style="text-align: center;">bool</td><td><b>true</b> to keep single line statements on the same line. <pre class="code">
+   if (isFoo)
+   { isFoo = false; cout &lt;&lt; isFoo &lt;&lt; endl; }
+
+   remains as is.
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">pad-all</td><td style="text-align: center;">bool</td><td><b>true</b> to pad operators and parenthesis. <pre class="code">
+   if (isFoo)
+       a = bar((b-c)*a,*d--);
+
+   becomes:
+
+   if ( isFoo )
+       a = bar( ( b - c ) * a, *d-- );
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">pad-operators</td><td style="text-align: center;">bool</td><td><b>true</b> to pad operators with a space. <pre class="code">
+   if (isFoo)
+       a = bar((b-c)*a,*d--);
+
+   becomes:
+
+   if (isFoo)
+       a = bar((b - c) * a, *d--);
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">pad-parenthesis</td><td style="text-align: center;">bool</td><td><b>true</b> to pad parenthesis with a space. <pre class="code">
+   if (isFoo)
+       a = bar((b-c)*a,*d--);
+
+   becomes:
+
+   if ( isFoo )
+       a = bar( ( b-c )*a, *d-- );
+
+</pre></td><td style="text-align: center;">False</td></tr><tr><td valign="top">style</td><td style="text-align: center;">string</td><td> Indicate the preset style to use. <div class="table"><table><tr>ansi <pre class="code">   namespace foospace
+   {
+       int Foo()
+       {
+           if (isBar)
+           {
+               bar();
+               return 1;
+           }
+           else
+               return 0;
+       }
+   }
+</pre></tr><tr>kr ( Kernighan&amp;Ritchie ) <pre class="code">   namespace foospace {
+       int Foo() {
+           if (isBar) {
+               bar();
+               return 1;
+           } else
+               return 0;
+       }
+   }
+</pre></tr><tr>linux <pre class="code">   namespace foospace
+   {
+           int Foo()
+           {
+                   if (isBar) {
+                           bar();
+                           return 1;
+                   } else
+                           return 0;
+           }
+   }
+</pre></tr><tr>gnu <pre class="code">   namespace foospace
+   {
+       int Foo()
+       {
+           if (isBar)
+           {
+               bar();
+               return 1;
+           }
+           else
+           return 0;
+       }
+   }
+</pre></tr><tr>java <pre class="code">   class foospace {
+       int Foo() {
+           if (isBar) {
+               bar();
+               return 1;
+           } else
+               return 0;
+       }
+   }
+</pre></tr><tr>NAnt <pre class="code">   namespace foospace {
+       class foo() {
+   #region Protected Static Fields
+           private int Foo() {
+               if (isBar) {
+                   bar();
+                   return 1;
+               } else {
+                   return 0;
+               }
+           }
+   #endregion
+   }
+</pre></tr></table></div></td><td style="text-align: center;">False</td></tr><tr><td valign="top">suffix</td><td style="text-align: center;">string</td><td> The suffix to append to original files, defaults to <code>.orig</code> if not specified. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">failonerror</td><td style="text-align: center;">bool</td><td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">timeout</td><td style="text-align: center;">int</td><td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">verbose</td><td style="text-align: center;">bool</td><td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr></table></div><h3>Framework-configurable parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">exename</td><td style="text-align: center;">string</td><td> The name of the executable that should be used to launch the external program. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">useruntimeengine</td><td style="text-align: center;">bool</td><td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="fileset"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/fileset.html">fileset</a>&gt;
+                </h4><div class="nested-element"> Used to select the files to copy. <p /></div><h4><a id="fileset"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/fileset.html">fileset</a>&gt;
+                </h4><!--Array--><!--NestedElementArray=T:NAnt.Core.Types.Argument--><h4><a id="arg"></a>
+                    &lt;arg&gt;
+                </h4><div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div><h4><a id="arg"></a>
+                    &lt;/arg&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><pre class="code">
+&lt;astyle style="NAnt" cleanup="true"&gt;
+    &lt;sources&gt;
+        &lt;include name="**/**.cs" /&gt;
+    &lt;/sources&gt;
+&lt;/astyle&gt;
+    </pre></li></ul><h3>Requirements</h3><div style="margin-left: 20px;"><b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div></body>
+</html>

@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.GacUninstallTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;gac-uninstall&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;gac-uninstall&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;gac-uninstall&gt;</h1>
+    <p> Uninstalls assemblies from the Global Assembly Cache (GAC) by using the <code>gacutil</code> SDK tool. </p>
+    <p> Assemblies are specified via an <a href="../elements/NAnt.Contrib.Types.AssemblySet.html">AssemblySet</a>. Individual assemblies are specified by their identity information. Only a name is required but, optionally, the assembly version, culture and public key token may be specified. </p>
+    <p> Assemblies can be uninstalled from the GAC with or without reference counting. The full details of reference counting can be found in the SDK documentation. </p>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">force</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b>, the specified assemblies will be forcibly removed from the GAC. All references to the specified assemblies will be removed from the GAC prior to removing the assemblies themselves. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">native</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b>, specifies that the assemblies should be uninstalled from the native image cache. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timeout</td>
+          <td style="text-align: center;">int</td>
+          <td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Framework-configurable parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">useruntimeengine</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Element-->
+    <h4>
+      <a id="assemblies">
+      </a>
+                    &lt;assemblies&gt;
+                </h4>
+    <div class="nested-element"> Specifies the assemblies to uninstall. <p> Represents a set of assemblies via their identity information. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">id</td><td style="text-align: center;">string</td><td> The ID used to be referenced later. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">refid</td><td style="text-align: center;">string</td><td> The ID to use as the reference. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Array--><!--NestedElementArray=T:NAnt.Contrib.Types.Assembly--><h4><a id="assembly"></a>
+                    &lt;assembly&gt;
+                </h4><div class="nested-element"> The assemblies to include. <p> Represents a single assembly in an <a href="../elements/NAnt.Contrib.Types.AssemblySet.html">AssemblySet</a>. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top" class="required">name</td><td style="text-align: center;">string</td><td> The name of the assembly. </td><td style="text-align: center;">True</td></tr><tr><td valign="top">culture</td><td style="text-align: center;">string</td><td> The culture for the assembly. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> If <code>true</code> then the assembly will be included. The default is <code>true</code>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">public-key-token</td><td style="text-align: center;">string</td><td> The public key token of the assembly. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Opposite of <code>if</code>. If <code>false</code> then the assembly will be included. The default is <code>false</code>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">version</td><td style="text-align: center;">string</td><td> The version of the assembly. </td><td style="text-align: center;">False</td></tr></table></div></div><h4><a id="assembly"></a>
+                    &lt;/assembly&gt;
+                </h4><p /></div>
+    <h4>
+      <a id="assemblies">
+      </a>
+                    &lt;/assemblies&gt;
+                </h4>
+    <!--Element-->
+    <h4>
+      <a id="reference">
+      </a>
+                    &lt;reference&gt;
+                </h4>
+    <div class="nested-element"> Specifies reference details to use when working with the GAC. <p> Used to specify reference information when working with the GAC. </p><p> The full details of GAC references can be found in the SDK documentation. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> If <code>true</code> then the entity will be included. The default is <code>true</code>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">scheme-description</td><td style="text-align: center;">string</td><td> The scheme description to use when working with GAC references. This is only relevant if a scheme type other than <code>None</code> is specified. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">scheme-id</td><td style="text-align: center;">string</td><td> The scheme ID to use when working with GAC references. This is only relevant if a scheme type other than <code>None</code> is specified. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">scheme-type</td><td style="text-align: center;"><a href="../enums/NAnt.Contrib.Tasks.SchemeType.html">SchemeType</a></td><td> The scheme type to use when working with GAC references. The default is <code>None</code>, which means that references will not be used by the GAC task. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Opposite of <code>if</code>. If <code>false</code> then the entity will be included. The default is <code>false</code>. </td><td style="text-align: center;">False</td></tr></table></div><p /></div>
+    <h4>
+      <a id="reference">
+      </a>
+                    &lt;/reference&gt;
+                </h4>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Core.Types.Argument-->
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;arg&gt;
+                </h4>
+    <div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div>
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;/arg&gt;
+                </h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Uninstalls <code>Shared</code> assembly from the GAC.</p>
+        <pre class="code">
+&lt;gac-uninstall&gt;
+       &lt;assemblies&gt;
+           &lt;assembly name="Shared" /&gt;
+       &lt;/assemblies&gt;
+&lt;/gac-uninstall&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Uninstalls <code>Shared</code> and <code>MyWeb</code> from the GAC. </p>
+        <pre class="code">
+&lt;gac-uninstall&gt;
+       &lt;assemblies&gt;
+           &lt;assembly name="Shared" /&gt;
+           &lt;assembly name="MyWeb" /&gt;
+       &lt;/assemblies&gt;
+&lt;/gac-uninstall&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Decrements references to <code>Shared</code> in the GAC and uninstalls if the reference count reaches zero. </p>
+        <pre class="code">
+&lt;gac-uninstall&gt;
+    &lt;reference scheme-type="Opaque" scheme-id="MyID" scheme-description="My description" /&gt;
+       &lt;assemblies&gt;
+           &lt;assembly name="Shared" /&gt;
+       &lt;/assemblies&gt;
+&lt;/gac-uninstall&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Uninstalls version <code>2.1.7.9201</code> of <code>Shared</code> plus the Australian-cultured <code>MyWeb</code> from the GAC. </p>
+        <pre class="code">
+&lt;gac-uninstall&gt;
+       &lt;assemblies&gt;
+           &lt;assembly name="Shared" version="2.1.7.9201" /&gt;
+           &lt;assembly name="MyWeb" culture="en-AU" /&gt;
+       &lt;/assemblies&gt;
+&lt;/gac-uninstall&gt;
+    </pre>
+      </li>
+      <li>
+        <p> Uninstalls the neutrally-cultured, version <code>1.0.5000.0</code> of <code>System.Xml</code> from the native image cache. The assembly must also have a public key token of <code>b77a5c561934e08a</code> to be uninstalled. </p>
+        <pre class="code">
+&lt;gac-uninstall native="true"&gt;
+       &lt;assemblies&gt;
+           &lt;assembly name="System.Xml" version="1.0.5000.0" public-key-token="b77a5c561934e08a" culture="Neutral" /&gt;
+       &lt;/assemblies&gt;
+&lt;/gac-uninstall&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

@@ -1,0 +1,153 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.VersionTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;version&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;version&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;version&gt;</h1>
+    <p> Increments a four-part version number stored in a text file. The resulting version number is written back to the file and exposed using NAnt properties. </p>
+    <p> The version number format in the text file is Major.Minor.Build.Revision, e.g. 1.0.5.25. </p>
+    <div class="table">
+      <table>
+        <tr>
+          <td>Major</td>
+          <td>Set in file.</td>
+        </tr>
+        <tr>
+          <td>Minor</td>
+          <td>Set in file.</td>
+        </tr>
+        <tr>
+          <td>Build</td>
+          <td>Can be incremented by setting the <code>buildtype</code> parameter.</td>
+        </tr>
+        <tr>
+          <td>Revision</td>
+          <td>Can be incremented by setting the <code>revisiontype</code> parameter.</td>
+        </tr>
+      </table>
+    </div>
+    <p>The following NAnt properties are created:</p>
+    <div class="table">
+      <table>
+        <tr>
+          <td>
+            <code>prefix</code>.version</td>
+          <td>The complete version number, i.e. Major.Minor.Build.Revision</td>
+        </tr>
+        <tr>
+          <td>
+            <code>prefix</code>.major</td>
+          <td>The major component of the version number.</td>
+        </tr>
+        <tr>
+          <td>
+            <code>prefix</code>.minor</td>
+          <td>The minor component of the version number.</td>
+        </tr>
+        <tr>
+          <td>
+            <code>prefix</code>.build</td>
+          <td>The build component of the version number.</td>
+        </tr>
+        <tr>
+          <td>
+            <code>prefix</code>.revision</td>
+          <td>The revision component of the version number.</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">buildtype</td>
+          <td style="text-align: center;">
+            <a href="../enums/NAnt.Contrib.Tasks.VersionTask.BuildNumberAlgorithm.html">BuildNumberAlgorithm</a>
+          </td>
+          <td> The algorithm for generating build number. The default is <code>MonthDay</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">path</td>
+          <td style="text-align: center;">file</td>
+          <td> Path to the file containing the current version number. The default file is <code>'build.number'</code> in the project base directory. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">prefix</td>
+          <td style="text-align: center;">string</td>
+          <td> The string to prefix the properties with. The default is <code>'buildnumber.'</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">revisiontype</td>
+          <td style="text-align: center;">
+            <a href="../enums/NAnt.Contrib.Tasks.VersionTask.RevisionNumberAlgorithm.html">RevisionNumberAlgorithm</a>
+          </td>
+          <td> The algorithm for generating revision number. The default is <code>Automatic</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">startdate</td>
+          <td style="text-align: center;">datetime</td>
+          <td> Start of project. Date from which to calculate build number. Required if <code>MonthDay</code> is used as <code>buildtype</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>

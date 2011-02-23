@@ -1,0 +1,249 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <!-- Documenting T:NAnt.Contrib.Tasks.XsdTask-->
+  <head>
+    <meta http-equiv="Content-Language" content="en-ca" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <title>&lt;xsd&gt; Task</title>
+  </head>
+  <body>
+    <table width="100%" border="0" cellspacing="0" cellpadding="2" class="NavBar">
+      <tr>
+        <td class="NavBar-Cell">
+          <a href="">
+            <b>NAntContrib</b>
+          </a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../index.html">Help</a>
+          <img alt="-&gt;" src="../images/arrow.gif" />
+          <a href="../tasks/index.html">Task Reference</a>
+          <img alt="-&gt;" src="../images/arrow.gif" /> &lt;xsd&gt;</td>
+        <td class="NavBar-Cell" align="right">
+                        v0.85</td>
+      </tr>
+    </table>
+    <h1>&lt;xsd&gt;</h1>
+    <p> The <a href="../tasks/xsd.html">&lt;xsd&gt;</a> task generates XML schema or common language runtime classes from XDR, XML, and XSD files, or from classes in a runtime assembly. </p>
+    <p> The following operations can be performed : </p>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Operation</th>
+          <th>Description</th>
+        </tr>
+        <tr>
+          <td>XDR to XSD</td>
+          <td> Generates an XML schema from an XML-Data-Reduced schema file. XDR is an early XML-based schema format. </td>
+        </tr>
+        <tr>
+          <td>XML to XSD</td>
+          <td> Generates an XML schema from an XML file. </td>
+        </tr>
+        <tr>
+          <td>XSD to DataSet</td>
+          <td> Generates common language runtime <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemDataDataSetClassTopic.asp">DataSet</a> classes from an XSD schema file. The generated classes provide a rich object model for regular XML data. </td>
+        </tr>
+        <tr>
+          <td>XSD to Classes</td>
+          <td> Generates runtime classes from an XSD schema file. The generated classes can be used in conjunction with <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemXmlSerializationXmlSerializerClassTopic.asp">XmlSerializer</a> to read and write XML code that follows the schema. </td>
+        </tr>
+        <tr>
+          <td>Classes to XSD</td>
+          <td> Generates an XML schema from a type or types in a runtime assembly file. The generated schema defines the XML format used by <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemXmlSerializationXmlSerializerClassTopic.asp">XmlSerializer</a>. </td>
+        </tr>
+      </table>
+    </div>
+    <h3>Parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">assembly</td>
+          <td style="text-align: center;">file</td>
+          <td> Assembly (.dll or .exe) to generate an XML Schema for. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">element</td>
+          <td style="text-align: center;">string</td>
+          <td> XML element in the Schema to process. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">language</td>
+          <td style="text-align: center;">string</td>
+          <td> The language to use for the generated code - either <code>CS</code>, <code>VB</code>, <code>JS</code>, <code>VJC</code> or the fully-qualified name of a class implementing <a href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/cpref/html/frlrfSystemCodeDomCompilerCodeDomProviderClassTopic.asp">CodeDomProvider</a>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">namespace</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the runtime namespace for the generated types. The default namespace is <code>Schemas</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">outputdir</td>
+          <td style="text-align: center;">directory</td>
+          <td> The output directory in which to place generated files. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">schema</td>
+          <td style="text-align: center;">file</td>
+          <td> XML Schema (.xsd) filename. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">target</td>
+          <td style="text-align: center;">string</td>
+          <td> Target of XML Schema compilation - either <code>classes</code> or <code>dataset</code>. The default is <code>classes</code>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">types</td>
+          <td style="text-align: center;">string</td>
+          <td> Types in the assembly for which an XML schema is being created. By default all types in the assembly will be included. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">uri</td>
+          <td style="text-align: center;">string</td>
+          <td> Specifies the URI for the elements in the <code>schema</code> to generate code for. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">xdr</td>
+          <td style="text-align: center;">file</td>
+          <td> XDR Schema to generate an XML Schema for. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">xmldoc</td>
+          <td style="text-align: center;">file</td>
+          <td> XML document to generate an XML Schema for. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">failonerror</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines if task failure stops the build, or is just reported. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">if</td>
+          <td style="text-align: center;">bool</td>
+          <td> If <b>true</b> then the task will be executed; otherwise, skipped. The default is <b>true</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">timeout</td>
+          <td style="text-align: center;">int</td>
+          <td> The maximum amount of time the application is allowed to execute, expressed in milliseconds. Defaults to no time-out. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">unless</td>
+          <td style="text-align: center;">bool</td>
+          <td> Opposite of <code>if</code>. If <b>false</b> then the task will be executed; otherwise, skipped. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">verbose</td>
+          <td style="text-align: center;">bool</td>
+          <td> Determines whether the task should report detailed build log messages. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Framework-configurable parameters</h3>
+    <div class="table">
+      <table>
+        <tr>
+          <th>Attribute</th>
+          <th style="text-align: center;">Type</th>
+          <th>Description</th>
+          <th style="text-align: center;">Required</th>
+        </tr>
+        <tr>
+          <td valign="top">exename</td>
+          <td style="text-align: center;">string</td>
+          <td> The name of the executable that should be used to launch the external program. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+        <tr>
+          <td valign="top">useruntimeengine</td>
+          <td style="text-align: center;">bool</td>
+          <td> Specifies whether the external program should be executed using a runtime engine, if configured. The default is <b>false</b>. </td>
+          <td style="text-align: center;">False</td>
+        </tr>
+      </table>
+    </div>
+    <h3>Nested Elements:</h3>
+    <!--Array-->
+    <!--NestedElementArray=T:NAnt.Core.Types.Argument-->
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;arg&gt;
+                </h4>
+    <div class="nested-element"> The command-line arguments for the external program. <p> Represents a command-line argument. </p><h3>Parameters</h3><div class="table"><table><tr><th>Attribute</th><th style="text-align: center;">Type</th><th>Description</th><th style="text-align: center;">Required</th></tr><tr><td valign="top">dir</td><td style="text-align: center;">directory</td><td> The value for a directory-based command-line argument; will be replaced with the absolute path of the directory. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">file</td><td style="text-align: center;">file</td><td> The name of a file as a single command-line argument; will be replaced with the absolute filename of the file. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">if</td><td style="text-align: center;">bool</td><td> Indicates if the argument should be passed to the external program. If <b>true</b> then the argument will be passed; otherwise, skipped. The default is <b>true</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">line</td><td style="text-align: center;">string</td><td> List of command-line arguments; will be passed to the executable as is. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">path</td><td style="text-align: center;">&lt;path&gt;</td><td> The value for a PATH-like command-line argument; you can use <code>:</code> or <code>;</code> as path separators and NAnt will convert it to the platform's local conventions, while resolving references to environment variables. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">unless</td><td style="text-align: center;">bool</td><td> Indicates if the argument should not be passed to the external program. If <b>false</b> then the argument will be passed; otherwise, skipped. The default is <b>false</b>. </td><td style="text-align: center;">False</td></tr><tr><td valign="top">value</td><td style="text-align: center;">string</td><td> A single command-line argument; can contain space characters. </td><td style="text-align: center;">False</td></tr></table></div><h3>Nested Elements:</h3><!--Element--><h4><a id="path"></a>
+                    &lt;<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><div class="nested-element"> Sets a single command-line argument and treats it like a PATH - ensures the right separator for the local platform is used. <p /></div><h4><a id="path"></a>
+                    &lt;/<a href="http://nant.sourceforge.net/help/types/path.html">path</a>&gt;
+                </h4><h3>Examples</h3><ul class="examples"><li><p> A single command-line argument containing a space character. </p><pre class="code">
+&lt;arg value="-l -a" /&gt;
+    </pre></li><li><p> Two separate command-line arguments. </p><pre class="code">
+&lt;arg line="-l -a" /&gt;
+    </pre></li><li><p> A single command-line argument with the value <code>\dir;\dir2;\dir3</code> on DOS-based systems and <code>/dir:/dir2:/dir3</code> on Unix-like systems. </p><pre class="code">
+&lt;arg path="/dir;/dir2:\dir3" /&gt;
+    </pre></li></ul></div>
+    <h4>
+      <a id="arg">
+      </a>
+                    &lt;/arg&gt;
+                </h4>
+    <h3>Examples</h3>
+    <ul class="examples">
+      <li>
+        <p>Compile a XML Schema.</p>
+        <pre class="code">
+&lt;xsd 
+    schema="MySchema.xsd" 
+    element="MyRootElement" 
+    language="CS" 
+    namespace="MyCompany.MySchema" 
+    outputdir="build\bin"
+    uri="http://MySchema'sTargetNamespace" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Generate an XML Schema from an assembly.</p>
+        <pre class="code">
+&lt;xsd assembly="MyAssembly.dll" outputdir="build\Schemas" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Generate an XML Schema from an XML document.</p>
+        <pre class="code">
+&lt;xsd xmldoc="MyDoc.xml" outputdir="build\Schemas" /&gt;
+    </pre>
+      </li>
+      <li>
+        <p>Generate an XML Schema from an XDR Schema.</p>
+        <pre class="code">
+&lt;xsd xdr="MyOldSchema.xdr" outputdir="build\Schemas" /&gt;
+    </pre>
+      </li>
+    </ul>
+    <h3>Requirements</h3>
+    <div style="margin-left: 20px;">
+      <b>Assembly:</b> NAnt.Contrib.Tasks (0.85.2479.0)
+            </div>
+  </body>
+</html>
