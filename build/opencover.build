@@ -1,8 +1,14 @@
 <project name="OpenCover" default="rebuild">
+
     <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
     <property name="platform" value="x86" unless="${property::exists('platform')}" />
 	<property name="solution.path" value="../main"/>
+	<property name="nunit.path" value="../tools/nunit/NUnit-2.5.7.10213/bin/net-2.0"/>
+	<property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
+	<property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
 	
+	<target name="rebuild" depends="clean, build, test" />
+
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
@@ -34,8 +40,6 @@
 		<call target="build.opencover" />
 	</target>
     
-    <target name="rebuild" depends="clean, build" />
-
     <target name="build.opencover">
         <loadtasks assembly="nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
 		<msbuild project="${solution.path}/opencover.sln">
@@ -47,5 +51,18 @@
         <property name="expected.output" value="${solution.path}/${platform}/${configuration}/OpenCover.Console.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>
+	
+	<target name="test" description="Run unit tests" depends="build" >
+		
+		<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
+		<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+		
+		<exec program="${nunit-console}">
+			<arg value="../main/OpenCover.Test/bin/${platform}/${configuration}/OpenCover.Test.dll" />
+			<arg value="/framework=4.0" />
+			<arg value="/xml=${solution.path}/${platform}/${configuration}/TestResult.xml" />
+		</exec>
+		
+	</target>
     
 </project>
