@@ -1,6 +1,6 @@
 <project name="OpenCover" default="rebuild">
-    <property name="configuration" value="debug"/>
-    <property name="platform" value="x86"/>
+    <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
+    <property name="platform" value="x86" unless="${property::exists('platform')}" />
 	<property name="solution.path" value="../main"/>
 	
     <target name="clean" description="Delete all previously compiled binaries.">
@@ -10,7 +10,8 @@
                 <include name="${solution.path}/**/obj/**" />
                 <include name="${solution.path}/**/*.suo" />
                 <include name="${solution.path}/**/*.user" />
-				<include name="${solution.path}/**/${platform}/**" />
+				<include name="${solution.path}/**/x86/**" />
+				<include name="${solution.path}/**/x64/**" />
 				<include name="${solution.path}/Docs/**" />
             </fileset>
         </delete>
@@ -19,6 +20,19 @@
     <target name="build" description="Build all targets.">
         <call target="build.opencover"/>
     </target>
+
+	<target name="build-all-platforms" description="Build all flavours i.e. all configurations and all platforms">
+		<property name="configuration" value="debug" />
+		<property name="platform" value="x86" />
+		<call target="build.opencover" />
+		<property name="platform" value="x64" />
+		<call target="build.opencover" />
+		<property name="configuration" value="release" />
+		<property name="platform" value="x86" />
+		<call target="build.opencover" />
+		<property name="platform" value="x64" />
+		<call target="build.opencover" />
+	</target>
     
     <target name="rebuild" depends="clean, build" />
 
