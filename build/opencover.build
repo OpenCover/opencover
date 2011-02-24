@@ -18,6 +18,7 @@
                 <include name="${solution.path}/**/*.user" />
 				<include name="${solution.path}/**/x86/**" />
 				<include name="${solution.path}/**/x64/**" />
+				<include name="${solution.path}/**/Win32/**" />
 				<include name="${solution.path}/Docs/**" />
             </fileset>
         </delete>
