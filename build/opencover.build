@@ -6,8 +6,9 @@
 	<property name="nunit.path" value="../tools/nunit/NUnit-2.5.7.10213/bin/net-2.0"/>
 	<property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
 	<property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
+	<property name="open-cover-test-console" value="${solution.path}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
 	
-	<target name="rebuild" depends="clean, build, test" />
+	<target name="rebuild" depends="clean, build, test, test-cpp" />
 
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
@@ -59,11 +60,17 @@
 		<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
 		
 		<exec program="${nunit-console}">
-			<arg value="../main/OpenCover.Test/bin/${platform}/${configuration}/OpenCover.Test.dll" />
+			<arg value="${solution.path}/${platform}/${configuration}/OpenCover.Test.dll" />
 			<arg value="/framework=4.0" />
 			<arg value="/xml=${solution.path}/${platform}/${configuration}/TestResult.xml" />
 		</exec>
 		
+		
+		
+	</target>
+	
+	<target name="test-cpp" description="Run C++ tests" >
+		<exec program="${open-cover-test-console}" if="${file::exists(open-cover-test-console)}" />
 	</target>
     
 </project>

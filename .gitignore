@@ -3,6 +3,8 @@
 /main/**/x86/**/*
 /main/**/bin/**/*
 /main/**/obj/**/*
+/main/**/Debug
+/main/**/Release
 /main/**/*.user
 /main/x86
 /main/x64
@@ -13,3 +15,4 @@
 /main/OpenCover.Profiler/OpenCoverProfiler_i.h
 /main/OpenCover.Profiler/OpenCoverProfiler_i.c
 /main/.gitignore
+/main/ipch

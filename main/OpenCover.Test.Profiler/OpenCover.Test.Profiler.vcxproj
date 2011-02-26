@@ -43,13 +43,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>..\..\tools\gtest-1.5.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.5.0\msvc\gtest;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)$(PROCESSOR_ARCHITECTURE)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>..\..\tools\gtest-1.5.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.5.0\msvc\gtest;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)$(PROCESSOR_ARCHITECTURE)\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)x86\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
