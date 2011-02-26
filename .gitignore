@@ -16,3 +16,5 @@
 /main/OpenCover.Profiler/OpenCoverProfiler_i.c
 /main/.gitignore
 /main/ipch
+/main/OpenCover.Profiler/OpenCoverProfiler_p.c
+/main/OpenCover.Profiler/dlldata.c
