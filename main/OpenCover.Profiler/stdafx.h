@@ -23,3 +23,13 @@
 #include <atlbase.h>
 #include <atlcom.h>
 #include <atlctl.h>
+
+#pragma pack(push)
+#pragma pack(4)
+
+#include <cor.h>
+#include <corsym.h>
+#include <corprof.h>
+#include <corhlpr.h>
+
+#pragma pack(pop)

@@ -34,6 +34,9 @@
     <ClCompile Include="OpenCoverProfiler_i.c">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="CodeCoverage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -54,6 +57,12 @@
     <ClInclude Include="OpenCoverProfiler_i.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="_ICodeCoverageEvents_CP.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeCoverage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenCover.Profiler.rc">
@@ -67,6 +76,9 @@
     </None>
     <None Include="OpenCover.Profiler.def">
       <Filter>Source Files</Filter>
+    </None>
+    <None Include="CodeCoverage.rgs">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
