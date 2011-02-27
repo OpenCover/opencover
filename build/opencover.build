@@ -21,6 +21,17 @@
 				<include name="${solution.path}/**/x64/**" />
 				<include name="${solution.path}/**/Win32/**" />
 				<include name="${solution.path}/Docs/**" />
+				<include name="${solution.path}/**/Debug/**" />
+				<include name="${solution.path}/**/Release/**" />
+            </fileset>
+        </delete>
+    </target>
+	
+	<target name="clean-all" description="Delete all other files" depends="clean">
+        <delete>
+            <fileset>
+                <include name="${solution.path}/ipch/**" />
+                <include name="${solution.path}/opencover.sdf" />
             </fileset>
         </delete>
     </target>
