@@ -119,6 +119,12 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">
+      <Project>{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}</Project>
+      <Name>OpenCover.Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

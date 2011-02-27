@@ -1,5 +1,57 @@
-Currently using AgileZen to organise the project and workflow 
+Licence:
+All Original Software is licensed under COMMON DEVELOPMENT AND 
+DISTRIBUTION LICENSE (CDDL) Version 1.0 and does not apply to any other 3rd 
+party tools, utilities or code which may be used to develop this application.
 
-see https://agilezen.com/project/19360
+If anyone is aware of any licence violations that this code may be making
+please inform the developers so that the issue can be investigated and 
+rectified.
 
-However you may have to become a member and/or get an invite
+Building:
+You will need Visual Studio VS2010 with C# and C++, all other software should 
+be included with this repository. 
+
+Nant scripts (encapsulated by the build.bat file) are used to build the project 
+outside visual studio and will run all unit tests.
+
+To build the code in 32-bit Debug mode just run Build in the root of the 
+project folder.
+
+Issues:
+Please raise issues on GitHub if you can repeat the issue then please provide a 
+sample to make it easier for us to also repeat it and then implement a fix.
+Dropbox is very useful for sharing files http://db.tt/VanqFDn
+
+Contribution:
+Software is being developed with agile practices in mind e.g. TDD using NUnit 
+and Moq for .NET code and GoogleTest for C++ code. So if you are wishing to 
+contribute please ensure that tests exist, if possible, for any contributed 
+code. 
+
+Project Management:
+Currently using AgileZen to organise the project and workflow, however 
+you may have to become a member and/or get an invite. Initially I'll grant
+view only access to those who are just interested i.e. "Chickens" and grant 
+greater rights to those people who wish to, or actively, contribute 
+i.e. "Pigs".
+
+Useful Links:
+	Site:
+		http://sawilde.github.com/opencover/
+		https://agilezen.com/project/19360
+	
+	Licence:
+		http://www.opensource.org/licenses/cddl1
+	
+	TDD:
+		http://code.google.com/p/moq/
+		http://www.nunit.org/
+		http://code.google.com/p/googletest/
+		
+	DropBox:
+		http://db.tt/VanqFDn
+
+Thanks:
+I would like to thank Chris Bennage and Tuna Toksoz who arranged my MSDN 
+licence and thanks to the NextGenUG and their free swag from where I got lots 
+of useful tools.
