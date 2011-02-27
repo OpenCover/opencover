@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target", "OpenCover.Simple.Target\OpenCover.Simple.Target.csproj", "{27AD5F08-0625-4093-8782-F7936737FAB7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -52,6 +54,14 @@ Global
 		{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}.Release|x64.ActiveCfg = Release|Win32
 		{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}.Release|x86.ActiveCfg = Release|Win32
 		{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}.Release|x86.Build.0 = Release|Win32
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Debug|x64.ActiveCfg = Debug|x64
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Debug|x64.Build.0 = Debug|x64
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Debug|x86.ActiveCfg = Debug|x86
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Debug|x86.Build.0 = Debug|x86
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Release|x64.ActiveCfg = Release|x64
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Release|x64.Build.0 = Release|x64
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Release|x86.ActiveCfg = Release|x86
+		{27AD5F08-0625-4093-8782-F7936737FAB7}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

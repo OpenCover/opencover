@@ -51,18 +51,23 @@ END_CONNECTION_POINT_MAP()
 
 	void FinalRelease()
 	{
+		if (m_profilerInfo!=NULL) m_profilerInfo.Release();
+		if (m_profilerInfo2!=NULL) m_profilerInfo2.Release();
+		if (m_profilerInfo3!=NULL) m_profilerInfo3.Release();
 	}
+
+	CComQIPtr<ICorProfilerInfo> m_profilerInfo;
+	CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
+	CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
 
 public:
 
 	// ICorProfilerCallback
 	public:
         virtual HRESULT STDMETHODCALLTYPE Initialize( 
-            /* [in] */ IUnknown *pICorProfilerInfoUnk) 
-		{ return S_OK; }
+            /* [in] */ IUnknown *pICorProfilerInfoUnk);
         
-        virtual HRESULT STDMETHODCALLTYPE Shutdown( void) 
-		{ return S_OK; }
+        virtual HRESULT STDMETHODCALLTYPE Shutdown( void);
         
         virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted( 
             /* [in] */ AppDomainID appDomainId) 
