@@ -83,11 +83,10 @@
       <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
-      <HintPath>..\..\tools\Moq\Moq.4.0.10531.7\NET40\Moq.dll</HintPath>
+      <HintPath>..\..\tools\Moq.4.0.10531.7\NET40\Moq.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework, Version=2.5.7.10213, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\tools\nunit\NUnit-2.5.9.10348\bin\net-2.0\nunit.framework.dll</HintPath>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

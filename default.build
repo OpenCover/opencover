@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <project name="NAnt Examples" default="rebuild">
-    <target name="*">
-        <nant target="${target::get-current-target()}">
-            <buildfiles>
-                <include name="build/**/*.build" />
-                <exclude name="default.build" />
-		<exclude name="build/nant*/**/*.build" />
-            </buildfiles>
-        </nant>
-    </target>
+	
+	<property name="build.folder" value="${directory::get-current-directory()}" />
+	
+	<include buildfile="build/opencover.build" />
+	<include buildfile="build/environment.build" />
+
+	<target name="rebuild" depends="prepare-environment, clean, build, test, test-cpp" />
+
 </project>
