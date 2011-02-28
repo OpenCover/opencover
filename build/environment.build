@@ -21,8 +21,6 @@
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}NUnit-2.5.9.10348" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}RavenDB-Build-287" />
-		<call target="extract" />
 	</target>
 	
 </project>
