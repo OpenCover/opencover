@@ -7,7 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
 	ProjectSection(SolutionItems) = preProject
+		..\build\environment.build = ..\build\environment.build
 		..\build\opencover.build = ..\build\opencover.build
+		..\build\version.build = ..\build\version.build
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover.Test\OpenCover.Test.csproj", "{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}"
@@ -17,6 +19,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target", "OpenCover.Simple.Target\OpenCover.Simple.Target.csproj", "{27AD5F08-0625-4093-8782-F7936737FAB7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Framework", "OpenCover.Framework\OpenCover.Framework.csproj", "{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{1E02E180-E417-4810-B8AF-939CB3DB4939}"
+	ProjectSection(SolutionItems) = preProject
+		..\default.build = ..\default.build
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,5 +82,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4337F24C-830C-4A9A-987B-2348F9222C39} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
 	EndGlobalSection
 EndGlobal

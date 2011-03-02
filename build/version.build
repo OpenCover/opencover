@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+
+	<target name="create-snk" >
+		<property name="opencover.snk.file" value="${build.folder}\Version\opencover.snk" />
+		<property name="opencover.public.snk.file" value="${build.folder}\Version\opencover.public.snk" />
+		<exec program="sn.exe" commandline="-k ${opencover.snk.file}" unless="${file::exists(opencover.snk.file)}"/>
+		<exec program="sn.exe" commandline="-p ${opencover.snk.file} ${opencover.public.snk.file}" unless="${file::exists(opencover.public.snk.file)}"/>
+	</target>
+
+	<target name="get-version-number" >
+		<property name="version.file" value="${build.folder}\Version\build.number" />
+		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="02/23/2011" />
+		
+	</target>
+	
+</project>

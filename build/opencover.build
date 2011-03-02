@@ -1,26 +1,26 @@
-<project name="OpenCover" default="rebuild">
+<?xml version="1.0"?>
+<project name="OpenCover" >
 
     <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
     <property name="platform" value="x86" unless="${property::exists('platform')}" />
-	<property name="solution.path" value="${build.folder}/main"/>
-	<property name="nunit.path" value="${build.folder}/tools/NUnit-2.5.9.10348/bin/net-2.0"/>
+	<property name="nunit.path" value="${tools.folder}/NUnit-2.5.9.10348/bin/net-2.0"/>
 	<property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
 	<property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
-	<property name="open-cover-test-console" value="${solution.path}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
+	<property name="open-cover-test-console" value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
 	
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
-                <include name="${solution.path}/**/bin/**" />
-                <include name="${solution.path}/**/obj/**" />
-                <include name="${solution.path}/**/*.suo" />
-                <include name="${solution.path}/**/*.user" />
-				<include name="${solution.path}/**/x86/**" />
-				<include name="${solution.path}/**/x64/**" />
-				<include name="${solution.path}/**/Win32/**" />
-				<include name="${solution.path}/Docs/**" />
-				<include name="${solution.path}/**/Debug/**" />
-				<include name="${solution.path}/**/Release/**" />
+                <include name="${solution.folder}/**/bin/**" />
+                <include name="${solution.folder}/**/obj/**" />
+                <include name="${solution.folder}/**/*.suo" />
+                <include name="${solution.folder}/**/*.user" />
+				<include name="${solution.folder}/**/x86/**" />
+				<include name="${solution.folder}/**/x64/**" />
+				<include name="${solution.folder}/**/Win32/**" />
+				<include name="${solution.folder}/Docs/**" />
+				<include name="${solution.folder}/**/Debug/**" />
+				<include name="${solution.folder}/**/Release/**" />
             </fileset>
         </delete>
     </target>
@@ -28,8 +28,8 @@
 	<target name="clean-all" description="Delete all other files" depends="clean">
         <delete>
             <fileset>
-                <include name="${solution.path}/ipch/**" />
-                <include name="${solution.path}/opencover.sdf" />
+                <include name="${solution.folder}/ipch/**" />
+                <include name="${solution.folder}/opencover.sdf" />
             </fileset>
         </delete>
     </target>
@@ -53,14 +53,14 @@
 	</target>
     
     <target name="build.opencover">
-        <loadtasks assembly="${build.folder}/build/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
-		<msbuild project="${solution.path}/opencover.sln">
+        
+		<msbuild project="${solution.folder}/opencover.sln">
 			<arg value="/p:Configuration=${configuration}" />
 			<arg value="/p:Platform=${platform}" />
 			<arg value="/t:Rebuild" />
 		</msbuild>
 	  
-        <property name="expected.output" value="${solution.path}/${platform}/${configuration}/OpenCover.Console.exe"/>
+        <property name="expected.output" value="${solution.folder}/${platform}/${configuration}/OpenCover.Console.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>
 	
@@ -70,9 +70,9 @@
 		<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
 		
 		<exec program="${nunit-console}">
-			<arg value="${solution.path}/${platform}/${configuration}/OpenCover.Test.dll" />
+			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.dll" />
 			<arg value="/framework=4.0" />
-			<arg value="/xml=${solution.path}/${platform}/${configuration}/TestResult.xml" />
+			<arg value="/xml=${solution.folder}/${platform}/${configuration}/TestResult.xml" />
 		</exec>
 		
 	</target>
@@ -87,7 +87,7 @@
 		<exec program="regsvr32" >	
 			<arg value="/u" />
 			<arg value="/s" />
-			<arg value="${solution.path}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
 		</exec>
 	</target>
 
@@ -96,7 +96,7 @@
 			<arg value="/n" />
 			<arg value="/i:user" />
 			<arg value="/s" />
-			<arg value="${solution.path}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
 		</exec>
 	</target>
 	

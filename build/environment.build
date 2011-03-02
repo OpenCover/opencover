@@ -1,13 +1,13 @@
-<project name="OpenCover" default="prepare-environment" >
+<?xml version="1.0"?>
+<project name="OpenCover" >
 
 	<property name="target.zip" value="" />
-	<property name="tools.folder" value="${build.folder}/tools/" />
 	
 	<target name="extract" unless="${directory::exists(target.folder)}">
 	    <echo message="${target.folder}" />
 		<property name="target.zip" value="${target.folder}.zip" />
 		<echo message="${target.zip}" />
-		<exec program="${tools.folder}7-Zip/7za.exe">
+		<exec program="${tools.folder}/7-Zip/7za.exe">
 			<arg value="x" />
 			<arg value="-o${tools.folder}" />
 			<arg value="${target.zip}" />
@@ -15,12 +15,15 @@
 	</target>
 	
 	<target name="prepare-environment" >
-		<property name="target.folder" value="${tools.folder}gtest-1.5.0" />
+		<property name="target.folder" value="${tools.folder}/gtest-1.5.0" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}Moq.4.0.10531.7" />
+		<property name="target.folder" value="${tools.folder}/Moq.4.0.10531.7" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}NUnit-2.5.9.10348" />
+		<property name="target.folder" value="${tools.folder}/NUnit-2.5.9.10348" />
 		<call target="extract" />
+		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
+		<call target="extract" />
+		
 	</target>
 	
 </project>

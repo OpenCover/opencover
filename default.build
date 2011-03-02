@@ -1,11 +1,18 @@
 <?xml version="1.0"?>
 <project name="NAnt Examples" default="rebuild">
-	
-	<property name="build.folder" value="${directory::get-current-directory()}" />
-	
-	<include buildfile="build/opencover.build" />
-	<include buildfile="build/environment.build" />
 
-	<target name="rebuild" depends="prepare-environment, clean, build, test, test-cpp" />
+	<property name="root.folder" value="${directory::get-current-directory()}" />
+	<property name="build.folder" value="${root.folder}/build" />
+	<property name="solution.folder" value="${root.folder}/main" />
+	<property name="tools.folder" value="${root.folder}/tools" />
+
+	<loadtasks assembly="${build.folder}/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
+
+	<include buildfile="${build.folder}/version.build" />
+	<include buildfile="${build.folder}/opencover.build" />
+	<include buildfile="${build.folder}/environment.build" />
+
+	<target name="build-environment" depends="create-snk, prepare-environment, get-version-number" />
+	<target name="rebuild" depends="build-environment, clean, build, test, test-cpp" />
 
 </project>
