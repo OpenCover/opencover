@@ -1,16 +1,16 @@
 HKCR
 {
-	OpenCover.CodeCoverage.1 = s 'CodeCoverage Class'
+	OpenCover.CodeCoverage.1 = s 'OpenCover CodeCoverage Class'
 	{
 		CLSID = s '{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}'
 	}
-	OpenCover.CodeCoverage = s 'CodeCoverage Class'
+	OpenCover.CodeCoverage = s 'OpenCover CodeCoverage Class'
 	{		
 		CurVer = s 'OpenCover.CodeCoverage.1'
 	}
 	NoRemove CLSID
 	{
-		ForceRemove {1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8} = s 'CodeCoverage Class'
+		ForceRemove {1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8} = s 'OpenCover CodeCoverage Class'
 		{
 			ProgID = s 'OpenCover.CodeCoverage.1'
 			VersionIndependentProgID = s 'OpenCover.CodeCoverage'

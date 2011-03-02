@@ -33,3 +33,6 @@
 #include <corhlpr.h>
 
 #pragma pack(pop)
+
+#include <string>
+

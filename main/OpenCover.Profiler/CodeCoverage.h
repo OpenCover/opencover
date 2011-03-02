@@ -56,9 +56,16 @@ END_CONNECTION_POINT_MAP()
 		if (m_profilerInfo3!=NULL) m_profilerInfo3.Release();
 	}
 
+private:
 	CComQIPtr<ICorProfilerInfo> m_profilerInfo;
 	CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
 	CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
+
+	std::wstring GetModuleName(ModuleID moduleId);
+	std::wstring GetAssemblyName(AssemblyID assemblyId);
+	std::wstring GetClassName(ModuleID moduleId, mdTypeDef tokenTypeDef);
+	std::wstring GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2);
+	void GetGenericSignature(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2, std::wstring &className);
 
 public:
 
@@ -70,81 +77,64 @@ public:
         virtual HRESULT STDMETHODCALLTYPE Shutdown( void);
         
         virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted( 
-            /* [in] */ AppDomainID appDomainId) 
-		{ return S_OK; }
+            /* [in] */ AppDomainID appDomainId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AppDomainCreationFinished( 
             /* [in] */ AppDomainID appDomainId,
-            /* [in] */ HRESULT hrStatus) 
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownStarted( 
-            /* [in] */ AppDomainID appDomainId)
-		{ return S_OK; }
+            /* [in] */ AppDomainID appDomainId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownFinished( 
             /* [in] */ AppDomainID appDomainId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AssemblyLoadStarted( 
-            /* [in] */ AssemblyID assemblyId)
-		{ return S_OK; }
+            /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AssemblyLoadFinished( 
             /* [in] */ AssemblyID assemblyId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadStarted( 
-            /* [in] */ AssemblyID assemblyId)
-		{ return S_OK; }
+            /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadFinished( 
             /* [in] */ AssemblyID assemblyId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ModuleLoadStarted( 
-            /* [in] */ ModuleID moduleId)
-		{ return S_OK; }
+            /* [in] */ ModuleID moduleId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished( 
             /* [in] */ ModuleID moduleId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ModuleUnloadStarted( 
-            /* [in] */ ModuleID moduleId)
-		{ return S_OK; }
+            /* [in] */ ModuleID moduleId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ModuleUnloadFinished( 
             /* [in] */ ModuleID moduleId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ModuleAttachedToAssembly( 
             /* [in] */ ModuleID moduleId,
-            /* [in] */ AssemblyID AssemblyId)
-		{ return S_OK; }
+            /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ClassLoadStarted( 
-            /* [in] */ ClassID classId)
-		{ return S_OK; }
+            /* [in] */ ClassID classId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ClassLoadFinished( 
             /* [in] */ ClassID classId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ClassUnloadStarted( 
-            /* [in] */ ClassID classId)
-		{ return S_OK; }
+            /* [in] */ ClassID classId); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE ClassUnloadFinished( 
             /* [in] */ ClassID classId,
-            /* [in] */ HRESULT hrStatus)
-		{ return S_OK; }
+            /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
         
         virtual HRESULT STDMETHODCALLTYPE FunctionUnloadStarted( 
             /* [in] */ FunctionID functionId)
