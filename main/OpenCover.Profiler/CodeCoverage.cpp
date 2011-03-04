@@ -3,6 +3,44 @@
 #include "stdafx.h"
 #include "CodeCoverage.h"
 
+// Print out rich error info
+void PrintError(HRESULT errorCode, WS_ERROR* error)
+{
+    ATLTRACE(L"Failure: errorCode=0x%lx\n", errorCode);
+
+    if (errorCode == E_INVALIDARG || errorCode == WS_E_INVALID_OPERATION)
+    {
+        // Correct use of the APIs should never generate these errors
+        ATLTRACE(L"The error was due to an invalid use of an API.  This is likely due to a bug in the program.\n");
+        DebugBreak();
+    }
+
+    HRESULT hr = NOERROR;
+    if (error != NULL)
+    {
+        ULONG errorCount;
+        hr = WsGetErrorProperty(error, WS_ERROR_PROPERTY_STRING_COUNT, &errorCount, sizeof(errorCount));
+        if (FAILED(hr))
+        {
+            goto Exit;
+        }
+        for (ULONG i = 0; i < errorCount; i++)
+        {
+            WS_STRING string;
+            hr = WsGetErrorString(error, i, &string);
+            if (FAILED(hr))
+            {
+                goto Exit;
+            }
+            ATLTRACE(L"%.*s\n", string.length, string.chars);
+        }
+    }
+Exit:
+    if (FAILED(hr))
+    {
+        ATLTRACE(L"Could not get error string (errorCode=0x%lx)\n", hr);
+    }
+}
 // CCodeCoverage
 
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
@@ -18,7 +56,112 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 	if (m_profilerInfo2 == NULL) return E_FAIL;
 	m_profilerInfo3 = pICorProfilerInfoUnk;
 	if (m_profilerInfo3 != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
+
+	WS_ERROR* error = NULL;
+	WS_HEAP* heap = NULL;
+	WS_SERVICE_PROXY* proxy = NULL;
+
 	
+	WCHAR pszPortNumber[10];
+
+	::GetEnvironmentVariableW(L"OpenCover_Port", pszPortNumber, 10);
+
+	int portNumber = _wtoi(pszPortNumber);
+	
+	HRESULT hr = ERROR_SUCCESS;
+
+	WS_ENDPOINT_ADDRESS address = {};
+	WS_STRING url= WS_STRING_VALUE(L"http://localhost:8000/OpenCover.Profiler/");
+	address.url = url;
+	
+	ATLTRACE(_T("STARTING"));
+
+	hr = WsCreateError(NULL,  0,  &error);
+    if (FAILED(hr))
+    {
+		goto Exit;
+    }
+
+	ATLTRACE(_T("WsCreateError"));
+
+	hr = WsCreateHeap(2048, 512, NULL, 0, &heap, error); 
+    if (FAILED(hr))
+    {
+		goto Exit;
+    }
+
+	ATLTRACE(_T("WsCreateHeap"));
+
+	// Create the proxy
+    hr = WsCreateServiceProxy(
+            WS_CHANNEL_TYPE_REQUEST, 
+            WS_HTTP_CHANNEL_BINDING, 
+            NULL, 
+            NULL, 
+            0, 
+            NULL,
+            0,
+            &proxy, 
+            error);
+
+	ATLTRACE(_T("WsCreateServiceProxy"));
+
+    if (FAILED(hr))
+    {
+		goto Exit;
+    }
+        
+    hr = WsOpenServiceProxy(
+        proxy, 
+        &address, 
+        NULL, 
+        error);
+    if (FAILED(hr))
+    {
+		goto Exit;
+    }
+	ATLTRACE(_T("WsOpenServiceProxy"));
+	
+	BOOL result;
+	hr = DefaultBinding_IProfilerCommunication_Start(proxy, 
+		&result, heap, 
+		NULL, 
+        0, 
+        NULL, 
+        error);
+    if (FAILED(hr))
+    {
+		ATLTRACE(_T("DefaultBinding_IProfilerCommunication_Start (0x%x)"), hr);
+		goto Exit;
+    }
+	ATLTRACE(_T("DefaultBinding_IProfilerCommunication_Start"));
+
+Exit:
+	 if (FAILED(hr))
+	 {
+		 PrintError(hr, error);
+	 }
+
+	if (proxy != NULL)
+    {
+        WsCloseServiceProxy(
+            proxy, 
+            NULL, 
+            NULL);
+    
+        WsFreeServiceProxy(
+            proxy);
+    }
+    
+    if (heap != NULL)
+    {
+        WsFreeHeap(heap);
+    }
+
+	if (error != NULL)
+    {
+        WsFreeError(error);
+    }
 
     DWORD dwMask = 0;
 	dwMask |= COR_PRF_MONITOR_ASSEMBLY_LOADS;		// Controls the AssemblyLoad and AssemblyUnload callbacks.
@@ -30,6 +173,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 	dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
 
 	m_profilerInfo->SetEventMask(dwMask);
+
+
 
 	return S_OK; 
 }

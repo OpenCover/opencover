@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace OpenCover.Simple.Target
 {
@@ -12,7 +13,8 @@ namespace OpenCover.Simple.Target
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World");
+            Console.WriteLine("Hello World *****");
+            Thread.Sleep(10000);
             new Class();
             new GenericClass<object>();
         }

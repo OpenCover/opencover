@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D} = {D0B478C6-D149-499F-B5C3-5293C1AC439D}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCover.Console\OpenCover.Console.csproj", "{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2}"
 EndProject
@@ -15,6 +18,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover.Test\OpenCover.Test.csproj", "{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B2CE418E-A5C8-4C46-9513-771414B3CA4C} = {B2CE418E-A5C8-4C46-9513-771414B3CA4C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target", "OpenCover.Simple.Target\OpenCover.Simple.Target.csproj", "{27AD5F08-0625-4093-8782-F7936737FAB7}"
 EndProject
@@ -23,6 +29,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{1E02E180-E417-4810-B8AF-939CB3DB4939}"
 	ProjectSection(SolutionItems) = preProject
 		..\default.build = ..\default.build
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Wsdl", "OpenCover.Wsdl\OpenCover.Wsdl.vcxproj", "{D0B478C6-D149-499F-B5C3-5293C1AC439D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57} = {C6F40A34-101B-4BAF-A2F4-6EA28A264F57}
 	EndProjectSection
 EndProject
 Global
@@ -79,6 +90,14 @@ Global
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x64.Build.0 = Release|Any CPU
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x86.ActiveCfg = Release|Any CPU
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x86.Build.0 = Release|Any CPU
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Debug|x64.ActiveCfg = Debug|x64
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Debug|x64.Build.0 = Debug|x64
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Debug|x86.ActiveCfg = Debug|Win32
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Debug|x86.Build.0 = Debug|Win32
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Release|x64.ActiveCfg = Release|x64
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Release|x64.Build.0 = Release|x64
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Release|x86.ActiveCfg = Release|Win32
+		{D0B478C6-D149-499F-B5C3-5293C1AC439D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

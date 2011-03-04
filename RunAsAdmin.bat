@@ -1,0 +1,1 @@
+netsh http add urlacl url=http://+:8000/OpenCover.Profiler %USERNAME%

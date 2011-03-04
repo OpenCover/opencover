@@ -5,14 +5,18 @@
 	<property name="build.folder" value="${root.folder}/build" />
 	<property name="solution.folder" value="${root.folder}/main" />
 	<property name="tools.folder" value="${root.folder}/tools" />
+	<property name="schema.folder" value="${solution.folder}/schema" />
 
 	<loadtasks assembly="${build.folder}/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
 
 	<include buildfile="${build.folder}/version.build" />
 	<include buildfile="${build.folder}/opencover.build" />
 	<include buildfile="${build.folder}/environment.build" />
+	<include buildfile="${build.folder}/schema.build" />
 
 	<target name="build-environment" depends="create-snk, prepare-environment, get-version-number" />
 	<target name="rebuild" depends="build-environment, clean, build, test, test-cpp" />
 
+	<target name="generate-schema" depends="generate-wsdl-from-assembly, generate-c-from-wsdl" />
+	
 </project>

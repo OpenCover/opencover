@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+
+	<target name="generate-wsdl-from-assembly" >
+		<exec program="svcutil.exe" 
+			commandline="${solution.folder}/${platform}/${configuration}/OpenCover.Framework.dll" 
+			workingdir="${schema.folder}" />
+	</target>
+
+	<target name="generate-c-from-wsdl" >
+		<exec program="wsutil.exe" commandline="*.wsdl *.xsd" 
+			workingdir="${schema.folder}" />
+	</target>
+
+</project>
