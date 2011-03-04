@@ -15,14 +15,8 @@ namespace OpenCover.Console
 
             try
             {
-                if (parser.UserRegistration)
-                {
-                    Externals.DllInstall(1, "user");
-                }
-                else if (parser.Register)
-                {
-                     Externals.DllInstall(1, string.Empty);
-                }
+                
+                if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration);
 
                 var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, "OpenCover.Simple.Target.exe"));
                 startInfo.EnvironmentVariables.Add("Cor_Profiler", "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
@@ -36,14 +30,7 @@ namespace OpenCover.Console
             }
             finally
             {
-                if (parser.UserRegistration)
-                {
-                    Externals.DllInstall(0, "user");
-                }
-                else if (parser.Register)
-                {
-                    Externals.DllInstall(0, string.Empty);
-                }
+                if (parser.Register) ProfilerRegistration.Unregister(parser.UserRegistration);
             }
         }
     }

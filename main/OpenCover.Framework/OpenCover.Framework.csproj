@@ -37,7 +37,7 @@
   <ItemGroup>
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
-    <Compile Include="Externals.cs" />
+    <Compile Include="ProfilerRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

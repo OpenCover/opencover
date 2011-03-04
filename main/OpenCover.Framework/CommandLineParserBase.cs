@@ -45,13 +45,26 @@ namespace OpenCover.Framework
             }
         }
 
+        /// <summary>
+        /// Get the number of extracted arguments
+        /// </summary>
         public int ArgumentCount { get { return ParsedArguments.Count; } }
 
+        /// <summary>
+        /// Check if an argument of the name given was part of the supplied arguments
+        /// </summary>
+        /// <param name="argument">an argument name</param>
+        /// <returns>true - if argument was supplied</returns>
         public bool HasArgument(string argument) 
         {
             return ParsedArguments.ContainsKey(argument); 
         }
 
+        /// <summary>
+        /// Get the the value of a named argument
+        /// </summary>
+        /// <param name="argument">an argument name</param>
+        /// <returns>the value supplied by an argument</returns>
         public string GetArgumentValue(string argument)
         {
             return HasArgument(argument) ? ParsedArguments[argument] : String.Empty;
