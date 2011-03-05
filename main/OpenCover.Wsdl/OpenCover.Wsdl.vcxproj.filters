@@ -35,9 +35,6 @@
     <ClCompile Include="..\Schema\opencover.profiler.xsd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Schema\tempuri.org.wsdl.c">
       <Filter>Source Files</Filter>
     </ClCompile>

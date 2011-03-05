@@ -5,6 +5,7 @@ using System.IO;
 using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Text;
+using System.Threading;
 using OpenCover.Framework;
 using OpenCover.Framework.Service;
 
@@ -16,6 +17,15 @@ namespace OpenCover.Console
         {
 
             var parser = new CommandLineParser(string.Join("", args));
+
+            if (parser.HostOnly)
+            {
+                var host = new ProfilerServiceHost();
+                host.Open(parser.PortNumber);
+                Thread.Sleep(new TimeSpan(0, 0, 0, parser.HostOnlySeconds));
+                host.Close();
+                return;
+            }
 
             try
             {

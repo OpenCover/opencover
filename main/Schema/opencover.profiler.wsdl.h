@@ -90,60 +90,14 @@ extern "C" {
 
 // The following client functions were generated:
 
-//     DefaultBinding_IProfilerCommunication_Start
-//     DefaultBinding_IProfilerCommunication_Stop
 
 // The following server function tables were generated:
 
-//     struct DefaultBinding_IProfilerCommunicationFunctionTable
 
 // The following header files must be included in this order before this one
 
 // #include <WebServices.h>
 // #include "opencover.profiler.xsd.h"
-
-////////////////////////////////////////////////
-// Client functions definitions
-////////////////////////////////////////////////
-
-// operation: DefaultBinding_IProfilerCommunication_Start
-HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-// operation: DefaultBinding_IProfilerCommunication_Stop
-HRESULT WINAPI DefaultBinding_IProfilerCommunication_Stop(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-////////////////////////////////////////////////
-// Service functions definitions
-////////////////////////////////////////////////
-
-typedef HRESULT (CALLBACK* DefaultBinding_IProfilerCommunication_StartCallback) (
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-typedef HRESULT (CALLBACK* DefaultBinding_IProfilerCommunication_StopCallback) (
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-// binding: DefaultBinding_IProfilerCommunication
-typedef struct DefaultBinding_IProfilerCommunicationFunctionTable 
-{
-    DefaultBinding_IProfilerCommunication_StartCallback DefaultBinding_IProfilerCommunication_Start;
-    DefaultBinding_IProfilerCommunication_StopCallback DefaultBinding_IProfilerCommunication_Stop;
-} DefaultBinding_IProfilerCommunicationFunctionTable;
 
 ////////////////////////////////////////////////
 // Global web service descriptions.
@@ -178,20 +132,6 @@ typedef struct _opencover_profiler_wsdl
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_OutputMessage;
         
     } messages;
-    struct // contracts
-    {
-        // binding: DefaultBinding_IProfilerCommunication
-        // portType: IProfilerCommunication
-        // operation: DefaultBinding_IProfilerCommunication_Start
-        //     input message: IProfilerCommunication_Start_InputMessage
-        //     output message: IProfilerCommunication_Start_OutputMessage
-        // operation: DefaultBinding_IProfilerCommunication_Stop
-        //     input message: IProfilerCommunication_Stop_InputMessage
-        //     output message: IProfilerCommunication_Stop_OutputMessage
-        // contractDescription: opencover_profiler_wsdl.contracts.DefaultBinding_IProfilerCommunication
-        WS_CONTRACT_DESCRIPTION DefaultBinding_IProfilerCommunication;
-        
-    } contracts;
 } _opencover_profiler_wsdl;
 
 extern const _opencover_profiler_wsdl opencover_profiler_wsdl;

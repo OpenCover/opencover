@@ -69,16 +69,15 @@ void ProfilerCommunication::Initialise()
 
     ATLTRACE(_T("WsCreateHeap"));
 
-    hr = WsCreateServiceProxy(
-        WS_CHANNEL_TYPE_REQUEST, 
-        WS_HTTP_CHANNEL_BINDING, 
-        NULL, 
-        NULL, 
-        0, 
+    hr = WSHttpBinding_IProfilerCommunication_CreateServiceProxy
+        (
+        NULL,
         NULL,
         0,
-        &proxy, 
-        error);
+        &proxy,
+        error
+        );
+
     ONERROR_GOEXIT(hr);
     
     ATLTRACE(_T("WsCreateChannel"));

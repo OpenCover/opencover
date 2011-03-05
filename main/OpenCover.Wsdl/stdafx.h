@@ -13,7 +13,6 @@
 
 // TODO: reference additional headers your program requires here
 #include <WebServices.h>
-#include "..\schema\schemas.microsoft.com.2003.10.Serialization.xsd.h"
 #include "..\schema\opencover.profiler.xsd.h"
 #include "..\schema\opencover.profiler.wsdl.h"
 #include "..\schema\tempuri.org.wsdl.h"

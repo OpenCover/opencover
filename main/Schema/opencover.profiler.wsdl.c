@@ -13,22 +13,6 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_InputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_OutputMessage;
     } messages; // end of messages
-    struct // contracts
-    {
-        struct // DefaultBinding_IProfilerCommunication
-        {
-            struct // DefaultBinding_IProfilerCommunication_Start
-            {
-                WS_OPERATION_DESCRIPTION DefaultBinding_IProfilerCommunication_Start;
-            } DefaultBinding_IProfilerCommunication_Start;
-            struct // DefaultBinding_IProfilerCommunication_Stop
-            {
-                WS_OPERATION_DESCRIPTION DefaultBinding_IProfilerCommunication_Stop;
-            } DefaultBinding_IProfilerCommunication_Stop;
-            WS_OPERATION_DESCRIPTION* operations[2];
-            WS_CONTRACT_DESCRIPTION contractDesc;
-        } DefaultBinding_IProfilerCommunication;
-    } contracts;  // endof contracts 
     struct // XML dictionary
     {
         struct // XML string list
@@ -42,52 +26,6 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
     } dictionary;  // end of XML dictionary
 } _opencover_profiler_wsdlLocalDefinitions;
 
-
-#if (_MSC_VER >=1400) 
-#pragma warning(push)
-#endif
-#pragma warning(disable: 4055) // conversion from data pointer to function pointer
-HRESULT CALLBACK DefaultBinding_IProfilerCommunication_StartOperationStub(
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in void* _stackStruct,
-    __in const void* _callback,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    DefaultBinding_IProfilerCommunication_StartCallback _operation = (DefaultBinding_IProfilerCommunication_StartCallback)_callback;
-    _stackStruct;
-    return _operation( 
-        _context,
-        (WS_ASYNC_CONTEXT*)_asyncContext,
-        _error);
-}
-#pragma warning(default: 4055)  // conversion from data pointer to function pointer
-#if (_MSC_VER >=1400) 
-#pragma warning(pop)
-#endif
-
-#if (_MSC_VER >=1400) 
-#pragma warning(push)
-#endif
-#pragma warning(disable: 4055) // conversion from data pointer to function pointer
-HRESULT CALLBACK DefaultBinding_IProfilerCommunication_StopOperationStub(
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in void* _stackStruct,
-    __in const void* _callback,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    DefaultBinding_IProfilerCommunication_StopCallback _operation = (DefaultBinding_IProfilerCommunication_StopCallback)_callback;
-    _stackStruct;
-    return _operation( 
-        _context,
-        (WS_ASYNC_CONTEXT*)_asyncContext,
-        _error);
-}
-#pragma warning(default: 4055)  // conversion from data pointer to function pointer
-#if (_MSC_VER >=1400) 
-#pragma warning(pop)
-#endif
 const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLocalDefinitions =
 {
     { // messages
@@ -108,44 +46,6 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StopResponse, 
         },    // message description for IProfilerCommunication_Stop_OutputMessage
     }, // end of messages 
-    { // contracts
-        {    // DefaultBinding_IProfilerCommunication,
-            { // DefaultBinding_IProfilerCommunication_Start
-                {    // operation description for DefaultBinding_IProfilerCommunication_Start
-                    1,
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_InputMessage, 
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_OutputMessage, 
-                    0,
-                    0,
-                    0,
-                    0,
-                    DefaultBinding_IProfilerCommunication_StartOperationStub,
-                    WS_NON_RPC_LITERAL_OPERATION
-                }, //operation description for DefaultBinding_IProfilerCommunication_Start
-            },  // DefaultBinding_IProfilerCommunication_Start
-            { // DefaultBinding_IProfilerCommunication_Stop
-                {    // operation description for DefaultBinding_IProfilerCommunication_Stop
-                    1,
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_InputMessage, 
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_OutputMessage, 
-                    0,
-                    0,
-                    0,
-                    0,
-                    DefaultBinding_IProfilerCommunication_StopOperationStub,
-                    WS_NON_RPC_LITERAL_OPERATION
-                }, //operation description for DefaultBinding_IProfilerCommunication_Stop
-            },  // DefaultBinding_IProfilerCommunication_Stop
-            {    // array of operations for DefaultBinding_IProfilerCommunication
-                (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Start.DefaultBinding_IProfilerCommunication_Start,
-                (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Stop.DefaultBinding_IProfilerCommunication_Stop,
-            },    // array of operations for DefaultBinding_IProfilerCommunication
-            {    // contract description for DefaultBinding_IProfilerCommunication
-            2,
-            (WS_OPERATION_DESCRIPTION**)opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.operations,
-            },  // end of contract description for DefaultBinding_IProfilerCommunication
-        },    // DefaultBinding_IProfilerCommunication
-    }, //  end of contracts 
     {    // dictionary 
         { // xmlStrings
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Start",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 0),
@@ -155,8 +55,8 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
         },  // end of xmlStrings
         
         {   // opencover_profiler_wsdldictionary
-        // 9e71b143-5304-4c11-a029-221b6452949d 
-        { 0x9e71b143, 0x5304, 0x4c11, { 0xa0, 0x29, 0x22,0x1b, 0x64, 0x52, 0x94, 0x9d } },
+        // 45448b70-a2e9-40f5-8d9d-8eefc89884d5 
+        { 0x45448b70, 0xa2e9, 0x40f5, { 0x8d, 0x9d, 0x8e,0xef, 0xc8, 0x98, 0x84, 0xd5 } },
         (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings,
         4,
         TRUE,
@@ -164,44 +64,6 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
     },   //  end of dictionary
 }; //  end of opencover_profiler_wsdlLocalDefinitions
 
-
-// operation: DefaultBinding_IProfilerCommunication_Start
-HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    return WsCall(_serviceProxy,
-        (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Start.DefaultBinding_IProfilerCommunication_Start,
-        0,
-        _heap,
-        _callProperties,
-        _callPropertyCount,
-        _asyncContext,
-        _error);
-}
-
-// operation: DefaultBinding_IProfilerCommunication_Stop
-HRESULT WINAPI DefaultBinding_IProfilerCommunication_Stop(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    return WsCall(_serviceProxy,
-        (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Stop.DefaultBinding_IProfilerCommunication_Stop,
-        0,
-        _heap,
-        _callProperties,
-        _callPropertyCount,
-        _asyncContext,
-        _error);
-}
 const _opencover_profiler_wsdl opencover_profiler_wsdl =
 {
     {// messages
@@ -222,10 +84,4 @@ const _opencover_profiler_wsdl opencover_profiler_wsdl =
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StopResponse, 
         },    // message description for IProfilerCommunication_Stop_OutputMessage
     }, // messages
-    {// contracts
-        {   // DefaultBinding_IProfilerCommunication
-            2,
-            (WS_OPERATION_DESCRIPTION**)opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.operations,
-        },    // end of DefaultBinding_IProfilerCommunication
-    }, // contracts
 }; // end of _opencover_profiler_wsdl
