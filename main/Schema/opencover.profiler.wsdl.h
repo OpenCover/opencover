@@ -109,7 +109,6 @@ extern "C" {
 // operation: DefaultBinding_IProfilerCommunication_Start
 HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
     __in WS_SERVICE_PROXY* _serviceProxy,
-    __out BOOL* StartResult, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
@@ -119,7 +118,6 @@ HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
 // operation: DefaultBinding_IProfilerCommunication_Stop
 HRESULT WINAPI DefaultBinding_IProfilerCommunication_Stop(
     __in WS_SERVICE_PROXY* _serviceProxy,
-    __out BOOL* StopResult, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
@@ -132,13 +130,11 @@ HRESULT WINAPI DefaultBinding_IProfilerCommunication_Stop(
 
 typedef HRESULT (CALLBACK* DefaultBinding_IProfilerCommunication_StartCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
-    __out BOOL* StartResult, 
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
 typedef HRESULT (CALLBACK* DefaultBinding_IProfilerCommunication_StopCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
-    __out BOOL* StopResult, 
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 

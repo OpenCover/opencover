@@ -8,16 +8,6 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
     struct  // global elements
     {
     char unused;
-        struct // _StartResponse
-        {
-            WS_FIELD_DESCRIPTION StartResult;
-            WS_FIELD_DESCRIPTION* _StartResponseFields [1]; 
-        } _StartResponsedescs; // end of _StartResponse
-        struct // _StopResponse
-        {
-            WS_FIELD_DESCRIPTION StopResult;
-            WS_FIELD_DESCRIPTION* _StopResponseFields [1]; 
-        } _StopResponsedescs; // end of _StopResponse
     } globalElements;  // end of global elements
     struct // XML dictionary
     {
@@ -26,10 +16,8 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
             WS_XML_STRING _StartTypeName;  // Start
             WS_XML_STRING _StartTypeNamespace;  // urn:opencover.profiler
             WS_XML_STRING _StartResponseTypeName;  // StartResponse
-            WS_XML_STRING _StartResponseStartResultLocalName;  // StartResult
             WS_XML_STRING _StopTypeName;  // Stop
             WS_XML_STRING _StopResponseTypeName;  // StopResponse
-            WS_XML_STRING _StopResponseStopResultLocalName;  // StopResult
         } xmlStrings; // end of XML string list
         WS_XML_DICTIONARY dict;  
     } dictionary;  // end of XML dictionary
@@ -39,55 +27,21 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
 {
     {  // global elements
         0,
-        {   // _StartResponse
-            { // field description for StartResult
-            WS_ELEMENT_FIELD_MAPPING,
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartResponseStartResultLocalName, // StartResult
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
-            WS_BOOL_TYPE,
-            0,
-            WsOffsetOf(_StartResponse, StartResult),
-             WS_FIELD_OPTIONAL,
-            0,
-            0xffffffff
-            },    // end of field description for StartResult
-            {    // fields description for _StartResponse
-            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._StartResponsedescs.StartResult,
-            },
-        },    // _StartResponse
-        {   // _StopResponse
-            { // field description for StopResult
-            WS_ELEMENT_FIELD_MAPPING,
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopResponseStopResultLocalName, // StopResult
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
-            WS_BOOL_TYPE,
-            0,
-            WsOffsetOf(_StopResponse, StopResult),
-             WS_FIELD_OPTIONAL,
-            0,
-            0xffffffff
-            },    // end of field description for StopResult
-            {    // fields description for _StopResponse
-            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._StopResponsedescs.StopResult,
-            },
-        },    // _StopResponse
     }, // end of global elements
     {    // dictionary 
         { // xmlStrings
             WS_XML_STRING_DICTIONARY_VALUE("Start",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 1),
             WS_XML_STRING_DICTIONARY_VALUE("StartResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
-            WS_XML_STRING_DICTIONARY_VALUE("StartResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
-            WS_XML_STRING_DICTIONARY_VALUE("Stop",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
-            WS_XML_STRING_DICTIONARY_VALUE("StopResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
-            WS_XML_STRING_DICTIONARY_VALUE("StopResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
+            WS_XML_STRING_DICTIONARY_VALUE("Stop",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("StopResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // 785543a9-aa19-4a3d-86b5-3bc38d4d43f2 
-        { 0x785543a9, 0xaa19, 0x4a3d, { 0x86, 0xb5, 0x3b,0xc3, 0x8d, 0x4d, 0x43, 0xf2 } },
+        // 9186bca8-88e2-42e2-855e-a4fa10976689 
+        { 0x9186bca8, 0x88e2, 0x42e2, { 0x85, 0x5e, 0xa4,0xfa, 0x10, 0x97, 0x66, 0x89 } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
-        7,
+        5,
         TRUE,
         },
     },   //  end of dictionary
@@ -134,10 +88,10 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         },   // end of struct description for _Start
         {
-        sizeof(_StartResponse),
-        __alignof(_StartResponse),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._StartResponsedescs._StartResponseFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._StartResponsedescs._StartResponseFields),
+        0,
+        1,
+        0,
+        0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartResponseTypeName, // StartResponse
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
         0,
@@ -156,10 +110,10 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         },   // end of struct description for _Stop
         {
-        sizeof(_StopResponse),
-        __alignof(_StopResponse),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._StopResponsedescs._StopResponseFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._StopResponsedescs._StopResponseFields),
+        0,
+        1,
+        0,
+        0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopResponseTypeName, // StopResponse
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
         0,

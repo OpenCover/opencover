@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Diagnostics;
+using System.ServiceModel;
 
 namespace OpenCover.Framework.Service
 {
     public class ProfilerCommunication : IProfilerCommunication
     {
-        public bool Start()
+        public void Start()
         {
             Trace.WriteLine("->Start");
-            return true;
         }
 
-        public bool Stop()
+        public void Stop()
         {
             Trace.WriteLine("->Stop");
-            return true;
         }
     }
 }

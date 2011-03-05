@@ -19,12 +19,10 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
         {
             struct // DefaultBinding_IProfilerCommunication_Start
             {
-                WS_PARAMETER_DESCRIPTION params[1];
                 WS_OPERATION_DESCRIPTION DefaultBinding_IProfilerCommunication_Start;
             } DefaultBinding_IProfilerCommunication_Start;
             struct // DefaultBinding_IProfilerCommunication_Stop
             {
-                WS_PARAMETER_DESCRIPTION params[1];
                 WS_OPERATION_DESCRIPTION DefaultBinding_IProfilerCommunication_Stop;
             } DefaultBinding_IProfilerCommunication_Stop;
             WS_OPERATION_DESCRIPTION* operations[2];
@@ -45,11 +43,6 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
 } _opencover_profiler_wsdlLocalDefinitions;
 
 
-typedef struct DefaultBinding_IProfilerCommunication_StartParamStruct 
-{
-    BOOL* StartResult;
-} DefaultBinding_IProfilerCommunication_StartParamStruct;
-
 #if (_MSC_VER >=1400) 
 #pragma warning(push)
 #endif
@@ -62,10 +55,9 @@ HRESULT CALLBACK DefaultBinding_IProfilerCommunication_StartOperationStub(
     __in_opt WS_ERROR* _error)
 {
     DefaultBinding_IProfilerCommunication_StartCallback _operation = (DefaultBinding_IProfilerCommunication_StartCallback)_callback;
-    DefaultBinding_IProfilerCommunication_StartParamStruct *_stack =(DefaultBinding_IProfilerCommunication_StartParamStruct*)_stackStruct;
+    _stackStruct;
     return _operation( 
         _context,
-        (_stack->StartResult),
         (WS_ASYNC_CONTEXT*)_asyncContext,
         _error);
 }
@@ -73,11 +65,6 @@ HRESULT CALLBACK DefaultBinding_IProfilerCommunication_StartOperationStub(
 #if (_MSC_VER >=1400) 
 #pragma warning(pop)
 #endif
-
-typedef struct DefaultBinding_IProfilerCommunication_StopParamStruct 
-{
-    BOOL* StopResult;
-} DefaultBinding_IProfilerCommunication_StopParamStruct;
 
 #if (_MSC_VER >=1400) 
 #pragma warning(push)
@@ -91,10 +78,9 @@ HRESULT CALLBACK DefaultBinding_IProfilerCommunication_StopOperationStub(
     __in_opt WS_ERROR* _error)
 {
     DefaultBinding_IProfilerCommunication_StopCallback _operation = (DefaultBinding_IProfilerCommunication_StopCallback)_callback;
-    DefaultBinding_IProfilerCommunication_StopParamStruct *_stack =(DefaultBinding_IProfilerCommunication_StopParamStruct*)_stackStruct;
+    _stackStruct;
     return _operation( 
         _context,
-        (_stack->StopResult),
         (WS_ASYNC_CONTEXT*)_asyncContext,
         _error);
 }
@@ -125,33 +111,27 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
     { // contracts
         {    // DefaultBinding_IProfilerCommunication,
             { // DefaultBinding_IProfilerCommunication_Start
-                { // parameter descriptions for DefaultBinding_IProfilerCommunication_Start
-                    { WS_PARAMETER_TYPE_NORMAL, (USHORT)-1, (USHORT)0 },
-                },    // parameter descriptions for DefaultBinding_IProfilerCommunication_Start
                 {    // operation description for DefaultBinding_IProfilerCommunication_Start
                     1,
                     (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_InputMessage, 
                     (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_OutputMessage, 
                     0,
                     0,
-                    1,
-                    (WS_PARAMETER_DESCRIPTION*)opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Start.params,
+                    0,
+                    0,
                     DefaultBinding_IProfilerCommunication_StartOperationStub,
                     WS_NON_RPC_LITERAL_OPERATION
                 }, //operation description for DefaultBinding_IProfilerCommunication_Start
             },  // DefaultBinding_IProfilerCommunication_Start
             { // DefaultBinding_IProfilerCommunication_Stop
-                { // parameter descriptions for DefaultBinding_IProfilerCommunication_Stop
-                    { WS_PARAMETER_TYPE_NORMAL, (USHORT)-1, (USHORT)0 },
-                },    // parameter descriptions for DefaultBinding_IProfilerCommunication_Stop
                 {    // operation description for DefaultBinding_IProfilerCommunication_Stop
                     1,
                     (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_InputMessage, 
                     (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_OutputMessage, 
                     0,
                     0,
-                    1,
-                    (WS_PARAMETER_DESCRIPTION*)opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Stop.params,
+                    0,
+                    0,
                     DefaultBinding_IProfilerCommunication_StopOperationStub,
                     WS_NON_RPC_LITERAL_OPERATION
                 }, //operation description for DefaultBinding_IProfilerCommunication_Stop
@@ -175,8 +155,8 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
         },  // end of xmlStrings
         
         {   // opencover_profiler_wsdldictionary
-        // c9304cf1-ea29-4fe2-9af2-b0ba060c97c4 
-        { 0xc9304cf1, 0xea29, 0x4fe2, { 0x9a, 0xf2, 0xb0,0xba, 0x06, 0x0c, 0x97, 0xc4 } },
+        // 9e71b143-5304-4c11-a029-221b6452949d 
+        { 0x9e71b143, 0x5304, 0x4c11, { 0xa0, 0x29, 0x22,0x1b, 0x64, 0x52, 0x94, 0x9d } },
         (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings,
         4,
         TRUE,
@@ -188,18 +168,15 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
 // operation: DefaultBinding_IProfilerCommunication_Start
 HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
     __in WS_SERVICE_PROXY* _serviceProxy,
-    __out BOOL* StartResult, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error)
 {
-    void* _argList[1]; 
-    _argList[0] = &StartResult;
     return WsCall(_serviceProxy,
         (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Start.DefaultBinding_IProfilerCommunication_Start,
-        (const void **)&_argList,
+        0,
         _heap,
         _callProperties,
         _callPropertyCount,
@@ -210,18 +187,15 @@ HRESULT WINAPI DefaultBinding_IProfilerCommunication_Start(
 // operation: DefaultBinding_IProfilerCommunication_Stop
 HRESULT WINAPI DefaultBinding_IProfilerCommunication_Stop(
     __in WS_SERVICE_PROXY* _serviceProxy,
-    __out BOOL* StopResult, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error)
 {
-    void* _argList[1]; 
-    _argList[0] = &StopResult;
     return WsCall(_serviceProxy,
         (WS_OPERATION_DESCRIPTION*)&opencover_profiler_wsdlLocalDefinitions.contracts.DefaultBinding_IProfilerCommunication.DefaultBinding_IProfilerCommunication_Stop.DefaultBinding_IProfilerCommunication_Stop,
-        (const void **)&_argList,
+        0,
         _heap,
         _callProperties,
         _callPropertyCount,

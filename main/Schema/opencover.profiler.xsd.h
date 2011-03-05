@@ -56,19 +56,11 @@ extern "C" {
 
 typedef struct _Start _Start;
 
-// typeDescription: n/a
-typedef struct _StartResponse 
-{
-    BOOL StartResult;
-} _StartResponse;
+typedef struct _StartResponse _StartResponse;
 
 typedef struct _Stop _Stop;
 
-// typeDescription: n/a
-typedef struct _StopResponse 
-{
-    BOOL StopResult;
-} _StopResponse;
+typedef struct _StopResponse _StopResponse;
 
 ////////////////////////////////////////////////
 // Global web service descriptions.

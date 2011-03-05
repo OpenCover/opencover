@@ -8,6 +8,7 @@
 #include "OpenCoverProfiler_i.h"
 #include "_ICodeCoverageEvents_CP.h"
 
+#include "ProfilerCommunication.h"
 
 
 using namespace ATL;
@@ -66,6 +67,8 @@ private:
 	std::wstring GetClassName(ModuleID moduleId, mdTypeDef tokenTypeDef);
 	std::wstring GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2);
 	void GetGenericSignature(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2, std::wstring &className);
+
+    ProfilerCommunication * m_host;
 
 public:
 

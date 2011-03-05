@@ -3,7 +3,6 @@
   <wsdl:types>
     <xsd:schema targetNamespace="urn:opencover.profiler/Imports">
       <xsd:import namespace="urn:opencover.profiler" />
-      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IProfilerCommunication_Start_InputMessage">
