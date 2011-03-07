@@ -10,6 +10,7 @@ namespace OpenCover.Framework
         public CommandLineParser(string arguments) : base(arguments)
         {
             PortNumber = 0xBABE;
+            HostOnlySeconds = 20;
             ValidateArguments();
         }
 
@@ -25,12 +26,29 @@ namespace OpenCover.Framework
                         break;
                     case "port":
                         int port = 0;
-                        PortNumber = int.TryParse(GetArgumentValue("port"), out port) ? port : 0xBABE;
+                        if (int.TryParse(GetArgumentValue("port"), out port))
+                        {
+                            PortNumber = port;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("The port argument did not have a valid portnumber i.e. -port:8000");
+                        }
                         break;
                     case "host":
                         HostOnly = true;
+                        var hostValue = GetArgumentValue("host");
+                        if (hostValue == string.Empty) break;
                         int time = 0;
-                        HostOnlySeconds = int.TryParse(GetArgumentValue("host"), out time) ? time : 20;
+                        if (int.TryParse(hostValue, out time))
+                        {
+                            HostOnlySeconds = time;
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                "The port argument did not have a valid portnumber i.e. -port:8000");
+                        }
                         break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
