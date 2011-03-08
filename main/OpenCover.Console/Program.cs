@@ -17,6 +17,7 @@ namespace OpenCover.Console
         {
 
             var parser = new CommandLineParser(string.Join("", args));
+            parser.ExtractAndValidateArguments();
 
             if (parser.HostOnly)
             {
@@ -34,10 +35,13 @@ namespace OpenCover.Console
                 var host = new ProfilerServiceHost();
                 host.Open(parser.PortNumber);
 
-                var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, "OpenCover.Simple.Target.exe"));
+                if (Directory.Exists(parser.TargetDir)) Environment.CurrentDirectory = parser.TargetDir;
+
+                var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
                 startInfo.EnvironmentVariables.Add("Cor_Profiler", "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
                 startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
                 startInfo.EnvironmentVariables.Add("OpenCover_Port", parser.PortNumber.ToString());
+                startInfo.Arguments = parser.TargetArgs;
                 startInfo.UseShellExecute = false;
 
                 var process = Process.Start(startInfo);

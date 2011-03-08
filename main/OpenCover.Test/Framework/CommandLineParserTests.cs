@@ -7,6 +7,8 @@ namespace OpenCover.Test.Framework
     [TestFixture]
     public class CommandLineParserTests
     {
+        private const string RequiredArgs = "-target:Required";
+
         [Test]
         public void ParserHasKnownDefaultArguments()
         {
@@ -28,9 +30,10 @@ namespace OpenCover.Test.Framework
         public void ThrowsExceptionWhenArgumentUnrecognised()
         {
             // arrange
-           
+            var parser = new CommandLineParser("-bork");
+
             // act
-            Assert.Throws<InvalidOperationException>(() => new CommandLineParser("-bork"));
+            Assert.Throws<InvalidOperationException>(() =>parser.ExtractAndValidateArguments());
 
             // assert
         }
@@ -39,9 +42,10 @@ namespace OpenCover.Test.Framework
         public void HandlesTheRegisterArgument()
         {
             // arrange  
+            var parser = new CommandLineParser("-register" + RequiredArgs);
 
             // act
-            var parser = new CommandLineParser("-register");
+            parser.ExtractAndValidateArguments();
 
             // assert
             Assert.IsTrue(parser.Register);
@@ -52,9 +56,10 @@ namespace OpenCover.Test.Framework
         public void HandlesTheRegisterArgumentWithKnownValue()
         {
             // arrange  
+            var parser = new CommandLineParser("-register:user" + RequiredArgs);
 
             // act
-            var parser = new CommandLineParser("-register:user");
+            parser.ExtractAndValidateArguments();
 
             // assert
             Assert.IsTrue(parser.Register);
@@ -65,9 +70,10 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithDefault()
         {
             // arrange  
+            var parser = new CommandLineParser("-host" + RequiredArgs);
 
             // act
-            var parser = new CommandLineParser("-host");
+            parser.ExtractAndValidateArguments();
 
             // assert
             Assert.IsTrue(parser.HostOnly);
@@ -78,9 +84,10 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithKnownValue()
         {
             // arrange  
+            var parser = new CommandLineParser("-host:15" + RequiredArgs);
 
             // act
-            var parser = new CommandLineParser("-host:15");
+            parser.ExtractAndValidateArguments();
 
             // assert
             Assert.IsTrue(parser.HostOnly);
@@ -91,9 +98,10 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentThrowsExceptionWithBadValue()
         {
             // arrange  
+            var parser = new CommandLineParser("-host:badvalue" + RequiredArgs);
 
             // act
-            var ex = Assert.Catch<Exception>(() => new CommandLineParser("-host:badvalue"));
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
 
             // assert
             Assert.IsNotNull(ex);
@@ -103,10 +111,11 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentThrowsExceptionWithMissingValue()
         {
             // arrange  
+            var parser = new CommandLineParser("-port" + RequiredArgs);
 
             // act
-            var ex = Assert.Catch<Exception>(() => new CommandLineParser("-port"));
-
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+            
             // assert
             Assert.IsNotNull(ex);
         }
@@ -115,9 +124,10 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentWithKnownValue()
         {
             // arrange  
-
+            var parser = new CommandLineParser("-port:9999" + RequiredArgs);
+            
             // act
-            var parser = new CommandLineParser("-port:9999");
+            parser.ExtractAndValidateArguments();
 
             // assert
             Assert.AreEqual(9999, parser.PortNumber);
@@ -127,12 +137,65 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentThrowsExceptionWithBadValue()
         {
             // arrange  
+            var parser = new CommandLineParser("-host:badvalue" + RequiredArgs);
 
             // act
-            var ex = Assert.Catch<Exception>(() => new CommandLineParser("-host:badvalue"));
-
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+           
             // assert
             Assert.IsNotNull(ex);
+        }
+
+        [Test]
+        public void HandlesTheTargetArgumentThrowsExceptionWithMissingValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-target");
+
+            // act
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+            
+            // assert
+            Assert.IsNotNull(ex);
+        }
+
+        [Test]
+        public void HandlesTheTargetArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-target:XXX");
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("XXX", parser.Target);
+        }
+
+        [Test]
+        public void HandlesTheTargetDirArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-targetdir:XXX" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("XXX", parser.TargetDir);
+        }
+
+        [Test]
+        public void HandlesTheTargetArgsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-targetargs:XXX" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("XXX", parser.TargetArgs);
         }
     }
 }

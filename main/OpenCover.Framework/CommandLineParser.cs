@@ -11,10 +11,9 @@ namespace OpenCover.Framework
         {
             PortNumber = 0xBABE;
             HostOnlySeconds = 20;
-            ValidateArguments();
         }
 
-        protected void ValidateArguments()
+        public void ExtractAndValidateArguments()
         {
             foreach (var key in ParsedArguments.Keys)
             {
@@ -23,6 +22,15 @@ namespace OpenCover.Framework
                     case "register":
                         Register = true;
                         UserRegistration = (GetArgumentValue("register").ToLowerInvariant() == "user");
+                        break;
+                    case "target":
+                        Target = GetArgumentValue("target");
+                        break;
+                    case "targetdir":
+                        TargetDir = GetArgumentValue("targetdir");
+                        break;
+                    case "targetargs":
+                        TargetArgs = GetArgumentValue("targetargs");
                         break;
                     case "port":
                         int port = 0;
@@ -54,6 +62,11 @@ namespace OpenCover.Framework
                         throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
                 }
             }
+
+            if (string.IsNullOrWhiteSpace(Target))
+            {
+                throw new InvalidOperationException("The target argument is required");
+            }
         }
 
         /// <summary>
@@ -83,5 +96,20 @@ namespace OpenCover.Framework
         /// How long to run in host only mode, default is 20 seconds
         /// </summary>
         public int HostOnlySeconds { get; private set; }
+
+        /// <summary>
+        /// The target executable that is to be profiles
+        /// </summary>
+        public string Target { get; private set; }
+
+        /// <summary>
+        /// The working directory that the action is to take place
+        /// </summary>
+        public string TargetDir { get; private set; }
+
+        /// <summary>
+        /// The arguments that are to be passed to the Target
+        /// </summary>
+        public string TargetArgs { get; private set; }
     }
 }
