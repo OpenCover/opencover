@@ -64,12 +64,7 @@ void ProfilerCommunication::Initialise()
 
     ATLTRACE(_T("WsCreateError"));
 
-    hr = WsCreateHeap(2048, 512, NULL, 0, &heap, error); 
-    ONERROR_GOEXIT(hr);
-
-    ATLTRACE(_T("WsCreateHeap"));
-
-    hr = WSHttpBinding_IProfilerCommunication_CreateServiceProxy
+    hr = NetTcpBinding_IProfilerCommunication_CreateServiceProxy
         (
         NULL,
         NULL,
@@ -77,14 +72,13 @@ void ProfilerCommunication::Initialise()
         &proxy,
         error
         );
-
     ONERROR_GOEXIT(hr);
     
-    ATLTRACE(_T("WsCreateChannel"));
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_CreateServiceProxy"));
 
     WS_ENDPOINT_ADDRESS address = {};
     WCHAR szUrl[255] = {0};
-    wsprintf(szUrl, L"http://localhost:%d/OpenCover.Profiler", _port);
+    wsprintf(szUrl, L"net.tcp://localhost:%d/OpenCover.Profiler.Host", _port);
     address.url.chars = szUrl;
     address.url.length = (ULONG)wcslen(address.url.chars);
 
@@ -94,6 +88,13 @@ void ProfilerCommunication::Initialise()
         NULL, 
         error);
     ONERROR_GOEXIT(hr);
+
+    ATLTRACE(_T("WsOpenServiceProxy"));
+
+    hr = WsCreateHeap(2048, 512, NULL, 0, &heap, error); 
+    ONERROR_GOEXIT(hr);
+
+    ATLTRACE(_T("WsCreateHeap"));
 
 Exit:
     if (FAILED(hr))
@@ -134,7 +135,7 @@ void ProfilerCommunication::Cleanup()
 void ProfilerCommunication::Start()
 {
     if (proxy==NULL) return;
-    HRESULT hr = WSHttpBinding_IProfilerCommunication_Start(proxy, 
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_Start(proxy, 
         heap, 
         NULL, 
         0, 
@@ -142,12 +143,13 @@ void ProfilerCommunication::Start()
         error);
 
     if (FAILED(hr)) PrintError(hr, error);
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Start"));
 }
 
 void ProfilerCommunication::Stop()
 {
     if (proxy==NULL) return;
-    HRESULT hr = WSHttpBinding_IProfilerCommunication_Stop(proxy, 
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_Stop(proxy, 
         heap, 
         NULL, 
         0, 
@@ -155,4 +157,5 @@ void ProfilerCommunication::Stop()
         error);
 
     if (FAILED(hr)) PrintError(hr, error);
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stop"));
 }

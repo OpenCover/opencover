@@ -9,19 +9,6 @@ typedef struct _tempuri_org_wsdlLocalDefinitions
 {
     struct // contracts
     {
-        struct // WSHttpBinding_IProfilerCommunication
-        {
-            struct // WSHttpBinding_IProfilerCommunication_Start
-            {
-                WS_OPERATION_DESCRIPTION WSHttpBinding_IProfilerCommunication_Start;
-            } WSHttpBinding_IProfilerCommunication_Start;
-            struct // WSHttpBinding_IProfilerCommunication_Stop
-            {
-                WS_OPERATION_DESCRIPTION WSHttpBinding_IProfilerCommunication_Stop;
-            } WSHttpBinding_IProfilerCommunication_Stop;
-            WS_OPERATION_DESCRIPTION* operations[2];
-            WS_CONTRACT_DESCRIPTION contractDesc;
-        } WSHttpBinding_IProfilerCommunication;
         struct // NetTcpBinding_IProfilerCommunication
         {
             struct // NetTcpBinding_IProfilerCommunication_Start
@@ -38,80 +25,24 @@ typedef struct _tempuri_org_wsdlLocalDefinitions
     } contracts;  // endof contracts 
     struct // policies
     {
-        struct // WSHttpBinding_IProfilerCommunication
-        {
-            WS_ENCODING encoding;
-            WS_ADDRESSING_VERSION addressingVersion;
-            WS_ENVELOPE_VERSION envelopeVersion;
-            WS_CHANNEL_PROPERTY channelPropertiesArray[3];
-        } WSHttpBinding_IProfilerCommunication;
         struct // NetTcpBinding_IProfilerCommunication
         {
             WS_ENCODING encoding;
             WS_ADDRESSING_VERSION addressingVersion;
             WS_ENVELOPE_VERSION envelopeVersion;
             WS_CHANNEL_PROPERTY channelPropertiesArray[3];
-            WS_PROTECTION_LEVEL protectionLevel;
-            WS_SECURITY_PROPERTY securityPropertiesArray[1];
         } NetTcpBinding_IProfilerCommunication;
     } policies;
     struct // XML dictionary
     {
         struct // XML string list
         {
-            WS_XML_STRING WSHttpBinding_IProfilerCommunicationendpointReferenceString;  // <wsa10:EndpointReference xmlns:wsa10="http://www.w3.org/2005/08/addressing">...
             WS_XML_STRING NetTcpBinding_IProfilerCommunicationendpointReferenceString;  // <wsa10:EndpointReference xmlns:wsa10="http://www.w3.org/2005/08/addressing">...
         } xmlStrings; // end of XML string list
         WS_XML_DICTIONARY dict;  
     } dictionary;  // end of XML dictionary
 } _tempuri_org_wsdlLocalDefinitions;
 
-
-#if (_MSC_VER >=1400) 
-#pragma warning(push)
-#endif
-#pragma warning(disable: 4055) // conversion from data pointer to function pointer
-HRESULT CALLBACK WSHttpBinding_IProfilerCommunication_StartOperationStub(
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in void* _stackStruct,
-    __in const void* _callback,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    WSHttpBinding_IProfilerCommunication_StartCallback _operation = (WSHttpBinding_IProfilerCommunication_StartCallback)_callback;
-    _stackStruct;
-    return _operation( 
-        _context,
-        (WS_ASYNC_CONTEXT*)_asyncContext,
-        _error);
-}
-#pragma warning(default: 4055)  // conversion from data pointer to function pointer
-#if (_MSC_VER >=1400) 
-#pragma warning(pop)
-#endif
-
-#if (_MSC_VER >=1400) 
-#pragma warning(push)
-#endif
-#pragma warning(disable: 4055) // conversion from data pointer to function pointer
-HRESULT CALLBACK WSHttpBinding_IProfilerCommunication_StopOperationStub(
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in void* _stackStruct,
-    __in const void* _callback,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    WSHttpBinding_IProfilerCommunication_StopCallback _operation = (WSHttpBinding_IProfilerCommunication_StopCallback)_callback;
-    _stackStruct;
-    return _operation( 
-        _context,
-        (WS_ASYNC_CONTEXT*)_asyncContext,
-        _error);
-}
-#pragma warning(default: 4055)  // conversion from data pointer to function pointer
-#if (_MSC_VER >=1400) 
-#pragma warning(pop)
-#endif
 
 #if (_MSC_VER >=1400) 
 #pragma warning(push)
@@ -161,42 +92,6 @@ HRESULT CALLBACK NetTcpBinding_IProfilerCommunication_StopOperationStub(
 const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions =
 {
     { // contracts
-        {    // WSHttpBinding_IProfilerCommunication,
-            { // WSHttpBinding_IProfilerCommunication_Start
-                {    // operation description for WSHttpBinding_IProfilerCommunication_Start
-                    1,
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_InputMessage, 
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Start_OutputMessage, 
-                    0,
-                    0,
-                    0,
-                    0,
-                    WSHttpBinding_IProfilerCommunication_StartOperationStub,
-                    WS_NON_RPC_LITERAL_OPERATION
-                }, //operation description for WSHttpBinding_IProfilerCommunication_Start
-            },  // WSHttpBinding_IProfilerCommunication_Start
-            { // WSHttpBinding_IProfilerCommunication_Stop
-                {    // operation description for WSHttpBinding_IProfilerCommunication_Stop
-                    1,
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_InputMessage, 
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_OutputMessage, 
-                    0,
-                    0,
-                    0,
-                    0,
-                    WSHttpBinding_IProfilerCommunication_StopOperationStub,
-                    WS_NON_RPC_LITERAL_OPERATION
-                }, //operation description for WSHttpBinding_IProfilerCommunication_Stop
-            },  // WSHttpBinding_IProfilerCommunication_Stop
-            {    // array of operations for WSHttpBinding_IProfilerCommunication
-                (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.WSHttpBinding_IProfilerCommunication_Start.WSHttpBinding_IProfilerCommunication_Start,
-                (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.WSHttpBinding_IProfilerCommunication_Stop.WSHttpBinding_IProfilerCommunication_Stop,
-            },    // array of operations for WSHttpBinding_IProfilerCommunication
-            {    // contract description for WSHttpBinding_IProfilerCommunication
-            2,
-            (WS_OPERATION_DESCRIPTION**)tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.operations,
-            },  // end of contract description for WSHttpBinding_IProfilerCommunication
-        },    // WSHttpBinding_IProfilerCommunication
         {    // NetTcpBinding_IProfilerCommunication,
             { // NetTcpBinding_IProfilerCommunication_Start
                 {    // operation description for NetTcpBinding_IProfilerCommunication_Start
@@ -236,28 +131,6 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
     }, //  end of contracts 
     {// policies
         {
-            WS_ENCODING_XML_UTF8,
-            WS_ADDRESSING_VERSION_1_0,
-            WS_ENVELOPE_VERSION_SOAP_1_2,
-            { // channelPropertiesArray
-                {
-                    WS_CHANNEL_PROPERTY_ENCODING,
-                    (void*)&tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.encoding,
-                    sizeof(tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.encoding),
-                },
-                {
-                    WS_CHANNEL_PROPERTY_ADDRESSING_VERSION,
-                    (void*)&tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.addressingVersion,
-                    sizeof(tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.addressingVersion),
-                },
-                {
-                    WS_CHANNEL_PROPERTY_ENVELOPE_VERSION,
-                    (void*)&tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.envelopeVersion,
-                    sizeof(tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.envelopeVersion),
-                },
-            },
-        },   // end of WSHttpBinding_IProfilerCommunication,
-        {
             WS_ENCODING_XML_BINARY_SESSION_1,
             WS_ADDRESSING_VERSION_1_0,
             WS_ENVELOPE_VERSION_SOAP_1_2,
@@ -278,70 +151,23 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
                     sizeof(tempuri_org_wsdlLocalDefinitions.policies.NetTcpBinding_IProfilerCommunication.envelopeVersion),
                 },
             },
-            WS_PROTECTION_LEVEL_SIGN_AND_ENCRYPT,
-            { // securityPropertiesArray
-                {
-                    WS_SECURITY_PROPERTY_TRANSPORT_PROTECTION_LEVEL,
-                    (void*)&tempuri_org_wsdlLocalDefinitions.policies.NetTcpBinding_IProfilerCommunication.protectionLevel,
-                    sizeof(tempuri_org_wsdlLocalDefinitions.policies.NetTcpBinding_IProfilerCommunication.protectionLevel),
-                },
-            },
         },   // end of NetTcpBinding_IProfilerCommunication,
     }, // policies
     {    // dictionary 
         { // xmlStrings
-            WS_XML_STRING_DICTIONARY_VALUE("<wsa10:EndpointReference xmlns:wsa10=\"http://www.w3.org/2005/08/addressing\">\n        <wsa10:Address>http://localhost:8000/OpenCover.Profiler</wsa10:Address>\n      </wsa10:EndpointReference>",&tempuri_org_wsdlLocalDefinitions.dictionary.dict, 0),
-            WS_XML_STRING_DICTIONARY_VALUE("<wsa10:EndpointReference xmlns:wsa10=\"http://www.w3.org/2005/08/addressing\">\n        <wsa10:Address>net.tcp://localhost:8001/Service</wsa10:Address>\n        <Identity xmlns=\"http://schemas.xmlsoap.org/ws/2006/02/addressingidentity\">\n          <Upn>Capuchin\\Shaun</Upn>\n        </Identity>\n      </wsa10:EndpointReference>",&tempuri_org_wsdlLocalDefinitions.dictionary.dict, 1),
+            WS_XML_STRING_DICTIONARY_VALUE("<wsa10:EndpointReference xmlns:wsa10=\"http://www.w3.org/2005/08/addressing\">\n        <wsa10:Address>net.tcp://localhost:8000/OpenCover.Profiler.Host</wsa10:Address>\n      </wsa10:EndpointReference>",&tempuri_org_wsdlLocalDefinitions.dictionary.dict, 0),
         },  // end of xmlStrings
         
         {   // tempuri_org_wsdldictionary
-        // 5d6130fa-a4a6-4fec-b6ce-2efe7e52c05b 
-        { 0x5d6130fa, 0xa4a6, 0x4fec, { 0xb6, 0xce, 0x2e,0xfe, 0x7e, 0x52, 0xc0, 0x5b } },
+        // b1138cfb-4539-4496-9c65-46cc4e03d37f 
+        { 0xb1138cfb, 0x4539, 0x4496, { 0x9c, 0x65, 0x46,0xcc, 0x4e, 0x03, 0xd3, 0x7f } },
         (WS_XML_STRING*)&tempuri_org_wsdlLocalDefinitions.dictionary.xmlStrings,
-        2,
+        1,
         TRUE,
         },
     },   //  end of dictionary
 }; //  end of tempuri_org_wsdlLocalDefinitions
 
-
-// operation: WSHttpBinding_IProfilerCommunication_Start
-HRESULT WINAPI WSHttpBinding_IProfilerCommunication_Start(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    return WsCall(_serviceProxy,
-        (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.WSHttpBinding_IProfilerCommunication_Start.WSHttpBinding_IProfilerCommunication_Start,
-        0,
-        _heap,
-        _callProperties,
-        _callPropertyCount,
-        _asyncContext,
-        _error);
-}
-
-// operation: WSHttpBinding_IProfilerCommunication_Stop
-HRESULT WINAPI WSHttpBinding_IProfilerCommunication_Stop(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error)
-{
-    return WsCall(_serviceProxy,
-        (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.WSHttpBinding_IProfilerCommunication_Stop.WSHttpBinding_IProfilerCommunication_Stop,
-        0,
-        _heap,
-        _callProperties,
-        _callPropertyCount,
-        _asyncContext,
-        _error);
-}
 
 // operation: NetTcpBinding_IProfilerCommunication_Start
 HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Start(
@@ -383,45 +209,20 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stop(
 const _tempuri_org_wsdl tempuri_org_wsdl =
 {
     {// contracts
-        {   // WSHttpBinding_IProfilerCommunication
-            2,
-            (WS_OPERATION_DESCRIPTION**)tempuri_org_wsdlLocalDefinitions.contracts.WSHttpBinding_IProfilerCommunication.operations,
-        },    // end of WSHttpBinding_IProfilerCommunication
         {   // NetTcpBinding_IProfilerCommunication
             2,
             (WS_OPERATION_DESCRIPTION**)tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.operations,
         },    // end of NetTcpBinding_IProfilerCommunication
     }, // contracts
     { // policies
-        {  // template description for WSHttpBinding_IProfilerCommunication
-            {  // channel properties
-                (WS_CHANNEL_PROPERTY*)&tempuri_org_wsdlLocalDefinitions.policies.WSHttpBinding_IProfilerCommunication.channelPropertiesArray,
-                3,
-            },
-        },  // end of template description
         {  // template description for NetTcpBinding_IProfilerCommunication
             {  // channel properties
                 (WS_CHANNEL_PROPERTY*)&tempuri_org_wsdlLocalDefinitions.policies.NetTcpBinding_IProfilerCommunication.channelPropertiesArray,
                 3,
             },
-            {  // security properties
-                (WS_SECURITY_PROPERTY*)&tempuri_org_wsdlLocalDefinitions.policies.NetTcpBinding_IProfilerCommunication.securityPropertiesArray,
-                1,
-            },
-            { // sspiBinding
-                { 
-                    0,
-                },
-            },
         },  // end of template description
     },  // policies
     { // endpointReferences
-        { // WSHttpBinding_IProfilerCommunication
-            { // endpointAddressDescription
-                WS_ADDRESSING_VERSION_1_0,
-            },
-            (WS_XML_STRING*)&tempuri_org_wsdlLocalDefinitions.dictionary.xmlStrings.WSHttpBinding_IProfilerCommunicationendpointReferenceString, // <wsa10:EndpointReference xmlns:wsa10="http://www.w3.org/2005/08/addressing">...
-        },  // endof WSHttpBinding_IProfilerCommunication
         { // NetTcpBinding_IProfilerCommunication
             { // endpointAddressDescription
                 WS_ADDRESSING_VERSION_1_0,
@@ -431,61 +232,8 @@ const _tempuri_org_wsdl tempuri_org_wsdl =
     },  // endof endpointReferences 
 }; // end of _tempuri_org_wsdl
 
-HRESULT WSHttpBinding_IProfilerCommunication_CreateServiceProxy(
-    __in_opt WS_HTTP_BINDING_TEMPLATE* templateValue,
-    __in_ecount_opt(proxyPropertyCount) const WS_PROXY_PROPERTY* proxyProperties,
-    __in const ULONG proxyPropertyCount,
-    __deref_out_opt WS_SERVICE_PROXY** _serviceProxy,
-    __in_opt WS_ERROR* error)
-{
-    return WsCreateServiceProxyFromTemplate(
-        WS_CHANNEL_TYPE_REQUEST,
-        proxyProperties,
-        proxyPropertyCount,
-        WS_HTTP_BINDING_TEMPLATE_TYPE,
-        templateValue,
-        templateValue == NULL ? 0 : sizeof(WS_HTTP_BINDING_TEMPLATE),
-        &tempuri_org_wsdl.policies.WSHttpBinding_IProfilerCommunication,
-        sizeof(tempuri_org_wsdl.policies.WSHttpBinding_IProfilerCommunication),
-        _serviceProxy,
-        error);
-}
-
-HRESULT WSHttpBinding_IProfilerCommunication_CreateServiceEndpoint(
-    __in_opt WS_HTTP_BINDING_TEMPLATE* templateValue,
-    __in_opt CONST WS_STRING* address,
-    __in_opt struct WSHttpBinding_IProfilerCommunicationFunctionTable* functionTable,
-    __in_opt WS_SERVICE_SECURITY_CALLBACK authorizationCallback,
-    __in_ecount_opt(endpointPropertyCount) WS_SERVICE_ENDPOINT_PROPERTY* endpointProperties,
-    __in const ULONG endpointPropertyCount,
-    __in WS_HEAP* heap,
-    __deref_out_opt WS_SERVICE_ENDPOINT** serviceEndpoint,
-    __in_opt WS_ERROR* error)
-{
-    WS_SERVICE_CONTRACT serviceContract;
-    serviceContract.contractDescription = &tempuri_org_wsdl.contracts.WSHttpBinding_IProfilerCommunication;
-    serviceContract.defaultMessageHandlerCallback = 0;
-    serviceContract.methodTable = (const void*)functionTable;
-    
-    return WsCreateServiceEndpointFromTemplate(
-        WS_CHANNEL_TYPE_REPLY,
-        endpointProperties,
-        endpointPropertyCount,
-        address,
-        &serviceContract,
-        authorizationCallback,
-        heap,
-        WS_HTTP_BINDING_TEMPLATE_TYPE,
-        templateValue,
-        templateValue == NULL ? 0 : sizeof(WS_HTTP_BINDING_TEMPLATE),
-        &tempuri_org_wsdl.policies.WSHttpBinding_IProfilerCommunication,
-        sizeof(tempuri_org_wsdl.policies.WSHttpBinding_IProfilerCommunication),
-        serviceEndpoint,
-        error);
-}
-
 HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceProxy(
-    __in_opt WS_TCP_SSPI_BINDING_TEMPLATE* templateValue,
+    __in_opt WS_TCP_BINDING_TEMPLATE* templateValue,
     __in_ecount_opt(proxyPropertyCount) const WS_PROXY_PROPERTY* proxyProperties,
     __in const ULONG proxyPropertyCount,
     __deref_out_opt WS_SERVICE_PROXY** _serviceProxy,
@@ -495,9 +243,9 @@ HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceProxy(
         WS_CHANNEL_TYPE_DUPLEX_SESSION,
         proxyProperties,
         proxyPropertyCount,
-        WS_TCP_SSPI_BINDING_TEMPLATE_TYPE,
+        WS_TCP_BINDING_TEMPLATE_TYPE,
         templateValue,
-        templateValue == NULL ? 0 : sizeof(WS_TCP_SSPI_BINDING_TEMPLATE),
+        templateValue == NULL ? 0 : sizeof(WS_TCP_BINDING_TEMPLATE),
         &tempuri_org_wsdl.policies.NetTcpBinding_IProfilerCommunication,
         sizeof(tempuri_org_wsdl.policies.NetTcpBinding_IProfilerCommunication),
         _serviceProxy,
@@ -505,7 +253,7 @@ HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceProxy(
 }
 
 HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceEndpoint(
-    __in_opt WS_TCP_SSPI_BINDING_TEMPLATE* templateValue,
+    __in_opt WS_TCP_BINDING_TEMPLATE* templateValue,
     __in_opt CONST WS_STRING* address,
     __in_opt struct NetTcpBinding_IProfilerCommunicationFunctionTable* functionTable,
     __in_opt WS_SERVICE_SECURITY_CALLBACK authorizationCallback,
@@ -528,9 +276,9 @@ HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceEndpoint(
         &serviceContract,
         authorizationCallback,
         heap,
-        WS_TCP_SSPI_BINDING_TEMPLATE_TYPE,
+        WS_TCP_BINDING_TEMPLATE_TYPE,
         templateValue,
-        templateValue == NULL ? 0 : sizeof(WS_TCP_SSPI_BINDING_TEMPLATE),
+        templateValue == NULL ? 0 : sizeof(WS_TCP_BINDING_TEMPLATE),
         &tempuri_org_wsdl.policies.NetTcpBinding_IProfilerCommunication,
         sizeof(tempuri_org_wsdl.policies.NetTcpBinding_IProfilerCommunication),
         serviceEndpoint,

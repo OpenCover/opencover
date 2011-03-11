@@ -24,7 +24,7 @@
 					startHostInfo.UseShellExecute = false;
 					
 					ProcessStartInfo startUtilInfo = new ProcessStartInfo("svcutil.exe");
-					startUtilInfo.Arguments = "/t:metadata http://localhost:8000/OpenCover.Profiler";
+					startUtilInfo.Arguments = "/t:metadata net.tcp://localhost:8000/OpenCover.Profiler.Host";
 					startUtilInfo.WorkingDirectory = project.Properties["schema.folder"];
 					startUtilInfo.UseShellExecute = false;
 

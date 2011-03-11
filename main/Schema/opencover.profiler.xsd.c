@@ -38,8 +38,8 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // 1dc560d7-f49b-42b8-a8e7-53fccae95685 
-        { 0x1dc560d7, 0xf49b, 0x42b8, { 0xa8, 0xe7, 0x53,0xfc, 0xca, 0xe9, 0x56, 0x85 } },
+        // 56ee5504-e683-4f93-9e77-fd8dc752ff3f 
+        { 0x56ee5504, 0xe683, 0x4f93, { 0x9e, 0x77, 0xfd,0x8d, 0xc7, 0x52, 0xff, 0x3f } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
         5,
         TRUE,

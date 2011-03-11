@@ -63,6 +63,8 @@ namespace OpenCover.Framework
                 }
             }
 
+            if (HostOnly) return;
+
             if (string.IsNullOrWhiteSpace(Target))
             {
                 throw new InvalidOperationException("The target argument is required");

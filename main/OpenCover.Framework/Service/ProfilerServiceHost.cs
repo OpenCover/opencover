@@ -12,21 +12,20 @@ namespace OpenCover.Framework.Service
         private ServiceHost _serviceHost;
         public void Open(int port)
         {
-            var baseAddress = new Uri(string.Format("http://localhost:{0}/OpenCover.Profiler", port));
+            var baseAddress = new Uri(string.Format("net.tcp://localhost:{0}/OpenCover.Profiler.Host", port));
             _serviceHost = new ServiceHost(typeof(ProfilerCommunication), baseAddress);
 
             var smb = _serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>() ?? new ServiceMetadataBehavior();
 
-            smb.HttpGetEnabled = true;
             smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy12;
             _serviceHost.Description.Behaviors.Add(smb);
 
             _serviceHost.AddServiceEndpoint(
                 ServiceMetadataBehavior.MexContractName,
-                MetadataExchangeBindings.CreateMexHttpBinding(),
+                MetadataExchangeBindings.CreateMexTcpBinding(),
                 "mex");
 
-            var binding = new WSHttpBinding
+            var binding = new NetTcpBinding()
             {
                 HostNameComparisonMode = HostNameComparisonMode.StrongWildcard,
                 Security = { Mode = SecurityMode.None }
@@ -34,10 +33,6 @@ namespace OpenCover.Framework.Service
 
             _serviceHost.AddServiceEndpoint(
                 typeof(IProfilerCommunication), binding, baseAddress);
-
-            _serviceHost.AddServiceEndpoint(typeof(IProfilerCommunication),
-                new NetTcpBinding(),
-                new Uri(string.Format("net.tcp://localhost:{0}/Service", port + 1)));
 
             _serviceHost.Open();
         }

@@ -14,7 +14,7 @@ namespace OpenCover.Simple.Target
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World *****");
-            Thread.Sleep(10000);
+            Thread.Sleep(2000);
             new Class();
             new GenericClass<object>();
         }

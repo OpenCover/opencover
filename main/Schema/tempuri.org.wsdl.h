@@ -124,20 +124,15 @@ extern "C" {
 
 // The following client functions were generated:
 
-//     WSHttpBinding_IProfilerCommunication_Start
-//     WSHttpBinding_IProfilerCommunication_Stop
 //     NetTcpBinding_IProfilerCommunication_Start
 //     NetTcpBinding_IProfilerCommunication_Stop
 
 // The following server function tables were generated:
 
-//     struct WSHttpBinding_IProfilerCommunicationFunctionTable
 //     struct NetTcpBinding_IProfilerCommunicationFunctionTable
 
 // the following policy helpers were generated:
 
-//  WSHttpBinding_IProfilerCommunication_CreateServiceProxy;
-//  WSHttpBinding_IProfilerCommunication_CreateServiceEndpoint;
 //  NetTcpBinding_IProfilerCommunication_CreateServiceProxy;
 //  NetTcpBinding_IProfilerCommunication_CreateServiceEndpoint;
 
@@ -151,86 +146,13 @@ extern "C" {
 // Policy helper routines
 ////////////////////////////////////////////////
 
-//  WS_CHANNEL_PROPERTY_ENCODING = WS_ENCODING_XML_UTF8,
-//  WS_CHANNEL_PROPERTY_ADDRESSING_VERSION = WS_ADDRESSING_VERSION_1_0,
-//  WS_ENVELOPE_VERSION = WS_ENVELOPE_VERSION_SOAP_1_2,
-// client channel type: WS_CHANNEL_TYPE_REQUEST, service endpoint channel type: WS_CHANNEL_TYPE_REPLY
-
-HRESULT WSHttpBinding_IProfilerCommunication_CreateServiceProxy(
-    __in_opt WS_HTTP_BINDING_TEMPLATE* templateValue,
-    __in_ecount_opt(proxyPropertyCount) const WS_PROXY_PROPERTY* proxyProperties,
-    __in const ULONG proxyPropertyCount,
-    __deref_out_opt WS_SERVICE_PROXY** _serviceProxy,
-    __in_opt WS_ERROR* error);
-
-struct WSHttpBinding_IProfilerCommunicationFunctionTable;
-HRESULT WSHttpBinding_IProfilerCommunication_CreateServiceEndpoint(
-    __in_opt WS_HTTP_BINDING_TEMPLATE* templateValue,
-    __in_opt CONST WS_STRING* address,
-    __in_opt struct WSHttpBinding_IProfilerCommunicationFunctionTable* functionTable,
-    __in_opt WS_SERVICE_SECURITY_CALLBACK authorizationCallback,
-    __in_ecount_opt(endpointPropertyCount) WS_SERVICE_ENDPOINT_PROPERTY* endpointProperties,
-    __in const ULONG endpointPropertyCount,
-    __in WS_HEAP* heap,
-    __deref_out_opt WS_SERVICE_ENDPOINT** serviceEndpoint,
-    __in_opt WS_ERROR* error);
-
-////////////////////////////////////////////////
-// Client functions definitions
-////////////////////////////////////////////////
-
-// operation: WSHttpBinding_IProfilerCommunication_Start
-HRESULT WINAPI WSHttpBinding_IProfilerCommunication_Start(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-// operation: WSHttpBinding_IProfilerCommunication_Stop
-HRESULT WINAPI WSHttpBinding_IProfilerCommunication_Stop(
-    __in WS_SERVICE_PROXY* _serviceProxy,
-    __in WS_HEAP* _heap,
-    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
-    __in const ULONG _callPropertyCount,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-////////////////////////////////////////////////
-// Service functions definitions
-////////////////////////////////////////////////
-
-typedef HRESULT (CALLBACK* WSHttpBinding_IProfilerCommunication_StartCallback) (
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-typedef HRESULT (CALLBACK* WSHttpBinding_IProfilerCommunication_StopCallback) (
-    __in const WS_OPERATION_CONTEXT* _context,
-    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
-    __in_opt WS_ERROR* _error);
-
-// binding: WSHttpBinding_IProfilerCommunication
-typedef struct WSHttpBinding_IProfilerCommunicationFunctionTable 
-{
-    WSHttpBinding_IProfilerCommunication_StartCallback WSHttpBinding_IProfilerCommunication_Start;
-    WSHttpBinding_IProfilerCommunication_StopCallback WSHttpBinding_IProfilerCommunication_Stop;
-} WSHttpBinding_IProfilerCommunicationFunctionTable;
-
-////////////////////////////////////////////////
-// Policy helper routines
-////////////////////////////////////////////////
-
 //  WS_CHANNEL_PROPERTY_ENCODING = WS_ENCODING_XML_BINARY_SESSION_1,
 //  WS_CHANNEL_PROPERTY_ADDRESSING_VERSION = WS_ADDRESSING_VERSION_1_0,
 //  WS_ENVELOPE_VERSION = WS_ENVELOPE_VERSION_SOAP_1_2,
-//  WS_PROTECTION_LEVEL = WS_PROTECTION_LEVEL_SIGN_AND_ENCRYPT,
-//  WS_TCP_SSPI_TRANSPORT_SECURITY_BINDING_POLICY_DESCRIPTION
 // channel type: WS_CHANNEL_TYPE_DUPLEX_SESSION 
 
 HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceProxy(
-    __in_opt WS_TCP_SSPI_BINDING_TEMPLATE* templateValue,
+    __in_opt WS_TCP_BINDING_TEMPLATE* templateValue,
     __in_ecount_opt(proxyPropertyCount) const WS_PROXY_PROPERTY* proxyProperties,
     __in const ULONG proxyPropertyCount,
     __deref_out_opt WS_SERVICE_PROXY** _serviceProxy,
@@ -238,7 +160,7 @@ HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceProxy(
 
 struct NetTcpBinding_IProfilerCommunicationFunctionTable;
 HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceEndpoint(
-    __in_opt WS_TCP_SSPI_BINDING_TEMPLATE* templateValue,
+    __in_opt WS_TCP_BINDING_TEMPLATE* templateValue,
     __in_opt CONST WS_STRING* address,
     __in_opt struct NetTcpBinding_IProfilerCommunicationFunctionTable* functionTable,
     __in_opt WS_SERVICE_SECURITY_CALLBACK authorizationCallback,
@@ -299,17 +221,6 @@ typedef struct _tempuri_org_wsdl
 {
     struct // contracts
     {
-        // binding: WSHttpBinding_IProfilerCommunication
-        // portType: IProfilerCommunication
-        // operation: WSHttpBinding_IProfilerCommunication_Start
-        //     input message: IProfilerCommunication_Start_InputMessage
-        //     output message: IProfilerCommunication_Start_OutputMessage
-        // operation: WSHttpBinding_IProfilerCommunication_Stop
-        //     input message: IProfilerCommunication_Stop_InputMessage
-        //     output message: IProfilerCommunication_Stop_OutputMessage
-        // contractDescription: tempuri_org_wsdl.contracts.WSHttpBinding_IProfilerCommunication
-        WS_CONTRACT_DESCRIPTION WSHttpBinding_IProfilerCommunication;
-        
         // binding: NetTcpBinding_IProfilerCommunication
         // portType: IProfilerCommunication
         // operation: NetTcpBinding_IProfilerCommunication_Start
@@ -324,20 +235,12 @@ typedef struct _tempuri_org_wsdl
     } contracts;
     struct // policies
     {
-        // policy for binding: WSHttpBinding_IProfilerCommunication
-        // port name: WSHttpBinding_IProfilerCommunication, binding: WSHttpBinding_IProfilerCommunication, namespace: http://tempuri.org/
-        WS_HTTP_POLICY_DESCRIPTION WSHttpBinding_IProfilerCommunication;
         // policy for binding: NetTcpBinding_IProfilerCommunication
         // port name: NetTcpBinding_IProfilerCommunication, binding: NetTcpBinding_IProfilerCommunication, namespace: http://tempuri.org/
-        WS_TCP_SSPI_POLICY_DESCRIPTION NetTcpBinding_IProfilerCommunication;
+        WS_TCP_POLICY_DESCRIPTION NetTcpBinding_IProfilerCommunication;
     } policies;
     struct
     { // endpointReferences
-        struct
-        {  // WSHttpBinding_IProfilerCommunication
-            WS_ENDPOINT_ADDRESS_DESCRIPTION endpointAddressDescription;
-            WS_XML_STRING* endpointReferenceString;
-        } WSHttpBinding_IProfilerCommunication;  // endof WSHttpBinding_IProfilerCommunication
         struct
         {  // NetTcpBinding_IProfilerCommunication
             WS_ENDPOINT_ADDRESS_DESCRIPTION endpointAddressDescription;
