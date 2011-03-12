@@ -1,4 +1,3 @@
-*.snk
 /main/**/x64/**/*
 /main/**/Win32/**/*
 /main/**/x86/**/*
@@ -25,3 +24,5 @@
 /tools/RavenDB-Build-287
 /tools/atlsvr.9.0.70425
 /main/opencover.sln.cache
+/build/Version/opencover.snk
+/build/Version/opencover.public.snk
