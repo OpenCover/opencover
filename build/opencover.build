@@ -75,7 +75,7 @@
 	
     <target name="test" description="Run unit tests" depends="build" >
         
-		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin=''}" />
+		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin==''}" />
 		
         <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
         <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
