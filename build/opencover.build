@@ -8,6 +8,8 @@
     <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
     <property name="open-cover-test-console" value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
     
+	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
+	
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
@@ -42,22 +44,24 @@
         <property name="configuration" value="debug" />
         <property name="platform" value="x86" />
         <call target="build.opencover" />
-        <property name="platform" value="x64" />
-        <call target="build.opencover" />
         <property name="configuration" value="release" />
         <property name="platform" value="x86" />
         <call target="build.opencover" />
+        <property name="configuration" value="debug" />
         <property name="platform" value="x64" />
         <call target="build.opencover" />
-        <call target="unregister" />
+        <property name="configuration" value="release" />
+        <property name="platform" value="x64" />
+        <call target="build.opencover" />
     </target>
     
     <target name="build.opencover">
-        
-        <msbuild project="${solution.folder}/opencover.sln" target="Rebuild" >
-            <arg value="/p:Configuration=${configuration}" />
-            <arg value="/p:Platform=${platform}" />
-        </msbuild>
+		
+		<exec program="${msbuild.exe}">
+		    <arg value="${solution.folder}/opencover.sln" />
+		    <arg value="/t:Clean,Rebuild" />
+		    <arg value="/p:Configuration=${configuration},Platform=${platform}" />
+		</exec>
       
         <property name="expected.output" value="${solution.folder}/${platform}/${configuration}/OpenCover.Console.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
@@ -85,6 +89,8 @@
     <target name="unregister" description="Unregister the profiler assembly" >
         <exec program="regsvr32" >	
             <arg value="/u" />
+			<arg value="/n" />
+            <arg value="/i:user" />
             <arg value="/s" />
             <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
         </exec>

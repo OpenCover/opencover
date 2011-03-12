@@ -2,7 +2,7 @@
 <project name="OpenCover" >
 
 	<target name="netfx.tools" >
-		<fail message="Please install Microsoft SDK (NETFX4.0 Tools)" unless="${directory::exists(netfx.tools.folder)}" />
+		<fail message="Please install 'Microsoft Windows SDK for Windows 7 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
 	</target>
 
 	<target name="create-snk" depends="netfx.tools">
