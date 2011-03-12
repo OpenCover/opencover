@@ -28,7 +28,7 @@
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
 	</target>
 
-	<target name="basic-build" depends="build-environment, clean, build" />
+	<target name="teamcity-build" depends="build-environment, clean, build-all-platforms" />
 	
 	<target name="generate-schema" depends="generate-wsdl-from-assembly, generate-c-from-wsdl" />
 	
