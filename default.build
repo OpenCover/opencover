@@ -27,6 +27,8 @@
 	<target name="rebuild" depends="build-environment, clean, build, test" >
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
 	</target>
+
+	<target name="basic-build" depends="build-environment, clean, build" />
 	
 	<target name="generate-schema" depends="generate-wsdl-from-assembly, generate-c-from-wsdl" />
 	
