@@ -67,8 +67,16 @@
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>
     
+	<target name="copy-teamcity-nunit-plugin" >
+	    <!-- from http://legeronline.blogspot.com/2009/05/team-city-addin-for-nunit.html -->
+	    <mkdir dir="${nunit.path}\addins" />
+		<copy file="${teamcity.dotnet.nunitaddin}-2.5.9.dll" todir="${nunit.path}\addins" />
+	</target>
+	
     <target name="test" description="Run unit tests" depends="build" >
         
+		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin=''}">
+		
         <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
         <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
         
