@@ -3,11 +3,11 @@
 
     <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
     <property name="platform" value="x86" unless="${property::exists('platform')}" />
-	<property name="nunit.path" value="${tools.folder}/NUnit-2.5.9.10348/bin/net-2.0"/>
-	<property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
-	<property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
-	<property name="open-cover-test-console" value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
-	
+    <property name="nunit.path" value="${tools.folder}/NUnit-2.5.9.10348/bin/net-2.0"/>
+    <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
+    <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
+    <property name="open-cover-test-console" value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
+    
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
@@ -15,17 +15,17 @@
                 <include name="${solution.folder}/**/obj/**" />
                 <include name="${solution.folder}/**/*.suo" />
                 <include name="${solution.folder}/**/*.user" />
-				<include name="${solution.folder}/**/x86/**" />
-				<include name="${solution.folder}/**/x64/**" />
-				<include name="${solution.folder}/**/Win32/**" />
-				<include name="${solution.folder}/Docs/**" />
-				<include name="${solution.folder}/**/Debug/**" />
-				<include name="${solution.folder}/**/Release/**" />
+                <include name="${solution.folder}/**/x86/**" />
+                <include name="${solution.folder}/**/x64/**" />
+                <include name="${solution.folder}/**/Win32/**" />
+                <include name="${solution.folder}/Docs/**" />
+                <include name="${solution.folder}/**/Debug/**" />
+                <include name="${solution.folder}/**/Release/**" />
             </fileset>
         </delete>
     </target>
-	
-	<target name="clean-all" description="Delete all other files" depends="clean">
+    
+    <target name="clean-all" description="Delete all other files" depends="clean">
         <delete>
             <fileset>
                 <include name="${solution.folder}/ipch/**" />
@@ -38,66 +38,65 @@
         <call target="build.opencover"/>
     </target>
 
-	<target name="build-all-platforms" description="Build all flavours i.e. all configurations and all platforms">
-		<property name="configuration" value="debug" />
-		<property name="platform" value="x86" />
-		<call target="build.opencover" />
-		<property name="platform" value="x64" />
-		<call target="build.opencover" />
-		<property name="configuration" value="release" />
-		<property name="platform" value="x86" />
-		<call target="build.opencover" />
-		<property name="platform" value="x64" />
-		<call target="build.opencover" />
-		<call target="unregister" />
-	</target>
+    <target name="build-all-platforms" description="Build all flavours i.e. all configurations and all platforms">
+        <property name="configuration" value="debug" />
+        <property name="platform" value="x86" />
+        <call target="build.opencover" />
+        <property name="platform" value="x64" />
+        <call target="build.opencover" />
+        <property name="configuration" value="release" />
+        <property name="platform" value="x86" />
+        <call target="build.opencover" />
+        <property name="platform" value="x64" />
+        <call target="build.opencover" />
+        <call target="unregister" />
+    </target>
     
     <target name="build.opencover">
         
-		<msbuild project="${solution.folder}/opencover.sln">
-			<arg value="/p:Configuration=${configuration}" />
-			<arg value="/p:Platform=${platform}" />
-			<arg value="/t:Rebuild" />
-		</msbuild>
-	  
+        <msbuild project="${solution.folder}/opencover.sln" target="Rebuild" >
+            <arg value="/p:Configuration=${configuration}" />
+            <arg value="/p:Platform=${platform}" />
+        </msbuild>
+      
         <property name="expected.output" value="${solution.folder}/${platform}/${configuration}/OpenCover.Console.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>
-	
-	<target name="test" description="Run unit tests" depends="build" >
-		
-		<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
-		<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
-		
-		<exec program="${nunit-console}">
-			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.dll" />
-			<arg value="/framework=4.0" />
-			<arg value="/xml=${solution.folder}/${platform}/${configuration}/TestResult.xml" />
-		</exec>
-		
-	</target>
-	
-	<target name="test-cpp" depends="register, test-cpp-internal, unregister" />
-	
-	<target name="test-cpp-internal" description="Run C++ tests" >
-		<exec program="${open-cover-test-console}" if="${file::exists(open-cover-test-console)}" />
-	</target>
     
-	<target name="unregister" description="Unregister the profiler assembly" >
-		<exec program="regsvr32" >	
-			<arg value="/u" />
-			<arg value="/s" />
-			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
-		</exec>
-	</target>
+    <target name="test" description="Run unit tests" depends="build" >
+        
+        <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
+        <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+        
+        <exec program="${nunit-console}">
+            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.dll" />
+            <arg value="/framework=4.0" />
+            <arg value="/xml=${solution.folder}/${platform}/${configuration}/TestResult.xml" />
+        </exec>
+        
+    </target>
+    
+    <target name="test-cpp" depends="register, test-cpp-internal, unregister" />
+    
+    <target name="test-cpp-internal" description="Run C++ tests" >
+        <exec program="${open-cover-test-console}" if="${file::exists(open-cover-test-console)}" />
+    </target>
+    
+    <target name="unregister" description="Unregister the profiler assembly" >
+        <exec program="regsvr32" >	
+            <arg value="/u" />
+            <arg value="/s" />
+            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+        </exec>
+    </target>
 
-	<target name="register" description="Register the profiler assembly (per-user)" >
-		<exec program="regsvr32" >	
-			<arg value="/n" />
-			<arg value="/i:user" />
-			<arg value="/s" />
-			<arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
-		</exec>
-	</target>
-	
+    <target name="register" description="Register the profiler assembly (per-user)" >
+        <exec program="regsvr32" >	
+            <arg value="/n" />
+            <arg value="/i:user" />
+            <arg value="/s" />
+            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+        </exec>
+    </target>
+    
 </project>

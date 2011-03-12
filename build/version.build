@@ -17,5 +17,11 @@
 		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="02/23/2011" />
 		
 	</target>
+
+	<target name="get-os-version" >
+		<property name="machine.os" value="${environment::get-operating-system()}" />
+		<property name="machine.version" value="${operating-system::get-version(environment::get-operating-system())}" />
+		<echo message="${machine.os} => ${machine.version}" />
+	</target>
 	
 </project>
