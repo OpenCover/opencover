@@ -43,6 +43,8 @@ extern "C" {
 
 //     struct _Start;
 //     struct _StartResponse;
+//     struct _ShouldTrackAssembly;
+//     struct _ShouldTrackAssemblyResponse;
 //     struct _Stop;
 //     struct _StopResponse;
 
@@ -57,6 +59,18 @@ extern "C" {
 typedef struct _Start _Start;
 
 typedef struct _StartResponse _StartResponse;
+
+// typeDescription: n/a
+typedef struct _ShouldTrackAssembly 
+{
+    WCHAR* assemblyName; // optional
+} _ShouldTrackAssembly;
+
+// typeDescription: n/a
+typedef struct _ShouldTrackAssemblyResponse 
+{
+    BOOL ShouldTrackAssemblyResult;
+} _ShouldTrackAssemblyResponse;
 
 typedef struct _Stop _Stop;
 
@@ -80,6 +94,16 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.StartResponse
         WS_ELEMENT_DESCRIPTION StartResponse;
         
+        // xml element: ShouldTrackAssembly ("urn:opencover.profiler")
+        // c type: _ShouldTrackAssembly
+        // elementDescription: opencover_profiler_xsd.globalElements.ShouldTrackAssembly
+        WS_ELEMENT_DESCRIPTION ShouldTrackAssembly;
+        
+        // xml element: ShouldTrackAssemblyResponse ("urn:opencover.profiler")
+        // c type: _ShouldTrackAssemblyResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.ShouldTrackAssemblyResponse
+        WS_ELEMENT_DESCRIPTION ShouldTrackAssemblyResponse;
+        
         // xml element: Stop ("urn:opencover.profiler")
         // c type: _Stop
         // elementDescription: opencover_profiler_xsd.globalElements.Stop
@@ -95,6 +119,8 @@ typedef struct _opencover_profiler_xsd
     {
         WS_STRUCT_DESCRIPTION Start;
         WS_STRUCT_DESCRIPTION StartResponse;
+        WS_STRUCT_DESCRIPTION ShouldTrackAssembly;
+        WS_STRUCT_DESCRIPTION ShouldTrackAssemblyResponse;
         WS_STRUCT_DESCRIPTION Stop;
         WS_STRUCT_DESCRIPTION StopResponse;
     } externallyReferencedTypes;

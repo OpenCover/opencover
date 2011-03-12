@@ -19,5 +19,6 @@ public:
 public:
     void Start();
     void Stop();
+    BOOL ShouldTrackAssembly(WCHAR* assemblyName);
 };
 

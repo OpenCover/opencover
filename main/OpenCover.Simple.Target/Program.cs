@@ -17,6 +17,8 @@ namespace OpenCover.Simple.Target
             Thread.Sleep(2000);
             new Class();
             new GenericClass<object>();
+            var o = new Namespace.Other();
+            o.Data = o.Data + 1;
         }
     }
 

@@ -13,18 +13,37 @@ namespace OpenCover.Console
 {
     class Program
     {
+        /// <summary>
+        /// This is the initial console harness - it may become the full thing
+        /// </summary>
+        /// <param name="args"></param>
         static void Main(string[] args)
         {
-
             var parser = new CommandLineParser(string.Join("", args));
-            parser.ExtractAndValidateArguments();
 
-            if (parser.HostOnly)
+            try
             {
-                var host = new ProfilerServiceHost();
-                host.Open(parser.PortNumber);
-                Thread.Sleep(new TimeSpan(0, 0, 0, parser.HostOnlySeconds));
-                host.Close();
+                parser.ExtractAndValidateArguments();
+
+                if (parser.PrintUsage)
+                {
+                    System.Console.WriteLine(parser.Usage());
+                    return;
+                }
+
+                if (parser.HostOnly)
+                {
+                    var host = new ProfilerServiceHost();
+                    host.Open(parser.PortNumber);
+                    Thread.Sleep(new TimeSpan(0, 0, 0, parser.HostOnlySeconds));
+                    host.Close();
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
+                System.Console.WriteLine(parser.Usage());
                 return;
             }
 

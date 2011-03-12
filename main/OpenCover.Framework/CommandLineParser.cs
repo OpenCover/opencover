@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace OpenCover.Framework
 {
@@ -11,6 +12,22 @@ namespace OpenCover.Framework
         {
             PortNumber = 0xBABE;
             HostOnlySeconds = 20;
+        }
+
+        public string Usage()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Usage:");
+            builder.AppendLine("    -target:<target application>");
+            builder.AppendLine("    [-targetdir:<target directory>]");
+            builder.AppendLine("    [-targetargs:<arguments for the target process>]");
+            builder.AppendLine("    [-port:<port number>]");
+            builder.AppendLine("    [-register[:user]]");
+            builder.AppendLine("or");
+            builder.AppendLine("    -host:<time in seconds>");
+            builder.AppendLine("or");
+            builder.AppendLine("    -?");
+            return builder.ToString();
         }
 
         public void ExtractAndValidateArguments()
@@ -58,12 +75,15 @@ namespace OpenCover.Framework
                                 "The port argument did not have a valid portnumber i.e. -port:8000");
                         }
                         break;
+                    case "?":
+                        PrintUsage = true;
+                        break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
                 }
             }
 
-            if (HostOnly) return;
+            if (HostOnly || PrintUsage) return;
 
             if (string.IsNullOrWhiteSpace(Target))
             {
@@ -113,5 +133,7 @@ namespace OpenCover.Framework
         /// The arguments that are to be passed to the Target
         /// </summary>
         public string TargetArgs { get; private set; }
+
+        public bool PrintUsage { get; private set; }
     }
 }

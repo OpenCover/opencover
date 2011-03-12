@@ -119,6 +119,18 @@ typedef struct _opencover_profiler_wsdl
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Start_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Start_OutputMessage;
         
+        // message: IProfilerCommunication_ShouldTrackAssembly_InputMessage
+        // c type: _ShouldTrackAssembly
+        // action: "urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_InputMessage;
+        
+        // message: IProfilerCommunication_ShouldTrackAssembly_OutputMessage
+        // c type: _ShouldTrackAssemblyResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_OutputMessage;
+        
         // message: IProfilerCommunication_Stop_InputMessage
         // c type: _Stop
         // action: "urn:opencover.profiler/IProfilerCommunication/Stop"

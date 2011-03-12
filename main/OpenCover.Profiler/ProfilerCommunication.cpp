@@ -1,6 +1,12 @@
 #include "StdAfx.h"
 #include "ProfilerCommunication.h"
 
+#include "..\schema\opencover.profiler.xsd.h"
+#include "..\schema\opencover.profiler.wsdl.h"
+#include "..\schema\tempuri.org.wsdl.h"
+#include "..\schema\schemas.microsoft.com.2003.10.Serialization.xsd.h"
+
+
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 
 ProfilerCommunication::ProfilerCommunication(int port)
@@ -56,6 +62,8 @@ Exit:
 void ProfilerCommunication::Initialise()
 {
     HRESULT hr = ERROR_SUCCESS;
+    WS_ENDPOINT_ADDRESS address = {};
+    WCHAR szUrl[255] = {0};
 
     ATLTRACE(_T("STARTING"));
 
@@ -76,8 +84,6 @@ void ProfilerCommunication::Initialise()
     
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_CreateServiceProxy"));
 
-    WS_ENDPOINT_ADDRESS address = {};
-    WCHAR szUrl[255] = {0};
     wsprintf(szUrl, L"net.tcp://localhost:%d/OpenCover.Profiler.Host", _port);
     address.url.chars = szUrl;
     address.url.length = (ULONG)wcslen(address.url.chars);
@@ -158,4 +164,22 @@ void ProfilerCommunication::Stop()
 
     if (FAILED(hr)) PrintError(hr, error);
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stop"));
+}
+
+BOOL ProfilerCommunication::ShouldTrackAssembly(WCHAR* assemblyName)
+{
+    BOOL result;
+    if (proxy==NULL) return FALSE;
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(proxy,
+        assemblyName,
+        &result,
+        heap, 
+        NULL, 
+        0, 
+        NULL, 
+        error);
+
+    if (FAILED(hr)) PrintError(hr, error);
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly %s => %s"), assemblyName, result ? _T("Yes") : _T("No"));
+    return result;
 }

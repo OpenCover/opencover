@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
+    <Compile Include="Filter.cs" />
     <Compile Include="ProfilerRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\IProfilerCommunication.cs">

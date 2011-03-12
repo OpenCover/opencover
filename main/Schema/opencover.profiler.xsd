@@ -10,6 +10,20 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="ShouldTrackAssembly">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="assemblyName" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ShouldTrackAssemblyResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="ShouldTrackAssemblyResult" type="xs:boolean" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
   <xs:element name="Stop">
     <xs:complexType>
       <xs:sequence />

@@ -125,6 +125,7 @@ extern "C" {
 // The following client functions were generated:
 
 //     NetTcpBinding_IProfilerCommunication_Start
+//     NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
 //     NetTcpBinding_IProfilerCommunication_Stop
 
 // The following server function tables were generated:
@@ -183,6 +184,17 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Start(
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
+// operation: NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(
+    __in WS_SERVICE_PROXY* _serviceProxy,
+    __in_opt __nullterminated WCHAR* assemblyName, 
+    __out BOOL* ShouldTrackAssemblyResult, 
+    __in WS_HEAP* _heap,
+    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
+    __in const ULONG _callPropertyCount,
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
 // operation: NetTcpBinding_IProfilerCommunication_Stop
 HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stop(
     __in WS_SERVICE_PROXY* _serviceProxy,
@@ -201,6 +213,13 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StartCallback) (
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback) (
+    __in const WS_OPERATION_CONTEXT* _context,
+    __in_opt __nullterminated WCHAR* assemblyName, 
+    __out BOOL* ShouldTrackAssemblyResult, 
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
 typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StopCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
@@ -210,6 +229,7 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StopCallback) (
 typedef struct NetTcpBinding_IProfilerCommunicationFunctionTable 
 {
     NetTcpBinding_IProfilerCommunication_StartCallback NetTcpBinding_IProfilerCommunication_Start;
+    NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly;
     NetTcpBinding_IProfilerCommunication_StopCallback NetTcpBinding_IProfilerCommunication_Stop;
 } NetTcpBinding_IProfilerCommunicationFunctionTable;
 
@@ -226,6 +246,9 @@ typedef struct _tempuri_org_wsdl
         // operation: NetTcpBinding_IProfilerCommunication_Start
         //     input message: IProfilerCommunication_Start_InputMessage
         //     output message: IProfilerCommunication_Start_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+        //     input message: IProfilerCommunication_ShouldTrackAssembly_InputMessage
+        //     output message: IProfilerCommunication_ShouldTrackAssembly_OutputMessage
         // operation: NetTcpBinding_IProfilerCommunication_Stop
         //     input message: IProfilerCommunication_Stop_InputMessage
         //     output message: IProfilerCommunication_Stop_OutputMessage

@@ -70,7 +70,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithDefault()
         {
             // arrange  
-            var parser = new CommandLineParser("-host" + RequiredArgs);
+            var parser = new CommandLineParser("-host");
 
             // act
             parser.ExtractAndValidateArguments();
@@ -84,7 +84,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithKnownValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-host:15" + RequiredArgs);
+            var parser = new CommandLineParser("-host:15");
 
             // act
             parser.ExtractAndValidateArguments();
@@ -197,5 +197,20 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.AreEqual("XXX", parser.TargetArgs);
         }
+
+        [Test]
+        public void HandlesTheUsageArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-?");
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(true, parser.PrintUsage);
+            Assert.IsFalse(string.IsNullOrWhiteSpace(parser.Usage()));
+        }
+
     }
 }

@@ -11,6 +11,9 @@ namespace OpenCover.Framework.Service
         void Start();
 
         [OperationContract]
+        bool ShouldTrackAssembly(string assemblyName);
+
+        [OperationContract]
         void Stop();
     }
 }

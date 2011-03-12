@@ -102,6 +102,7 @@
     </Compile>
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />
     <Compile Include="Framework\CommandLineParserTests.cs" />
+    <Compile Include="Framework\FilterTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />

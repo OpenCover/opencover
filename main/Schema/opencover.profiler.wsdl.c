@@ -10,6 +10,8 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
     {
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Start_InputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Start_OutputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_InputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_OutputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_InputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_OutputMessage;
     } messages; // end of messages
@@ -19,6 +21,8 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
         {
             WS_XML_STRING IProfilerCommunication_Start_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/Start
             WS_XML_STRING IProfilerCommunication_Start_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/StartResponse
+            WS_XML_STRING IProfilerCommunication_ShouldTrackAssembly_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly
+            WS_XML_STRING IProfilerCommunication_ShouldTrackAssembly_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse
             WS_XML_STRING IProfilerCommunication_Stop_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/Stop
             WS_XML_STRING IProfilerCommunication_Stop_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/StopResponse
         } xmlStrings; // end of XML string list
@@ -37,6 +41,14 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Start_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StartResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StartResponse, 
         },    // message description for IProfilerCommunication_Start_OutputMessage
+        {    // message description for IProfilerCommunication_ShouldTrackAssembly_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_ShouldTrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.ShouldTrackAssembly, 
+        },    // message description for IProfilerCommunication_ShouldTrackAssembly_InputMessage
+        {    // message description for IProfilerCommunication_ShouldTrackAssembly_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_ShouldTrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.ShouldTrackAssemblyResponse, 
+        },    // message description for IProfilerCommunication_ShouldTrackAssembly_OutputMessage
         {    // message description for IProfilerCommunication_Stop_InputMessage
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stop_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/Stop
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.Stop, 
@@ -50,15 +62,17 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
         { // xmlStrings
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Start",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StartResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 1),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Stop",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 2),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StopResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 2),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Stop",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 4),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StopResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 5),
         },  // end of xmlStrings
         
         {   // opencover_profiler_wsdldictionary
-        // affc04c1-8cd9-446b-80d8-250d7bcdbdff 
-        { 0xaffc04c1, 0x8cd9, 0x446b, { 0x80, 0xd8, 0x25,0x0d, 0x7b, 0xcd, 0xbd, 0xff } },
+        // fed6a8de-842f-496c-9569-170ff1a39e3c 
+        { 0xfed6a8de, 0x842f, 0x496c, { 0x95, 0x69, 0x17,0x0f, 0xf1, 0xa3, 0x9e, 0x3c } },
         (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings,
-        4,
+        6,
         TRUE,
         },
     },   //  end of dictionary
@@ -75,6 +89,14 @@ const _opencover_profiler_wsdl opencover_profiler_wsdl =
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Start_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StartResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StartResponse, 
         },    // message description for IProfilerCommunication_Start_OutputMessage
+        {    // message description for IProfilerCommunication_ShouldTrackAssembly_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_ShouldTrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.ShouldTrackAssembly, 
+        },    // message description for IProfilerCommunication_ShouldTrackAssembly_InputMessage
+        {    // message description for IProfilerCommunication_ShouldTrackAssembly_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_ShouldTrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.ShouldTrackAssemblyResponse, 
+        },    // message description for IProfilerCommunication_ShouldTrackAssembly_OutputMessage
         {    // message description for IProfilerCommunication_Stop_InputMessage
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stop_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/Stop
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.Stop, 

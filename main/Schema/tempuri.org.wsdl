@@ -22,6 +22,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="ShouldTrackAssembly">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="Stop">
       <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Stop" style="document" />
       <wsdl:input>

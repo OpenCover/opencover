@@ -3,6 +3,7 @@
   <wsdl:types>
     <xsd:schema targetNamespace="urn:opencover.profiler/Imports">
       <xsd:import namespace="urn:opencover.profiler" />
+      <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IProfilerCommunication_Start_InputMessage">
@@ -10,6 +11,12 @@
   </wsdl:message>
   <wsdl:message name="IProfilerCommunication_Start_OutputMessage">
     <wsdl:part name="parameters" element="tns:StartResponse" />
+  </wsdl:message>
+  <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_InputMessage">
+    <wsdl:part name="parameters" element="tns:ShouldTrackAssembly" />
+  </wsdl:message>
+  <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_OutputMessage">
+    <wsdl:part name="parameters" element="tns:ShouldTrackAssemblyResponse" />
   </wsdl:message>
   <wsdl:message name="IProfilerCommunication_Stop_InputMessage">
     <wsdl:part name="parameters" element="tns:Stop" />
@@ -21,6 +28,10 @@
     <wsdl:operation name="Start">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Start" message="tns:IProfilerCommunication_Start_InputMessage" />
       <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StartResponse" message="tns:IProfilerCommunication_Start_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="ShouldTrackAssembly">
+      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly" message="tns:IProfilerCommunication_ShouldTrackAssembly_InputMessage" />
+      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse" message="tns:IProfilerCommunication_ShouldTrackAssembly_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="Stop">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Stop" message="tns:IProfilerCommunication_Stop_InputMessage" />
