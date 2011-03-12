@@ -7,6 +7,12 @@ using System.Text;
 
 namespace OpenCover.Framework.Service
 {
+    /// <summary>
+    /// Manage a WCF service on a supplied port - also allows extraction of metadata
+    /// </summary>
+    /// <remarks>
+    /// Intentionally not unit tested - as this is a standard setup and I don't intend on testing the framework
+    /// </remarks>
     public class ProfilerServiceHost
     {
         private ServiceHost _serviceHost;

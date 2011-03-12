@@ -22,7 +22,7 @@ namespace OpenCover.Test.Framework
 
 #pragma warning disable 169
 
-        private string[] _invalidAssemblyClassPairs = new[] { "Garbage", "+[]", "-[ ]", "[ ", " ]" };
+        private string[] _invalidAssemblyClassPairs = new[] { "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][", @"-[\]", @"+[X]\", "-[X]]", "+[X][" };
 
         private AssemblyClassData[] _assemblyClassPairs = new[]
                                                               {
