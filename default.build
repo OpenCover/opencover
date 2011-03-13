@@ -29,7 +29,7 @@
 	</target>
 
 	<target name="teamcity-build" depends="build-environment, clean" >
-		<echo>##teamcity[buildNumber '<new ${buildnumber.version}>']</echo>
+		<echo>##teamcity[buildNumber '${buildnumber.version}']</echo>
 		<call target="build-all-platforms" />
 	</target>
 	
