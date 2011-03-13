@@ -28,7 +28,10 @@
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
 	</target>
 
-	<target name="teamcity-build" depends="build-environment, clean, build-all-platforms" />
+	<target name="teamcity-build" depends="build-environment, clean" >
+		<echo>##teamcity[buildNumber '{buildnumber.version}']</echo>
+		<call target="build-all-platforms" />
+	</target>
 	
 	<target name="generate-schema" depends="generate-wsdl-from-assembly, generate-c-from-wsdl" />
 	
