@@ -38,6 +38,7 @@
     <AssemblyOriginatorKeyFile>..\..\build\Version\opencover.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ISymWrapper" />
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
   </ItemGroup>
@@ -51,6 +52,11 @@
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="Model\Class.cs" />
+    <Compile Include="Model\File.cs" />
+    <Compile Include="Model\Method.cs" />
+    <Compile Include="Model\Module.cs" />
+    <Compile Include="Model\SequencePoint.cs" />
     <Compile Include="ProfilerRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Service\IProfilerCommunication.cs">
@@ -60,6 +66,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Service\ProfilerServiceHost.cs" />
+    <Compile Include="Symbols\SymbolManager.cs" />
+    <Compile Include="Symbols\SymbolReaderFactory.cs" />
+    <Compile Include="Symbols\ISymbolReaderFactory.cs" />
+    <Compile Include="Symbols\SymbolReaderWapper.cs" />
+    <Compile Include="Temp\Samples.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Temp\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

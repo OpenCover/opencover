@@ -112,6 +112,20 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void UseAssembly_ReturnsTrue_WhenAssembly_Matches_ExclusionFilter()
+        {
+            // arrange
+            var filter = new Filter();
+            filter.AddFilter("-[System.*]R*");
+
+            // act
+            var result = filter.UseAssembly("System.Debug");
+
+            // result
+            Assert.IsTrue(result);
+        }
+
+        [Test]
         public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_ExclusionFilter()
         {
             // arrange
@@ -139,19 +153,5 @@ namespace OpenCover.Test.Framework
             Assert.IsTrue(result);
         }
 
-        [Test]
-        public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_ExclusionFilterFirst()
-        {
-            // arrange
-            var filter = new Filter();
-            filter.AddFilter("-[System.*]*");
-            filter.AddFilter("+[System.*]*");
-
-            // act
-            var result = filter.UseAssembly("System.Debug");
-
-            // result
-            Assert.IsFalse(result);
-        }
     }
 }

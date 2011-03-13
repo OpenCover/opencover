@@ -16,6 +16,7 @@
 				<import namespace="System.Threading" />
 			</imports>
 			<code>
+				<!-- starts the host in host only mode to allow the svcutil utility to extract the metadata -->
 				<![CDATA[
 				public static void ScriptMain(Project project) 
 				{
@@ -41,6 +42,7 @@
 	</target>
 
 	<target name="generate-c-from-wsdl" >
+		<!-- Use the WWSAPI wsutil to convert the extracted metadata into 'C' stub code -->
 		<exec program="wsutil.exe" commandline="*.wsdl *.xsd" 
 			workingdir="${schema.folder}" />
 	</target>

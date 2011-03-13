@@ -29,11 +29,18 @@ namespace OpenCover.Framework
             ExclusionFilter = new List<KeyValuePair<string, string>>();
         }
 
+        /// <summary>
+        /// Decides whether an assembly should be included in the instrumentation
+        /// </summary>
+        /// <param name="assemblyName"></param>
+        /// <returns></returns>
+        /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
+        /// as it is usually the class that is being filtered</remarks>
         public bool UseAssembly(string assemblyName)
         {
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success))
+            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success && keyValuePair.Value != ".*"))
             {
-                return false;
+                return true;
             }
 
             if (InclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success))
