@@ -1,24 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.SymbolStore;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using OpenCover.Framework.Model;
+using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Framework.Symbols
 {
-    public interface ISymbolManager
-    {
-        File[] GetFiles();
-        Class[] GetInstrumentableTypes();
-        SequencePoint[] GetSequencePointsForToken(int token);
-    }
-    
     /// <summary>
     /// Interacts with the symbol PDB files and uses Model based entities
     /// </summary>
-    public class SymbolManager
+    public class SymbolManager : IDisposable
     {
         private readonly string _modulePath;
         private readonly ISymbolReader _symbolReader;
@@ -29,6 +24,23 @@ namespace OpenCover.Framework.Symbols
             _modulePath = modulePath;
             _symbolReader = symbolReaderFactory.GetSymbolReader(modulePath, searchPath);
             _assembly = Assembly.ReflectionOnlyLoadFrom(_modulePath);
+            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += CurrentDomain_ReflectionOnlyAssemblyResolve;
+        }
+
+        public string ModulePath
+        {
+            get { return _modulePath; }
+        }
+
+        Assembly CurrentDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            var module = Path.Combine(_modulePath, args.Name);
+            if (System.IO.File.Exists(module))
+            {
+                return Assembly.ReflectionOnlyLoadFrom(module);
+            }
+
+            return Assembly.ReflectionOnlyLoad(args.Name);
         }
 
         /// <summary>
@@ -76,6 +88,7 @@ namespace OpenCover.Framework.Symbols
         /// <returns></returns>
         /// <remarks>
         /// The only constructors needed those that are declared in that class scope i.e. not base class methods
+        /// However every class has at least 1 constructor
         /// </remarks>
         public Method[] GetConstructorsForType(Class type)
         {
@@ -124,30 +137,45 @@ namespace OpenCover.Framework.Symbols
         /// <returns></returns>
         public SequencePoint[] GetSequencePointsForToken(int token)
         {
-            var symbolToken = new SymbolToken(token);
-            var method = _symbolReader.GetMethod(symbolToken);
-            var count = method.SequencePointCount;
-
-            var offsets = new int[count];
-            var sls = new int[count];
-            var scs = new int[count];
-            var els = new int[count];
-            var ecs = new int[count];
-            var docs = new ISymbolDocument[count];
-
-            method.GetSequencePoints(offsets, docs, sls, scs, els, ecs);
-
-            var list = new List<SequencePoint>();
-            for (var i = 0; i < count; i++)
+            try
             {
-                list.Add(new SequencePoint(){Ordinal = i, 
-                    Offset = offsets[i], 
-                    StartLine = sls[i], 
-                    StartColumn = scs[i], 
-                    EndLine = els[i], 
-                    EndColumn = ecs[i]});
+                var symbolToken = new SymbolToken(token);
+                var method = _symbolReader.GetMethod(symbolToken);
+                var count = method.SequencePointCount;
+
+                var offsets = new int[count];
+                var sls = new int[count];
+                var scs = new int[count];
+                var els = new int[count];
+                var ecs = new int[count];
+                var docs = new ISymbolDocument[count];
+
+                method.GetSequencePoints(offsets, docs, sls, scs, els, ecs);
+
+                var list = new List<SequencePoint>();
+                for (var i = 0; i < count; i++)
+                {
+                    list.Add(new SequencePoint()
+                    {
+                        Ordinal = i,
+                        Offset = offsets[i],
+                        StartLine = sls[i],
+                        StartColumn = scs[i],
+                        EndLine = els[i],
+                        EndColumn = ecs[i]
+                    });
+                }
+                return list.ToArray();
             }
-            return list.ToArray();
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public void Dispose()
+        {
+            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve -= CurrentDomain_ReflectionOnlyAssemblyResolve;
         }
     }
 }

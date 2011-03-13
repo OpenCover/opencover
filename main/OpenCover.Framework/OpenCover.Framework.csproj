@@ -52,6 +52,7 @@
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="InstrumentationModelBuilder.cs" />
     <Compile Include="Model\Class.cs" />
     <Compile Include="Model\File.cs" />
     <Compile Include="Model\Method.cs" />
@@ -66,14 +67,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Service\ProfilerServiceHost.cs" />
+    <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\SymbolManager.cs" />
     <Compile Include="Symbols\SymbolReaderFactory.cs" />
     <Compile Include="Symbols\ISymbolReaderFactory.cs" />
     <Compile Include="Symbols\SymbolReaderWapper.cs" />
-    <Compile Include="Temp\Samples.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Temp\ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

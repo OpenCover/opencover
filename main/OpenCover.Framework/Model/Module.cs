@@ -5,6 +5,9 @@ using System.Text;
 
 namespace OpenCover.Framework.Model
 {
+    /// <summary>
+    /// An assembly
+    /// </summary>
     public class Module
     {
         public string FullName { get; set; }

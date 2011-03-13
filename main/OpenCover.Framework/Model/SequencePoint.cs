@@ -1,5 +1,8 @@
 ﻿namespace OpenCover.Framework.Model
 {
+    /// <summary>
+    /// An instrumentable point
+    /// </summary>
     public class SequencePoint
     {
         public int Ordinal { get; set; }
