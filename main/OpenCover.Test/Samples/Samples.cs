@@ -13,5 +13,7 @@
     class DeclaredMethodClass
     {
         void Method() {}
+
+        string AutoProperty { get; set;}
     }
 }

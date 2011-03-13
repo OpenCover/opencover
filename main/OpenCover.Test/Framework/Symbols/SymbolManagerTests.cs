@@ -72,7 +72,7 @@ namespace OpenCover.Test.Framework.Symbols
         {
             // arrange
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
 
             // act
             var methods = _reader.GetMethodsForType(type);

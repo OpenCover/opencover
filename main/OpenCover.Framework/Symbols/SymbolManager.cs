@@ -32,14 +32,8 @@ namespace OpenCover.Framework.Symbols
             get { return _modulePath; }
         }
 
-        Assembly CurrentDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
+        static Assembly CurrentDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
         {
-            var module = Path.Combine(_modulePath, args.Name);
-            if (System.IO.File.Exists(module))
-            {
-                return Assembly.ReflectionOnlyLoadFrom(module);
-            }
-
             return Assembly.ReflectionOnlyLoad(args.Name);
         }
 
@@ -75,10 +69,8 @@ namespace OpenCover.Framework.Symbols
         private static bool EvaluateType(Type type)
         {
             if (!type.IsClass) return false;
-            var att = type.GetCustomAttributesData();
-            if (att.Count == 0) return true;
-            if (att[0].Constructor.DeclaringType == typeof(CompilerGeneratedAttribute)) return false;
-            return true;
+            return !type.GetCustomAttributesData()
+               .Any(x => x.Constructor.DeclaringType == typeof(CompilerGeneratedAttribute));
         }
 
         /// <summary>
@@ -124,10 +116,8 @@ namespace OpenCover.Framework.Symbols
 
         private static bool EvaluateMethodInfo(MethodInfo methodInfo)
         {
-            var att = methodInfo.GetCustomAttributesData();
-            if (att.Count == 0) return true;
-            if (att[0].Constructor.DeclaringType == typeof(CompilerGeneratedAttribute)) return false;
-            return true;
+            return ! methodInfo.GetCustomAttributesData()
+                .Any(x => x.Constructor.DeclaringType == typeof (CompilerGeneratedAttribute));
         }
 
         /// <summary>
