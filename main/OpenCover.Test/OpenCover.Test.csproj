@@ -97,6 +97,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -117,6 +118,7 @@
     <Compile Include="Framework\CommandLineParserTests.cs" />
     <Compile Include="Framework\FilterTests.cs" />
     <Compile Include="Framework\InstrumentationModelBuilderTests.cs" />
+    <Compile Include="Framework\ServiceTests.cs" />
     <Compile Include="Framework\Symbols\SymbolManagerTests.cs" />
     <Compile Include="Framework\Symbols\SymbolReaderWrapperTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />

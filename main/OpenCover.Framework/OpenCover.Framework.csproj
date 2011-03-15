@@ -54,6 +54,7 @@
     <Compile Include="Filter.cs" />
     <Compile Include="InstrumentationModelBuilder.cs" />
     <Compile Include="Model\Class.cs" />
+    <Compile Include="Model\CoverageSession.cs" />
     <Compile Include="Model\File.cs" />
     <Compile Include="Model\Method.cs" />
     <Compile Include="Model\Module.cs" />
@@ -66,6 +67,9 @@
     <Compile Include="Service\ProfilerCommunication.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Service\ProfilerCommunicationInstanceProvider.cs" />
+    <Compile Include="Service\ProfilerCommunicationServiceBehaviour.cs" />
+    <Compile Include="Service\ProfilerCommunicationServiceHost.cs" />
     <Compile Include="Service\ProfilerServiceHost.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\SymbolManager.cs" />
