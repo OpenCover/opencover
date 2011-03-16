@@ -38,6 +38,11 @@ namespace OpenCover.Framework
         /// as it is usually the class that is being filtered</remarks>
         public bool UseAssembly(string assemblyName)
         {
+            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success && keyValuePair.Value == ".*"))
+            {
+                return false;
+            }
+
             if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success && keyValuePair.Value != ".*"))
             {
                 return true;

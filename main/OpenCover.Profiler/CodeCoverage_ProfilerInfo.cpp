@@ -12,7 +12,7 @@
 std::wstring CCodeCoverage::GetModuleName(ModuleID moduleId)
 {
     ULONG dwNameSize = 512;
-    WCHAR szModuleName[512];
+    WCHAR szModuleName[512] = {};
     COM_FAIL_RETURN(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModuleName, NULL), std::wstring());
     return std::wstring(szModuleName);
 }
@@ -20,7 +20,7 @@ std::wstring CCodeCoverage::GetModuleName(ModuleID moduleId)
 std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
 {
     ULONG dwNameSize = 512; 
-    WCHAR szAssemblyName[512];
+    WCHAR szAssemblyName[512] = {};
     COM_FAIL_RETURN(m_profilerInfo->GetAssemblyInfo(assemblyId, dwNameSize, &dwNameSize, szAssemblyName, NULL, NULL), std::wstring());
     return std::wstring(szAssemblyName);
 }
@@ -43,7 +43,7 @@ void CCodeCoverage::GetGenericSignature(mdTypeDef tokenTypeDef, IMetaDataImport2
             if (g > 0) genericSignature.append(L", ");
             
             ULONG genericNameLength = 512;
-            WCHAR szGenericName[512];
+            WCHAR szGenericName[512] = {};
             COM_FAIL(metaDataImport2->GetGenericParamProps(genericParams[g], NULL, NULL, NULL, NULL, szGenericName, genericNameLength, &genericNameLength));
             genericSignature.append(szGenericName);
         }
@@ -63,7 +63,7 @@ std::wstring CCodeCoverage::GetClassName(ModuleID moduleId, mdTypeDef tokenTypeD
 std::wstring CCodeCoverage::GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2)
 {
     ULONG dwNameSize = 512;
-    WCHAR szClassName[512];
+    WCHAR szClassName[512] = {};
     std::wstring className;
     DWORD typeDefFlags = 0;
 
@@ -80,3 +80,39 @@ std::wstring CCodeCoverage::GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport
 
     return GetClassName(parentTypeDef, metaDataImport2) + L"+" + className;
 }
+
+std::wstring CCodeCoverage::GetFullMethodName(FunctionID funcId)
+{
+    ClassID funcClass;
+	ModuleID funcModule;
+	mdToken funcToken;
+    std::wstring methodName;
+	COM_FAIL_RETURN(m_profilerInfo->GetFunctionInfo(funcId, &funcClass, &funcModule, &funcToken), methodName);
+
+    CComPtr<IMetaDataImport> metaDataImport;
+	COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(funcModule, ofRead, IID_IMetaDataImport, (IUnknown**) &metaDataImport), methodName);
+
+    methodName = GetClassName(funcClass) + L"." + GetMethodName(metaDataImport, funcToken);
+    return methodName;
+}
+
+std::wstring CCodeCoverage::GetMethodName(IMetaDataImport* metaDataImport, mdMethodDef tokenMethodDef) 
+{
+	HRESULT hr;
+    std::wstring methodName;
+    ULONG dwNameSize = 512;
+    WCHAR szMethodName[512] = {};
+	COM_FAIL_RETURN(metaDataImport->GetMethodProps(tokenMethodDef, NULL, szMethodName, dwNameSize, &dwNameSize, NULL, NULL, NULL, NULL, NULL), methodName);
+    methodName = szMethodName;
+	return methodName;
+}
+
+std::wstring CCodeCoverage::GetClassName(ClassID classId)
+{
+    ModuleID moduleId;
+	mdTypeDef typeDef;
+    std::wstring className;
+	COM_FAIL_RETURN(m_profilerInfo->GetClassIDInfo(classId, &moduleId, &typeDef), className);
+    return GetClassName(moduleId, typeDef);
+}
+

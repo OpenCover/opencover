@@ -23,8 +23,9 @@ namespace OpenCover.Framework.Service
 
         public bool ShouldTrackAssembly(string assemblyName)
         {
-            Trace.WriteLine(string.Format("->ShouldTrackAssembly({0})", assemblyName));
-            return _filter.UseAssembly(assemblyName);
+            bool ret = _filter.UseAssembly(assemblyName);
+            Trace.WriteLine(string.Format("->ShouldTrackAssembly({0} => {1})", assemblyName, ret));
+            return ret;
         }
 
         public void Stop()

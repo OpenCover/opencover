@@ -2,8 +2,9 @@
 
 #include "stdafx.h"
 #include "CodeCoverage.h"
+#include "NativeCallback.h"
 
-
+CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
 
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
@@ -37,13 +38,49 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     //dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	// Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
     dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
     dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
+    //dwMask |= COR_PRF_MONITOR_ENTERLEAVE;           // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
 
-    m_profilerInfo->SetEventMask(dwMask);
+    m_profilerInfo2->SetEventMask(dwMask);
 
+    if(m_profilerInfo3 != NULL)
+        m_profilerInfo3->SetFunctionIDMapper2(FunctionMapper2, this);
+    else
+        m_profilerInfo2->SetFunctionIDMapper(FunctionMapper);
 
+    g_pProfiler = this;
+
+    m_profilerInfo2->SetEnterLeaveFunctionHooks2(
+        _FunctionEnter2, 
+        _FunctionLeave2, 
+        _FunctionTailcall2);
 
     return S_OK; 
 }
+
+UINT_PTR CCodeCoverage::FunctionMapper2(FunctionID functionId, void* clientData, BOOL* pbHookFunction)
+{
+    *pbHookFunction = FALSE;
+    UINT_PTR retVal = functionId;
+    CCodeCoverage* profiler = static_cast<CCodeCoverage*>(clientData);
+    if(profiler == NULL)
+        return functionId;
+
+    std::wstring fullMethodName = profiler->GetFullMethodName(functionId);
+    ATLTRACE(_T("::FunctionMapper2(%x => %s)"), functionId, W2CT(fullMethodName.c_str()));
+    
+    // we need to make these as filters
+    if (fullMethodName.find(L"System.")==0) return functionId;
+    if (fullMethodName.find(L"Microsoft.")==0) return functionId;
+    
+    *pbHookFunction = TRUE;
+    return retVal;
+}
+
+UINT_PTR CCodeCoverage::FunctionMapper(FunctionID functionId, BOOL* pbHookFunction)
+{
+    return FunctionMapper2(functionId, g_pProfiler, pbHookFunction);
+}
+
 
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 

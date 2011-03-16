@@ -140,6 +140,22 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_ExclusionFilter_Complex()
+        {
+            // arrange
+            var filter = new Filter();
+            filter.AddFilter("-[mscorlib]*");
+            filter.AddFilter("-[System.*]*");
+            filter.AddFilter("+[*]*");
+
+            // act
+            var result = filter.UseAssembly("mscorlib");
+
+            // result
+            Assert.IsFalse(result);
+        }
+
+        [Test]
         public void UseAssembly_ReturnsTrue_WhenAssembly_Matches_InclusionFilter()
         {
             // arrange
