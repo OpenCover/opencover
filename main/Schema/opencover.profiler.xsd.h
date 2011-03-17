@@ -41,12 +41,12 @@ extern "C" {
 
 // The following types were generated:
 
-//     struct _Start;
-//     struct _StartResponse;
+//     struct _Started;
+//     struct _StartedResponse;
 //     struct _ShouldTrackAssembly;
 //     struct _ShouldTrackAssemblyResponse;
-//     struct _Stop;
-//     struct _StopResponse;
+//     struct _Stopping;
+//     struct _StoppingResponse;
 
 // The following header files must be included in this order before this one
 
@@ -56,13 +56,14 @@ extern "C" {
 // C structure definitions for generated types
 ////////////////////////////////////////////////
 
-typedef struct _Start _Start;
+typedef struct _Started _Started;
 
-typedef struct _StartResponse _StartResponse;
+typedef struct _StartedResponse _StartedResponse;
 
 // typeDescription: n/a
 typedef struct _ShouldTrackAssembly 
 {
+    WCHAR* moduleName; // optional
     WCHAR* assemblyName; // optional
 } _ShouldTrackAssembly;
 
@@ -72,9 +73,9 @@ typedef struct _ShouldTrackAssemblyResponse
     BOOL ShouldTrackAssemblyResult;
 } _ShouldTrackAssemblyResponse;
 
-typedef struct _Stop _Stop;
+typedef struct _Stopping _Stopping;
 
-typedef struct _StopResponse _StopResponse;
+typedef struct _StoppingResponse _StoppingResponse;
 
 ////////////////////////////////////////////////
 // Global web service descriptions.
@@ -84,15 +85,15 @@ typedef struct _opencover_profiler_xsd
 {
     struct // globalElements
     {
-        // xml element: Start ("urn:opencover.profiler")
-        // c type: _Start
-        // elementDescription: opencover_profiler_xsd.globalElements.Start
-        WS_ELEMENT_DESCRIPTION Start;
+        // xml element: Started ("urn:opencover.profiler")
+        // c type: _Started
+        // elementDescription: opencover_profiler_xsd.globalElements.Started
+        WS_ELEMENT_DESCRIPTION Started;
         
-        // xml element: StartResponse ("urn:opencover.profiler")
-        // c type: _StartResponse
-        // elementDescription: opencover_profiler_xsd.globalElements.StartResponse
-        WS_ELEMENT_DESCRIPTION StartResponse;
+        // xml element: StartedResponse ("urn:opencover.profiler")
+        // c type: _StartedResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.StartedResponse
+        WS_ELEMENT_DESCRIPTION StartedResponse;
         
         // xml element: ShouldTrackAssembly ("urn:opencover.profiler")
         // c type: _ShouldTrackAssembly
@@ -104,25 +105,25 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.ShouldTrackAssemblyResponse
         WS_ELEMENT_DESCRIPTION ShouldTrackAssemblyResponse;
         
-        // xml element: Stop ("urn:opencover.profiler")
-        // c type: _Stop
-        // elementDescription: opencover_profiler_xsd.globalElements.Stop
-        WS_ELEMENT_DESCRIPTION Stop;
+        // xml element: Stopping ("urn:opencover.profiler")
+        // c type: _Stopping
+        // elementDescription: opencover_profiler_xsd.globalElements.Stopping
+        WS_ELEMENT_DESCRIPTION Stopping;
         
-        // xml element: StopResponse ("urn:opencover.profiler")
-        // c type: _StopResponse
-        // elementDescription: opencover_profiler_xsd.globalElements.StopResponse
-        WS_ELEMENT_DESCRIPTION StopResponse;
+        // xml element: StoppingResponse ("urn:opencover.profiler")
+        // c type: _StoppingResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.StoppingResponse
+        WS_ELEMENT_DESCRIPTION StoppingResponse;
         
     } globalElements;
     struct // externallyReferencedTypes
     {
-        WS_STRUCT_DESCRIPTION Start;
-        WS_STRUCT_DESCRIPTION StartResponse;
+        WS_STRUCT_DESCRIPTION Started;
+        WS_STRUCT_DESCRIPTION StartedResponse;
         WS_STRUCT_DESCRIPTION ShouldTrackAssembly;
         WS_STRUCT_DESCRIPTION ShouldTrackAssemblyResponse;
-        WS_STRUCT_DESCRIPTION Stop;
-        WS_STRUCT_DESCRIPTION StopResponse;
+        WS_STRUCT_DESCRIPTION Stopping;
+        WS_STRUCT_DESCRIPTION StoppingResponse;
     } externallyReferencedTypes;
 } _opencover_profiler_xsd;
 

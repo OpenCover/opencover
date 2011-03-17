@@ -11,7 +11,7 @@ namespace OpenCover.Framework.Model
     public class Module
     {
         public string FullName { get; set; }
-        public IList<File> Files { get; set; }
-        public IList<Class> Classes { get; set; }
+        public File[] Files { get; set; }
+        public Class[] Classes { get; set; }
     }
 }

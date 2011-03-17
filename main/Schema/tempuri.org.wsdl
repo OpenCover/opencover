@@ -13,8 +13,8 @@
   <wsdl:binding name="NetTcpBinding_IProfilerCommunication" type="i0:IProfilerCommunication">
     <wsp:PolicyReference URI="#NetTcpBinding_IProfilerCommunication_policy"></wsp:PolicyReference>
     <soap12:binding transport="http://schemas.microsoft.com/soap/tcp" />
-    <wsdl:operation name="Start">
-      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Start" style="document" />
+    <wsdl:operation name="Started">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Started" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>
@@ -31,8 +31,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Stop">
-      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Stop" style="document" />
+    <wsdl:operation name="Stopping">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Stopping" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

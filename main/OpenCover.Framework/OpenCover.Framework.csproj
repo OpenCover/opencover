@@ -41,6 +41,7 @@
     <Reference Include="ISymWrapper" />
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\build\Version\GlobalAssemblyInfo.cs">
@@ -72,7 +73,9 @@
     <Compile Include="Service\ProfilerCommunicationServiceHost.cs" />
     <Compile Include="Service\ProfilerServiceHost.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
+    <Compile Include="Symbols\ISymbolManagerFactory.cs" />
     <Compile Include="Symbols\SymbolManager.cs" />
+    <Compile Include="Symbols\SymbolManagerFactory.cs" />
     <Compile Include="Symbols\SymbolReaderFactory.cs" />
     <Compile Include="Symbols\ISymbolReaderFactory.cs" />
     <Compile Include="Symbols\SymbolReaderWapper.cs" />

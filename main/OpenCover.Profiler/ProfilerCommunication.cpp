@@ -141,7 +141,7 @@ void ProfilerCommunication::Cleanup()
 void ProfilerCommunication::Start()
 {
     if (proxy==NULL) return;
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_Start(proxy, 
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_Started(proxy, 
         heap, 
         NULL, 
         0, 
@@ -149,13 +149,13 @@ void ProfilerCommunication::Start()
         error);
 
     if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Start"));
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Started"));
 }
 
 void ProfilerCommunication::Stop()
 {
     if (proxy==NULL) return;
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_Stop(proxy, 
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_Stopping(proxy, 
         heap, 
         NULL, 
         0, 
@@ -163,14 +163,15 @@ void ProfilerCommunication::Stop()
         error);
 
     if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stop"));
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stopping"));
 }
 
-BOOL ProfilerCommunication::ShouldTrackAssembly(WCHAR* assemblyName)
+BOOL ProfilerCommunication::ShouldTrackAssembly(WCHAR*moduleName, WCHAR* assemblyName)
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
     HRESULT hr = NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(proxy,
+        moduleName,
         assemblyName,
         &result,
         heap, 

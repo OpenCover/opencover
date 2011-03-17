@@ -24,7 +24,9 @@ namespace OpenCover.Simple.Target
 
     public class Class
     {
-        
+        public Class()
+        {
+        }
     }
 
     public class GenericClass<T>

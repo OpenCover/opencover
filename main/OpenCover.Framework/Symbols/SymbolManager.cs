@@ -13,7 +13,7 @@ namespace OpenCover.Framework.Symbols
     /// <summary>
     /// Interacts with the symbol PDB files and uses Model based entities
     /// </summary>
-    public class SymbolManager : IDisposable
+    public class SymbolManager : ISymbolManager, IDisposable
     {
         private readonly string _modulePath;
         private readonly ISymbolReader _symbolReader;
@@ -45,8 +45,8 @@ namespace OpenCover.Framework.Symbols
         {
             var docs = _symbolReader.GetDocuments();
             return docs
-                .Select(doc => doc.URL)
-                .Select(x=>new File(){FullPath = x})
+                .Where(doc => !string.IsNullOrWhiteSpace(doc.URL))
+                .Select(x=>new File(){FullPath = x.URL})
                 .ToArray();
         }
 

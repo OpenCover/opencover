@@ -124,9 +124,9 @@ extern "C" {
 
 // The following client functions were generated:
 
-//     NetTcpBinding_IProfilerCommunication_Start
+//     NetTcpBinding_IProfilerCommunication_Started
 //     NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
-//     NetTcpBinding_IProfilerCommunication_Stop
+//     NetTcpBinding_IProfilerCommunication_Stopping
 
 // The following server function tables were generated:
 
@@ -175,8 +175,8 @@ HRESULT NetTcpBinding_IProfilerCommunication_CreateServiceEndpoint(
 // Client functions definitions
 ////////////////////////////////////////////////
 
-// operation: NetTcpBinding_IProfilerCommunication_Start
-HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Start(
+// operation: NetTcpBinding_IProfilerCommunication_Started
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Started(
     __in WS_SERVICE_PROXY* _serviceProxy,
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
@@ -187,6 +187,7 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Start(
 // operation: NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
 HRESULT WINAPI NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(
     __in WS_SERVICE_PROXY* _serviceProxy,
+    __in_opt __nullterminated WCHAR* moduleName, 
     __in_opt __nullterminated WCHAR* assemblyName, 
     __out BOOL* ShouldTrackAssemblyResult, 
     __in WS_HEAP* _heap,
@@ -195,8 +196,8 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
-// operation: NetTcpBinding_IProfilerCommunication_Stop
-HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stop(
+// operation: NetTcpBinding_IProfilerCommunication_Stopping
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stopping(
     __in WS_SERVICE_PROXY* _serviceProxy,
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
@@ -208,19 +209,20 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stop(
 // Service functions definitions
 ////////////////////////////////////////////////
 
-typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StartCallback) (
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StartedCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
 typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
+    __in_opt __nullterminated WCHAR* moduleName, 
     __in_opt __nullterminated WCHAR* assemblyName, 
     __out BOOL* ShouldTrackAssemblyResult, 
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
-typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StopCallback) (
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StoppingCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
@@ -228,9 +230,9 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StopCallback) (
 // binding: NetTcpBinding_IProfilerCommunication
 typedef struct NetTcpBinding_IProfilerCommunicationFunctionTable 
 {
-    NetTcpBinding_IProfilerCommunication_StartCallback NetTcpBinding_IProfilerCommunication_Start;
+    NetTcpBinding_IProfilerCommunication_StartedCallback NetTcpBinding_IProfilerCommunication_Started;
     NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly;
-    NetTcpBinding_IProfilerCommunication_StopCallback NetTcpBinding_IProfilerCommunication_Stop;
+    NetTcpBinding_IProfilerCommunication_StoppingCallback NetTcpBinding_IProfilerCommunication_Stopping;
 } NetTcpBinding_IProfilerCommunicationFunctionTable;
 
 ////////////////////////////////////////////////
@@ -243,15 +245,15 @@ typedef struct _tempuri_org_wsdl
     {
         // binding: NetTcpBinding_IProfilerCommunication
         // portType: IProfilerCommunication
-        // operation: NetTcpBinding_IProfilerCommunication_Start
-        //     input message: IProfilerCommunication_Start_InputMessage
-        //     output message: IProfilerCommunication_Start_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_Started
+        //     input message: IProfilerCommunication_Started_InputMessage
+        //     output message: IProfilerCommunication_Started_OutputMessage
         // operation: NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
         //     input message: IProfilerCommunication_ShouldTrackAssembly_InputMessage
         //     output message: IProfilerCommunication_ShouldTrackAssembly_OutputMessage
-        // operation: NetTcpBinding_IProfilerCommunication_Stop
-        //     input message: IProfilerCommunication_Stop_InputMessage
-        //     output message: IProfilerCommunication_Stop_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_Stopping
+        //     input message: IProfilerCommunication_Stopping_InputMessage
+        //     output message: IProfilerCommunication_Stopping_OutputMessage
         // contractDescription: tempuri_org_wsdl.contracts.NetTcpBinding_IProfilerCommunication
         WS_CONTRACT_DESCRIPTION NetTcpBinding_IProfilerCommunication;
         

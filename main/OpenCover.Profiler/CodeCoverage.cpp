@@ -197,7 +197,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     ATLTRACE(_T("    ::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
-    m_host->ShouldTrackAssembly((LPWSTR)assemblyName.c_str());
+    m_host->ShouldTrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
     return S_OK; 
 }
 

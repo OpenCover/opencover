@@ -107,17 +107,17 @@ typedef struct _opencover_profiler_wsdl
 {
     struct // messages
     {
-        // message: IProfilerCommunication_Start_InputMessage
-        // c type: _Start
-        // action: "urn:opencover.profiler/IProfilerCommunication/Start"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Start_InputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Start_InputMessage;
+        // message: IProfilerCommunication_Started_InputMessage
+        // c type: _Started
+        // action: "urn:opencover.profiler/IProfilerCommunication/Started"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Started_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_InputMessage;
         
-        // message: IProfilerCommunication_Start_OutputMessage
-        // c type: _StartResponse
-        // action: "urn:opencover.profiler/IProfilerCommunication/StartResponse"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Start_OutputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Start_OutputMessage;
+        // message: IProfilerCommunication_Started_OutputMessage
+        // c type: _StartedResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/StartedResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Started_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_OutputMessage;
         
         // message: IProfilerCommunication_ShouldTrackAssembly_InputMessage
         // c type: _ShouldTrackAssembly
@@ -131,17 +131,17 @@ typedef struct _opencover_profiler_wsdl
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_OutputMessage;
         
-        // message: IProfilerCommunication_Stop_InputMessage
-        // c type: _Stop
-        // action: "urn:opencover.profiler/IProfilerCommunication/Stop"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_InputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_InputMessage;
+        // message: IProfilerCommunication_Stopping_InputMessage
+        // c type: _Stopping
+        // action: "urn:opencover.profiler/IProfilerCommunication/Stopping"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_InputMessage;
         
-        // message: IProfilerCommunication_Stop_OutputMessage
-        // c type: _StopResponse
-        // action: "urn:opencover.profiler/IProfilerCommunication/StopResponse"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stop_OutputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stop_OutputMessage;
+        // message: IProfilerCommunication_Stopping_OutputMessage
+        // c type: _StoppingResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/StoppingResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_OutputMessage;
         
     } messages;
 } _opencover_profiler_wsdl;

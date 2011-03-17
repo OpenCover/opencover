@@ -8,12 +8,12 @@ namespace OpenCover.Framework.Service
     public interface IProfilerCommunication
     {
         [OperationContract]
-        void Start();
+        void Started();
 
         [OperationContract]
-        bool ShouldTrackAssembly(string assemblyName);
+        bool ShouldTrackAssembly(string moduleName, string assemblyName);
 
         [OperationContract]
-        void Stop();
+        void Stopping();
     }
 }

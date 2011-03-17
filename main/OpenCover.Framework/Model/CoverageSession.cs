@@ -8,6 +8,6 @@ namespace OpenCover.Framework.Model
     public class CoverageSession
     {
         public string SessionId { get; set; }
-        public IList<Module> Modules { get; set; }
+        public Module[] Modules { get; set; }
     }
 }

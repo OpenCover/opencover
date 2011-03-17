@@ -10,6 +10,6 @@ namespace OpenCover.Framework.Model
         public int MetadataToken { get; set; }
         public string Name { get; set; }
         public File File { get; set; }
-        public IList<SequencePoint> SequencePoints { get; set; }
+        public SequencePoint[] SequencePoints { get; set; }
     }
 }

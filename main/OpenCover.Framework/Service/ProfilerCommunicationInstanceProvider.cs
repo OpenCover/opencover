@@ -5,6 +5,7 @@ using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
 using System.Text;
+using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Service
 {
@@ -32,7 +33,11 @@ namespace OpenCover.Framework.Service
             InstanceContext instanceContext, 
             Message message)
         {
-            return _type == typeof(ProfilerCommunication) ? new ProfilerCommunication() : _type.Assembly.CreateInstance(_type.FullName);
+            var filter = new Filter();
+            filter.AddFilter("-[mscorlib]*");
+            filter.AddFilter("-[System.*]*");
+            filter.AddFilter("+[*]*");
+            return _type == typeof(ProfilerCommunication) ? new ProfilerCommunication(filter, new SymbolManagerFactory(), new SymbolReaderFactory()) : _type.Assembly.CreateInstance(_type.FullName);
         }
 
         public void ReleaseInstance(

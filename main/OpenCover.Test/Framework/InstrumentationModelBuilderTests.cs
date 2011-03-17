@@ -40,7 +40,7 @@ namespace OpenCover.Test.Framework
             var module = Instance.BuildModuleModel();
 
             // assert
-            Assert.AreEqual(1, module.Classes.Count);
+            Assert.AreEqual(1, module.Classes.GetLength(0));
             Assert.AreSame(@class, module.Classes[0]);
         }
 
@@ -66,7 +66,7 @@ namespace OpenCover.Test.Framework
             var module = Instance.BuildModuleModel();
 
             // assert
-            Assert.AreEqual(1, module.Classes[0].Methods.Count);
+            Assert.AreEqual(1, module.Classes[0].Methods.GetLength(0));
             Assert.AreSame(@method, module.Classes[0].Methods[0]);
         }
 
@@ -92,7 +92,7 @@ namespace OpenCover.Test.Framework
             var module = Instance.BuildModuleModel();
 
             // assert
-            Assert.AreEqual(1, module.Classes[0].Methods.Count);
+            Assert.AreEqual(1, module.Classes[0].Methods.GetLength(0));
             Assert.AreSame(@method, module.Classes[0].Methods[0]);
         }
 
@@ -119,7 +119,7 @@ namespace OpenCover.Test.Framework
             var module = Instance.BuildModuleModel();
 
             // assert
-            Assert.AreEqual(1, module.Classes[0].Methods[0].SequencePoints.Count);
+            Assert.AreEqual(1, module.Classes[0].Methods[0].SequencePoints.GetLength(0));
             Assert.AreSame(@seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
         }
 
@@ -145,7 +145,7 @@ namespace OpenCover.Test.Framework
             var module = Instance.BuildModuleModel();
 
             // assert
-            Assert.AreEqual(0, module.Classes[0].Methods.Count);
+            Assert.AreEqual(0, module.Classes[0].Methods.GetLength(0));
         }
     }
 }

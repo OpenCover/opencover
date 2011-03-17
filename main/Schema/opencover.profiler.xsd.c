@@ -10,8 +10,9 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
     char unused;
         struct // _ShouldTrackAssembly
         {
+            WS_FIELD_DESCRIPTION moduleName;
             WS_FIELD_DESCRIPTION assemblyName;
-            WS_FIELD_DESCRIPTION* _ShouldTrackAssemblyFields [1]; 
+            WS_FIELD_DESCRIPTION* _ShouldTrackAssemblyFields [2]; 
         } _ShouldTrackAssemblydescs; // end of _ShouldTrackAssembly
         struct // _ShouldTrackAssemblyResponse
         {
@@ -23,15 +24,16 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
     {
         struct // XML string list
         {
-            WS_XML_STRING _StartTypeName;  // Start
-            WS_XML_STRING _StartTypeNamespace;  // urn:opencover.profiler
-            WS_XML_STRING _StartResponseTypeName;  // StartResponse
+            WS_XML_STRING _StartedTypeName;  // Started
+            WS_XML_STRING _StartedTypeNamespace;  // urn:opencover.profiler
+            WS_XML_STRING _StartedResponseTypeName;  // StartedResponse
             WS_XML_STRING _ShouldTrackAssemblyTypeName;  // ShouldTrackAssembly
+            WS_XML_STRING _ShouldTrackAssemblymoduleNameLocalName;  // moduleName
             WS_XML_STRING _ShouldTrackAssemblyassemblyNameLocalName;  // assemblyName
             WS_XML_STRING _ShouldTrackAssemblyResponseTypeName;  // ShouldTrackAssemblyResponse
             WS_XML_STRING _ShouldTrackAssemblyResponseShouldTrackAssemblyResultLocalName;  // ShouldTrackAssemblyResult
-            WS_XML_STRING _StopTypeName;  // Stop
-            WS_XML_STRING _StopResponseTypeName;  // StopResponse
+            WS_XML_STRING _StoppingTypeName;  // Stopping
+            WS_XML_STRING _StoppingResponseTypeName;  // StoppingResponse
         } xmlStrings; // end of XML string list
         WS_XML_DICTIONARY dict;  
     } dictionary;  // end of XML dictionary
@@ -42,10 +44,21 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
     {  // global elements
         0,
         {   // _ShouldTrackAssembly
+            { // field description for moduleName
+            WS_ELEMENT_FIELD_MAPPING,
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblymoduleNameLocalName, // moduleName
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            WS_WSZ_TYPE,
+            0,
+            WsOffsetOf(_ShouldTrackAssembly, moduleName),
+             WS_FIELD_OPTIONAL| WS_FIELD_NILLABLE,
+            0,
+            0xffffffff
+            },    // end of field description for moduleName
             { // field description for assemblyName
             WS_ELEMENT_FIELD_MAPPING,
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyassemblyNameLocalName, // assemblyName
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_WSZ_TYPE,
             0,
             WsOffsetOf(_ShouldTrackAssembly, assemblyName),
@@ -54,6 +67,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
             0xffffffff
             },    // end of field description for assemblyName
             {    // fields description for _ShouldTrackAssembly
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs.moduleName,
             (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs.assemblyName,
             },
         },    // _ShouldTrackAssembly
@@ -61,7 +75,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
             { // field description for ShouldTrackAssemblyResult
             WS_ELEMENT_FIELD_MAPPING,
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseShouldTrackAssemblyResultLocalName, // ShouldTrackAssemblyResult
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_BOOL_TYPE,
             0,
             WsOffsetOf(_ShouldTrackAssemblyResponse, ShouldTrackAssemblyResult),
@@ -76,22 +90,23 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
     }, // end of global elements
     {    // dictionary 
         { // xmlStrings
-            WS_XML_STRING_DICTIONARY_VALUE("Start",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
+            WS_XML_STRING_DICTIONARY_VALUE("Started",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 1),
-            WS_XML_STRING_DICTIONARY_VALUE("StartResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
+            WS_XML_STRING_DICTIONARY_VALUE("StartedResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
             WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssembly",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
-            WS_XML_STRING_DICTIONARY_VALUE("assemblyName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
-            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
-            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
-            WS_XML_STRING_DICTIONARY_VALUE("Stop",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
-            WS_XML_STRING_DICTIONARY_VALUE("StopResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 8),
+            WS_XML_STRING_DICTIONARY_VALUE("moduleName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
+            WS_XML_STRING_DICTIONARY_VALUE("assemblyName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
+            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
+            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
+            WS_XML_STRING_DICTIONARY_VALUE("Stopping",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 8),
+            WS_XML_STRING_DICTIONARY_VALUE("StoppingResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 9),
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // fa4f52f5-3f50-4e68-9363-7acad42fe358 
-        { 0xfa4f52f5, 0x3f50, 0x4e68, { 0x93, 0x63, 0x7a,0xca, 0xd4, 0x2f, 0xe3, 0x58 } },
+        // 93cee840-e078-4a4f-b407-f50763db7c73 
+        { 0x93cee840, 0xe078, 0x4a4f, { 0xb4, 0x07, 0xf5,0x07, 0x63, 0xdb, 0x7c, 0x73 } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
-        9,
+        10,
         TRUE,
         },
     },   //  end of dictionary
@@ -101,40 +116,40 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
 {
     {// globalElements
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeName, // Start
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeName, // Started
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.Start,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.Started,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartResponseTypeName, // StartResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedResponseTypeName, // StartedResponse
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.StartResponse,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.StartedResponse,
         },
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyTypeName, // ShouldTrackAssembly
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.ShouldTrackAssembly,
         },
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseTypeName, // ShouldTrackAssemblyResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.ShouldTrackAssemblyResponse,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopTypeName, // Stop
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingTypeName, // Stopping
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.Stop,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.Stopping,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopResponseTypeName, // StopResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingResponseTypeName, // StoppingResponse
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.StopResponse,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.StoppingResponse,
         },
     }, // globalElements
     {  // begin of externallyReferencedTypes
@@ -143,30 +158,30 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         1,
         0,
         0,
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeName, // Start
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeName, // Started
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _Start
+        },   // end of struct description for _Started
         {
         0,
         1,
         0,
         0,
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartResponseTypeName, // StartResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedResponseTypeName, // StartedResponse
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _StartResponse
+        },   // end of struct description for _StartedResponse
         {
         sizeof(_ShouldTrackAssembly),
         __alignof(_ShouldTrackAssembly),
         (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs._ShouldTrackAssemblyFields,
         WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs._ShouldTrackAssemblyFields),
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyTypeName, // ShouldTrackAssembly
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
@@ -177,7 +192,7 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblyResponsedescs._ShouldTrackAssemblyResponseFields,
         WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblyResponsedescs._ShouldTrackAssemblyResponseFields),
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseTypeName, // ShouldTrackAssemblyResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
@@ -187,22 +202,22 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         1,
         0,
         0,
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopTypeName, // Stop
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingTypeName, // Stopping
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _Stop
+        },   // end of struct description for _Stopping
         {
         0,
         1,
         0,
         0,
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StopResponseTypeName, // StopResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingResponseTypeName, // StoppingResponse
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _StopResponse
+        },   // end of struct description for _StoppingResponse
     }, // end of externallyReferencedTypes;
 }; // end of _opencover_profiler_xsd

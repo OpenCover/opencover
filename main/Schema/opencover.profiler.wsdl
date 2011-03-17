@@ -6,11 +6,11 @@
       <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
     </xsd:schema>
   </wsdl:types>
-  <wsdl:message name="IProfilerCommunication_Start_InputMessage">
-    <wsdl:part name="parameters" element="tns:Start" />
+  <wsdl:message name="IProfilerCommunication_Started_InputMessage">
+    <wsdl:part name="parameters" element="tns:Started" />
   </wsdl:message>
-  <wsdl:message name="IProfilerCommunication_Start_OutputMessage">
-    <wsdl:part name="parameters" element="tns:StartResponse" />
+  <wsdl:message name="IProfilerCommunication_Started_OutputMessage">
+    <wsdl:part name="parameters" element="tns:StartedResponse" />
   </wsdl:message>
   <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_InputMessage">
     <wsdl:part name="parameters" element="tns:ShouldTrackAssembly" />
@@ -18,24 +18,24 @@
   <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_OutputMessage">
     <wsdl:part name="parameters" element="tns:ShouldTrackAssemblyResponse" />
   </wsdl:message>
-  <wsdl:message name="IProfilerCommunication_Stop_InputMessage">
-    <wsdl:part name="parameters" element="tns:Stop" />
+  <wsdl:message name="IProfilerCommunication_Stopping_InputMessage">
+    <wsdl:part name="parameters" element="tns:Stopping" />
   </wsdl:message>
-  <wsdl:message name="IProfilerCommunication_Stop_OutputMessage">
-    <wsdl:part name="parameters" element="tns:StopResponse" />
+  <wsdl:message name="IProfilerCommunication_Stopping_OutputMessage">
+    <wsdl:part name="parameters" element="tns:StoppingResponse" />
   </wsdl:message>
   <wsdl:portType name="IProfilerCommunication">
-    <wsdl:operation name="Start">
-      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Start" message="tns:IProfilerCommunication_Start_InputMessage" />
-      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StartResponse" message="tns:IProfilerCommunication_Start_OutputMessage" />
+    <wsdl:operation name="Started">
+      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Started" message="tns:IProfilerCommunication_Started_InputMessage" />
+      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StartedResponse" message="tns:IProfilerCommunication_Started_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="ShouldTrackAssembly">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly" message="tns:IProfilerCommunication_ShouldTrackAssembly_InputMessage" />
       <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse" message="tns:IProfilerCommunication_ShouldTrackAssembly_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="Stop">
-      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Stop" message="tns:IProfilerCommunication_Stop_InputMessage" />
-      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StopResponse" message="tns:IProfilerCommunication_Stop_OutputMessage" />
+    <wsdl:operation name="Stopping">
+      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Stopping" message="tns:IProfilerCommunication_Stopping_InputMessage" />
+      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StoppingResponse" message="tns:IProfilerCommunication_Stopping_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>
