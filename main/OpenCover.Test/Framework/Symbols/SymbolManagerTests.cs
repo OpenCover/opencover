@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Moq;
 using NUnit.Framework;
+using OpenCover.Framework;
 using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -11,14 +13,17 @@ namespace OpenCover.Test.Framework.Symbols
     {
         private SymbolManager _reader;
         private string _location;
+        private Mock<ICommandLine> _mockCommandLine;
 
         [SetUp]
         public void Setup()
         {
+            _mockCommandLine = new Mock<ICommandLine>();
             var factory = new SymbolReaderFactory();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new SymbolManager(_location, null, factory);
+            _reader = new SymbolManager(_mockCommandLine.Object, factory);
+            _reader.Initialise(_location);
         }
 
         [TearDown]

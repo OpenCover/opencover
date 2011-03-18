@@ -2,9 +2,20 @@
 {
     public class SymbolManagerFactory : ISymbolManagerFactory
     {
-        public ISymbolManager CreateSymbolManager(string modulePath, string searchPath, ISymbolReaderFactory symbolReaderFactory)
+        private readonly ICommandLine _commandLine;
+        private readonly ISymbolReaderFactory _symbolReaderFactory;
+
+        public SymbolManagerFactory(ICommandLine commandLine, ISymbolReaderFactory symbolReaderFactory)
         {
-            return new SymbolManager(modulePath, searchPath, symbolReaderFactory);
+            _commandLine = commandLine;
+            _symbolReaderFactory = symbolReaderFactory;
+        }
+
+        public ISymbolManager CreateSymbolManager(string modulePath)
+        {
+            var manager = new SymbolManager(_commandLine, _symbolReaderFactory);
+            manager.Initialise(modulePath);
+            return manager;
         }
     }
 }

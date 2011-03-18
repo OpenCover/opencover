@@ -15,15 +15,13 @@ namespace OpenCover.Framework.Service
     {
         private readonly IFilter _filter;
         private readonly ISymbolManagerFactory _symbolManagerFactory;
-        private readonly ISymbolReaderFactory _symbolReaderFactory;
 
         public CoverageSession CoverageSession { get; set; }
 
-        public ProfilerCommunication(IFilter filter, ISymbolManagerFactory symbolManagerFactory, ISymbolReaderFactory symbolReaderFactory)
+        public ProfilerCommunication(IFilter filter, ISymbolManagerFactory symbolManagerFactory)
         {
             _filter = filter;
             _symbolManagerFactory = symbolManagerFactory;
-            _symbolReaderFactory = symbolReaderFactory;
         }
 
         public void Started()
@@ -35,7 +33,7 @@ namespace OpenCover.Framework.Service
         {
             var ret = _filter.UseAssembly(assemblyName);
             if (!ret) return false;
-            var manager = _symbolManagerFactory.CreateSymbolManager(moduleName, Path.GetDirectoryName(moduleName), _symbolReaderFactory);
+            var manager = _symbolManagerFactory.CreateSymbolManager(moduleName);
             var builder = new InstrumentationModelBuilder(manager);
             var list = new List<Module>(CoverageSession.Modules ?? new Module[0]);
             list.Add(builder.BuildModuleModel());

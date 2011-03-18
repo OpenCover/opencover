@@ -69,8 +69,8 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
         },  // end of xmlStrings
         
         {   // opencover_profiler_wsdldictionary
-        // a6d0c4e0-4cf0-47e6-bc9f-fff3c03aea42 
-        { 0xa6d0c4e0, 0x4cf0, 0x47e6, { 0xbc, 0x9f, 0xff,0xf3, 0xc0, 0x3a, 0xea, 0x42 } },
+        // 76c0c982-370e-44b3-9a27-2fc90133db04 
+        { 0x76c0c982, 0x370e, 0x44b3, { 0x9a, 0x27, 0x2f,0xc9, 0x01, 0x33, 0xdb, 0x04 } },
         (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings,
         6,
         TRUE,

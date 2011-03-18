@@ -39,6 +39,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ISymWrapper" />
+    <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
@@ -50,9 +53,11 @@
     <Compile Include="..\..\build\Version\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
+    <Compile Include="Bootstrapper.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Filter.cs" />
+    <Compile Include="ICommandLine.cs" />
     <Compile Include="InstrumentationModelBuilder.cs" />
     <Compile Include="Model\Class.cs" />
     <Compile Include="Model\CoverageSession.cs" />

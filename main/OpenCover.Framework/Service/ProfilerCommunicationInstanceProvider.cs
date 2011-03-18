@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Dispatcher;
-using System.Text;
-using OpenCover.Framework.Symbols;
+using Microsoft.Practices.Unity;
 
 namespace OpenCover.Framework.Service
 {
@@ -13,15 +10,21 @@ namespace OpenCover.Framework.Service
     /// This Provider allows us to return a more complex
     /// constructed Profiler Communication object
     /// </summary>
-    public class ProfilerCommunicationInstanceProvider 
+    public class ProfilerCommunicationInstanceProvider
         : IInstanceProvider
     {
         private readonly Type _type;
+        private readonly IUnityContainer _unityContainer;
+
         public ProfilerCommunicationInstanceProvider(
+            IUnityContainer unityContainer,
             Type type)
         {
+            _unityContainer = unityContainer;
             _type = type;
         }
+
+        #region IInstanceProvider Members
 
         public object GetInstance(
             InstanceContext instanceContext)
@@ -30,18 +33,19 @@ namespace OpenCover.Framework.Service
         }
 
         public object GetInstance(
-            InstanceContext instanceContext, 
+            InstanceContext instanceContext,
             Message message)
         {
-            var filter = new Filter();
-            filter.AddFilter("-[mscorlib]*");
-            filter.AddFilter("-[System.*]*");
-            filter.AddFilter("+[*]*");
-            return _type == typeof(ProfilerCommunication) ? new ProfilerCommunication(filter, new SymbolManagerFactory(), new SymbolReaderFactory()) : _type.Assembly.CreateInstance(_type.FullName);
+            return _unityContainer.Resolve(_type);
         }
 
         public void ReleaseInstance(
-            InstanceContext instanceContext, 
-            object instance) { }
+            InstanceContext instanceContext,
+            object instance)
+        {
+            _unityContainer.Teardown(instance);
+        }
+
+        #endregion
     }
 }

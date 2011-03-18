@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.ServiceModel;
-using System.Text;
+using Microsoft.Practices.Unity;
 
 namespace OpenCover.Framework.Service
 {
     public class ProfilerCommunicationServiceHost : ServiceHost
     {
-        public ProfilerCommunicationServiceHost(
-            Type type, 
-            params Uri[] baseAddresses) 
-            : base(type, baseAddresses) { }
+        private readonly IUnityContainer _unityContainer;
+
+        public ProfilerCommunicationServiceHost(IUnityContainer unityContainer,
+                                                Type type, params Uri[] baseAddresses)
+            : base(type, baseAddresses)
+        {
+            _unityContainer = unityContainer;
+        }
 
         protected override void OnOpening()
         {
-            this.Description
-                .Behaviors
-                .Add(new ProfilerCommunicationServiceBehaviour());
+            Description.Behaviors
+                .Add(new ProfilerCommunicationServiceBehaviour(_unityContainer));
+
             base.OnOpening();
         }
     }

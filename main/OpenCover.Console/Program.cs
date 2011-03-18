@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
+using Microsoft.Practices.Unity;
 using OpenCover.Framework;
 using OpenCover.Framework.Service;
 
@@ -21,6 +22,13 @@ namespace OpenCover.Console
         {
             var parser = new CommandLineParser(string.Join("", args));
 
+            var container = new Bootstrapper();
+            var filter = new Filter();
+            filter.AddFilter("-[mscorlib]*");
+            filter.AddFilter("-[System.*]*");
+            filter.AddFilter("+[*]*");
+            container.Initialise(filter, parser);
+
             try
             {
                 parser.ExtractAndValidateArguments();
@@ -33,7 +41,8 @@ namespace OpenCover.Console
 
                 if (parser.HostOnly)
                 {
-                    var host = new ProfilerServiceHost();
+                    
+                    var host = new ProfilerServiceHost(container.Container);
                     host.Open(parser.PortNumber);
                     Thread.Sleep(new TimeSpan(0, 0, 0, parser.HostOnlySeconds));
                     host.Close();
@@ -51,7 +60,7 @@ namespace OpenCover.Console
             {
                 if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration);
 
-                var host = new ProfilerServiceHost();
+                var host = new ProfilerServiceHost(container.Container);
                 host.Open(parser.PortNumber);
 
                 if (Directory.Exists(parser.TargetDir)) Environment.CurrentDirectory = parser.TargetDir;

@@ -6,7 +6,7 @@ namespace OpenCover.Framework
     /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
-    public class CommandLineParser : CommandLineParserBase
+    public class CommandLineParser : CommandLineParserBase, ICommandLine
     {
         public CommandLineParser(string arguments) : base(arguments)
         {
@@ -136,4 +136,5 @@ namespace OpenCover.Framework
 
         public bool PrintUsage { get; private set; }
     }
+
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ServiceModel;
 using System.ServiceModel.Description;
+using Microsoft.Practices.Unity;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Service;
 
@@ -13,13 +15,15 @@ namespace OpenCover.Test.Framework
     /// unless you used something like TypeMock
     /// </summary>
     /// <remarks>
-    /// This one of the rare Integration tests created more 
+    /// This one of the rare Integration(ish) tests created more 
     /// out of necessity
     /// </remarks>
     [TestFixture, Category("Integration")]
-    public class ServiceTests
+    public class ServiceTests 
     {
-        public class ProfilerCommunicationClient : ClientBase<IProfilerCommunication>
+        private Mock<IUnityContainer> _mockContainer;
+        
+        private class ProfilerCommunicationClient : ClientBase<IProfilerCommunication>
         {
             public ProfilerCommunicationClient(ServiceEndpoint endpoint) : base(endpoint) { }
         }
@@ -29,7 +33,9 @@ namespace OpenCover.Test.Framework
         [SetUp]
         public void Setup()
         {
-            _host = new ProfilerServiceHost();
+            _mockContainer = new Mock<IUnityContainer>();
+                           
+            _host = new ProfilerServiceHost(_mockContainer.Object);
             _host.Open(8001);
         }
 
@@ -50,14 +56,13 @@ namespace OpenCover.Test.Framework
             };
 
             var endpoint = new ServiceEndpoint(
-                ContractDescription.GetContract(typeof(IProfilerCommunication)),
-                binding,
+                ContractDescription.GetContract(typeof(IProfilerCommunication)), binding,
                 new EndpointAddress(new Uri("net.tcp://localhost:8001/OpenCover.Profiler.Host")));
             
             // act/assert
             var client = new ProfilerCommunicationClient(endpoint);
             Assert.DoesNotThrow(client.Open);
-
+            
             // cleanup
             client.Close();
         }

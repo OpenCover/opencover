@@ -15,16 +15,24 @@ namespace OpenCover.Framework.Symbols
     /// </summary>
     public class SymbolManager : ISymbolManager, IDisposable
     {
-        private readonly string _modulePath;
-        private readonly ISymbolReader _symbolReader;
-        private readonly Assembly _assembly;
+        private readonly ICommandLine _commandLine;
+        private readonly ISymbolReaderFactory _symbolReaderFactory;
+        private string _modulePath;
+        private ISymbolReader _symbolReader;
+        private Assembly _assembly;
  
-        public SymbolManager(string modulePath, string searchPath, ISymbolReaderFactory symbolReaderFactory)
+        public SymbolManager(ICommandLine commandLine, ISymbolReaderFactory symbolReaderFactory)
+        {
+            _commandLine = commandLine;
+            _symbolReaderFactory = symbolReaderFactory;
+            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += CurrentDomain_ReflectionOnlyAssemblyResolve;
+        }
+
+        public void Initialise(string modulePath)
         {
             _modulePath = modulePath;
-            _symbolReader = symbolReaderFactory.GetSymbolReader(modulePath, searchPath);
             _assembly = Assembly.ReflectionOnlyLoadFrom(_modulePath);
-            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += CurrentDomain_ReflectionOnlyAssemblyResolve;
+            _symbolReader = _symbolReaderFactory.GetSymbolReader(modulePath, _commandLine.TargetDir);
         }
 
         public string ModulePath
