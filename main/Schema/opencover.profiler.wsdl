@@ -12,11 +12,11 @@
   <wsdl:message name="IProfilerCommunication_Started_OutputMessage">
     <wsdl:part name="parameters" element="tns:StartedResponse" />
   </wsdl:message>
-  <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_InputMessage">
-    <wsdl:part name="parameters" element="tns:ShouldTrackAssembly" />
+  <wsdl:message name="IProfilerCommunication_TrackAssembly_InputMessage">
+    <wsdl:part name="parameters" element="tns:TrackAssembly" />
   </wsdl:message>
-  <wsdl:message name="IProfilerCommunication_ShouldTrackAssembly_OutputMessage">
-    <wsdl:part name="parameters" element="tns:ShouldTrackAssemblyResponse" />
+  <wsdl:message name="IProfilerCommunication_TrackAssembly_OutputMessage">
+    <wsdl:part name="parameters" element="tns:TrackAssemblyResponse" />
   </wsdl:message>
   <wsdl:message name="IProfilerCommunication_Stopping_InputMessage">
     <wsdl:part name="parameters" element="tns:Stopping" />
@@ -29,9 +29,9 @@
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Started" message="tns:IProfilerCommunication_Started_InputMessage" />
       <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/StartedResponse" message="tns:IProfilerCommunication_Started_OutputMessage" />
     </wsdl:operation>
-    <wsdl:operation name="ShouldTrackAssembly">
-      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly" message="tns:IProfilerCommunication_ShouldTrackAssembly_InputMessage" />
-      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse" message="tns:IProfilerCommunication_ShouldTrackAssembly_OutputMessage" />
+    <wsdl:operation name="TrackAssembly">
+      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/TrackAssembly" message="tns:IProfilerCommunication_TrackAssembly_InputMessage" />
+      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse" message="tns:IProfilerCommunication_TrackAssembly_OutputMessage" />
     </wsdl:operation>
     <wsdl:operation name="Stopping">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Stopping" message="tns:IProfilerCommunication_Stopping_InputMessage" />

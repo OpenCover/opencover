@@ -119,17 +119,17 @@ typedef struct _opencover_profiler_wsdl
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Started_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_OutputMessage;
         
-        // message: IProfilerCommunication_ShouldTrackAssembly_InputMessage
-        // c type: _ShouldTrackAssembly
-        // action: "urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssembly"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_InputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_InputMessage;
+        // message: IProfilerCommunication_TrackAssembly_InputMessage
+        // c type: _TrackAssembly
+        // action: "urn:opencover.profiler/IProfilerCommunication/TrackAssembly"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_TrackAssembly_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_InputMessage;
         
-        // message: IProfilerCommunication_ShouldTrackAssembly_OutputMessage
-        // c type: _ShouldTrackAssemblyResponse
-        // action: "urn:opencover.profiler/IProfilerCommunication/ShouldTrackAssemblyResponse"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_OutputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_ShouldTrackAssembly_OutputMessage;
+        // message: IProfilerCommunication_TrackAssembly_OutputMessage
+        // c type: _TrackAssemblyResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_TrackAssembly_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_OutputMessage;
         
         // message: IProfilerCommunication_Stopping_InputMessage
         // c type: _Stopping

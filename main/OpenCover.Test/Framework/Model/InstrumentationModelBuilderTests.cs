@@ -1,11 +1,10 @@
 ﻿using Moq;
 using NUnit.Framework;
-using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.MoqFramework;
 
-namespace OpenCover.Test.Framework
+namespace OpenCover.Test.Framework.Model
 {
     [TestFixture]
     public class InstrumentationModelBuilderTests :

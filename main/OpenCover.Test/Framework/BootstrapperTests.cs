@@ -6,6 +6,7 @@ using Microsoft.Practices.Unity;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Framework.Symbols;
 
@@ -20,10 +21,10 @@ namespace OpenCover.Test.Framework
             // arrange 
             var mockFilter = new Mock<IFilter>();
             var mockCommandLine = new Mock<ICommandLine>();
+            var mockPersistance = new Mock<IPersistance>();
 
             var bootstrapper = new Bootstrapper();
-            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object);
-
+            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object);
 
             // act
             var instance = bootstrapper.Container.Resolve(typeof(IProfilerCommunication), null);

@@ -43,8 +43,8 @@ extern "C" {
 
 //     struct _Started;
 //     struct _StartedResponse;
-//     struct _ShouldTrackAssembly;
-//     struct _ShouldTrackAssemblyResponse;
+//     struct _TrackAssembly;
+//     struct _TrackAssemblyResponse;
 //     struct _Stopping;
 //     struct _StoppingResponse;
 
@@ -61,17 +61,17 @@ typedef struct _Started _Started;
 typedef struct _StartedResponse _StartedResponse;
 
 // typeDescription: n/a
-typedef struct _ShouldTrackAssembly 
+typedef struct _TrackAssembly 
 {
     WCHAR* moduleName; // optional
     WCHAR* assemblyName; // optional
-} _ShouldTrackAssembly;
+} _TrackAssembly;
 
 // typeDescription: n/a
-typedef struct _ShouldTrackAssemblyResponse 
+typedef struct _TrackAssemblyResponse 
 {
-    BOOL ShouldTrackAssemblyResult;
-} _ShouldTrackAssemblyResponse;
+    BOOL TrackAssemblyResult;
+} _TrackAssemblyResponse;
 
 typedef struct _Stopping _Stopping;
 
@@ -95,15 +95,15 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.StartedResponse
         WS_ELEMENT_DESCRIPTION StartedResponse;
         
-        // xml element: ShouldTrackAssembly ("urn:opencover.profiler")
-        // c type: _ShouldTrackAssembly
-        // elementDescription: opencover_profiler_xsd.globalElements.ShouldTrackAssembly
-        WS_ELEMENT_DESCRIPTION ShouldTrackAssembly;
+        // xml element: TrackAssembly ("urn:opencover.profiler")
+        // c type: _TrackAssembly
+        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssembly
+        WS_ELEMENT_DESCRIPTION TrackAssembly;
         
-        // xml element: ShouldTrackAssemblyResponse ("urn:opencover.profiler")
-        // c type: _ShouldTrackAssemblyResponse
-        // elementDescription: opencover_profiler_xsd.globalElements.ShouldTrackAssemblyResponse
-        WS_ELEMENT_DESCRIPTION ShouldTrackAssemblyResponse;
+        // xml element: TrackAssemblyResponse ("urn:opencover.profiler")
+        // c type: _TrackAssemblyResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssemblyResponse
+        WS_ELEMENT_DESCRIPTION TrackAssemblyResponse;
         
         // xml element: Stopping ("urn:opencover.profiler")
         // c type: _Stopping
@@ -120,8 +120,8 @@ typedef struct _opencover_profiler_xsd
     {
         WS_STRUCT_DESCRIPTION Started;
         WS_STRUCT_DESCRIPTION StartedResponse;
-        WS_STRUCT_DESCRIPTION ShouldTrackAssembly;
-        WS_STRUCT_DESCRIPTION ShouldTrackAssemblyResponse;
+        WS_STRUCT_DESCRIPTION TrackAssembly;
+        WS_STRUCT_DESCRIPTION TrackAssemblyResponse;
         WS_STRUCT_DESCRIPTION Stopping;
         WS_STRUCT_DESCRIPTION StoppingResponse;
     } externallyReferencedTypes;

@@ -7,16 +7,16 @@ using OpenCover.Framework.Symbols;
 namespace OpenCover.Test.Framework.Symbols
 {
     [TestFixture]
-    public class SymbolReaderWrapperTests
+    public class SymbolReaderFactoryTests
     {
         [Test]
         public void GetSymbolReader_ReturnsNull_WhenFileNotFound()
         {
             // arrange
-            var binder = new SymBinder();
+            var factory = new SymbolReaderFactory();
 
             // act
-            var x = SymbolReaderWapper.GetSymbolReader(binder, "Xyz.dll", null);
+            var x = factory.GetSymbolReader("Xyz.dll", null);
             
             // assert
             Assert.IsNull(x);
@@ -26,11 +26,11 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetSymbolReader_ReturnsNotNull_WhenFileFound()
         {
             // arrange
+            var factory = new SymbolReaderFactory();
             var location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Framework.dll");
-            var binder = new SymBinder();
-
+ 
             // act
-            var x = SymbolReaderWapper.GetSymbolReader(binder, location, null);
+            var x = factory.GetSymbolReader(location, null);
 
             // assert
             Assert.IsNotNull(x);

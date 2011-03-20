@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenCover.Framework.Model;
+﻿using System.Linq;
 using OpenCover.Framework.Symbols;
 
-namespace OpenCover.Framework
+namespace OpenCover.Framework.Model
 {
-    public interface IInstrumentationModelBuilder
-    {
-        Module BuildModuleModel();
-    }
-
     /// <summary>
     /// The purpose of this class is to be build the instumentation model for a target assembly
     /// </summary>

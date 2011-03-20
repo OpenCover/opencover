@@ -15,11 +15,11 @@ typedef struct _tempuri_org_wsdlLocalDefinitions
             {
                 WS_OPERATION_DESCRIPTION NetTcpBinding_IProfilerCommunication_Started;
             } NetTcpBinding_IProfilerCommunication_Started;
-            struct // NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+            struct // NetTcpBinding_IProfilerCommunication_TrackAssembly
             {
                 WS_PARAMETER_DESCRIPTION params[3];
-                WS_OPERATION_DESCRIPTION NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly;
-            } NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly;
+                WS_OPERATION_DESCRIPTION NetTcpBinding_IProfilerCommunication_TrackAssembly;
+            } NetTcpBinding_IProfilerCommunication_TrackAssembly;
             struct // NetTcpBinding_IProfilerCommunication_Stopping
             {
                 WS_OPERATION_DESCRIPTION NetTcpBinding_IProfilerCommunication_Stopping;
@@ -72,31 +72,31 @@ HRESULT CALLBACK NetTcpBinding_IProfilerCommunication_StartedOperationStub(
 #pragma warning(pop)
 #endif
 
-typedef struct NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyParamStruct 
+typedef struct NetTcpBinding_IProfilerCommunication_TrackAssemblyParamStruct 
 {
     WCHAR** moduleName;
     WCHAR** assemblyName;
-    BOOL* ShouldTrackAssemblyResult;
-} NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyParamStruct;
+    BOOL* TrackAssemblyResult;
+} NetTcpBinding_IProfilerCommunication_TrackAssemblyParamStruct;
 
 #if (_MSC_VER >=1400) 
 #pragma warning(push)
 #endif
 #pragma warning(disable: 4055) // conversion from data pointer to function pointer
-HRESULT CALLBACK NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyOperationStub(
+HRESULT CALLBACK NetTcpBinding_IProfilerCommunication_TrackAssemblyOperationStub(
     __in const WS_OPERATION_CONTEXT* _context,
     __in void* _stackStruct,
     __in const void* _callback,
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error)
 {
-    NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback _operation = (NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyCallback)_callback;
-    NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyParamStruct *_stack =(NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyParamStruct*)_stackStruct;
+    NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback _operation = (NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback)_callback;
+    NetTcpBinding_IProfilerCommunication_TrackAssemblyParamStruct *_stack =(NetTcpBinding_IProfilerCommunication_TrackAssemblyParamStruct*)_stackStruct;
     return _operation( 
         _context,
         *(_stack->moduleName),
         *(_stack->assemblyName),
-        (_stack->ShouldTrackAssemblyResult),
+        (_stack->TrackAssemblyResult),
         (WS_ASYNC_CONTEXT*)_asyncContext,
         _error);
 }
@@ -144,24 +144,24 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
                     WS_NON_RPC_LITERAL_OPERATION
                 }, //operation description for NetTcpBinding_IProfilerCommunication_Started
             },  // NetTcpBinding_IProfilerCommunication_Started
-            { // NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
-                { // parameter descriptions for NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+            { // NetTcpBinding_IProfilerCommunication_TrackAssembly
+                { // parameter descriptions for NetTcpBinding_IProfilerCommunication_TrackAssembly
                     { WS_PARAMETER_TYPE_NORMAL, (USHORT)0, (USHORT)-1 },
                     { WS_PARAMETER_TYPE_NORMAL, (USHORT)1, (USHORT)-1 },
                     { WS_PARAMETER_TYPE_NORMAL, (USHORT)-1, (USHORT)0 },
-                },    // parameter descriptions for NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
-                {    // operation description for NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+                },    // parameter descriptions for NetTcpBinding_IProfilerCommunication_TrackAssembly
+                {    // operation description for NetTcpBinding_IProfilerCommunication_TrackAssembly
                     1,
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_InputMessage, 
-                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_ShouldTrackAssembly_OutputMessage, 
+                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_TrackAssembly_InputMessage, 
+                    (WS_MESSAGE_DESCRIPTION*)&opencover_profiler_wsdl.messages.IProfilerCommunication_TrackAssembly_OutputMessage, 
                     0,
                     0,
                     3,
-                    (WS_PARAMETER_DESCRIPTION*)tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly.params,
-                    NetTcpBinding_IProfilerCommunication_ShouldTrackAssemblyOperationStub,
+                    (WS_PARAMETER_DESCRIPTION*)tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_TrackAssembly.params,
+                    NetTcpBinding_IProfilerCommunication_TrackAssemblyOperationStub,
                     WS_NON_RPC_LITERAL_OPERATION
-                }, //operation description for NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
-            },  // NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
+                }, //operation description for NetTcpBinding_IProfilerCommunication_TrackAssembly
+            },  // NetTcpBinding_IProfilerCommunication_TrackAssembly
             { // NetTcpBinding_IProfilerCommunication_Stopping
                 {    // operation description for NetTcpBinding_IProfilerCommunication_Stopping
                     1,
@@ -177,7 +177,7 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
             },  // NetTcpBinding_IProfilerCommunication_Stopping
             {    // array of operations for NetTcpBinding_IProfilerCommunication
                 (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_Started.NetTcpBinding_IProfilerCommunication_Started,
-                (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly.NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly,
+                (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_TrackAssembly.NetTcpBinding_IProfilerCommunication_TrackAssembly,
                 (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_Stopping.NetTcpBinding_IProfilerCommunication_Stopping,
             },    // array of operations for NetTcpBinding_IProfilerCommunication
             {    // contract description for NetTcpBinding_IProfilerCommunication
@@ -216,8 +216,8 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
         },  // end of xmlStrings
         
         {   // tempuri_org_wsdldictionary
-        // 8ccc0894-75c2-4b90-b23c-b36c5ad1c41f 
-        { 0x8ccc0894, 0x75c2, 0x4b90, { 0xb2, 0x3c, 0xb3,0x6c, 0x5a, 0xd1, 0xc4, 0x1f } },
+        // 80dedf24-553b-4cef-bcf9-1605779dec13 
+        { 0x80dedf24, 0x553b, 0x4cef, { 0xbc, 0xf9, 0x16,0x05, 0x77, 0x9d, 0xec, 0x13 } },
         (WS_XML_STRING*)&tempuri_org_wsdlLocalDefinitions.dictionary.xmlStrings,
         1,
         TRUE,
@@ -245,12 +245,12 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Started(
         _error);
 }
 
-// operation: NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly
-HRESULT WINAPI NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(
+// operation: NetTcpBinding_IProfilerCommunication_TrackAssembly
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_TrackAssembly(
     __in WS_SERVICE_PROXY* _serviceProxy,
     __in_opt __nullterminated WCHAR* moduleName, 
     __in_opt __nullterminated WCHAR* assemblyName, 
-    __out BOOL* ShouldTrackAssemblyResult, 
+    __out BOOL* TrackAssemblyResult, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
@@ -260,9 +260,9 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(
     void* _argList[3]; 
     _argList[0] = &moduleName;
     _argList[1] = &assemblyName;
-    _argList[2] = &ShouldTrackAssemblyResult;
+    _argList[2] = &TrackAssemblyResult;
     return WsCall(_serviceProxy,
-        (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly.NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly,
+        (WS_OPERATION_DESCRIPTION*)&tempuri_org_wsdlLocalDefinitions.contracts.NetTcpBinding_IProfilerCommunication.NetTcpBinding_IProfilerCommunication_TrackAssembly.NetTcpBinding_IProfilerCommunication_TrackAssembly,
         (const void **)&_argList,
         _heap,
         _callProperties,

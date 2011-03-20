@@ -8,17 +8,17 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
     struct  // global elements
     {
     char unused;
-        struct // _ShouldTrackAssembly
+        struct // _TrackAssembly
         {
             WS_FIELD_DESCRIPTION moduleName;
             WS_FIELD_DESCRIPTION assemblyName;
-            WS_FIELD_DESCRIPTION* _ShouldTrackAssemblyFields [2]; 
-        } _ShouldTrackAssemblydescs; // end of _ShouldTrackAssembly
-        struct // _ShouldTrackAssemblyResponse
+            WS_FIELD_DESCRIPTION* _TrackAssemblyFields [2]; 
+        } _TrackAssemblydescs; // end of _TrackAssembly
+        struct // _TrackAssemblyResponse
         {
-            WS_FIELD_DESCRIPTION ShouldTrackAssemblyResult;
-            WS_FIELD_DESCRIPTION* _ShouldTrackAssemblyResponseFields [1]; 
-        } _ShouldTrackAssemblyResponsedescs; // end of _ShouldTrackAssemblyResponse
+            WS_FIELD_DESCRIPTION TrackAssemblyResult;
+            WS_FIELD_DESCRIPTION* _TrackAssemblyResponseFields [1]; 
+        } _TrackAssemblyResponsedescs; // end of _TrackAssemblyResponse
     } globalElements;  // end of global elements
     struct // XML dictionary
     {
@@ -27,11 +27,11 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
             WS_XML_STRING _StartedTypeName;  // Started
             WS_XML_STRING _StartedTypeNamespace;  // urn:opencover.profiler
             WS_XML_STRING _StartedResponseTypeName;  // StartedResponse
-            WS_XML_STRING _ShouldTrackAssemblyTypeName;  // ShouldTrackAssembly
-            WS_XML_STRING _ShouldTrackAssemblymoduleNameLocalName;  // moduleName
-            WS_XML_STRING _ShouldTrackAssemblyassemblyNameLocalName;  // assemblyName
-            WS_XML_STRING _ShouldTrackAssemblyResponseTypeName;  // ShouldTrackAssemblyResponse
-            WS_XML_STRING _ShouldTrackAssemblyResponseShouldTrackAssemblyResultLocalName;  // ShouldTrackAssemblyResult
+            WS_XML_STRING _TrackAssemblyTypeName;  // TrackAssembly
+            WS_XML_STRING _TrackAssemblymoduleNameLocalName;  // moduleName
+            WS_XML_STRING _TrackAssemblyassemblyNameLocalName;  // assemblyName
+            WS_XML_STRING _TrackAssemblyResponseTypeName;  // TrackAssemblyResponse
+            WS_XML_STRING _TrackAssemblyResponseTrackAssemblyResultLocalName;  // TrackAssemblyResult
             WS_XML_STRING _StoppingTypeName;  // Stopping
             WS_XML_STRING _StoppingResponseTypeName;  // StoppingResponse
         } xmlStrings; // end of XML string list
@@ -43,68 +43,68 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
 {
     {  // global elements
         0,
-        {   // _ShouldTrackAssembly
+        {   // _TrackAssembly
             { // field description for moduleName
             WS_ELEMENT_FIELD_MAPPING,
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblymoduleNameLocalName, // moduleName
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblymoduleNameLocalName, // moduleName
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_WSZ_TYPE,
             0,
-            WsOffsetOf(_ShouldTrackAssembly, moduleName),
+            WsOffsetOf(_TrackAssembly, moduleName),
              WS_FIELD_OPTIONAL| WS_FIELD_NILLABLE,
             0,
             0xffffffff
             },    // end of field description for moduleName
             { // field description for assemblyName
             WS_ELEMENT_FIELD_MAPPING,
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyassemblyNameLocalName, // assemblyName
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyassemblyNameLocalName, // assemblyName
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_WSZ_TYPE,
             0,
-            WsOffsetOf(_ShouldTrackAssembly, assemblyName),
+            WsOffsetOf(_TrackAssembly, assemblyName),
              WS_FIELD_OPTIONAL| WS_FIELD_NILLABLE,
             0,
             0xffffffff
             },    // end of field description for assemblyName
-            {    // fields description for _ShouldTrackAssembly
-            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs.moduleName,
-            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs.assemblyName,
+            {    // fields description for _TrackAssembly
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs.moduleName,
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs.assemblyName,
             },
-        },    // _ShouldTrackAssembly
-        {   // _ShouldTrackAssemblyResponse
-            { // field description for ShouldTrackAssemblyResult
+        },    // _TrackAssembly
+        {   // _TrackAssemblyResponse
+            { // field description for TrackAssemblyResult
             WS_ELEMENT_FIELD_MAPPING,
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseShouldTrackAssemblyResultLocalName, // ShouldTrackAssemblyResult
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTrackAssemblyResultLocalName, // TrackAssemblyResult
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_BOOL_TYPE,
             0,
-            WsOffsetOf(_ShouldTrackAssemblyResponse, ShouldTrackAssemblyResult),
+            WsOffsetOf(_TrackAssemblyResponse, TrackAssemblyResult),
              WS_FIELD_OPTIONAL,
             0,
             0xffffffff
-            },    // end of field description for ShouldTrackAssemblyResult
-            {    // fields description for _ShouldTrackAssemblyResponse
-            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblyResponsedescs.ShouldTrackAssemblyResult,
+            },    // end of field description for TrackAssemblyResult
+            {    // fields description for _TrackAssemblyResponse
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs.TrackAssemblyResult,
             },
-        },    // _ShouldTrackAssemblyResponse
+        },    // _TrackAssemblyResponse
     }, // end of global elements
     {    // dictionary 
         { // xmlStrings
             WS_XML_STRING_DICTIONARY_VALUE("Started",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 1),
             WS_XML_STRING_DICTIONARY_VALUE("StartedResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
-            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssembly",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssembly",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
             WS_XML_STRING_DICTIONARY_VALUE("moduleName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
             WS_XML_STRING_DICTIONARY_VALUE("assemblyName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
-            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
-            WS_XML_STRING_DICTIONARY_VALUE("ShouldTrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
             WS_XML_STRING_DICTIONARY_VALUE("Stopping",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 8),
             WS_XML_STRING_DICTIONARY_VALUE("StoppingResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 9),
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // 7c482fab-9d4d-405c-8c31-ff12b535b804 
-        { 0x7c482fab, 0x9d4d, 0x405c, { 0x8c, 0x31, 0xff,0x12, 0xb5, 0x35, 0xb8, 0x04 } },
+        // dac4a07a-e727-4b2e-8576-2896617446b1 
+        { 0xdac4a07a, 0xe727, 0x4b2e, { 0x85, 0x76, 0x28,0x96, 0x61, 0x74, 0x46, 0xb1 } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
         10,
         TRUE,
@@ -128,16 +128,16 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.StartedResponse,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyTypeName, // ShouldTrackAssembly
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.ShouldTrackAssembly,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssembly,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseTypeName, // ShouldTrackAssemblyResponse
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.ShouldTrackAssemblyResponse,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssemblyResponse,
         },
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingTypeName, // Stopping
@@ -176,27 +176,27 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         },   // end of struct description for _StartedResponse
         {
-        sizeof(_ShouldTrackAssembly),
-        __alignof(_ShouldTrackAssembly),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs._ShouldTrackAssemblyFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblydescs._ShouldTrackAssemblyFields),
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyTypeName, // ShouldTrackAssembly
+        sizeof(_TrackAssembly),
+        __alignof(_TrackAssembly),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _ShouldTrackAssembly
+        },   // end of struct description for _TrackAssembly
         {
-        sizeof(_ShouldTrackAssemblyResponse),
-        __alignof(_ShouldTrackAssemblyResponse),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblyResponsedescs._ShouldTrackAssemblyResponseFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._ShouldTrackAssemblyResponsedescs._ShouldTrackAssemblyResponseFields),
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._ShouldTrackAssemblyResponseTypeName, // ShouldTrackAssemblyResponse
+        sizeof(_TrackAssemblyResponse),
+        __alignof(_TrackAssemblyResponse),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
-        },   // end of struct description for _ShouldTrackAssemblyResponse
+        },   // end of struct description for _TrackAssemblyResponse
         {
         0,
         1,

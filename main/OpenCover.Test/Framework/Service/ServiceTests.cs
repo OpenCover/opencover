@@ -6,7 +6,7 @@ using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Service;
 
-namespace OpenCover.Test.Framework
+namespace OpenCover.Test.Framework.Service
 {
     /// <summary>
     /// The service classes are all tightly integrated and 

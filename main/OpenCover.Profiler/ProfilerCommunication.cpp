@@ -166,11 +166,11 @@ void ProfilerCommunication::Stop()
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stopping"));
 }
 
-BOOL ProfilerCommunication::ShouldTrackAssembly(WCHAR*moduleName, WCHAR* assemblyName)
+BOOL ProfilerCommunication::TrackAssembly(WCHAR*moduleName, WCHAR* assemblyName)
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly(proxy,
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_TrackAssembly(proxy,
         moduleName,
         assemblyName,
         &result,

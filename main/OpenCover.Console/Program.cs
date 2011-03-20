@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.Practices.Unity;
 using OpenCover.Framework;
+using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 
 namespace OpenCover.Console
@@ -24,10 +25,14 @@ namespace OpenCover.Console
 
             var container = new Bootstrapper();
             var filter = new Filter();
+            var persistance = new FilePersistance();
+            persistance.Initialise("temp.txt");
+
             filter.AddFilter("-[mscorlib]*");
             filter.AddFilter("-[System.*]*");
             filter.AddFilter("+[*]*");
-            container.Initialise(filter, parser);
+            
+            container.Initialise(filter, parser, persistance);
 
             try
             {

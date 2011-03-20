@@ -118,9 +118,11 @@
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />
     <Compile Include="Framework\CommandLineParserTests.cs" />
     <Compile Include="Framework\FilterTests.cs" />
-    <Compile Include="Framework\InstrumentationModelBuilderTests.cs" />
-    <Compile Include="Framework\ServiceTests.cs" />
+    <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
+    <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Service\ServiceTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
+    <Compile Include="Framework\Symbols\SymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\SymbolManagerTests.cs" />
     <Compile Include="Framework\Symbols\SymbolReaderWrapperTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
@@ -137,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Console\" />
+    <Folder Include="Framework\Persistance\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Samples\ReadMe.txt" />

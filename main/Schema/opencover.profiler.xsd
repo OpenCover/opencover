@@ -10,7 +10,7 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
-  <xs:element name="ShouldTrackAssembly">
+  <xs:element name="TrackAssembly">
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="moduleName" nillable="true" type="xs:string" />
@@ -18,10 +18,10 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="ShouldTrackAssemblyResponse">
+  <xs:element name="TrackAssemblyResponse">
     <xs:complexType>
       <xs:sequence>
-        <xs:element minOccurs="0" name="ShouldTrackAssemblyResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="TrackAssemblyResult" type="xs:boolean" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
