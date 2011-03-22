@@ -3,7 +3,7 @@
 
 // reference http://www.ecma-international.org/publications/standards/Ecma-335.htm
 
-#define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return ret
+#define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
 
 /// <summary>
@@ -25,94 +25,11 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
     return std::wstring(szAssemblyName);
 }
 
-void CCodeCoverage::GetGenericSignature(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2, std::wstring &className)
-{
-    HCORENUM hEnum = 0;
-    mdGenericParam genericParams[128] = {0}; 
-    ULONG genericParamCount = 128;
-    
-    HRESULT hr = S_OK;
-    COM_FAIL(hr = metaDataImport2->EnumGenericParams(&hEnum, tokenTypeDef, genericParams, genericParamCount, &genericParamCount));
-    if (hr==S_FALSE) return;
-
-    if (genericParamCount > 0)
-    {
-        std::wstring genericSignature(L"<");
-        for(ULONG g = 0; g < genericParamCount; ++g)
-        {
-            if (g > 0) genericSignature.append(L", ");
-            
-            ULONG genericNameLength = 512;
-            WCHAR szGenericName[512] = {};
-            COM_FAIL(metaDataImport2->GetGenericParamProps(genericParams[g], NULL, NULL, NULL, NULL, szGenericName, genericNameLength, &genericNameLength));
-            genericSignature.append(szGenericName);
-        }
-        genericSignature.append(L">");
-        className.append(genericSignature);
-    }
-}
-
-
-std::wstring CCodeCoverage::GetClassName(ModuleID moduleId, mdTypeDef tokenTypeDef)
-{
-    CComPtr<IMetaDataImport2> metaDataImport;
-    m_profilerInfo->GetModuleMetaData(moduleId, ofRead, IID_IMetaDataImport2, (IUnknown**) &metaDataImport);
-    return GetClassName(tokenTypeDef, metaDataImport);
-}
-
-std::wstring CCodeCoverage::GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2)
-{
-    ULONG dwNameSize = 512;
-    WCHAR szClassName[512] = {};
-    std::wstring className;
-    DWORD typeDefFlags = 0;
-
-    COM_FAIL_RETURN(metaDataImport2->GetTypeDefProps(tokenTypeDef, szClassName, dwNameSize, &dwNameSize, &typeDefFlags, NULL), className);
-    className = szClassName;
-
-    GetGenericSignature(tokenTypeDef, metaDataImport2, className);
-
-    if (!IsTdNested(typeDefFlags)) 
-        return className;
-    
-    mdTypeDef parentTypeDef;
-    COM_FAIL_RETURN(metaDataImport2->GetNestedClassProps(tokenTypeDef, &parentTypeDef), className);
-
-    return GetClassName(parentTypeDef, metaDataImport2) + L"+" + className;
-}
-
-std::wstring CCodeCoverage::GetFullMethodName(FunctionID funcId)
-{
-    ClassID funcClass;
-	ModuleID funcModule;
-	mdToken funcToken;
-    std::wstring methodName;
-	COM_FAIL_RETURN(m_profilerInfo->GetFunctionInfo(funcId, &funcClass, &funcModule, &funcToken), methodName);
-
-    CComPtr<IMetaDataImport> metaDataImport;
-	COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(funcModule, ofRead, IID_IMetaDataImport, (IUnknown**) &metaDataImport), methodName);
-
-    methodName = GetClassName(funcClass) + L"." + GetMethodName(metaDataImport, funcToken);
-    return methodName;
-}
-
-std::wstring CCodeCoverage::GetMethodName(IMetaDataImport* metaDataImport, mdMethodDef tokenMethodDef) 
-{
-	HRESULT hr;
-    std::wstring methodName;
-    ULONG dwNameSize = 512;
-    WCHAR szMethodName[512] = {};
-	COM_FAIL_RETURN(metaDataImport->GetMethodProps(tokenMethodDef, NULL, szMethodName, dwNameSize, &dwNameSize, NULL, NULL, NULL, NULL, NULL), methodName);
-    methodName = szMethodName;
-	return methodName;
-}
-
-std::wstring CCodeCoverage::GetClassName(ClassID classId)
+BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, std::wstring &moduleName)
 {
     ModuleID moduleId;
-	mdTypeDef typeDef;
-    std::wstring className;
-	COM_FAIL_RETURN(m_profilerInfo->GetClassIDInfo(classId, &moduleId, &typeDef), className);
-    return GetClassName(moduleId, typeDef);
+    COM_FAIL_RETURN(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
+    moduleName = GetModuleName(moduleId);
+    return TRUE;
 }
 

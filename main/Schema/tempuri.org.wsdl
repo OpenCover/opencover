@@ -22,6 +22,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Stopping">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Stopping" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
     <wsdl:operation name="TrackAssembly">
       <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/TrackAssembly" style="document" />
       <wsdl:input>
@@ -31,8 +40,8 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
-    <wsdl:operation name="Stopping">
-      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Stopping" style="document" />
+    <wsdl:operation name="GetSequencePoints">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/GetSequencePoints" style="document" />
       <wsdl:input>
         <soap12:body use="literal" />
       </wsdl:input>

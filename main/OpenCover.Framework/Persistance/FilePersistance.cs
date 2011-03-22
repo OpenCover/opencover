@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using OpenCover.Framework.Model;
@@ -43,6 +44,19 @@ namespace OpenCover.Framework.Persistance
             {
                 Trace.WriteLine(ex.Message);
             }
+        }
+
+        public bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints)
+        {
+            sequencePoints = new SequencePoint[0];
+            var module = _session.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
+            if (module == null) return false;
+            foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
+            {
+                sequencePoints = method.SequencePoints;
+                return true;
+            }
+            return false;       
         }
     }
 }

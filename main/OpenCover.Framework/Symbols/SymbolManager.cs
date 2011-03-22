@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
@@ -97,9 +98,15 @@ namespace OpenCover.Framework.Symbols
                 BindingFlags.Public |
                 BindingFlags.Static |
                 BindingFlags.DeclaredOnly |
-                BindingFlags.NonPublic)
+                BindingFlags.NonPublic).Where(EvaluateConstructorInfo)
                 .Select(x => new Method{Name = x.Name, MetadataToken = x.MetadataToken})
                 .ToArray();
+        }
+
+        private static bool EvaluateConstructorInfo(ConstructorInfo constructorInfo)
+        {
+            //Debug.WriteLine("{0}({1})", constructorInfo.Name, constructorInfo.MetadataToken);
+            return true;
         }
 
         /// <summary>
@@ -124,8 +131,13 @@ namespace OpenCover.Framework.Symbols
 
         private static bool EvaluateMethodInfo(MethodInfo methodInfo)
         {
-            return ! methodInfo.GetCustomAttributesData()
-                .Any(x => x.Constructor.DeclaringType == typeof (CompilerGeneratedAttribute));
+            // do not show auto properties as they have no sequence points, 
+            // but strangely they are JITted - which only happens if they are going to be used
+            // so we could possibly use this info for coverage even if not for visit counts 
+            // (enter/exit/tailcall perhaps?)
+            //Debug.WriteLine("{0}({1})", methodInfo.Name, methodInfo.MetadataToken);
+            return !methodInfo.GetCustomAttributesData()
+                .Any(x => x.Constructor.DeclaringType == typeof(CompilerGeneratedAttribute));
         }
 
         /// <summary>

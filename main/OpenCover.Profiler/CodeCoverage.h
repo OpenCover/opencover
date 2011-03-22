@@ -62,21 +62,12 @@ public:
 
     std::wstring GetModuleName(ModuleID moduleId);
     std::wstring GetAssemblyName(AssemblyID assemblyId);
-    std::wstring GetClassName(ModuleID moduleId, mdTypeDef tokenTypeDef);
-    std::wstring GetClassName(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2);
-    std::wstring GetFullMethodName(FunctionID funcId);
-    std::wstring GetClassName(ClassID classId);
-    std::wstring GetMethodName(IMetaDataImport* metaDataImport, mdMethodDef tokenMethodDef) ;
-    void GetGenericSignature(mdTypeDef tokenTypeDef, IMetaDataImport2* metaDataImport2, std::wstring &className);
+    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, std::wstring &moduleName);
 
     ProfilerCommunication * m_host;
 
 public:
     static CCodeCoverage* g_pProfiler;
-
-protected:
-    static UINT_PTR _stdcall FunctionMapper(FunctionID functionId, BOOL* pbHookFunction);
-    static UINT_PTR _stdcall FunctionMapper2(FunctionID functionId, void* clientData, BOOL* pbHookFunction);
 
 // ICorProfilerCallback
 public:
@@ -86,79 +77,93 @@ public:
     virtual HRESULT STDMETHODCALLTYPE Shutdown( void);
         
     virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted( 
-        /* [in] */ AppDomainID appDomainId); //	{ return S_OK; }
+        /* [in] */ AppDomainID appDomainId)	
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AppDomainCreationFinished( 
         /* [in] */ AppDomainID appDomainId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownStarted( 
-        /* [in] */ AppDomainID appDomainId); //	{ return S_OK; }
+        /* [in] */ AppDomainID appDomainId)	
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownFinished( 
         /* [in] */ AppDomainID appDomainId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AssemblyLoadStarted( 
-        /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
+        /* [in] */ AssemblyID assemblyId) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AssemblyLoadFinished( 
         /* [in] */ AssemblyID assemblyId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadStarted( 
-        /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
+        /* [in] */ AssemblyID assemblyId) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadFinished( 
         /* [in] */ AssemblyID assemblyId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ModuleLoadStarted( 
-        /* [in] */ ModuleID moduleId); //	{ return S_OK; }
+        /* [in] */ ModuleID moduleId) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished( 
         /* [in] */ ModuleID moduleId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ModuleUnloadStarted( 
-        /* [in] */ ModuleID moduleId); //	{ return S_OK; }
+        /* [in] */ ModuleID moduleId) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ModuleUnloadFinished( 
         /* [in] */ ModuleID moduleId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ModuleAttachedToAssembly( 
         /* [in] */ ModuleID moduleId,
         /* [in] */ AssemblyID assemblyId); //	{ return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ClassLoadStarted( 
-        /* [in] */ ClassID classId); //	{ return S_OK; }
+        /* [in] */ ClassID classId)	
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ClassLoadFinished( 
         /* [in] */ ClassID classId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ClassUnloadStarted( 
-        /* [in] */ ClassID classId); //	{ return S_OK; }
+        /* [in] */ ClassID classId)	
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE ClassUnloadFinished( 
         /* [in] */ ClassID classId,
-        /* [in] */ HRESULT hrStatus); //	{ return S_OK; }
+        /* [in] */ HRESULT hrStatus) 
+    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE FunctionUnloadStarted( 
-        /* [in] */ FunctionID functionId)
+        /* [in] */ FunctionID functionId) 
     { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
-        /* [in] */ BOOL fIsSafeToBlock)
-    { return S_OK; }
+        /* [in] */ BOOL fIsSafeToBlock);//    { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE JITCompilationFinished( 
         /* [in] */ FunctionID functionId,
         /* [in] */ HRESULT hrStatus,
-        /* [in] */ BOOL fIsSafeToBlock)
-    { return S_OK; }
+        /* [in] */ BOOL fIsSafeToBlock) { return S_OK; }
         
     virtual HRESULT STDMETHODCALLTYPE JITCachedFunctionSearchStarted( 
         /* [in] */ FunctionID functionId,

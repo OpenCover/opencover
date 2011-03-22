@@ -1,4 +1,6 @@
+#include "..\schema\opencover.profiler.xsd.h"
 #pragma once
+
 class ProfilerCommunication
 {
 private:
@@ -19,6 +21,7 @@ public:
 public:
     void Start();
     void Stop();
-    BOOL TrackAssembly(WCHAR* moduleName, WCHAR* assemblyName);
+    BOOL TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName);
+    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, InstrumentPoint*** pppInstrumentPoints);
 };
 

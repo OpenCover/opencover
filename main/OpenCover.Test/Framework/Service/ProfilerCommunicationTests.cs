@@ -53,5 +53,53 @@ namespace OpenCover.Test.Framework.Service
             Container.GetMock<IPersistance>()
                 .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
         }
+
+        [Test]
+        public void Stopping_Forces_Model_Finalise()
+        {
+            // arrange
+
+            // act
+            Instance.Stopping();
+
+            // assert
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.Commit(), Times.Once());
+        }
+
+        [Test]
+        public void GetSequencePoints_Returns_False_When_No_Data_In_Model()
+        {
+            // arrange
+            SequencePoint[] points;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(false);
+
+            // act
+            InstrumentPoint[] instrumentPoints;
+            var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void GetSequencePoints_Returns_SequencePoints_When_Data_In_Model()
+        {
+            // arrange
+            var points = new []{new SequencePoint()};
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(true);
+
+            // act
+            InstrumentPoint[] instrumentPoints;
+            var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
+        }
     }
 }

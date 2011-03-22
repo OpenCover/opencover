@@ -10,10 +10,12 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
     {
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_InputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_OutputMessage;
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_InputMessage;
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_OutputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_InputMessage;
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_OutputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_InputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_OutputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_GetSequencePoints_InputMessage;
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_GetSequencePoints_OutputMessage;
     } messages; // end of messages
     struct // XML dictionary
     {
@@ -21,10 +23,12 @@ typedef struct _opencover_profiler_wsdlLocalDefinitions
         {
             WS_XML_STRING IProfilerCommunication_Started_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/Started
             WS_XML_STRING IProfilerCommunication_Started_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/StartedResponse
-            WS_XML_STRING IProfilerCommunication_TrackAssembly_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
-            WS_XML_STRING IProfilerCommunication_TrackAssembly_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
             WS_XML_STRING IProfilerCommunication_Stopping_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/Stopping
             WS_XML_STRING IProfilerCommunication_Stopping_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/StoppingResponse
+            WS_XML_STRING IProfilerCommunication_TrackAssembly_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
+            WS_XML_STRING IProfilerCommunication_TrackAssembly_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
+            WS_XML_STRING IProfilerCommunication_GetSequencePoints_InputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/GetSequencePoints
+            WS_XML_STRING IProfilerCommunication_GetSequencePoints_OutputMessageactionName;  // urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse
         } xmlStrings; // end of XML string list
         WS_XML_DICTIONARY dict;  
     } dictionary;  // end of XML dictionary
@@ -41,14 +45,6 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Started_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StartedResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StartedResponse, 
         },    // message description for IProfilerCommunication_Started_OutputMessage
-        {    // message description for IProfilerCommunication_TrackAssembly_InputMessage
-            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
-            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssembly, 
-        },    // message description for IProfilerCommunication_TrackAssembly_InputMessage
-        {    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
-            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
-            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssemblyResponse, 
-        },    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
         {    // message description for IProfilerCommunication_Stopping_InputMessage
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stopping_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/Stopping
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.Stopping, 
@@ -57,22 +53,40 @@ const static _opencover_profiler_wsdlLocalDefinitions opencover_profiler_wsdlLoc
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stopping_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StoppingResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StoppingResponse, 
         },    // message description for IProfilerCommunication_Stopping_OutputMessage
+        {    // message description for IProfilerCommunication_TrackAssembly_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssembly, 
+        },    // message description for IProfilerCommunication_TrackAssembly_InputMessage
+        {    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssemblyResponse, 
+        },    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
+        {    // message description for IProfilerCommunication_GetSequencePoints_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_GetSequencePoints_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/GetSequencePoints
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.GetSequencePoints, 
+        },    // message description for IProfilerCommunication_GetSequencePoints_InputMessage
+        {    // message description for IProfilerCommunication_GetSequencePoints_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_GetSequencePoints_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.GetSequencePointsResponse, 
+        },    // message description for IProfilerCommunication_GetSequencePoints_OutputMessage
     }, // end of messages 
     {    // dictionary 
         { // xmlStrings
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Started",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StartedResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 1),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/TrackAssembly",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 2),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 3),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Stopping",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 4),
-            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StoppingResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 5),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/Stopping",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 2),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/StoppingResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/TrackAssembly",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 4),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 5),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/GetSequencePoints",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 6),
+            WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse",&opencover_profiler_wsdlLocalDefinitions.dictionary.dict, 7),
         },  // end of xmlStrings
         
         {   // opencover_profiler_wsdldictionary
-        // 1f0ae978-169b-4bcd-8569-fe682ea35ac3 
-        { 0x1f0ae978, 0x169b, 0x4bcd, { 0x85, 0x69, 0xfe,0x68, 0x2e, 0xa3, 0x5a, 0xc3 } },
+        // d8ed2e0e-347c-4ec3-b0e5-6f2c862a80f4 
+        { 0xd8ed2e0e, 0x347c, 0x4ec3, { 0xb0, 0xe5, 0x6f,0x2c, 0x86, 0x2a, 0x80, 0xf4 } },
         (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings,
-        6,
+        8,
         TRUE,
         },
     },   //  end of dictionary
@@ -89,14 +103,6 @@ const _opencover_profiler_wsdl opencover_profiler_wsdl =
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Started_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StartedResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StartedResponse, 
         },    // message description for IProfilerCommunication_Started_OutputMessage
-        {    // message description for IProfilerCommunication_TrackAssembly_InputMessage
-            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
-            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssembly, 
-        },    // message description for IProfilerCommunication_TrackAssembly_InputMessage
-        {    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
-            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
-            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssemblyResponse, 
-        },    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
         {    // message description for IProfilerCommunication_Stopping_InputMessage
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stopping_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/Stopping
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.Stopping, 
@@ -105,5 +111,21 @@ const _opencover_profiler_wsdl opencover_profiler_wsdl =
             (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_Stopping_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/StoppingResponse
             (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.StoppingResponse, 
         },    // message description for IProfilerCommunication_Stopping_OutputMessage
+        {    // message description for IProfilerCommunication_TrackAssembly_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssembly
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssembly, 
+        },    // message description for IProfilerCommunication_TrackAssembly_InputMessage
+        {    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_TrackAssembly_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/TrackAssemblyResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.TrackAssemblyResponse, 
+        },    // message description for IProfilerCommunication_TrackAssembly_OutputMessage
+        {    // message description for IProfilerCommunication_GetSequencePoints_InputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_GetSequencePoints_InputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/GetSequencePoints
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.GetSequencePoints, 
+        },    // message description for IProfilerCommunication_GetSequencePoints_InputMessage
+        {    // message description for IProfilerCommunication_GetSequencePoints_OutputMessage
+            (WS_XML_STRING*)&opencover_profiler_wsdlLocalDefinitions.dictionary.xmlStrings.IProfilerCommunication_GetSequencePoints_OutputMessageactionName, // urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse
+            (WS_ELEMENT_DESCRIPTION*)&opencover_profiler_xsd.globalElements.GetSequencePointsResponse, 
+        },    // message description for IProfilerCommunication_GetSequencePoints_OutputMessage
     }, // messages
 }; // end of _opencover_profiler_wsdl

@@ -41,12 +41,18 @@ extern "C" {
 
 // The following types were generated:
 
+//     struct ArrayOfInstrumentPoint;
+//     struct InstrumentPoint;
 //     struct _Started;
 //     struct _StartedResponse;
-//     struct _TrackAssembly;
-//     struct _TrackAssemblyResponse;
 //     struct _Stopping;
 //     struct _StoppingResponse;
+//     struct _TrackAssembly;
+//     struct _TrackAssemblyResponse;
+//     struct _GetSequencePoints;
+//     struct _GetSequencePointsResponse;
+//     struct ArrayOfInstrumentPoint;
+//     struct InstrumentPoint;
 
 // The following header files must be included in this order before this one
 
@@ -56,9 +62,28 @@ extern "C" {
 // C structure definitions for generated types
 ////////////////////////////////////////////////
 
+// typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfInstrumentPoint
+typedef struct ArrayOfInstrumentPoint 
+{
+    unsigned int InstrumentPointCount;
+    __field_ecount(InstrumentPointCount)struct InstrumentPoint** InstrumentPoint; // optional
+} ArrayOfInstrumentPoint;
+
+// typeDescription: opencover_profiler_xsd.globalTypes.InstrumentPoint
+typedef struct InstrumentPoint 
+{
+    int Offset;
+    int Ordinal;
+    __int64 UniqueId;
+} InstrumentPoint;
+
 typedef struct _Started _Started;
 
 typedef struct _StartedResponse _StartedResponse;
+
+typedef struct _Stopping _Stopping;
+
+typedef struct _StoppingResponse _StoppingResponse;
 
 // typeDescription: n/a
 typedef struct _TrackAssembly 
@@ -73,9 +98,20 @@ typedef struct _TrackAssemblyResponse
     BOOL TrackAssemblyResult;
 } _TrackAssemblyResponse;
 
-typedef struct _Stopping _Stopping;
+// typeDescription: n/a
+typedef struct _GetSequencePoints 
+{
+    WCHAR* moduleName; // optional
+    int functionToken;
+} _GetSequencePoints;
 
-typedef struct _StoppingResponse _StoppingResponse;
+// typeDescription: n/a
+typedef struct _GetSequencePointsResponse 
+{
+    BOOL GetSequencePointsResult;
+    unsigned int sequencePointsCount;
+    __field_ecount_opt(sequencePointsCount)struct InstrumentPoint** sequencePoints; // optional
+} _GetSequencePointsResponse;
 
 ////////////////////////////////////////////////
 // Global web service descriptions.
@@ -83,6 +119,21 @@ typedef struct _StoppingResponse _StoppingResponse;
 
 typedef struct _opencover_profiler_xsd
 {
+    struct // globalTypes
+    {
+        // xml type: ArrayOfInstrumentPoint ("urn:opencover.profiler")
+        // c type: ArrayOfInstrumentPoint
+        // WS_TYPE: WS_STRUCT_TYPE
+        // typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfInstrumentPoint
+        WS_STRUCT_DESCRIPTION ArrayOfInstrumentPoint;
+        
+        // xml type: InstrumentPoint ("urn:opencover.profiler")
+        // c type: InstrumentPoint
+        // WS_TYPE: WS_STRUCT_TYPE
+        // typeDescription: opencover_profiler_xsd.globalTypes.InstrumentPoint
+        WS_STRUCT_DESCRIPTION InstrumentPoint;
+        
+    } globalTypes;
     struct // globalElements
     {
         // xml element: Started ("urn:opencover.profiler")
@@ -95,16 +146,6 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.StartedResponse
         WS_ELEMENT_DESCRIPTION StartedResponse;
         
-        // xml element: TrackAssembly ("urn:opencover.profiler")
-        // c type: _TrackAssembly
-        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssembly
-        WS_ELEMENT_DESCRIPTION TrackAssembly;
-        
-        // xml element: TrackAssemblyResponse ("urn:opencover.profiler")
-        // c type: _TrackAssemblyResponse
-        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssemblyResponse
-        WS_ELEMENT_DESCRIPTION TrackAssemblyResponse;
-        
         // xml element: Stopping ("urn:opencover.profiler")
         // c type: _Stopping
         // elementDescription: opencover_profiler_xsd.globalElements.Stopping
@@ -115,15 +156,47 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.StoppingResponse
         WS_ELEMENT_DESCRIPTION StoppingResponse;
         
+        // xml element: TrackAssembly ("urn:opencover.profiler")
+        // c type: _TrackAssembly
+        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssembly
+        WS_ELEMENT_DESCRIPTION TrackAssembly;
+        
+        // xml element: TrackAssemblyResponse ("urn:opencover.profiler")
+        // c type: _TrackAssemblyResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.TrackAssemblyResponse
+        WS_ELEMENT_DESCRIPTION TrackAssemblyResponse;
+        
+        // xml element: GetSequencePoints ("urn:opencover.profiler")
+        // c type: _GetSequencePoints
+        // elementDescription: opencover_profiler_xsd.globalElements.GetSequencePoints
+        WS_ELEMENT_DESCRIPTION GetSequencePoints;
+        
+        // xml element: GetSequencePointsResponse ("urn:opencover.profiler")
+        // c type: _GetSequencePointsResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.GetSequencePointsResponse
+        WS_ELEMENT_DESCRIPTION GetSequencePointsResponse;
+        
+        // xml element: ArrayOfInstrumentPoint ("urn:opencover.profiler")
+        // c type: ArrayOfInstrumentPoint
+        // elementDescription: opencover_profiler_xsd.globalElements.ArrayOfInstrumentPoint
+        WS_ELEMENT_DESCRIPTION ArrayOfInstrumentPoint;
+        
+        // xml element: InstrumentPoint ("urn:opencover.profiler")
+        // c type: InstrumentPoint
+        // elementDescription: opencover_profiler_xsd.globalElements.InstrumentPoint
+        WS_ELEMENT_DESCRIPTION InstrumentPoint;
+        
     } globalElements;
     struct // externallyReferencedTypes
     {
         WS_STRUCT_DESCRIPTION Started;
         WS_STRUCT_DESCRIPTION StartedResponse;
-        WS_STRUCT_DESCRIPTION TrackAssembly;
-        WS_STRUCT_DESCRIPTION TrackAssemblyResponse;
         WS_STRUCT_DESCRIPTION Stopping;
         WS_STRUCT_DESCRIPTION StoppingResponse;
+        WS_STRUCT_DESCRIPTION TrackAssembly;
+        WS_STRUCT_DESCRIPTION TrackAssemblyResponse;
+        WS_STRUCT_DESCRIPTION GetSequencePoints;
+        WS_STRUCT_DESCRIPTION GetSequencePointsResponse;
     } externallyReferencedTypes;
 } _opencover_profiler_xsd;
 

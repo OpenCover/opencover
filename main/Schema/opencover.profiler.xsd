@@ -10,6 +10,16 @@
       <xs:sequence />
     </xs:complexType>
   </xs:element>
+  <xs:element name="Stopping">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="StoppingResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
   <xs:element name="TrackAssembly">
     <xs:complexType>
       <xs:sequence>
@@ -25,14 +35,34 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="Stopping">
+  <xs:element name="GetSequencePoints">
     <xs:complexType>
-      <xs:sequence />
+      <xs:sequence>
+        <xs:element minOccurs="0" name="moduleName" nillable="true" type="xs:string" />
+        <xs:element minOccurs="0" name="functionToken" type="xs:int" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:element name="StoppingResponse">
+  <xs:element name="GetSequencePointsResponse">
     <xs:complexType>
-      <xs:sequence />
+      <xs:sequence>
+        <xs:element minOccurs="0" name="GetSequencePointsResult" type="xs:boolean" />
+        <xs:element minOccurs="0" name="sequencePoints" nillable="true" type="tns:ArrayOfInstrumentPoint" />
+      </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:complexType name="ArrayOfInstrumentPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="InstrumentPoint" nillable="true" type="tns:InstrumentPoint" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfInstrumentPoint" nillable="true" type="tns:ArrayOfInstrumentPoint" />
+  <xs:complexType name="InstrumentPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Offset" type="xs:int" />
+      <xs:element minOccurs="0" name="Ordinal" type="xs:int" />
+      <xs:element minOccurs="0" name="UniqueId" type="xs:long" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="InstrumentPoint" nillable="true" type="tns:InstrumentPoint" />
 </xs:schema>

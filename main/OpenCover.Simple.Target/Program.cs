@@ -15,9 +15,10 @@ namespace OpenCover.Simple.Target
         {
             Console.WriteLine("Hello World *****");
             Thread.Sleep(2000);
+            var o = new Namespace.Other();
+            o.Data = 22;
             new Class();
             new GenericClass<object>();
-            var o = new Namespace.Other();
             o.Data = o.Data + 1;
         }
     }
@@ -31,6 +32,10 @@ namespace OpenCover.Simple.Target
 
     public class GenericClass<T>
     {
-        
+        private int i;
+        public GenericClass()
+        {
+            i = 0;
+        }
     }
 }

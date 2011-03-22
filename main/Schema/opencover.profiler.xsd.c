@@ -5,6 +5,22 @@
 
 typedef struct _opencover_profiler_xsdLocalDefinitions 
 {
+    struct  // global types
+    {
+        char unused;
+        struct // ArrayOfInstrumentPoint
+        {
+            struct // InstrumentPoint
+            {
+                WS_FIELD_DESCRIPTION Offset;
+                WS_FIELD_DESCRIPTION Ordinal;
+                WS_FIELD_DESCRIPTION UniqueId;
+                WS_FIELD_DESCRIPTION* InstrumentPointFields [3]; 
+            } InstrumentPointdescs; // end of InstrumentPoint
+            WS_FIELD_DESCRIPTION InstrumentPoint;
+            WS_FIELD_DESCRIPTION* ArrayOfInstrumentPointFields [1]; 
+        } ArrayOfInstrumentPointdescs; // end of ArrayOfInstrumentPoint
+    } globalTypes;  // end of global types
     struct  // global elements
     {
     char unused;
@@ -19,21 +35,43 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
             WS_FIELD_DESCRIPTION TrackAssemblyResult;
             WS_FIELD_DESCRIPTION* _TrackAssemblyResponseFields [1]; 
         } _TrackAssemblyResponsedescs; // end of _TrackAssemblyResponse
+        struct // _GetSequencePoints
+        {
+            WS_FIELD_DESCRIPTION moduleName;
+            WS_FIELD_DESCRIPTION functionToken;
+            WS_FIELD_DESCRIPTION* _GetSequencePointsFields [2]; 
+        } _GetSequencePointsdescs; // end of _GetSequencePoints
+        struct // _GetSequencePointsResponse
+        {
+            WS_FIELD_DESCRIPTION GetSequencePointsResult;
+            WS_FIELD_DESCRIPTION sequencePoints;
+            WS_FIELD_DESCRIPTION* _GetSequencePointsResponseFields [2]; 
+        } _GetSequencePointsResponsedescs; // end of _GetSequencePointsResponse
     } globalElements;  // end of global elements
     struct // XML dictionary
     {
         struct // XML string list
         {
+            WS_XML_STRING ArrayOfInstrumentPointTypeName;  // ArrayOfInstrumentPoint
+            WS_XML_STRING ArrayOfInstrumentPointTypeNamespace;  // urn:opencover.profiler
+            WS_XML_STRING InstrumentPointTypeName;  // InstrumentPoint
+            WS_XML_STRING InstrumentPointOffsetLocalName;  // Offset
+            WS_XML_STRING InstrumentPointOrdinalLocalName;  // Ordinal
+            WS_XML_STRING InstrumentPointUniqueIdLocalName;  // UniqueId
             WS_XML_STRING _StartedTypeName;  // Started
-            WS_XML_STRING _StartedTypeNamespace;  // urn:opencover.profiler
             WS_XML_STRING _StartedResponseTypeName;  // StartedResponse
+            WS_XML_STRING _StoppingTypeName;  // Stopping
+            WS_XML_STRING _StoppingResponseTypeName;  // StoppingResponse
             WS_XML_STRING _TrackAssemblyTypeName;  // TrackAssembly
             WS_XML_STRING _TrackAssemblymoduleNameLocalName;  // moduleName
             WS_XML_STRING _TrackAssemblyassemblyNameLocalName;  // assemblyName
             WS_XML_STRING _TrackAssemblyResponseTypeName;  // TrackAssemblyResponse
             WS_XML_STRING _TrackAssemblyResponseTrackAssemblyResultLocalName;  // TrackAssemblyResult
-            WS_XML_STRING _StoppingTypeName;  // Stopping
-            WS_XML_STRING _StoppingResponseTypeName;  // StoppingResponse
+            WS_XML_STRING _GetSequencePointsTypeName;  // GetSequencePoints
+            WS_XML_STRING _GetSequencePointsfunctionTokenLocalName;  // functionToken
+            WS_XML_STRING _GetSequencePointsResponseTypeName;  // GetSequencePointsResponse
+            WS_XML_STRING _GetSequencePointsResponseGetSequencePointsResultLocalName;  // GetSequencePointsResult
+            WS_XML_STRING _GetSequencePointsResponsesequencePointsWrapperName;  // sequencePoints
         } xmlStrings; // end of XML string list
         WS_XML_DICTIONARY dict;  
     } dictionary;  // end of XML dictionary
@@ -41,13 +79,75 @@ typedef struct _opencover_profiler_xsdLocalDefinitions
 
 const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocalDefinitions =
 {
+    { // global types
+        0,
+        {   // ArrayOfInstrumentPoint
+            {   // InstrumentPoint
+                { // field description for Offset
+                WS_ELEMENT_FIELD_MAPPING,
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointOffsetLocalName, // Offset
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+                WS_INT32_TYPE,
+                0,
+                WsOffsetOf(InstrumentPoint, Offset),
+                 WS_FIELD_OPTIONAL,
+                0,
+                0xffffffff
+                },    // end of field description for Offset
+                { // field description for Ordinal
+                WS_ELEMENT_FIELD_MAPPING,
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointOrdinalLocalName, // Ordinal
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+                WS_INT32_TYPE,
+                0,
+                WsOffsetOf(InstrumentPoint, Ordinal),
+                 WS_FIELD_OPTIONAL,
+                0,
+                0xffffffff
+                },    // end of field description for Ordinal
+                { // field description for UniqueId
+                WS_ELEMENT_FIELD_MAPPING,
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointUniqueIdLocalName, // UniqueId
+                (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+                WS_INT64_TYPE,
+                0,
+                WsOffsetOf(InstrumentPoint, UniqueId),
+                 WS_FIELD_OPTIONAL,
+                0,
+                0xffffffff
+                },    // end of field description for UniqueId
+                {    // fields description for InstrumentPoint
+                (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPointdescs.Offset,
+                (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPointdescs.Ordinal,
+                (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPointdescs.UniqueId,
+                },
+            },    // InstrumentPoint
+            { // field description for InstrumentPoint
+            WS_REPEATING_ELEMENT_FIELD_MAPPING,
+            0,
+            0,
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.globalTypes.InstrumentPoint,
+            WsOffsetOf(ArrayOfInstrumentPoint, InstrumentPoint),
+            WS_FIELD_POINTER| WS_FIELD_NILLABLE_ITEM,
+            0,
+            WsOffsetOf(ArrayOfInstrumentPoint, InstrumentPointCount),
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointTypeName, // InstrumentPoint
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            0,
+            },    // end of field description for InstrumentPoint
+            {    // fields description for ArrayOfInstrumentPoint
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPoint,
+            },
+        },    // ArrayOfInstrumentPoint
+    }, // end of global types
     {  // global elements
         0,
         {   // _TrackAssembly
             { // field description for moduleName
             WS_ELEMENT_FIELD_MAPPING,
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblymoduleNameLocalName, // moduleName
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_WSZ_TYPE,
             0,
             WsOffsetOf(_TrackAssembly, moduleName),
@@ -58,7 +158,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
             { // field description for assemblyName
             WS_ELEMENT_FIELD_MAPPING,
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyassemblyNameLocalName, // assemblyName
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_WSZ_TYPE,
             0,
             WsOffsetOf(_TrackAssembly, assemblyName),
@@ -75,7 +175,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
             { // field description for TrackAssemblyResult
             WS_ELEMENT_FIELD_MAPPING,
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTrackAssemblyResultLocalName, // TrackAssemblyResult
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_BOOL_TYPE,
             0,
             WsOffsetOf(_TrackAssemblyResponse, TrackAssemblyResult),
@@ -87,26 +187,95 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
             (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs.TrackAssemblyResult,
             },
         },    // _TrackAssemblyResponse
+        {   // _GetSequencePoints
+            { // field description for moduleName
+            WS_ELEMENT_FIELD_MAPPING,
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblymoduleNameLocalName, // moduleName
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_WSZ_TYPE,
+            0,
+            WsOffsetOf(_GetSequencePoints, moduleName),
+             WS_FIELD_OPTIONAL| WS_FIELD_NILLABLE,
+            0,
+            0xffffffff
+            },    // end of field description for moduleName
+            { // field description for functionToken
+            WS_ELEMENT_FIELD_MAPPING,
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsfunctionTokenLocalName, // functionToken
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_INT32_TYPE,
+            0,
+            WsOffsetOf(_GetSequencePoints, functionToken),
+             WS_FIELD_OPTIONAL,
+            0,
+            0xffffffff
+            },    // end of field description for functionToken
+            {    // fields description for _GetSequencePoints
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsdescs.moduleName,
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsdescs.functionToken,
+            },
+        },    // _GetSequencePoints
+        {   // _GetSequencePointsResponse
+            { // field description for GetSequencePointsResult
+            WS_ELEMENT_FIELD_MAPPING,
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsResponseGetSequencePointsResultLocalName, // GetSequencePointsResult
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_BOOL_TYPE,
+            0,
+            WsOffsetOf(_GetSequencePointsResponse, GetSequencePointsResult),
+             WS_FIELD_OPTIONAL,
+            0,
+            0xffffffff
+            },    // end of field description for GetSequencePointsResult
+            { // field description for sequencePoints
+            WS_REPEATING_ELEMENT_FIELD_MAPPING,
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsResponsesequencePointsWrapperName, // sequencePoints
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.globalTypes.InstrumentPoint,
+            WsOffsetOf(_GetSequencePointsResponse, sequencePoints),
+            WS_FIELD_POINTER| WS_FIELD_OPTIONAL| WS_FIELD_NILLABLE| WS_FIELD_NILLABLE_ITEM,
+            0,
+            WsOffsetOf(_GetSequencePointsResponse, sequencePointsCount),
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointTypeName, // InstrumentPoint
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            0,
+            },    // end of field description for sequencePoints
+            {    // fields description for _GetSequencePointsResponse
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsResponsedescs.GetSequencePointsResult,
+            (WS_FIELD_DESCRIPTION*)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsResponsedescs.sequencePoints,
+            },
+        },    // _GetSequencePointsResponse
     }, // end of global elements
     {    // dictionary 
         { // xmlStrings
-            WS_XML_STRING_DICTIONARY_VALUE("Started",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
+            WS_XML_STRING_DICTIONARY_VALUE("ArrayOfInstrumentPoint",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 0),
             WS_XML_STRING_DICTIONARY_VALUE("urn:opencover.profiler",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 1),
-            WS_XML_STRING_DICTIONARY_VALUE("StartedResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
-            WS_XML_STRING_DICTIONARY_VALUE("TrackAssembly",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
-            WS_XML_STRING_DICTIONARY_VALUE("moduleName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
-            WS_XML_STRING_DICTIONARY_VALUE("assemblyName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
-            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
-            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
+            WS_XML_STRING_DICTIONARY_VALUE("InstrumentPoint",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 2),
+            WS_XML_STRING_DICTIONARY_VALUE("Offset",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 3),
+            WS_XML_STRING_DICTIONARY_VALUE("Ordinal",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 4),
+            WS_XML_STRING_DICTIONARY_VALUE("UniqueId",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 5),
+            WS_XML_STRING_DICTIONARY_VALUE("Started",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 6),
+            WS_XML_STRING_DICTIONARY_VALUE("StartedResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 7),
             WS_XML_STRING_DICTIONARY_VALUE("Stopping",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 8),
             WS_XML_STRING_DICTIONARY_VALUE("StoppingResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 9),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssembly",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 10),
+            WS_XML_STRING_DICTIONARY_VALUE("moduleName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 11),
+            WS_XML_STRING_DICTIONARY_VALUE("assemblyName",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 12),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 13),
+            WS_XML_STRING_DICTIONARY_VALUE("TrackAssemblyResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 14),
+            WS_XML_STRING_DICTIONARY_VALUE("GetSequencePoints",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 15),
+            WS_XML_STRING_DICTIONARY_VALUE("functionToken",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 16),
+            WS_XML_STRING_DICTIONARY_VALUE("GetSequencePointsResponse",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 17),
+            WS_XML_STRING_DICTIONARY_VALUE("GetSequencePointsResult",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 18),
+            WS_XML_STRING_DICTIONARY_VALUE("sequencePoints",&opencover_profiler_xsdLocalDefinitions.dictionary.dict, 19),
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // dac4a07a-e727-4b2e-8576-2896617446b1 
-        { 0xdac4a07a, 0xe727, 0x4b2e, { 0x85, 0x76, 0x28,0x96, 0x61, 0x74, 0x46, 0xb1 } },
+        // 79b17bee-0cfc-41a8-b466-be7df3575bfc 
+        { 0x79b17bee, 0x0cfc, 0x41a8, { 0xb4, 0x66, 0xbe,0x7d, 0xf3, 0x57, 0x5b, 0xfc } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
-        10,
+        20,
         TRUE,
         },
     },   //  end of dictionary
@@ -114,42 +283,90 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
 
 const _opencover_profiler_xsd opencover_profiler_xsd =
 {
+    {// globalTypes
+        {
+        sizeof(ArrayOfInstrumentPoint),
+        __alignof(ArrayOfInstrumentPoint),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.ArrayOfInstrumentPointFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.ArrayOfInstrumentPointFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeName, // ArrayOfInstrumentPoint
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for ArrayOfInstrumentPoint
+        {
+        sizeof(InstrumentPoint),
+        __alignof(InstrumentPoint),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPointdescs.InstrumentPointFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalTypes.ArrayOfInstrumentPointdescs.InstrumentPointdescs.InstrumentPointFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointTypeName, // InstrumentPoint
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for InstrumentPoint
+    }, // globalTypes
     {// globalElements
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeName, // Started
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.Started,
         },
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedResponseTypeName, // StartedResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.StartedResponse,
         },
         {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
-            WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssembly,
-        },
-        {
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
-            WS_STRUCT_TYPE,
-            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssemblyResponse,
-        },
-        {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingTypeName, // Stopping
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.Stopping,
         },
         {
             (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingResponseTypeName, // StoppingResponse
-            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
             WS_STRUCT_TYPE,
             (void*)&opencover_profiler_xsd.externallyReferencedTypes.StoppingResponse,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssembly,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.TrackAssemblyResponse,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsTypeName, // GetSequencePoints
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.GetSequencePoints,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsResponseTypeName, // GetSequencePointsResponse
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.externallyReferencedTypes.GetSequencePointsResponse,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeName, // ArrayOfInstrumentPoint
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.globalTypes.ArrayOfInstrumentPoint,
+        },
+        {
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointTypeName, // InstrumentPoint
+            (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+            WS_STRUCT_TYPE,
+            (void*)&opencover_profiler_xsd.globalTypes.InstrumentPoint,
         },
     }, // globalElements
     {  // begin of externallyReferencedTypes
@@ -159,7 +376,7 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeName, // Started
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
@@ -170,40 +387,18 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedResponseTypeName, // StartedResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
         },   // end of struct description for _StartedResponse
-        {
-        sizeof(_TrackAssembly),
-        __alignof(_TrackAssembly),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields),
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
-        0,
-        0,
-        0,
-        },   // end of struct description for _TrackAssembly
-        {
-        sizeof(_TrackAssemblyResponse),
-        __alignof(_TrackAssemblyResponse),
-        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields,
-        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields),
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
-        0,
-        0,
-        0,
-        },   // end of struct description for _TrackAssemblyResponse
         {
         0,
         1,
         0,
         0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingTypeName, // Stopping
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
@@ -214,10 +409,54 @@ const _opencover_profiler_xsd opencover_profiler_xsd =
         0,
         0,
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StoppingResponseTypeName, // StoppingResponse
-        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._StartedTypeNamespace, // urn:opencover.profiler
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
         0,
         0,
         0,
         },   // end of struct description for _StoppingResponse
+        {
+        sizeof(_TrackAssembly),
+        __alignof(_TrackAssembly),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblydescs._TrackAssemblyFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyTypeName, // TrackAssembly
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for _TrackAssembly
+        {
+        sizeof(_TrackAssemblyResponse),
+        __alignof(_TrackAssemblyResponse),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._TrackAssemblyResponsedescs._TrackAssemblyResponseFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._TrackAssemblyResponseTypeName, // TrackAssemblyResponse
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for _TrackAssemblyResponse
+        {
+        sizeof(_GetSequencePoints),
+        __alignof(_GetSequencePoints),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsdescs._GetSequencePointsFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsdescs._GetSequencePointsFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsTypeName, // GetSequencePoints
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for _GetSequencePoints
+        {
+        sizeof(_GetSequencePointsResponse),
+        __alignof(_GetSequencePointsResponse),
+        (WS_FIELD_DESCRIPTION**)&opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsResponsedescs._GetSequencePointsResponseFields,
+        WsCountOf(opencover_profiler_xsdLocalDefinitions.globalElements._GetSequencePointsResponsedescs._GetSequencePointsResponseFields),
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings._GetSequencePointsResponseTypeName, // GetSequencePointsResponse
+        (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
+        0,
+        0,
+        0,
+        },   // end of struct description for _GetSequencePointsResponse
     }, // end of externallyReferencedTypes;
 }; // end of _opencover_profiler_xsd

@@ -119,6 +119,18 @@ typedef struct _opencover_profiler_wsdl
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Started_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_Started_OutputMessage;
         
+        // message: IProfilerCommunication_Stopping_InputMessage
+        // c type: _Stopping
+        // action: "urn:opencover.profiler/IProfilerCommunication/Stopping"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_InputMessage;
+        
+        // message: IProfilerCommunication_Stopping_OutputMessage
+        // c type: _StoppingResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/StoppingResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_OutputMessage;
+        
         // message: IProfilerCommunication_TrackAssembly_InputMessage
         // c type: _TrackAssembly
         // action: "urn:opencover.profiler/IProfilerCommunication/TrackAssembly"
@@ -131,17 +143,17 @@ typedef struct _opencover_profiler_wsdl
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_TrackAssembly_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_TrackAssembly_OutputMessage;
         
-        // message: IProfilerCommunication_Stopping_InputMessage
-        // c type: _Stopping
-        // action: "urn:opencover.profiler/IProfilerCommunication/Stopping"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_InputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_InputMessage;
+        // message: IProfilerCommunication_GetSequencePoints_InputMessage
+        // c type: _GetSequencePoints
+        // action: "urn:opencover.profiler/IProfilerCommunication/GetSequencePoints"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_GetSequencePoints_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_GetSequencePoints_InputMessage;
         
-        // message: IProfilerCommunication_Stopping_OutputMessage
-        // c type: _StoppingResponse
-        // action: "urn:opencover.profiler/IProfilerCommunication/StoppingResponse"
-        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Stopping_OutputMessage
-        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Stopping_OutputMessage;
+        // message: IProfilerCommunication_GetSequencePoints_OutputMessage
+        // c type: _GetSequencePointsResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_GetSequencePoints_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_GetSequencePoints_OutputMessage;
         
     } messages;
 } _opencover_profiler_wsdl;

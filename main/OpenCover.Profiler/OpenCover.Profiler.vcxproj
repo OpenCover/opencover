@@ -246,7 +246,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="NativeCallback.cpp" />
     <ClCompile Include="OpenCover.Profiler.cpp" />
     <ClCompile Include="OpenCoverProfiler_i.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -287,7 +286,6 @@
   <ItemGroup>
     <ClInclude Include="CodeCoverage.h" />
     <ClInclude Include="dllmain.h" />
-    <ClInclude Include="NativeCallback.h" />
     <ClInclude Include="OpenCoverProfiler_i.h" />
     <ClInclude Include="ProfilerCommunication.h" />
     <ClInclude Include="Resource.h" />

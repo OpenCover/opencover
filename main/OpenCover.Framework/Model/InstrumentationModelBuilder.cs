@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Model

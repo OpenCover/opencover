@@ -125,8 +125,9 @@ extern "C" {
 // The following client functions were generated:
 
 //     NetTcpBinding_IProfilerCommunication_Started
-//     NetTcpBinding_IProfilerCommunication_TrackAssembly
 //     NetTcpBinding_IProfilerCommunication_Stopping
+//     NetTcpBinding_IProfilerCommunication_TrackAssembly
+//     NetTcpBinding_IProfilerCommunication_GetSequencePoints
 
 // The following server function tables were generated:
 
@@ -184,6 +185,15 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Started(
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
+// operation: NetTcpBinding_IProfilerCommunication_Stopping
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stopping(
+    __in WS_SERVICE_PROXY* _serviceProxy,
+    __in WS_HEAP* _heap,
+    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
+    __in const ULONG _callPropertyCount,
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
 // operation: NetTcpBinding_IProfilerCommunication_TrackAssembly
 HRESULT WINAPI NetTcpBinding_IProfilerCommunication_TrackAssembly(
     __in WS_SERVICE_PROXY* _serviceProxy,
@@ -196,9 +206,14 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_TrackAssembly(
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
-// operation: NetTcpBinding_IProfilerCommunication_Stopping
-HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Stopping(
+// operation: NetTcpBinding_IProfilerCommunication_GetSequencePoints
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_GetSequencePoints(
     __in WS_SERVICE_PROXY* _serviceProxy,
+    __in_opt __nullterminated WCHAR* moduleName, 
+    __in int functionToken, 
+    __out BOOL* GetSequencePointsResult, 
+    __out unsigned int* sequencePointsCount, 
+    __deref_out_ecount_opt(*sequencePointsCount) InstrumentPoint*** sequencePoints, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
@@ -214,6 +229,11 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StartedCallback)
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StoppingCallback) (
+    __in const WS_OPERATION_CONTEXT* _context,
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
 typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
     __in_opt __nullterminated WCHAR* moduleName, 
@@ -222,8 +242,13 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_TrackAssemblyCal
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
-typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StoppingCallback) (
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_GetSequencePointsCallback) (
     __in const WS_OPERATION_CONTEXT* _context,
+    __in_opt __nullterminated WCHAR* moduleName, 
+    __in int functionToken, 
+    __out BOOL* GetSequencePointsResult, 
+    __out unsigned int* sequencePointsCount, 
+    __deref_out_ecount_opt(*sequencePointsCount) InstrumentPoint*** sequencePoints, 
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
@@ -231,8 +256,9 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_StoppingCallback
 typedef struct NetTcpBinding_IProfilerCommunicationFunctionTable 
 {
     NetTcpBinding_IProfilerCommunication_StartedCallback NetTcpBinding_IProfilerCommunication_Started;
-    NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback NetTcpBinding_IProfilerCommunication_TrackAssembly;
     NetTcpBinding_IProfilerCommunication_StoppingCallback NetTcpBinding_IProfilerCommunication_Stopping;
+    NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback NetTcpBinding_IProfilerCommunication_TrackAssembly;
+    NetTcpBinding_IProfilerCommunication_GetSequencePointsCallback NetTcpBinding_IProfilerCommunication_GetSequencePoints;
 } NetTcpBinding_IProfilerCommunicationFunctionTable;
 
 ////////////////////////////////////////////////
@@ -248,12 +274,15 @@ typedef struct _tempuri_org_wsdl
         // operation: NetTcpBinding_IProfilerCommunication_Started
         //     input message: IProfilerCommunication_Started_InputMessage
         //     output message: IProfilerCommunication_Started_OutputMessage
-        // operation: NetTcpBinding_IProfilerCommunication_TrackAssembly
-        //     input message: IProfilerCommunication_TrackAssembly_InputMessage
-        //     output message: IProfilerCommunication_TrackAssembly_OutputMessage
         // operation: NetTcpBinding_IProfilerCommunication_Stopping
         //     input message: IProfilerCommunication_Stopping_InputMessage
         //     output message: IProfilerCommunication_Stopping_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_TrackAssembly
+        //     input message: IProfilerCommunication_TrackAssembly_InputMessage
+        //     output message: IProfilerCommunication_TrackAssembly_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_GetSequencePoints
+        //     input message: IProfilerCommunication_GetSequencePoints_InputMessage
+        //     output message: IProfilerCommunication_GetSequencePoints_OutputMessage
         // contractDescription: tempuri_org_wsdl.contracts.NetTcpBinding_IProfilerCommunication
         WS_CONTRACT_DESCRIPTION NetTcpBinding_IProfilerCommunication;
         

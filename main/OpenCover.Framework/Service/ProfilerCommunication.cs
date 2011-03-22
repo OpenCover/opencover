@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.ServiceModel;
 using System.Text;
 using System.Xml;
@@ -41,6 +42,24 @@ namespace OpenCover.Framework.Service
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(moduleName);
             _persistance.PersistModule(builder.BuildModuleModel());
             return true;
+        }
+
+        public bool GetSequencePoints(string moduleName, int functionToken, out InstrumentPoint[] instrumentPoints)
+        {
+            instrumentPoints = new InstrumentPoint[0];
+            SequencePoint[] points;
+            if (_persistance.GetSequencePointsForFunction(moduleName, functionToken, out points))
+            {
+                instrumentPoints = points
+                    .Select(sequencePoint => new InstrumentPoint()
+                                                 {
+                                                     Ordinal = sequencePoint.Ordinal,
+                                                     Offset = sequencePoint.Offset,
+                                                     UniqueId = sequencePoint.UniqueSequencePoint
+                                                 }).ToArray();
+                return true;
+            }
+            return false;
         }
 
         public void Stopping()

@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "ProfilerCommunication.h"
 
-#include "..\schema\opencover.profiler.xsd.h"
 #include "..\schema\opencover.profiler.wsdl.h"
 #include "..\schema\tempuri.org.wsdl.h"
 #include "..\schema\schemas.microsoft.com.2003.10.Serialization.xsd.h"
@@ -18,7 +17,6 @@ ProfilerCommunication::ProfilerCommunication(int port)
     _port = port;
     Initialise();
 }
-
 
 ProfilerCommunication::~ProfilerCommunication(void)
 {
@@ -53,6 +51,7 @@ void ProfilerCommunication::PrintError(HRESULT errorCode, WS_ERROR* error)
         }
     }
 Exit:
+    WsResetError(error);
     if (FAILED(hr))
     {
         ATLTRACE(L"Could not get error string (errorCode=0x%lx)\n", hr);
@@ -97,7 +96,7 @@ void ProfilerCommunication::Initialise()
 
     ATLTRACE(_T("WsOpenServiceProxy"));
 
-    hr = WsCreateHeap(2048, 512, NULL, 0, &heap, error); 
+    hr = WsCreateHeap(2*1024*1024, 16*1024, NULL, 0, &heap, error); 
     ONERROR_GOEXIT(hr);
 
     ATLTRACE(_T("WsCreateHeap"));
@@ -141,6 +140,7 @@ void ProfilerCommunication::Cleanup()
 void ProfilerCommunication::Start()
 {
     if (proxy==NULL) return;
+    WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Started(proxy, 
         heap, 
         NULL, 
@@ -155,6 +155,7 @@ void ProfilerCommunication::Start()
 void ProfilerCommunication::Stop()
 {
     if (proxy==NULL) return;
+    WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Stopping(proxy, 
         heap, 
         NULL, 
@@ -166,13 +167,14 @@ void ProfilerCommunication::Stop()
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stopping"));
 }
 
-BOOL ProfilerCommunication::TrackAssembly(WCHAR*moduleName, WCHAR* assemblyName)
+BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName)
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
+    WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_TrackAssembly(proxy,
-        moduleName,
-        assemblyName,
+        pModuleName,
+        pAssemblyName,
         &result,
         heap, 
         NULL, 
@@ -181,6 +183,28 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR*moduleName, WCHAR* assemblyName)
         error);
 
     if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly %s => %s"), assemblyName, result ? _T("Yes") : _T("No"));
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly %s => %s"), pAssemblyName, result ? _T("Yes") : _T("No"));
+    return result;
+}
+
+BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, InstrumentPoint*** pppInstrumentPoints)
+{
+    BOOL result;
+    if (proxy==NULL) return FALSE;
+    WsResetHeap(heap, error);
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_GetSequencePoints(proxy,
+        pModuleName,
+        functionToken,
+        &result,
+        pNumPoints,
+        pppInstrumentPoints,
+        heap, 
+        NULL,
+        0,
+        NULL,
+        error);
+
+    if (FAILED(hr)) PrintError(hr, error);
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_GetSequencePoints => %d"), *pNumPoints);
     return result;
 }
