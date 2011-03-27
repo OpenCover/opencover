@@ -13,6 +13,9 @@
 
 using namespace ATL;
 
+#define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
+#define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
+
 
 // CCodeCoverage
 
@@ -62,7 +65,7 @@ public:
 
     std::wstring GetModuleName(ModuleID moduleId);
     std::wstring GetAssemblyName(AssemblyID assemblyId);
-    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, std::wstring &moduleName);
+    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName);
 
     ProfilerCommunication * m_host;
 

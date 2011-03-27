@@ -3,8 +3,6 @@
 
 // reference http://www.ecma-international.org/publications/standards/Ecma-335.htm
 
-#define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
-#define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
 
 /// <summary>
 /// Gets the module name from a moduleId
@@ -25,9 +23,8 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
     return std::wstring(szAssemblyName);
 }
 
-BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, std::wstring &moduleName)
+BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName)
 {
-    ModuleID moduleId;
     COM_FAIL_RETURN(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
     moduleName = GetModuleName(moduleId);
     return TRUE;
