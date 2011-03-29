@@ -122,6 +122,8 @@
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
     <Compile Include="Framework\Service\ServiceTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
+    <Compile Include="Framework\Symbols\CecilSymbolManagerFactoryTests.cs" />
+    <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Symbols\SymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\SymbolManagerTests.cs" />
     <Compile Include="Framework\Symbols\SymbolReaderWrapperTests.cs" />

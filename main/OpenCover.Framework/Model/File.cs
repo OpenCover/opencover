@@ -12,4 +12,17 @@ namespace OpenCover.Framework.Model
     {
         public string FullPath { get; set; }
     }
+
+    public class FileEqualityComparer : IEqualityComparer<File>
+    {
+        public bool Equals(File x, File y)
+        {
+            return x.FullPath == y.FullPath;
+        }
+
+        public int GetHashCode(File obj)
+        {
+            return obj.GetHashCode();
+        }
+    }
 }

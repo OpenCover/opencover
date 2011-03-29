@@ -7,9 +7,18 @@ namespace OpenCover.Framework.Symbols
 {
     public class CecilSymbolManagerFactory : ISymbolManagerFactory
     {
+        private readonly ICommandLine _commandLine;
+
+        public CecilSymbolManagerFactory(ICommandLine commandLine)
+        {
+            _commandLine = commandLine;
+        }
+
         public ISymbolManager CreateSymbolManager(string modulePath)
         {
-            return new CecilSymbolManager(modulePath);
+            var manager = new CecilSymbolManager(_commandLine);
+            manager.Initialise(modulePath);
+            return manager;
         }
     }
 }

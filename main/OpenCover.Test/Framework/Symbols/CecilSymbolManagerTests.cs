@@ -9,9 +9,9 @@ using OpenCover.Framework.Symbols;
 namespace OpenCover.Test.Framework.Symbols
 {
     [TestFixture]
-    public class SymbolManagerTests
+    public class CecilSymbolManagerTests
     {
-        private SymbolManager _reader;
+        private CecilSymbolManager _reader;
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
 
@@ -22,14 +22,14 @@ namespace OpenCover.Test.Framework.Symbols
             var factory = new SymbolReaderFactory();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new SymbolManager(_mockCommandLine.Object, factory);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object);
             _reader.Initialise(_location);
         }
 
         [TearDown]
         public void Teardown()
         {
-            _reader.Dispose();
+            //_reader.Dispose();
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // act
             var types = _reader.GetInstrumentableTypes();
-            
+
             // assert
             Assert.NotNull(types);
             Assert.AreNotEqual(0, types.GetLength(0));
@@ -118,15 +118,12 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void GetSequencePointsForToken_HandlesErrors()
+        public void GetSequencePointsForToken_HandlesUnknownTokens()
         {
             // arrange
-            var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.ConstructorNotDeclaredClass").First();
-            var ctors = _reader.GetConstructorsForType(type);
 
             // act
-            var points = _reader.GetSequencePointsForToken(ctors[0].MetadataToken);
+            var points = _reader.GetSequencePointsForToken(0);
 
             // assert
             Assert.IsNull(points);
@@ -136,9 +133,8 @@ namespace OpenCover.Test.Framework.Symbols
         [Test]
         public void ModulePath_Returns_Name_Of_Module()
         {
+            // arrange, act, assert
             Assert.AreEqual(_location, _reader.ModulePath);
         }
-
-
     }
 }

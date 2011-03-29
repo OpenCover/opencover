@@ -12,18 +12,23 @@ namespace OpenCover.Framework.Symbols
 {
     public class CecilSymbolManager : ISymbolManager
     {
-        private readonly string _modulePath;
+        private readonly ICommandLine _commandLine;
+        private string _modulePath;
         private AssemblyDefinition _sourceAssembly;
-        private object _lock = new object();
 
-        public CecilSymbolManager(string modulePath)
+        public CecilSymbolManager(ICommandLine commandLine)
         {
-            _modulePath = modulePath;
+            _commandLine = commandLine;
         }
 
         public string ModulePath
         {
             get { return _modulePath; }
+        }
+
+        public void Initialise(string modulePath)
+        {
+            _modulePath = modulePath;
         }
 
         private AssemblyDefinition SourceAssembly
@@ -34,7 +39,13 @@ namespace OpenCover.Framework.Symbols
                 {
                     var resolver = new DefaultAssemblyResolver();
                     if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
+                    {
                         resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
+                        if (!string.IsNullOrEmpty(_commandLine.TargetDir))
+                        {
+                            resolver.AddSearchDirectory(_commandLine.TargetDir);
+                        }
+                    }
 
                     var parameters = new ReaderParameters
                     {
@@ -50,26 +61,16 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
+
+
         public File[] GetFiles()
         {
-            var list = new List<string>();
-
-            foreach (var typeDefinition in SourceAssembly.MainModule.Types)
+            var list = new List<File>();
+            foreach (var instrumentableType in GetInstrumentableTypes())
             {
-                foreach (var methodDefinition in typeDefinition.Methods)
-                {
-                    if (methodDefinition.Body!=null && methodDefinition.Body.Instructions!=null)
-                    {
-                        foreach (var instruction in methodDefinition.Body.Instructions)
-                        {
-                            if (instruction.SequencePoint!=null)
-                                list.Add(instruction.SequencePoint.Document.Url);
-                        }
-                    }
-                } 
-            } 
-
-            return list.Distinct().Select(file => new File{FullPath = file}).ToArray();
+                list.AddRange(instrumentableType.Files);
+            }
+            return list.Distinct(new FileEqualityComparer()).Select(file => file).ToArray();
         }
 
         public Class[] GetInstrumentableTypes()
@@ -78,6 +79,22 @@ namespace OpenCover.Framework.Symbols
             foreach (var typeDefinition in SourceAssembly.MainModule.Types)
             {
                 var @class = new Class() {FullName = typeDefinition.FullName};
+                var list = new List<string>();
+                foreach (var methodDefinition in typeDefinition.Methods)
+                {
+                    if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
+                    {
+                        foreach (var instruction in methodDefinition.Body.Instructions)
+                        {
+                            if (instruction.SequencePoint != null)
+                            {
+                                list.Add(instruction.SequencePoint.Document.Url);
+                                break;
+                            }
+                        }
+                    }
+                }
+                @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
                 classes.Add(@class);
             }
             return classes.ToArray();
@@ -144,7 +161,7 @@ namespace OpenCover.Framework.Symbols
                                                     {
                                                         EndColumn = sp.EndColumn,
                                                         EndLine = sp.EndLine,
-                                                        Offset = 0,
+                                                        Offset = instruction.Offset,
                                                         Ordinal = ordinal++,
                                                         StartColumn = sp.StartColumn,
                                                         StartLine = sp.StartLine,
