@@ -42,6 +42,12 @@
     <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\tools\mono.cecil.0.94\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb">
+      <HintPath>..\..\tools\mono.cecil.0.94\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
@@ -83,6 +89,8 @@
     <Compile Include="Service\ProfilerCommunicationServiceBehaviour.cs" />
     <Compile Include="Service\ProfilerCommunicationServiceHost.cs" />
     <Compile Include="Service\ProfilerServiceHost.cs" />
+    <Compile Include="Symbols\CecilSymbolManager.cs" />
+    <Compile Include="Symbols\CecilSymbolManagerFactory.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManagerFactory.cs" />
     <Compile Include="Symbols\SymbolManager.cs" />

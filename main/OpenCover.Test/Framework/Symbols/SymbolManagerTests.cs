@@ -138,5 +138,136 @@ namespace OpenCover.Test.Framework.Symbols
         {
             Assert.AreEqual(_location, _reader.ModulePath);
         }
+
+
+    }
+
+    [TestFixture]
+    public class CecilSymbolManagerTests
+    {
+        private CecilSymbolManager _reader;
+        private string _location;
+        private Mock<ICommandLine> _mockCommandLine;
+
+        [SetUp]
+        public void Setup()
+        {
+            _mockCommandLine = new Mock<ICommandLine>();
+            var factory = new SymbolReaderFactory();
+            _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
+
+            _reader = new CecilSymbolManager(_location);
+            //_reader.Initialise(_location);
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            //_reader.Dispose();
+        }
+
+        [Test]
+        public void GetFiles_Returns_AllFiles_InModule()
+        {
+            //arrange
+
+            // act
+            var files = _reader.GetFiles();
+
+            //assert
+            Assert.NotNull(files);
+            Assert.AreNotEqual(0, files.GetLength(0));
+        }
+
+        [Test]
+        public void GetInstrumentableTypes_Returns_AllTypes_InModule_ThatCanBeInstrumented()
+        {
+            // arrange
+
+            // act
+            var types = _reader.GetInstrumentableTypes();
+
+            // assert
+            Assert.NotNull(types);
+            Assert.AreNotEqual(0, types.GetLength(0));
+        }
+
+        [Test]
+        public void GetConstructorsForType_Returns_AllDeclared_ForType()
+        {
+            // arrange
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+
+            // act
+            var ctors = _reader.GetConstructorsForType(type);
+
+            // assert
+            Assert.IsNotNull(ctors);
+        }
+
+        [Test]
+        public void GetMethodsForType_Returns_AllDeclared_ForType()
+        {
+            // arrange
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
+
+            // act
+            var methods = _reader.GetMethodsForType(type);
+
+            // assert
+            Assert.IsNotNull(methods);
+        }
+
+        [Test]
+        public void GetSequencePointsForMethodToken()
+        {
+            // arrange
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
+            var methods = _reader.GetMethodsForType(type);
+
+            // act
+            var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
+            // assert
+
+            Assert.IsNotNull(points);
+        }
+
+        [Test]
+        public void GetSequencePointsForConstructorToken()
+        {
+            // arrange
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var ctors = _reader.GetConstructorsForType(type);
+
+            // act
+            var points = _reader.GetSequencePointsForToken(ctors[0].MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+
+        }
+
+        [Test]
+        public void GetSequencePointsForToken_HandlesUnknownTokens()
+        {
+            // arrange
+
+            // act
+            var points = _reader.GetSequencePointsForToken(0);
+
+            // assert
+            Assert.IsNull(points);
+
+        }
+
+        [Test]
+        public void ModulePath_Returns_Name_Of_Module()
+        {
+            Assert.AreEqual(_location, _reader.ModulePath);
+        }
     }
 }
