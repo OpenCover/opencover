@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "CodeCoverage.h"
 #include "NativeCallback.h"
+#include "Method.h"
 
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
@@ -127,6 +128,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             CComPtr<IMethodMalloc> methodMalloc;
             m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc);
 
+            BYTE * pBody = NULL;
+            ULONG bodyLength = 0;
+/*
  	        if(!fatImage->IsFat())
             {
                 COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
@@ -148,7 +152,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                 fatNewImage->SetCodeSize(tinyImage->GetCodeSize()+10);
 
                 m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
-                
             }
             else
             {
@@ -167,6 +170,25 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
                 m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
             }
+*/
+            /*if(!fatImage->IsFat())
+            {
+                COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
+                for (int i = 0 ; i < tinyImage->GetCodeSize(); i++)
+                {
+                    ATLTRACE(_T("0x%2X"), tinyImage->GetCode()[i]);
+                }
+            }
+            else
+            {
+                for (int i = 0 ; i < fatImage->GetCodeSize(); i++)
+                {
+                    ATLTRACE(_T("0x%2X"), fatImage->GetCode()[i]);
+                }
+            }*/
+
+            Method x;
+            x.ReadMethod(pMethod);
         }
     }
     

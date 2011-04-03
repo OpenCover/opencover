@@ -35,5 +35,7 @@
 #pragma pack(pop)
 
 #include <string>
+#include <vector>
+#include <hash_map>
 
 #include <WebServices.h>

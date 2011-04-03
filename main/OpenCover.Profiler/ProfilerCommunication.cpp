@@ -208,3 +208,4 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_GetSequencePoints => %d"), *pNumPoints);
     return result;
 }
+

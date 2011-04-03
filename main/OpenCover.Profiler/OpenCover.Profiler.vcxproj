@@ -246,6 +246,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Instruction.cpp" />
+    <ClCompile Include="Method.cpp" />
     <ClCompile Include="OpenCover.Profiler.cpp" />
     <ClCompile Include="OpenCoverProfiler_i.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -282,16 +284,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Operations.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeCoverage.h" />
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="Instruction.h" />
+    <ClInclude Include="Method.h" />
     <ClInclude Include="OpenCoverProfiler_i.h" />
     <ClInclude Include="ProfilerCommunication.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="xdlldata.h" />
+    <ClInclude Include="Operations.h" />
     <ClInclude Include="_ICodeCoverageEvents_CP.h" />
   </ItemGroup>
   <ItemGroup>

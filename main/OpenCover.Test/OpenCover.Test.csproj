@@ -89,6 +89,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Cecil, Version=0.9.4.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\mono.cecil.0.94\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.9.4.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\mono.cecil.0.94\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
     <Reference Include="Moq">
       <HintPath>..\..\tools\Moq.4.0.10531.7\NET40\Moq.dll</HintPath>
     </Reference>

@@ -17,6 +17,9 @@
       <UniqueIdentifier>{515a57ab-dcf0-4680-913d-33d0795ec22c}</UniqueIdentifier>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Instrumentation">
+      <UniqueIdentifier>{5ba569a2-781a-4cdf-94d9-9cf0684f2ddc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +45,15 @@
     </ClCompile>
     <ClCompile Include="ProfilerCommunication.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Method.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Instruction.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Operations.cpp">
+      <Filter>Instrumentation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,6 +83,15 @@
     </ClInclude>
     <ClInclude Include="ProfilerCommunication.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Instruction.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Method.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Operations.h">
+      <Filter>Instrumentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
