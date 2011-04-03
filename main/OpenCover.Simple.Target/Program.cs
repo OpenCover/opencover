@@ -13,13 +13,27 @@ namespace OpenCover.Simple.Target
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World *****");
-            Thread.Sleep(2000);
-            var o = new Namespace.Other();
-            o.Data = 22;
-            new Class();
-            new GenericClass<object>();
-            o.Data = o.Data + 1;
+            for (var i=0;i<22;i++)
+            {
+                if (i == 10) continue;
+                Console.WriteLine("{0}",i);
+                if (i == 15) break;
+                switch (i)
+                {
+                    case 0:
+                    case 3:
+                    case 7:
+                    case 8:
+                        Console.WriteLine("0000");
+                        break;
+                    case 5:
+                        Console.WriteLine("5555");
+                        break;
+                    default:
+                        break;
+
+                }
+            }
         }
     }
 

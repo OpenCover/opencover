@@ -44,7 +44,7 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
     
     while (position < codeSize)
     {
-        Instruction * pInstruction = new Instruction();
+        Instruction* pInstruction = new Instruction();
         pInstruction->m_offset = position;
         BYTE op1 = 0xFF;
         BYTE op2 = Read<BYTE>(&pCode, &position);
@@ -60,7 +60,7 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
         case Null:
             break;
         case Byte:
-            pInstruction->m_operand = Read<BYTE>(&pCode, &position);
+            pInstruction->m_operand = Read<char>(&pCode, &position);
             break;
         case Word:
             pInstruction->m_operand = Read<short>(&pCode, &position);
@@ -75,16 +75,19 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
             break;
         }
 
-        // handle the branches
+        // are we a branch or a switch
+        pInstruction->m_isBranch = (details.controlFlow == BRANCH || details.controlFlow == COND_BRANCH);
+
+        if (pInstruction->m_isBranch && pInstruction->m_operation != CEE_SWITCH)
+        {
+            pInstruction->m_branchOffsets.push_back(pInstruction->m_operand);
+        }
+
         if (pInstruction->m_operation == CEE_SWITCH)
         {
             __int64 numbranches = pInstruction->m_operand;
-            while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<short>(&pCode, &position));
-        }
-
-        if (details.controlFlow == BRANCH || details.controlFlow == COND_BRANCH)
-        {
-            pInstruction->m_branchOffsets.push_back(pInstruction->m_operand);
+            ATLTRACE(_T("xxxxxxxxx %d"), numbranches);
+            while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>(&pCode, &position));
         }
 
         m_instructions.push_back(pInstruction);
@@ -94,16 +97,54 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+#if DUMP_IL 
         if (details.operandSize == Null)
         {
-            ATLTRACE(_T("%x %s"), (*it)->m_offset, details.stringName);
+            ATLTRACE(_T("IL_%04X %s"), (*it)->m_offset, details.stringName);
         }
         else
         {
-            ATLTRACE(_T("%x %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
+            if ((*it)->m_isBranch && (*it)->m_operation != CEE_SWITCH)
+            {
+                int offset = (*it)->m_offset + (*it)->m_operand + details.length + details.operandSize;
+                ATLTRACE(_T("IL_%04X %s IL_%04X"), (*it)->m_offset, details.stringName, offset);
+            }
+            else
+            {
+                ATLTRACE(_T("IL_%04X %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
+            }
         }
+        for (std::vector<short>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        {
+            if ((*it)->m_operation == CEE_SWITCH)
+            {
+                int offset = (*it)->m_offset + (4 * (*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+                ATLTRACE(_T("    IL_%04X"), offset);
+            }
+        }
+#endif
+        for (std::vector<short>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        {
+            int offset = 0;
+            if ((*it)->m_operation == CEE_SWITCH)
+            {
+                offset = (*it)->m_offset + (4 * (*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+            }
+            else
+            {
+                offset = (*it)->m_offset + *offsetIter + details.length + details.operandSize;
+            }
+            
+            for (InstructionListConstIter it2 = m_instructions.begin(); it2 != m_instructions.end() ; ++it2)
+            {
+                if ((*it2)->m_offset == offset)
+                {
+                    (*it)->m_branches.push_back(*it2);
+                }
+            }
+        }
+        _ASSERTE((*it)->m_branchOffsets.size() == (*it)->m_branches.size());
     }
-
 }
 
 

@@ -18,6 +18,7 @@ public:
     unsigned int m_offset;
     CanonicalName m_operation;
     __int64 m_operand;
+    bool m_isBranch;
 
 public:
     std::vector<short> m_branchOffsets;
