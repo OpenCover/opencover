@@ -3,6 +3,7 @@
 #pragma once
 
 class Instruction;
+class Method;
 
 typedef std::vector<Instruction *> InstructionList;
 typedef InstructionList::iterator InstructionListIter;
@@ -16,15 +17,18 @@ public:
     Instruction(void);
     ~Instruction(void);
 
-public:
+private:
     long m_offset;
     CanonicalName m_operation;
     ULONGLONG m_operand;
     bool m_isBranch;
 
-public:
     std::vector<long> m_branchOffsets;
     InstructionList m_branches;
+
+public:
+
+    friend class Method;
 };
 
 

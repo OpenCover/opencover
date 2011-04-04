@@ -20,7 +20,7 @@ Method::~Method()
 void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
-    long codeSize = 0;
+    m_codeSize = 0;
     COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
     if(!fatImage->IsFat())
     {
@@ -31,34 +31,35 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
         m_header.CodeSize = tinyImage->GetCodeSize();
         m_header.MaxStack = 8;
         pCode = tinyImage->GetCode();
-        codeSize = tinyImage->GetCodeSize();
+        m_codeSize = tinyImage->GetCodeSize();
     }
     else
     {
         memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
         pCode = fatImage->GetCode();
-        codeSize = fatImage->GetCodeSize();
+        m_codeSize = fatImage->GetCodeSize();
     }
-
-    ReadBody(pCode, codeSize);
+    SetBuffer(pCode);
+    ReadBody();
 }
 
 // build the instruction list
-void Method::ReadBody(BYTE* pCode, long codeSize)
+void Method::ReadBody()
 {
-    long position = 0;
-    
-    while (position < codeSize)
+    _ASSERTE(m_codeSize != 0);
+    _ASSERTE(GetPosition() == 0);
+
+    while (GetPosition() < m_codeSize)
     {
         Instruction* pInstruction = new Instruction();
-        pInstruction->m_offset = position;
+        pInstruction->m_offset = GetPosition();
         BYTE op1 = REFPRE;
-        BYTE op2 = Read<BYTE>(&pCode, &position);
+        BYTE op2 = Read<BYTE>();
         switch (op2)
         {
         case STP1:
             op1 = STP1;
-            op2 = Read<BYTE>(&pCode, &position);
+            op2 = Read<BYTE>();
             break;
         default: 
             break;
@@ -70,16 +71,16 @@ void Method::ReadBody(BYTE* pCode, long codeSize)
         case Null:
             break;
         case Byte:
-            pInstruction->m_operand = Read<BYTE>(&pCode, &position);
+            pInstruction->m_operand = Read<BYTE>();
             break;
         case Word:
-            pInstruction->m_operand = Read<USHORT>(&pCode, &position);
+            pInstruction->m_operand = Read<USHORT>();
             break;
         case Dword:
-            pInstruction->m_operand = Read<ULONG>(&pCode, &position);
+            pInstruction->m_operand = Read<ULONG>();
             break;
         case Qword:
-            pInstruction->m_operand = Read<ULONGLONG>(&pCode, &position);
+            pInstruction->m_operand = Read<ULONGLONG>();
             break;
         default:
             break;
@@ -103,7 +104,7 @@ void Method::ReadBody(BYTE* pCode, long codeSize)
         if (pInstruction->m_operation == CEE_SWITCH)
         {
             __int64 numbranches = pInstruction->m_operand;
-            while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>(&pCode, &position));
+            while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>());
         }
 
         m_instructions.push_back(pInstruction);
@@ -111,8 +112,10 @@ void Method::ReadBody(BYTE* pCode, long codeSize)
 
     if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
     {
-        ReadSections(pCode, position);
+        ReadSections();
     }
+
+    SetBuffer(NULL); // we have read all we can 
 
     DumpIL();
 
@@ -121,33 +124,33 @@ void Method::ReadBody(BYTE* pCode, long codeSize)
     ConvertShortBranches();
 }
 
-void Method::ReadSections(BYTE *pCode, long position)
+void Method::ReadSections()
 {
     BYTE flags = 0;
     do
     {
-        Align<DWORD>(&pCode, &position); // must be DWORD aligned
-        flags = Read<BYTE>(&pCode, &position);
+        Align<DWORD>(); // must be DWORD aligned
+        flags = Read<BYTE>();
         if ((flags & CorILMethod_Sect_FatFormat) == CorILMethod_Sect_FatFormat)
         {
-            Advance(-1, &pCode, &position);
-            int count = ((Read<ULONG>(&pCode, &position) >> 8) / 24);
+            Advance(-1);
+            int count = ((Read<ULONG>() >> 8) / 24);
             for (int i = 0; i < count; i++)
             {
-                ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>(&pCode, &position);
-                long tryStart = Read<long>(&pCode, &position);
-                long tryEnd = Read<long>(&pCode, &position);
-                long handlerStart = Read<long>(&pCode, &position);
-                long handlerEnd = Read<long>(&pCode, &position);
+                ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
+                long tryStart = Read<long>();
+                long tryEnd = Read<long>();
+                long handlerStart = Read<long>();
+                long handlerEnd = Read<long>();
                 long filterStart = 0;
                 ULONG token = 0;
                 switch (type)
                 {
                 case CLAUSE_FILTER:
-                    filterStart = Read<long>(&pCode, &position);
+                    filterStart = Read<long>();
                     break;
                 default:
-                    token = Read<ULONG>(&pCode, &position);
+                    token = Read<ULONG>();
                     break;
                 }
                 ExceptionHandler * pSection = new ExceptionHandler();
@@ -166,24 +169,24 @@ void Method::ReadSections(BYTE *pCode, long position)
         }
         else
         {
-            int count = (int)(Read<BYTE>(&pCode, &position) / 12);
-            Advance(2, &pCode, &position);
+            int count = (int)(Read<BYTE>() / 12);
+            Advance(2);
             for (int i = 0; i < count; i++)
             {
-                ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>(&pCode, &position);
-                long tryStart = Read<short>(&pCode, &position);
-                long tryEnd = Read<char>(&pCode, &position);
-                long handlerStart = Read<short>(&pCode, &position);
-                long handlerEnd = Read<char>(&pCode, &position);
+                ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>();
+                long tryStart = Read<short>();
+                long tryEnd = Read<char>();
+                long handlerStart = Read<short>();
+                long handlerEnd = Read<char>();
                 long filterStart = 0;
                 ULONG token = 0;
                 switch (type)
                 {
                 case CLAUSE_FILTER:
-                    filterStart = Read<long>(&pCode, &position);
+                    filterStart = Read<long>();
                     break;
                 default:
-                    token = Read<ULONG>(&pCode, &position);
+                    token = Read<ULONG>();
                     break;
                 }
                 ExceptionHandler * pSection = new ExceptionHandler();

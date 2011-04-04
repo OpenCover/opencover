@@ -3,6 +3,7 @@
 #pragma once
 
 class ExceptionHandler;
+class Method;
 
 typedef std::vector<ExceptionHandler *> ExceptionHandlerList;
 typedef ExceptionHandlerList::iterator ExceptionHandlerListIter;
@@ -22,7 +23,7 @@ public:
     ExceptionHandler(void);
     ~ExceptionHandler(void);
 
-public:
+private:
     ExceptionHandlerType m_handlerType;
     Instruction * m_tryStart;
     Instruction * m_tryEnd;
@@ -31,5 +32,8 @@ public:
     Instruction * m_filterStart;
 
     ULONG m_token;
+
+public:
+    friend class Method;
 };
 
