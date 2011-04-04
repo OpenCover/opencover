@@ -1,10 +1,17 @@
 #include "stdafx.h"
 #include "Method.h"
 
+#define DUMP_IL 1
+
 Method::Method() {}
 Method::~Method()
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    {
+        delete *it;
+    }
+
+    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
         delete *it;
     }
@@ -13,7 +20,7 @@ Method::~Method()
 void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
-    unsigned int codeSize = 0;
+    long codeSize = 0;
     COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
     if(!fatImage->IsFat())
     {
@@ -34,24 +41,27 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
     }
 
     ReadBody(pCode, codeSize);
-
 }
 
 // build the instruction list
-void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
+void Method::ReadBody(BYTE* pCode, long codeSize)
 {
-    unsigned int position = 0;
+    long position = 0;
     
     while (position < codeSize)
     {
         Instruction* pInstruction = new Instruction();
         pInstruction->m_offset = position;
-        BYTE op1 = 0xFF;
+        BYTE op1 = REFPRE;
         BYTE op2 = Read<BYTE>(&pCode, &position);
-        if (op2 == 0xFE)
+        switch (op2)
         {
-            op1 = 0xFE;
+        case STP1:
+            op1 = STP1;
             op2 = Read<BYTE>(&pCode, &position);
+            break;
+        default: 
+            break;
         }
         OperationDetails &details = Operations::m_mapOpsOperationDetails[MAKEWORD(op1, op2)];
         pInstruction->m_operation = details.canonicalName;
@@ -60,16 +70,16 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
         case Null:
             break;
         case Byte:
-            pInstruction->m_operand = Read<char>(&pCode, &position);
+            pInstruction->m_operand = Read<BYTE>(&pCode, &position);
             break;
         case Word:
-            pInstruction->m_operand = Read<short>(&pCode, &position);
+            pInstruction->m_operand = Read<USHORT>(&pCode, &position);
             break;
         case Dword:
-            pInstruction->m_operand = Read<long>(&pCode, &position);
+            pInstruction->m_operand = Read<ULONG>(&pCode, &position);
             break;
         case Qword:
-            pInstruction->m_operand = Read<__int64>(&pCode, &position);
+            pInstruction->m_operand = Read<ULONGLONG>(&pCode, &position);
             break;
         default:
             break;
@@ -80,24 +90,161 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
 
         if (pInstruction->m_isBranch && pInstruction->m_operation != CEE_SWITCH)
         {
-            pInstruction->m_branchOffsets.push_back(pInstruction->m_operand);
+            if (details.operandSize==1)
+            {
+                pInstruction->m_branchOffsets.push_back((char)(BYTE)pInstruction->m_operand);
+            }
+            else
+            {
+                pInstruction->m_branchOffsets.push_back((ULONG)pInstruction->m_operand);
+            }
         }
 
         if (pInstruction->m_operation == CEE_SWITCH)
         {
             __int64 numbranches = pInstruction->m_operand;
-            ATLTRACE(_T("xxxxxxxxx %d"), numbranches);
             while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>(&pCode, &position));
         }
 
         m_instructions.push_back(pInstruction);
     }
 
-    // resolve the branches
+    if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
+    {
+        ReadSections(pCode, position);
+    }
+
+    DumpIL();
+
+    ResolveBranches();
+    
+    ConvertShortBranches();
+}
+
+void Method::ReadSections(BYTE *pCode, long position)
+{
+    BYTE flags = 0;
+    do
+    {
+        Align<DWORD>(&pCode, &position); // must be DWORD aligned
+        flags = Read<BYTE>(&pCode, &position);
+        if ((flags & CorILMethod_Sect_FatFormat) == CorILMethod_Sect_FatFormat)
+        {
+            Advance(-1, &pCode, &position);
+            int count = ((Read<ULONG>(&pCode, &position) >> 8) / 24);
+            for (int i = 0; i < count; i++)
+            {
+                ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>(&pCode, &position);
+                long tryStart = Read<long>(&pCode, &position);
+                long tryEnd = Read<long>(&pCode, &position);
+                long handlerStart = Read<long>(&pCode, &position);
+                long handlerEnd = Read<long>(&pCode, &position);
+                long filterStart = 0;
+                ULONG token = 0;
+                switch (type)
+                {
+                case CLAUSE_FILTER:
+                    filterStart = Read<long>(&pCode, &position);
+                    break;
+                default:
+                    token = Read<ULONG>(&pCode, &position);
+                    break;
+                }
+                ExceptionHandler * pSection = new ExceptionHandler();
+                pSection->m_handlerType = type;
+                pSection->m_tryStart = GetInstructionAtOffset(tryStart);
+                pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
+                pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
+                pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                if (filterStart!=0)
+                {
+                    pSection->m_filterStart = GetInstructionAtOffset(filterStart);
+                }
+                pSection->m_token = token;
+                m_exceptions.push_back(pSection);
+            }
+        }
+        else
+        {
+            int count = (int)(Read<BYTE>(&pCode, &position) / 12);
+            Advance(2, &pCode, &position);
+            for (int i = 0; i < count; i++)
+            {
+                ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>(&pCode, &position);
+                long tryStart = Read<short>(&pCode, &position);
+                long tryEnd = Read<char>(&pCode, &position);
+                long handlerStart = Read<short>(&pCode, &position);
+                long handlerEnd = Read<char>(&pCode, &position);
+                long filterStart = 0;
+                ULONG token = 0;
+                switch (type)
+                {
+                case CLAUSE_FILTER:
+                    filterStart = Read<long>(&pCode, &position);
+                    break;
+                default:
+                    token = Read<ULONG>(&pCode, &position);
+                    break;
+                }
+                ExceptionHandler * pSection = new ExceptionHandler();
+                pSection->m_handlerType = type;
+                pSection->m_tryStart = GetInstructionAtOffset(tryStart);
+                pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
+                pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
+                pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                if (filterStart!=0)
+                {
+                    pSection->m_filterStart = GetInstructionAtOffset(filterStart);
+                }
+                pSection->m_token = token;
+                m_exceptions.push_back(pSection);
+            }
+        }
+    } while((flags & CorILMethod_Sect_MoreSects) == CorILMethod_Sect_MoreSects);
+}
+
+Instruction * Method::GetInstructionAtOffset(long offset)
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    {
+        if ((*it)->m_offset == offset)
+        {
+            return (*it);
+        }
+    }
+    _ASSERTE(FALSE);
+    return NULL;
+}
+
+void Method::ResolveBranches()
+{
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
-#if DUMP_IL 
+        long baseOffset = (*it)->m_offset + details.length + details.operandSize;
+        if ((*it)->m_operation == CEE_SWITCH)
+        {
+            baseOffset += (4 * (long)(*it)->m_operand);
+        }
+        
+        for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        {
+            long offset = baseOffset + (*offsetIter);
+            Instruction * instruction = GetInstructionAtOffset(offset);
+            if (instruction != NULL) 
+            {
+                (*it)->m_branches.push_back(instruction);
+            }
+        }
+        _ASSERTE((*it)->m_branchOffsets.size() == (*it)->m_branches.size());
+    }
+}
+
+void Method::DumpIL()
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    {
+        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.operandSize == Null)
         {
             ATLTRACE(_T("IL_%04X %s"), (*it)->m_offset, details.stringName);
@@ -106,7 +253,7 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
         {
             if ((*it)->m_isBranch && (*it)->m_operation != CEE_SWITCH)
             {
-                int offset = (*it)->m_offset + (*it)->m_operand + details.length + details.operandSize;
+                long offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
                 ATLTRACE(_T("IL_%04X %s IL_%04X"), (*it)->m_offset, details.stringName, offset);
             }
             else
@@ -114,36 +261,90 @@ void Method::ReadBody(BYTE* pCode, unsigned int codeSize)
                 ATLTRACE(_T("IL_%04X %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
         }
-        for (std::vector<short>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
         {
             if ((*it)->m_operation == CEE_SWITCH)
             {
-                int offset = (*it)->m_offset + (4 * (*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+                long offset = (*it)->m_offset + (4 * (long)(*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
                 ATLTRACE(_T("    IL_%04X"), offset);
             }
         }
-#endif
-        for (std::vector<short>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+    }
+
+    int i = 0;
+    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+    {
+        ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"), 
+            i++, (*it)->m_handlerType, 
+            (*it)->m_tryStart != NULL ? (*it)->m_tryStart->m_offset : 0, 
+            (*it)->m_tryEnd != NULL ? (*it)->m_tryEnd->m_offset : 0, 
+            (*it)->m_handlerStart != NULL ? (*it)->m_handlerStart->m_offset : 0, 
+            (*it)->m_handlerEnd != NULL ? (*it)->m_handlerEnd->m_offset : 0, 
+            (*it)->m_filterStart != NULL ? (*it)->m_filterStart->m_offset : 0, 
+            (*it)->m_token);
+    }            
+}
+
+void Method::ConvertShortBranches()
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        if ((*it)->m_isBranch && details.operandSize == 1)
         {
-            int offset = 0;
-            if ((*it)->m_operation == CEE_SWITCH)
+            CanonicalName newOperation = (*it)->m_operation;
+            switch((*it)->m_operation)
             {
-                offset = (*it)->m_offset + (4 * (*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+            case CEE_BR_S:
+                newOperation = CEE_BR;
+                break;
+            case CEE_BRFALSE_S:
+                newOperation = CEE_BRFALSE;
+                break;
+            case CEE_BRTRUE_S:
+                newOperation = CEE_BRTRUE;
+                break;
+            case CEE_BEQ_S:
+                newOperation = CEE_BEQ;
+                break;
+            case CEE_BGE_S:
+                newOperation = CEE_BGE;
+                break;
+            case CEE_BGT_S:
+                newOperation = CEE_BGT;
+                break;
+            case CEE_BLE_S:
+                newOperation = CEE_BLE;
+                break;
+            case CEE_BLT_S:
+                newOperation = CEE_BLT;
+                break;
+            case CEE_BNE_UN_S:
+                newOperation = CEE_BNE_UN;
+                break;
+            case CEE_BGE_UN_S:
+                newOperation = CEE_BGE_UN;
+                break;
+            case CEE_BGT_UN_S:
+                newOperation = CEE_BGT_UN;
+                break;
+            case CEE_BLE_UN_S:
+                newOperation = CEE_BLE_UN;
+                break;
+            case CEE_BLT_UN_S:
+                newOperation = CEE_BLT_UN;
+                break;
+            case CEE_LEAVE_S:
+                newOperation = CEE_LEAVE;
+                break;
+            default:
+                break;
             }
-            else
-            {
-                offset = (*it)->m_offset + *offsetIter + details.length + details.operandSize;
-            }
-            
-            for (InstructionListConstIter it2 = m_instructions.begin(); it2 != m_instructions.end() ; ++it2)
-            {
-                if ((*it2)->m_offset == offset)
-                {
-                    (*it)->m_branches.push_back(*it2);
-                }
-            }
+            (*it)->m_operation = newOperation;
+            (*it)->m_operand = UNSAFE_BRANCH_OPERAND;
         }
-        _ASSERTE((*it)->m_branchOffsets.size() == (*it)->m_branches.size());
+
+        (*it)->m_branchOffsets.clear();
     }
 }
 

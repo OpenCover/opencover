@@ -8,6 +8,8 @@ typedef std::vector<Instruction *> InstructionList;
 typedef InstructionList::iterator InstructionListIter;
 typedef InstructionList::const_iterator InstructionListConstIter;
 
+#define UNSAFE_BRANCH_OPERAND 0xDEADBABE
+
 class Instruction
 {
 public:
@@ -15,13 +17,13 @@ public:
     ~Instruction(void);
 
 public:
-    unsigned int m_offset;
+    long m_offset;
     CanonicalName m_operation;
-    __int64 m_operand;
+    ULONGLONG m_operand;
     bool m_isBranch;
 
 public:
-    std::vector<short> m_branchOffsets;
+    std::vector<long> m_branchOffsets;
     InstructionList m_branches;
 };
 

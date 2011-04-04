@@ -37,6 +37,14 @@ enum OperandParam {
     InlineVar
 };
 
+enum OpcodeKind {
+    IPrimitive,
+    IMacro,
+    IObjModel,
+    IInternal,
+    IPrefix
+};
+
 enum OperandSize {
     Null  = 0,
     Byte  = 1,
@@ -54,6 +62,7 @@ struct OperationDetails
     BYTE length;
     BYTE op1;
     BYTE op2;
+    OpcodeKind opcodeKind;
     TCHAR *stringName;
 };
 

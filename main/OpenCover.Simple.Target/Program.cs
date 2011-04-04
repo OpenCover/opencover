@@ -34,6 +34,123 @@ namespace OpenCover.Simple.Target
 
                 }
             }
+
+            ThrowException();
+            ThrowException2();
+        }
+
+        static void ThrowException()
+        {
+            try
+            {
+                Console.WriteLine("X0");
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("X1");
+                //throw;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("X2");
+                throw;
+            }
+        }
+
+        static void ThrowException2()
+        {
+            try
+            {
+                Console.WriteLine("Y0");
+            }
+            finally 
+            {
+                Console.WriteLine("Y1");
+            }
+
+            try
+            {
+                Console.WriteLine("Y00");
+            }
+            catch (InvalidOperationException)
+            {
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                Console.WriteLine("Y10");
+                throw;
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Y12");
+                throw;
+            }
+
+            try
+            {
+                Console.WriteLine("Y20");
+                try
+                {
+                    Console.WriteLine("Y011");
+                }
+                finally
+                {
+                    Console.WriteLine("Y010");
+                }
+            }
+            finally
+            {
+                Console.WriteLine("Y21");
+            }
         }
     }
 

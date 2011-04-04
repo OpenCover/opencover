@@ -53,6 +53,7 @@ namespace OpenCover.Framework.Persistance
             if (module == null) return false;
             foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
             {
+                Debug.WriteLine(method.Name);
                 sequencePoints = method.SequencePoints;
                 return true;
             }

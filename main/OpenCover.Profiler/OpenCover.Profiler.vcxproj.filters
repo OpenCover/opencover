@@ -55,6 +55,9 @@
     <ClCompile Include="Operations.cpp">
       <Filter>Instrumentation</Filter>
     </ClCompile>
+    <ClCompile Include="ExceptionHandler.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -91,6 +94,9 @@
       <Filter>Instrumentation</Filter>
     </ClInclude>
     <ClInclude Include="Operations.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionHandler.h">
       <Filter>Instrumentation</Filter>
     </ClInclude>
   </ItemGroup>

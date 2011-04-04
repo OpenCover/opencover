@@ -28,7 +28,7 @@ Operations::Operations()
 {
 #define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) \
     { \
-    OperationDetails operation = {name, args, n##args, flow, stdlen, stdop1, stdop2, _T(str)}; \
+    OperationDetails operation = {name, args, n##args, flow, stdlen, stdop1, stdop2, optp, _T(str)}; \
     m_mapNameOperationDetails[name] = operation;  \
     m_mapOpsOperationDetails[MAKEWORD(stdop1,stdop2)] = operation;  \
     }
