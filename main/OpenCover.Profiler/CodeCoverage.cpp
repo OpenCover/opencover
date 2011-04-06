@@ -190,6 +190,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             Method x;
             x.ReadMethod(pMethod);
             ATLTRACE(_T("XXXXXX -> %d %d"), iMethodSize, x.GetMethodSize());
+            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(x.GetMethodSize());
+
+            x.WriteMethod(pNewMethod);
+
+            m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
+
         }
     }
     

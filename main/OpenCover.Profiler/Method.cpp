@@ -98,8 +98,28 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
     if (m_exceptions.size() > 0)
     {
         Align<DWORD>();
-        // write out FAT sections
-        _ASSERTE(0);
+        IMAGE_COR_ILMETHOD_SECT_FAT section;
+        section.Kind = CorILMethod_Sect_FatFormat;
+        section.DataSize = m_exceptions.size();
+        Write<IMAGE_COR_ILMETHOD_SECT_FAT>(section);
+        for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+        {
+            Write<ULONG>((*it)->m_handlerType);
+            Write<long>((*it)->m_tryStart->m_offset);
+            Write<long>((*it)->m_tryEnd->m_offset - (*it)->m_tryStart->m_offset);
+            Write<long>((*it)->m_handlerStart->m_offset);
+            Write<long>((*it)->m_handlerEnd->m_offset - (*it)->m_handlerEnd->m_offset);
+
+            switch ((*it)->m_handlerType)
+            {
+            case CLAUSE_FILTER:
+                Write<long>((*it)->m_filterStart->m_offset);
+                break;
+            default:
+                Write<ULONG>((*it)->m_token);
+                break;
+            }
+        }
     }
 
 }
@@ -200,7 +220,8 @@ void Method::ReadSections()
         {
             Advance(-1);
             int count = ((Read<ULONG>() >> 8) / 24);
-            ATLTRACE(_T("fat sect: + 4 + (%d * 24)"), count);
+            //IMAGE_COR_ILMETHOD_SECT_FAT section = Read<IMAGE_COR_ILMETHOD_SECT_FAT>();
+            ATLTRACE(_T("fat sect: (+?) + 4 + (%d * 24)"), count);
             for (int i = 0; i < count; i++)
             {
                 ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
@@ -236,7 +257,8 @@ void Method::ReadSections()
         else
         {
             int count = (int)(Read<BYTE>() / 12);
-            ATLTRACE(_T("tiny sect: (+%d) + 4 + (%d * 12)"), count);
+            //IMAGE_COR_ILMETHOD_SECT_SMALL section = Read<IMAGE_COR_ILMETHOD_SECT_SMALL>();
+            ATLTRACE(_T("tiny sect: (+?) + 4 + (%d * 12)"), count);
             Advance(2);
             for (int i = 0; i < count; i++)
             {
