@@ -21,6 +21,12 @@ protected:
         return value;
     }
 
+    template<typename value_type> void Write(value_type value) {
+        _ASSERTE(m_bufferCurrent != NULL);
+        *(value_type*)(m_bufferCurrent) = value;
+        Advance(sizeof(value_type));
+    }
+
     template<typename value_type> void Align() {
         _ASSERTE(m_bufferCurrent != NULL);
         long i = sizeof(value_type) - 1;
@@ -47,6 +53,8 @@ public:
     ~Method();
 
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
+    long GetMethodSize();
+    void WriteMethod(IMAGE_COR_ILMETHOD* pMethod);
 
 private:
     void ReadBody();
@@ -55,11 +63,11 @@ private:
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
     void ReadSections();
+    void RecalculateOffsets();
 
 private:
     // all instrumented methods will be FAT (with FAT SECTIONS if exist) regardless
     IMAGE_COR_ILMETHOD_FAT m_header;
-    long m_codeSize;
 
     ExceptionHandlerList m_exceptions;
     InstructionList m_instructions;

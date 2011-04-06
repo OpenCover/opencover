@@ -20,10 +20,10 @@ Method::~Method()
 void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
-    m_codeSize = 0;
     COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
     if(!fatImage->IsFat())
     {
+        ATLTRACE(_T("TINY"));
         COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
         memset(&m_header, 0, 3 * sizeof(DWORD));
         m_header.Size = 3;
@@ -31,25 +31,86 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
         m_header.CodeSize = tinyImage->GetCodeSize();
         m_header.MaxStack = 8;
         pCode = tinyImage->GetCode();
-        m_codeSize = tinyImage->GetCodeSize();
+        ATLTRACE(_T("TINY(%X) => (%d + 1)"), m_header.CodeSize, m_header.CodeSize);
     }
     else
     {
         memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
         pCode = fatImage->GetCode();
-        m_codeSize = fatImage->GetCodeSize();
+        ATLTRACE(_T("FAT(%X) => (%d + 12)"), m_header.CodeSize, m_header.CodeSize);
     }
     SetBuffer(pCode);
     ReadBody();
 }
 
+void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
+{
+    BYTE* pCode;
+    COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
+    memcpy(fatImage, &m_header, sizeof(IMAGE_COR_ILMETHOD_FAT));
+
+    pCode = fatImage->GetCode();
+
+    SetBuffer(pCode);
+
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        if (details.op1 == REFPRE)
+        {
+            Write<BYTE>(details.op2);
+        }
+        else
+        {
+            Write<BYTE>(details.op1);
+            Write<BYTE>(details.op2);
+        }
+
+        switch(details.operandSize)
+        {
+        case Null:
+            break;
+        case Byte:
+            Write<BYTE>((*it)->m_operand);
+            break;
+        case Word:
+            Write<USHORT>((*it)->m_operand);
+            break;
+        case Dword:
+            Write<ULONG>((*it)->m_operand);
+            break;
+        case Qword:
+            Write<ULONGLONG>((*it)->m_operand);
+            break;
+        default:
+            break;
+        }
+
+        if ((*it)->m_operation == CEE_SWITCH)
+        {
+            for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+            {
+                Write<long>(*offsetIter);
+            }
+        }
+    }
+
+    if (m_exceptions.size() > 0)
+    {
+        Align<DWORD>();
+        // write out FAT sections
+        _ASSERTE(0);
+    }
+
+}
+
 // build the instruction list
 void Method::ReadBody()
 {
-    _ASSERTE(m_codeSize != 0);
+    _ASSERTE(m_header.CodeSize != 0);
     _ASSERTE(GetPosition() == 0);
 
-    while (GetPosition() < m_codeSize)
+    while (GetPosition() < m_header.CodeSize)
     {
         Instruction* pInstruction = new Instruction();
         pInstruction->m_offset = GetPosition();
@@ -115,13 +176,17 @@ void Method::ReadBody()
         ReadSections();
     }
 
-    SetBuffer(NULL); // we have read all we can 
+    SetBuffer(NULL); 
 
     DumpIL();
 
     ResolveBranches();
     
     ConvertShortBranches();
+
+    RecalculateOffsets();
+
+    DumpIL();
 }
 
 void Method::ReadSections()
@@ -135,6 +200,7 @@ void Method::ReadSections()
         {
             Advance(-1);
             int count = ((Read<ULONG>() >> 8) / 24);
+            ATLTRACE(_T("fat sect: + 4 + (%d * 24)"), count);
             for (int i = 0; i < count; i++)
             {
                 ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
@@ -170,6 +236,7 @@ void Method::ReadSections()
         else
         {
             int count = (int)(Read<BYTE>() / 12);
+            ATLTRACE(_T("tiny sect: (+%d) + 4 + (%d * 12)"), count);
             Advance(2);
             for (int i = 0; i < count; i++)
             {
@@ -227,7 +294,7 @@ void Method::ResolveBranches()
         long baseOffset = (*it)->m_offset + details.length + details.operandSize;
         if ((*it)->m_operation == CEE_SWITCH)
         {
-            baseOffset += (4 * (long)(*it)->m_operand);
+            baseOffset += (4*(long)(*it)->m_operand);
         }
         
         for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
@@ -245,6 +312,7 @@ void Method::ResolveBranches()
 
 void Method::DumpIL()
 {
+#ifdef DEBUG
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -268,7 +336,7 @@ void Method::DumpIL()
         {
             if ((*it)->m_operation == CEE_SWITCH)
             {
-                long offset = (*it)->m_offset + (4 * (long)(*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+                long offset = (*it)->m_offset + (4*(long)(*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
                 ATLTRACE(_T("    IL_%04X"), offset);
             }
         }
@@ -285,7 +353,8 @@ void Method::DumpIL()
             (*it)->m_handlerEnd != NULL ? (*it)->m_handlerEnd->m_offset : 0, 
             (*it)->m_filterStart != NULL ? (*it)->m_filterStart->m_offset : 0, 
             (*it)->m_token);
-    }            
+    } 
+#endif
 }
 
 void Method::ConvertShortBranches()
@@ -351,5 +420,60 @@ void Method::ConvertShortBranches()
     }
 }
 
+void Method::RecalculateOffsets()
+{
+    int position = 0;
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        (*it)->m_offset = position;
+        position += details.length;
+        position += details.operandSize;
+        if((*it)->m_operation == CEE_SWITCH)
+        {
+            position += 4*(long)(*it)->m_operand;
+        }
+    }
 
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        if ((*it)->m_isBranch)
+        {
+            (*it)->m_branchOffsets.clear();
+            if((*it)->m_operation == CEE_SWITCH)
+            {
+                long offset = ((*it)->m_offset + details.length + details.operandSize + (4*(long)(*it)->m_operand));                    
+                for (InstructionListIter bit = (*it)->m_branches.begin(); bit != (*it)->m_branches.end(); ++bit)
+                {
+                    (*it)->m_branchOffsets.push_back((*bit)->m_offset - offset);
+                }
+            }
+            else
+            {
+                (*it)->m_operand = (*it)->m_branches[0]->m_offset - ((*it)->m_offset + details.length + details.operandSize);
+                (*it)->m_branchOffsets.push_back((long)(*it)->m_operand);
+            }
+        }
+    }
+}
+
+long Method::GetMethodSize()
+{
+    Instruction * lastInstruction = m_instructions.back();
+    OperationDetails &details = Operations::m_mapNameOperationDetails[lastInstruction->m_operation];
+    
+    m_header.CodeSize = lastInstruction->m_offset + details.length + details.operandSize;
+    long size = sizeof(IMAGE_COR_ILMETHOD_FAT) + m_header.CodeSize;
+    ATLTRACE(_T("FAT(%X)"), m_header.CodeSize);
+
+    if (m_exceptions.size() > 0)
+    {
+        long align = sizeof(DWORD) - 1;
+        size = ((size + align) & ~align);
+        size += ((m_exceptions.size() * 6) + 1) * sizeof(long);
+    }
+
+    return size;
+}
 

@@ -189,6 +189,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
             Method x;
             x.ReadMethod(pMethod);
+            ATLTRACE(_T("XXXXXX -> %d %d"), iMethodSize, x.GetMethodSize());
         }
     }
     
