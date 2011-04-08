@@ -17,6 +17,7 @@ enum ExceptionHandlerType {
     CLAUSE_DUPLICATED = 8
 };
 
+/// <summary>A representation of a try/catch section handler</summary>
 class ExceptionHandler
 {
 public:

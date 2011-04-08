@@ -19,6 +19,7 @@ using namespace ATL;
 
 // CCodeCoverage
 
+/// <summary>The main profiler COM object</summary>
 class ATL_NO_VTABLE CCodeCoverage :
     public CComObjectRootEx<CComMultiThreadModel>,
     public CComCoClass<CCodeCoverage, &CLSID_CodeCoverage>,

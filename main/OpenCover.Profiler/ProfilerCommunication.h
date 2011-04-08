@@ -1,6 +1,8 @@
 #include "..\schema\opencover.profiler.xsd.h"
 #pragma once
 
+/// <summary>Handles communication back to the profiler host</summary>
+/// <remarks>Currently this is handled by using the WebServices API</remarks>
 class ProfilerCommunication
 {
 private:

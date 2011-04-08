@@ -1,11 +1,17 @@
 #pragma once
 
+/// <summary>A list of opcodes</summary>
+/// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
+/// when pulling in "opcode.def"</remarks>
 enum CanonicalName {
         #define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) name,
         #include "opcode.def"
         #undef OPDEF
     };
 
+/// <summary>A list of control flow types</summary>
+/// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
+/// when pulling in "opcode.def"</remarks>
 enum ControlFlow {
         NEXT,
         BREAK,
@@ -17,6 +23,9 @@ enum ControlFlow {
         META
     };
 
+/// <summary>A list of operand types/usage </summary>
+/// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
+/// when pulling in "opcode.def"</remarks>
 enum OperandParam {
     InlineNone,
     ShortInlineVar,
@@ -37,6 +46,9 @@ enum OperandParam {
     InlineVar
 };
 
+/// <summary>A list of opcode types</summary>
+/// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
+/// when pulling in "opcode.def"</remarks>
 enum OpcodeKind {
     IPrimitive,
     IMacro,
@@ -45,6 +57,9 @@ enum OpcodeKind {
     IPrefix
 };
 
+/// <summary>A list of operand sizes</summary>
+/// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
+/// when pulling in "opcode.def"</remarks>
 enum OperandSize {
     Null  = 0,
     Byte  = 1,
@@ -53,6 +68,7 @@ enum OperandSize {
     Qword = 8
 };
 
+/// <summary>An operation structure see "opcode.def"</summary>
 struct OperationDetails
 {
     CanonicalName canonicalName;
@@ -69,12 +85,15 @@ struct OperationDetails
 typedef std::hash_map<CanonicalName, OperationDetails> MapCanonicalNameOperationDetails;
 typedef std::hash_map<DWORD, OperationDetails> MapOpsOperationDetails;
 
+/// <summary>The container of the static lists used for the <c>OperationDetails</c> lookups</summary>
+/// <remarks>The lists are built when we instantiate our static instance m_operations</remarks>
 class Operations
 {
 public:
-    Operations();
     static MapCanonicalNameOperationDetails m_mapNameOperationDetails;
     static MapOpsOperationDetails m_mapOpsOperationDetails;
+protected:
+    Operations();
 private:
     static Operations m_operations;
 

@@ -3,6 +3,7 @@
 
 #pragma once
 
+/// <summary>The <c>MethodBuffer</c> encapsulates all the buffer handling</summary>
 class MethodBuffer
 {
 protected:
@@ -46,6 +47,7 @@ private:
     long m_position;
 };
 
+/// <summary>The <c>Method</c> entity builds a 'model' of the IL that can then be modified</summary>
 class Method : MethodBuffer
 {
 public:

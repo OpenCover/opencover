@@ -11,6 +11,7 @@ typedef InstructionList::const_iterator InstructionListConstIter;
 
 #define UNSAFE_BRANCH_OPERAND 0xDEADBABE
 
+/// <summary>A representation of an IL instruction.</summary>
 class Instruction
 {
 public:

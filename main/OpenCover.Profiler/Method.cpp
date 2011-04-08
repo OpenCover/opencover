@@ -1,9 +1,18 @@
 #include "stdafx.h"
 #include "Method.h"
 
+#ifdef DEBUG
 #define DUMP_IL 1
+#endif
 
-Method::Method() {}
+Method::Method() 
+{
+    memset(&m_header, 0, 3 * sizeof(DWORD));
+    m_header.Size = 3;
+    m_header.Flags = CorILMethod_FatFormat;
+    m_header.MaxStack = 8;        
+}
+
 Method::~Method()
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
@@ -17,6 +26,7 @@ Method::~Method()
     }
 }
 
+/// <summary>Read the full method from the supplied buffer.</summary>
 void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
@@ -25,11 +35,7 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
     {
         ATLTRACE(_T("TINY"));
         COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
-        memset(&m_header, 0, 3 * sizeof(DWORD));
-        m_header.Size = 3;
-        m_header.Flags = CorILMethod_FatFormat;
         m_header.CodeSize = tinyImage->GetCodeSize();
-        m_header.MaxStack = 8;
         pCode = tinyImage->GetCode();
         ATLTRACE(_T("TINY(%X) => (%d + 1)"), m_header.CodeSize, m_header.CodeSize);
     }
@@ -43,6 +49,10 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
     ReadBody();
 }
 
+/// <summary>Write the method to a supplied buffer</summary>
+/// <remarks><para>The buffer must be of the size supplied by <c>GetMethodSize</c>.</para>
+/// <para>Currently only write methods with 'Fat' headers and 'Fat' Sections - simpler.</para>
+/// <para>The buffer will normally be allocated by a call to <c>IMethodMalloc::Alloc</c></para></remarks>
 void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
@@ -124,7 +134,8 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 
 }
 
-// build the instruction list
+/// <summary>Read in a method body and any section handlers.</summary>
+/// <remarks>Also converts all short branches to long branches and calls <c>RecalculateOffsets</c></remarks>
 void Method::ReadBody()
 {
     _ASSERTE(m_header.CodeSize != 0);
@@ -191,10 +202,7 @@ void Method::ReadBody()
         m_instructions.push_back(pInstruction);
     }
 
-    if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
-    {
-        ReadSections();
-    }
+    ReadSections();
 
     SetBuffer(NULL); 
 
@@ -209,92 +217,102 @@ void Method::ReadBody()
     DumpIL();
 }
 
+/// <summary>Read the section handler section.</summary>
+/// <remarks>All 'Small' sections are to be converted to 'Fat' sections.</remarks>
 void Method::ReadSections()
 {
-    BYTE flags = 0;
-    do
+    if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
     {
-        Align<DWORD>(); // must be DWORD aligned
-        flags = Read<BYTE>();
-        if ((flags & CorILMethod_Sect_FatFormat) == CorILMethod_Sect_FatFormat)
+        BYTE flags = 0;
+        do
         {
-            Advance(-1);
-            int count = ((Read<ULONG>() >> 8) / 24);
-            //IMAGE_COR_ILMETHOD_SECT_FAT section = Read<IMAGE_COR_ILMETHOD_SECT_FAT>();
-            ATLTRACE(_T("fat sect: (+?) + 4 + (%d * 24)"), count);
-            for (int i = 0; i < count; i++)
+            Align<DWORD>(); // must be DWORD aligned
+            flags = Read<BYTE>();
+            if ((flags & CorILMethod_Sect_FatFormat) == CorILMethod_Sect_FatFormat)
             {
-                ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
-                long tryStart = Read<long>();
-                long tryEnd = Read<long>();
-                long handlerStart = Read<long>();
-                long handlerEnd = Read<long>();
-                long filterStart = 0;
-                ULONG token = 0;
-                switch (type)
+                Advance(-1);
+                int count = ((Read<ULONG>() >> 8) / 24);
+                //IMAGE_COR_ILMETHOD_SECT_FAT section = Read<IMAGE_COR_ILMETHOD_SECT_FAT>();
+                ATLTRACE(_T("fat sect: (+?) + 4 + (%d * 24)"), count);
+                for (int i = 0; i < count; i++)
                 {
-                case CLAUSE_FILTER:
-                    filterStart = Read<long>();
-                    break;
-                default:
-                    token = Read<ULONG>();
-                    break;
+                    ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
+                    long tryStart = Read<long>();
+                    long tryEnd = Read<long>();
+                    long handlerStart = Read<long>();
+                    long handlerEnd = Read<long>();
+                    long filterStart = 0;
+                    ULONG token = 0;
+                    switch (type)
+                    {
+                    case CLAUSE_FILTER:
+                        filterStart = Read<long>();
+                        break;
+                    default:
+                        token = Read<ULONG>();
+                        break;
+                    }
+                    ExceptionHandler * pSection = new ExceptionHandler();
+                    pSection->m_handlerType = type;
+                    pSection->m_tryStart = GetInstructionAtOffset(tryStart);
+                    pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
+                    pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
+                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                    if (filterStart!=0)
+                    {
+                        pSection->m_filterStart = GetInstructionAtOffset(filterStart);
+                    }
+                    pSection->m_token = token;
+                    m_exceptions.push_back(pSection);
                 }
-                ExceptionHandler * pSection = new ExceptionHandler();
-                pSection->m_handlerType = type;
-                pSection->m_tryStart = GetInstructionAtOffset(tryStart);
-                pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
-                pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
-                if (filterStart!=0)
-                {
-                    pSection->m_filterStart = GetInstructionAtOffset(filterStart);
-                }
-                pSection->m_token = token;
-                m_exceptions.push_back(pSection);
             }
-        }
-        else
-        {
-            int count = (int)(Read<BYTE>() / 12);
-            //IMAGE_COR_ILMETHOD_SECT_SMALL section = Read<IMAGE_COR_ILMETHOD_SECT_SMALL>();
-            ATLTRACE(_T("tiny sect: (+?) + 4 + (%d * 12)"), count);
-            Advance(2);
-            for (int i = 0; i < count; i++)
+            else
             {
-                ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>();
-                long tryStart = Read<short>();
-                long tryEnd = Read<char>();
-                long handlerStart = Read<short>();
-                long handlerEnd = Read<char>();
-                long filterStart = 0;
-                ULONG token = 0;
-                switch (type)
+                int count = (int)(Read<BYTE>() / 12);
+                //IMAGE_COR_ILMETHOD_SECT_SMALL section = Read<IMAGE_COR_ILMETHOD_SECT_SMALL>();
+                ATLTRACE(_T("tiny sect: (+?) + 4 + (%d * 12)"), count);
+                Advance(2);
+                for (int i = 0; i < count; i++)
                 {
-                case CLAUSE_FILTER:
-                    filterStart = Read<long>();
-                    break;
-                default:
-                    token = Read<ULONG>();
-                    break;
+                    ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>();
+                    long tryStart = Read<short>();
+                    long tryEnd = Read<char>();
+                    long handlerStart = Read<short>();
+                    long handlerEnd = Read<char>();
+                    long filterStart = 0;
+                    ULONG token = 0;
+                    switch (type)
+                    {
+                    case CLAUSE_FILTER:
+                        filterStart = Read<long>();
+                        break;
+                    default:
+                        token = Read<ULONG>();
+                        break;
+                    }
+                    ExceptionHandler * pSection = new ExceptionHandler();
+                    pSection->m_handlerType = type;
+                    pSection->m_tryStart = GetInstructionAtOffset(tryStart);
+                    pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
+                    pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
+                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                    if (filterStart!=0)
+                    {
+                        pSection->m_filterStart = GetInstructionAtOffset(filterStart);
+                    }
+                    pSection->m_token = token;
+                    m_exceptions.push_back(pSection);
                 }
-                ExceptionHandler * pSection = new ExceptionHandler();
-                pSection->m_handlerType = type;
-                pSection->m_tryStart = GetInstructionAtOffset(tryStart);
-                pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
-                pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
-                if (filterStart!=0)
-                {
-                    pSection->m_filterStart = GetInstructionAtOffset(filterStart);
-                }
-                pSection->m_token = token;
-                m_exceptions.push_back(pSection);
             }
-        }
-    } while((flags & CorILMethod_Sect_MoreSects) == CorILMethod_Sect_MoreSects);
+        } while((flags & CorILMethod_Sect_MoreSects) == CorILMethod_Sect_MoreSects);
+    }
 }
 
+/// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
+/// <param name="offset">The offset to look for.</param>
+/// <returns>An <c>Instruction</c> that exists at that location.</returns>
+/// <remarks>Ensure that the offsets are current by executing <c>RecalculateOffsets</c>
+/// beforehand</remarks>
 Instruction * Method::GetInstructionAtOffset(long offset)
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
@@ -308,10 +326,16 @@ Instruction * Method::GetInstructionAtOffset(long offset)
     return NULL;
 }
 
+/// <summary>Uses the current offsets and locates the instructions that reside that offset to 
+/// build a new list</summary>
+/// <remarks>This allows us to insert (or modify) instructions without losing the intended 'goto' 
+/// point. <c>RecalculateOffsets</c> is used to rebuild the new required operand(s) based on the
+/// offsets of the instructions being referenced</remarks>
 void Method::ResolveBranches()
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
+        (*it)->m_branches.clear();
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         long baseOffset = (*it)->m_offset + details.length + details.operandSize;
         if ((*it)->m_operation == CEE_SWITCH)
@@ -332,9 +356,12 @@ void Method::ResolveBranches()
     }
 }
 
+/// <summary>Pretty print the IL</summary>
+/// <remarks>Only works for Debug builds.</remarks>
 void Method::DumpIL()
 {
-#ifdef DEBUG
+#ifdef DUMP_IL
+    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -376,9 +403,15 @@ void Method::DumpIL()
             (*it)->m_filterStart != NULL ? (*it)->m_filterStart->m_offset : 0, 
             (*it)->m_token);
     } 
+    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
 #endif
 }
 
+/// <summary>Converts all short branches to long branches.</summary>
+/// <remarks><para>After instrumentation most short branches will not have the capacity for
+/// the new required offset. Save time/effort and make all branches long ones.</para> 
+/// <para>Could add the capability to optimise long to short at a later date but consider 
+/// the benefits dubious after all the new instrumentation has been added.</para></remarks>
 void Method::ConvertShortBranches()
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -442,6 +475,8 @@ void Method::ConvertShortBranches()
     }
 }
 
+/// <summary>Recalculate the offsets of each instruction taking into account the instruction
+/// size, the operand size and any extra datablocks CEE_SWITCH</summary>
 void Method::RecalculateOffsets()
 {
     int position = 0;
@@ -480,6 +515,12 @@ void Method::RecalculateOffsets()
     }
 }
 
+/// <summary>Calculates the size of the method which include the header size, 
+/// the code size and the (aligned) creitical sections if they exist. Use this
+/// to get the size required for allocating memory.</summary>
+/// <returns>The size of the method.</returns>
+/// <remarks>It is recomended that <c>RecalculateOffsets</c> should be called 
+/// beforehand if any instrumentation has been done</remarks>
 long Method::GetMethodSize()
 {
     Instruction * lastInstruction = m_instructions.back();
@@ -487,7 +528,6 @@ long Method::GetMethodSize()
     
     m_header.CodeSize = lastInstruction->m_offset + details.length + details.operandSize;
     long size = sizeof(IMAGE_COR_ILMETHOD_FAT) + m_header.CodeSize;
-    ATLTRACE(_T("FAT(%X)"), m_header.CodeSize);
 
     if (m_exceptions.size() > 0)
     {

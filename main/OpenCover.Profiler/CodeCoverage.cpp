@@ -8,6 +8,8 @@
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
 
+/// <summary>Handle <c>ICorProfilerCallback::Initialize</c></summary>
+/// <remarks>Initialize the profiling environment and establish connection to the host</remarks>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
     /* [in] */ IUnknown *pICorProfilerInfoUnk) 
 {
@@ -44,6 +46,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     return S_OK; 
 }
 
+/// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
@@ -52,6 +55,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
     return S_OK; 
 }
 
+/// <summary>Handle <c>ICorProfilerCallback::ModuleAttachedToAssembly</c></summary>
+/// <remarks>Inform the host that we have a new module attached and that it may be 
+/// of interest</remarks>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly( 
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
@@ -72,6 +78,8 @@ static void __fastcall UnmanagedCall(void)
     ATLTRACE(_T("Hello From Unmanaged Call"));
 }
 
+/// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
+/// <remarks>The 'workhorse' </remarks>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock)

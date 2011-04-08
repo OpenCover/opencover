@@ -5,7 +5,7 @@
 
 
 /// <summary>
-/// Gets the module name from a moduleId
+/// Gets the module name from a ModuleID
 /// </summary>
 std::wstring CCodeCoverage::GetModuleName(ModuleID moduleId)
 {
@@ -15,6 +15,9 @@ std::wstring CCodeCoverage::GetModuleName(ModuleID moduleId)
     return std::wstring(szModuleName);
 }
 
+/// <summary>
+/// Get the assembly name from an AssemblyID
+/// </summary>
 std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
 {
     ULONG dwNameSize = 512; 
@@ -23,6 +26,9 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
     return std::wstring(szAssemblyName);
 }
 
+/// <summary>
+/// Get the function token, module ID and module name for a supplied FunctionID
+/// </summary>
 BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName)
 {
     COM_FAIL_RETURN(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
