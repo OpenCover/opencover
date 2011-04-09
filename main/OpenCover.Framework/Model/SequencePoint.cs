@@ -21,6 +21,6 @@ namespace OpenCover.Framework.Model
         public int EndColumn { get; set; }
         public int VisitCount { get; set; }
 
-        public long UniqueSequencePoint { get; set; }
+        public long UniqueSequencePoint { get; private set; }
     }
 }

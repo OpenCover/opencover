@@ -68,7 +68,10 @@ public:
     std::wstring GetAssemblyName(AssemblyID assemblyId);
     BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName);
 
+private:
     ProfilerCommunication * m_host;
+    mdSignature GetUnmanagedMethodSignatureToken_I8(ModuleID moduleID); 
+    mdSignature GetUnmanagedMethodSignatureToken_(ModuleID moduleID); 
 
 public:
     static CCodeCoverage* g_pProfiler;

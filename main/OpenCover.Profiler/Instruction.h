@@ -15,8 +15,11 @@ typedef InstructionList::const_iterator InstructionListConstIter;
 class Instruction
 {
 public:
-    Instruction(void);
+    Instruction(CanonicalName operation, ULONGLONG operand);
     ~Instruction(void);
+
+protected:
+    Instruction(void);
 
 private:
     long m_offset;
@@ -26,6 +29,8 @@ private:
 
     std::vector<long> m_branchOffsets;
     InstructionList m_branches;
+
+    long m_origOffset;
 
 public:
 

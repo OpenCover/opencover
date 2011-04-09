@@ -36,3 +36,42 @@ BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken,
     return TRUE;
 }
 
+/// <summary>Get the token for an unmamaged method having a single I8 parameter</summary>
+mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I8(ModuleID moduleID)
+{
+    static COR_SIGNATURE unmanagedCallSignature[] = 
+    {
+        IMAGE_CEE_CS_CALLCONV_DEFAULT,          // Default CallKind!
+        0x01,                                   // Parameter count
+        ELEMENT_TYPE_VOID,                      // Return type
+        ELEMENT_TYPE_I8                         // Parameter type (I8)
+    };
+
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURN(m_profilerInfo2->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit), 0);
+
+    mdSignature pmsig ;
+    COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
+    return pmsig;
+}
+
+/// <summary>Get the token for an unmamaged method having no parameters</summary>
+mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_(ModuleID moduleID)
+{
+    static COR_SIGNATURE unmanagedCallSignature[] = 
+    {
+        IMAGE_CEE_CS_CALLCONV_DEFAULT,          // Default CallKind!
+        0x00,                                   // Parameter count
+        ELEMENT_TYPE_VOID,                      // Return type
+        ELEMENT_TYPE_VOID                       // Parameter type (void)
+    };
+
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURN(m_profilerInfo2->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit), 0);
+
+    mdSignature pmsig ;
+    COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
+    return pmsig;
+}
+
+

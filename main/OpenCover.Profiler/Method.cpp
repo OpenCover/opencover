@@ -10,7 +10,7 @@ Method::Method()
     memset(&m_header, 0, 3 * sizeof(DWORD));
     m_header.Size = 3;
     m_header.Flags = CorILMethod_FatFormat;
-    m_header.MaxStack = 8;        
+    m_header.MaxStack = 8;  
 }
 
 Method::~Method()
@@ -37,13 +37,13 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
         COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
         m_header.CodeSize = tinyImage->GetCodeSize();
         pCode = tinyImage->GetCode();
-        ATLTRACE(_T("TINY(%X) => (%d + 1)"), m_header.CodeSize, m_header.CodeSize);
+        ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
     }
     else
     {
         memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
         pCode = fatImage->GetCode();
-        ATLTRACE(_T("FAT(%X) => (%d + 12)"), m_header.CodeSize, m_header.CodeSize);
+        ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
     }
     SetBuffer(pCode);
     ReadBody();
@@ -144,7 +144,7 @@ void Method::ReadBody()
     while (GetPosition() < m_header.CodeSize)
     {
         Instruction* pInstruction = new Instruction();
-        pInstruction->m_offset = GetPosition();
+        pInstruction->m_origOffset = pInstruction->m_offset = GetPosition();
         BYTE op1 = REFPRE;
         BYTE op2 = Read<BYTE>();
         switch (op2)
@@ -539,3 +539,28 @@ long Method::GetMethodSize()
     return size;
 }
 
+void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructions)
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_offset == offset)
+        {
+            m_instructions.insert(it, instructions.begin(), instructions.end());
+            RecalculateOffsets();
+            return;
+        }
+    } 
+}
+
+void Method::InsertInstructionsAtOriginalOffset(long offset, InstructionList &instructions)
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_origOffset == offset)
+        {
+            m_instructions.insert(it, instructions.begin(), instructions.end());
+            RecalculateOffsets();
+            return;
+        }
+    } 
+}

@@ -73,6 +73,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     return S_OK; 
 }
 
+static void __fastcall UnmanagedCall_I8(ULONGLONG seq)
+{
+    ATLTRACE(_T("Hello From Unmanaged Call (%ld)"), seq);
+}
+
 static void __fastcall UnmanagedCall(void)
 {
     ATLTRACE(_T("Hello From Unmanaged Call"));
@@ -96,110 +101,38 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         
         if (m_host->GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
         {
-            ATLTRACE(_T("    points %d"), points);
-            for (unsigned int i=0; i < points; i++)
-            {
-                ATLTRACE(_T("    %d %X"), ppPoints[i]->Ordinal, ppPoints[i]->Offset);
-            }
-
-            CComPtr<IMetaDataEmit> metaDataEmit;
-            m_profilerInfo2->GetModuleMetaData(moduleId, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit);
-
-            static COR_SIGNATURE unmanagedCallSignature[] = 
-            {
-                IMAGE_CEE_CS_CALLCONV_DEFAULT,          // Default CallKind!
-                0x00,                                   // Parameter count
-                ELEMENT_TYPE_VOID,                      // Return type
-                ELEMENT_TYPE_VOID                       // Parameter type (void )
-            };
-
-            void (__fastcall *pt)(void) = &UnmanagedCall ;
-
-            mdSignature pmsig ;
-            COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), S_OK);
-
-            ATLTRACE(_T("%d %d"), pmsig, sizeof(pt));
-
-            BYTE ilCode[10];
-            ilCode[0] = 0x20 ;                                      // ldc.i4
-            memcpy(ilCode + 1, (void*)&pt, sizeof(pt));             // ftn pointer                                     
-            ilCode[5]= 0x29;                                        // calli
-            memcpy(ilCode + 6, (void*)&pmsig, sizeof(pmsig));       // call site descr
-
             LPCBYTE pMethodHeader = NULL;
-	        ULONG iMethodSize = 0;
+            ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
- 	        COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
-
-            CComPtr<IMethodMalloc> methodMalloc;
-            m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc);
-
-            BYTE * pBody = NULL;
-            ULONG bodyLength = 0;
-/*
- 	        if(!fatImage->IsFat())
-            {
-                COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
-                ATLTRACE(_T("IsTiny(%d, %d, %d)"), sizeof(IMAGE_COR_ILMETHOD), iMethodSize, tinyImage->GetCodeSize());
-                IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(sizeof(COR_ILMETHOD_FAT) + tinyImage->GetCodeSize() + 10);
-                COR_ILMETHOD_FAT* fatNewImage = (COR_ILMETHOD_FAT*)&pNewMethod->Fat;
-
-                fatNewImage->SetSize(3);
-                fatNewImage->SetFlags(CorILMethod_FatFormat);
-                fatNewImage->MaxStack = 2;
-
-                // ############
-                memcpy(pNewMethod, pMethod, fatImage->Size * sizeof(DWORD));
-
-                memcpy(fatNewImage->GetCode(), ilCode, 10);
-
-                memcpy(fatNewImage->GetCode() + 10, tinyImage->GetCode(), tinyImage->GetCodeSize());
-
-                fatNewImage->SetCodeSize(tinyImage->GetCodeSize()+10);
-
-                m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
-            }
-            else
-            {
-                ATLTRACE(_T("IsFat (%d, %d, %d)"), sizeof(IMAGE_COR_ILMETHOD), iMethodSize, fatImage->GetCodeSize());
-                IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(iMethodSize + 10);
-                COR_ILMETHOD_FAT* fatNewImage = (COR_ILMETHOD_FAT*)&pNewMethod->Fat;
-
-                // ############
-                memcpy(pNewMethod, pMethod, fatImage->Size * sizeof(DWORD));
-
-                memcpy(fatNewImage->GetCode(), ilCode, 10);
-
-                memcpy(fatNewImage->GetCode() + 10, fatImage->GetCode(), fatImage->GetCodeSize());
-
-                fatNewImage->SetCodeSize(fatImage->GetCodeSize()+10);
-
-                m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
-            }
-*/
-            /*if(!fatImage->IsFat())
-            {
-                COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
-                for (int i = 0 ; i < tinyImage->GetCodeSize(); i++)
-                {
-                    ATLTRACE(_T("0x%2X"), tinyImage->GetCode()[i]);
-                }
-            }
-            else
-            {
-                for (int i = 0 ; i < fatImage->GetCodeSize(); i++)
-                {
-                    ATLTRACE(_T("0x%2X"), fatImage->GetCode()[i]);
-                }
-            }*/
+            COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
+            
+            void (__fastcall *pt)(ULONGLONG) = &UnmanagedCall_I8 ;
+            mdSignature pmsig = GetUnmanagedMethodSignatureToken_I8(moduleId);
+            ATLTRACE(_T("Signature %X %d"), pmsig, sizeof(pt));
 
             Method x;
             x.ReadMethod(pMethod);
-            ATLTRACE(_T("XXXXXX -> %d %d"), iMethodSize, x.GetMethodSize());
-            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(x.GetMethodSize());
+            x.SetMinimumStackSize(2);
+            
+            for (unsigned int i=0; i < points; i++)
+            {
+                ATLTRACE(_T("    %d %X %ld"), ppPoints[i]->Ordinal, ppPoints[i]->Offset, ppPoints[i]->UniqueId);
+                InstructionList instructions;
+                instructions.push_back(new Instruction(CEE_LDC_I8, ppPoints[i]->UniqueId));
+                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONGLONG)pt));
+                instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
+                x.InsertInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
+            }
+          
+            x.DumpIL();
+
+            ATLTRACE(_T("Write Method => old size: %d -> new size: %d"), iMethodSize, x.GetMethodSize());
+            CComPtr<IMethodMalloc> methodMalloc;
+            m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc);
+            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(x.GetMethodSize());
             x.WriteMethod(pNewMethod);
 
             m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);

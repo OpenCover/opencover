@@ -57,11 +57,20 @@ public:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
     long GetMethodSize();
     void WriteMethod(IMAGE_COR_ILMETHOD* pMethod);
+    void InsertInstructionsAtOffset(long offset, InstructionList &instructions);
+    void InsertInstructionsAtOriginalOffset(long offset, InstructionList &instructions);
+    void DumpIL();
+    void SetMinimumStackSize(unsigned int minimumStackSize)
+    {
+        if (m_header.MaxStack < minimumStackSize)
+        {
+            m_header.MaxStack = minimumStackSize;
+        }
+    }
 
 private:
     void ReadBody();
     void ConvertShortBranches();
-    void DumpIL();
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
     void ReadSections();
