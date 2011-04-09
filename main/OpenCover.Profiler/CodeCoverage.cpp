@@ -121,10 +121,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                 ATLTRACE(_T("    %d %X %ld"), ppPoints[i]->Ordinal, ppPoints[i]->Offset, ppPoints[i]->UniqueId);
                 InstructionList instructions;
                 instructions.push_back(new Instruction(CEE_LDC_I8, ppPoints[i]->UniqueId));
-                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONGLONG)pt));
+                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
                 instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
-                x.InsertInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
+                x.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
             }
           
             x.DumpIL();

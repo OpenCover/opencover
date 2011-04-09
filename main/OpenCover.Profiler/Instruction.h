@@ -20,6 +20,7 @@ public:
 
 protected:
     Instruction(void);
+    Instruction& operator = (const Instruction& b);
 
 private:
     long m_offset;

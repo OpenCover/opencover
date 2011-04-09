@@ -552,15 +552,36 @@ void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructio
     } 
 }
 
-void Method::InsertInstructionsAtOriginalOffset(long offset, InstructionList &instructions)
+/// <summary>Insert a sequence of instructions at a sequence point</summary>
+/// <remarks>Original pointer references are maintianed by inserting the sequence of instructions 
+/// after the intended target and then using a copy operator on the <c>Instruction</c> objects to 
+/// copy the data between them</remarks>
+void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, InstructionList &instructions)
 {
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == offset)
         {
-            m_instructions.insert(it, instructions.begin(), instructions.end());
-            RecalculateOffsets();
-            return;
+            m_instructions.insert(++it, instructions.begin(), instructions.end());
+            break;
         }
     } 
+    
+    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_origOffset == offset)
+        {
+            Instruction orig = *(*it);
+            for (int i=0;i<instructions.size();i++)
+            {
+                InstructionListIter temp = it++;
+                *(*temp) = *(*it);
+            }
+            *(*it) = orig;
+            break;
+        }
+    }
+
+    RecalculateOffsets();
+    return;
 }

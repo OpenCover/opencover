@@ -13,30 +13,10 @@ namespace OpenCover.Simple.Target
     {
         static void Main(string[] args)
         {
-            for (var i=0;i<22;i++)
+            for (var i=0;i<5;i++)
             {
-                if (i == 10) continue;
                 Console.WriteLine("{0}",i);
-                if (i == 15) break;
-                switch (i)
-                {
-                    case 0:
-                    case 3:
-                    case 7:
-                    case 8:
-                        Console.WriteLine("0000");
-                        break;
-                    case 5:
-                        Console.WriteLine("5555");
-                        break;
-                    default:
-                        break;
-
-                }
             }
-
-            ThrowException();
-            ThrowException2();
         }
 
         static void ThrowException()
