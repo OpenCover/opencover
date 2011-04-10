@@ -163,7 +163,7 @@ namespace OpenCover.Framework.Symbols
                 method.GetSequencePoints(offsets, docs, sls, scs, els, ecs);
 
                 var list = new List<SequencePoint>();
-                for (var i = 0; i < count; i++)
+                for (UInt32 i = 0; i < count; i++)
                 {
                     list.Add(new SequencePoint()
                     {

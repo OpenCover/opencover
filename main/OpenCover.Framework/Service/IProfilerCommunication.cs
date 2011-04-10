@@ -1,4 +1,5 @@
-﻿using System.Net.Security;
+﻿using System;
+using System.Net.Security;
 using System.Runtime.Serialization;
 using System.ServiceModel;
 
@@ -8,9 +9,9 @@ namespace OpenCover.Framework.Service
     public class InstrumentPoint
     {
         [DataMember]
-        public int Ordinal { get; set; }
+        public UInt32 Ordinal { get; set; }
         [DataMember]
-        public long UniqueId { get; set; }
+        public UInt32 UniqueId { get; set; }
         [DataMember]
         public int Offset { get; set; }
     }

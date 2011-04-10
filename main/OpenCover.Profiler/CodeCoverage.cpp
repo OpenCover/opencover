@@ -73,14 +73,14 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     return S_OK; 
 }
 
-static void __fastcall UnmanagedCall_I8(ULONGLONG seq)
+/// <summary>An unmanaged callback that can be called from .NET that has a single I4 parameter</summary>
+/// <remarks>
+/// void (__fastcall *pt)(long) = &SequencePointVisit ;
+/// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
+/// </remarks>
+static void __fastcall SequencePointVisit(ULONG seq)
 {
-    ATLTRACE(_T("Hello From Unmanaged Call (%ld)"), seq);
-}
-
-static void __fastcall UnmanagedCall(void)
-{
-    ATLTRACE(_T("Hello From Unmanaged Call"));
+    ATLTRACE(_T("Hello From Unmanaged Call I4 (%d)"), seq);
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -108,35 +108,30 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
             COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
             
-            void (__fastcall *pt)(ULONGLONG) = &UnmanagedCall_I8 ;
-            mdSignature pmsig = GetUnmanagedMethodSignatureToken_I8(moduleId);
-            ATLTRACE(_T("Signature %X %d"), pmsig, sizeof(pt));
+            void (__fastcall *pt)(ULONG) = &SequencePointVisit ;
+            mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 
-            Method x;
-            x.ReadMethod(pMethod);
-            x.SetMinimumStackSize(2);
+            Method instumentedMethod(pMethod);
+            instumentedMethod.SetMinimumStackSize(2);
             
             for (unsigned int i=0; i < points; i++)
             {
-                ATLTRACE(_T("    %d %X %ld"), ppPoints[i]->Ordinal, ppPoints[i]->Offset, ppPoints[i]->UniqueId);
                 InstructionList instructions;
-                instructions.push_back(new Instruction(CEE_LDC_I8, ppPoints[i]->UniqueId));
+                instructions.push_back(new Instruction(CEE_LDC_I4, ppPoints[i]->UniqueId));
                 instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
                 instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
-                x.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
+                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
             }
           
-            x.DumpIL();
+            instumentedMethod.DumpIL();
 
-            ATLTRACE(_T("Write Method => old size: %d -> new size: %d"), iMethodSize, x.GetMethodSize());
             CComPtr<IMethodMalloc> methodMalloc;
             m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc);
-            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(x.GetMethodSize());
-            x.WriteMethod(pNewMethod);
+            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
+            instumentedMethod.WriteMethod(pNewMethod);
 
             m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
-
         }
     }
     

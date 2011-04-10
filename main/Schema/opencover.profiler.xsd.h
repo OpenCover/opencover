@@ -73,8 +73,8 @@ typedef struct ArrayOfInstrumentPoint
 typedef struct InstrumentPoint 
 {
     int Offset;
-    int Ordinal;
-    __int64 UniqueId;
+    unsigned int Ordinal;
+    unsigned int UniqueId;
 } InstrumentPoint;
 
 typedef struct _Started _Started;

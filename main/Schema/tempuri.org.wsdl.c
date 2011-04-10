@@ -279,8 +279,8 @@ const static _tempuri_org_wsdlLocalDefinitions tempuri_org_wsdlLocalDefinitions 
         },  // end of xmlStrings
         
         {   // tempuri_org_wsdldictionary
-        // b3f6c710-96eb-4283-be75-c44ec722e6bf 
-        { 0xb3f6c710, 0x96eb, 0x4283, { 0xbe, 0x75, 0xc4,0x4e, 0xc7, 0x22, 0xe6, 0xbf } },
+        // ee76c1c3-1695-4565-bb1b-690761dfd82b 
+        { 0xee76c1c3, 0x1695, 0x4565, { 0xbb, 0x1b, 0x69,0x07, 0x61, 0xdf, 0xd8, 0x2b } },
         (WS_XML_STRING*)&tempuri_org_wsdlLocalDefinitions.dictionary.xmlStrings,
         1,
         TRUE,

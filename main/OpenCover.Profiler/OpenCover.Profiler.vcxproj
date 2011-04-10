@@ -292,7 +292,9 @@
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="Method.h" />
+    <ClInclude Include="MethodBuffer.h" />
     <ClInclude Include="OpenCoverProfiler_i.h" />
+    <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ProfilerCommunication.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -309,7 +311,6 @@
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />
-    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl" />

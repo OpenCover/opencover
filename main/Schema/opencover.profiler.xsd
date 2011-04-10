@@ -60,8 +60,8 @@
   <xs:complexType name="InstrumentPoint">
     <xs:sequence>
       <xs:element minOccurs="0" name="Offset" type="xs:int" />
-      <xs:element minOccurs="0" name="Ordinal" type="xs:int" />
-      <xs:element minOccurs="0" name="UniqueId" type="xs:long" />
+      <xs:element minOccurs="0" name="Ordinal" type="xs:unsignedInt" />
+      <xs:element minOccurs="0" name="UniqueId" type="xs:unsignedInt" />
     </xs:sequence>
   </xs:complexType>
   <xs:element name="InstrumentPoint" nillable="true" type="tns:InstrumentPoint" />

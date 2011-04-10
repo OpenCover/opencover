@@ -5,12 +5,14 @@
 #define DUMP_IL 1
 #endif
 
-Method::Method() 
+Method::Method(IMAGE_COR_ILMETHOD* pMethod) 
 {
     memset(&m_header, 0, 3 * sizeof(DWORD));
     m_header.Size = 3;
     m_header.Flags = CorILMethod_FatFormat;
-    m_header.MaxStack = 8;  
+    m_header.MaxStack = 8; 
+
+    ReadMethod(pMethod);
 }
 
 Method::~Method()
@@ -81,13 +83,13 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
         case Null:
             break;
         case Byte:
-            Write<BYTE>((*it)->m_operand);
+            Write<BYTE>((BYTE)(*it)->m_operand);
             break;
         case Word:
-            Write<USHORT>((*it)->m_operand);
+            Write<USHORT>((USHORT)(*it)->m_operand);
             break;
         case Dword:
-            Write<ULONG>((*it)->m_operand);
+            Write<ULONG>((ULONG)(*it)->m_operand);
             break;
         case Qword:
             Write<ULONGLONG>((*it)->m_operand);
@@ -195,7 +197,7 @@ void Method::ReadBody()
 
         if (pInstruction->m_operation == CEE_SWITCH)
         {
-            __int64 numbranches = pInstruction->m_operand;
+            DWORD numbranches = (DWORD)pInstruction->m_operand;
             while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>());
         }
 
@@ -539,19 +541,6 @@ long Method::GetMethodSize()
     return size;
 }
 
-void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructions)
-{
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
-    {
-        if ((*it)->m_offset == offset)
-        {
-            m_instructions.insert(it, instructions.begin(), instructions.end());
-            RecalculateOffsets();
-            return;
-        }
-    } 
-}
-
 /// <summary>Insert a sequence of instructions at a sequence point</summary>
 /// <remarks>Original pointer references are maintianed by inserting the sequence of instructions 
 /// after the intended target and then using a copy operator on the <c>Instruction</c> objects to 
@@ -572,7 +561,7 @@ void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, Instruction
         if ((*it)->m_origOffset == offset)
         {
             Instruction orig = *(*it);
-            for (int i=0;i<instructions.size();i++)
+            for (unsigned int i=0;i<instructions.size();i++)
             {
                 InstructionListIter temp = it++;
                 *(*temp) = *(*it);

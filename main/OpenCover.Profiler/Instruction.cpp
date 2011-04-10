@@ -3,6 +3,8 @@
 
 Instruction::Instruction(void)
 {
+    m_operation = CEE_NOP;
+    m_operand = 0;
     m_offset = -1;
     m_isBranch = false;
     m_origOffset = -1;

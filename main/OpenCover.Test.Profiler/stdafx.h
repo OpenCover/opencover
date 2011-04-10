@@ -28,3 +28,7 @@
 #include <corhlpr.h>
 
 #pragma pack(pop)
+
+#include <string>
+#include <vector>
+#include <hash_map>

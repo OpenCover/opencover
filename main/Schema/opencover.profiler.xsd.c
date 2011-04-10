@@ -98,7 +98,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
                 WS_ELEMENT_FIELD_MAPPING,
                 (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointOrdinalLocalName, // Ordinal
                 (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
-                WS_INT32_TYPE,
+                WS_UINT32_TYPE,
                 0,
                 WsOffsetOf(InstrumentPoint, Ordinal),
                  WS_FIELD_OPTIONAL,
@@ -109,7 +109,7 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
                 WS_ELEMENT_FIELD_MAPPING,
                 (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.InstrumentPointUniqueIdLocalName, // UniqueId
                 (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings.ArrayOfInstrumentPointTypeNamespace, // urn:opencover.profiler
-                WS_INT64_TYPE,
+                WS_UINT32_TYPE,
                 0,
                 WsOffsetOf(InstrumentPoint, UniqueId),
                  WS_FIELD_OPTIONAL,
@@ -272,8 +272,8 @@ const static _opencover_profiler_xsdLocalDefinitions opencover_profiler_xsdLocal
         },  // end of xmlStrings
         
         {   // opencover_profiler_xsddictionary
-        // a0ef4a3e-2264-4bd9-9b12-954b9aab96b7 
-        { 0xa0ef4a3e, 0x2264, 0x4bd9, { 0x9b, 0x12, 0x95,0x4b, 0x9a, 0xab, 0x96, 0xb7 } },
+        // ace3d4b5-a61d-47aa-b56b-745c70a369a6 
+        { 0xace3d4b5, 0xa61d, 0x47aa, { 0xb5, 0x6b, 0x74,0x5c, 0x70, 0xa3, 0x69, 0xa6 } },
         (WS_XML_STRING*)&opencover_profiler_xsdLocalDefinitions.dictionary.xmlStrings,
         20,
         TRUE,

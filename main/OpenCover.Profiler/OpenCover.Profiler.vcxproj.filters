@@ -99,6 +99,12 @@
     <ClInclude Include="ExceptionHandler.h">
       <Filter>Instrumentation</Filter>
     </ClInclude>
+    <ClInclude Include="MethodBuffer.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenCover.Profiler.rc">
@@ -106,7 +112,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
     <None Include="OpenCover.Profiler.rgs">
       <Filter>Resource Files</Filter>
     </None>

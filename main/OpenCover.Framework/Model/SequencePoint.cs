@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace OpenCover.Framework.Model
 {
@@ -7,13 +8,13 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public class SequencePoint
     {
-        private static long _sequencePoint;
+        private static int _sequencePoint;
         public SequencePoint()
         {
-            UniqueSequencePoint = Interlocked.Increment(ref _sequencePoint);
+            UniqueSequencePoint = (UInt32)Interlocked.Increment(ref _sequencePoint);
         }
-       
-        public int Ordinal { get; set; }
+
+        public UInt32 Ordinal { get; set; }
         public int Offset { get; set; }
         public int StartLine { get; set; }
         public int StartColumn { get; set; }
@@ -21,6 +22,6 @@ namespace OpenCover.Framework.Model
         public int EndColumn { get; set; }
         public int VisitCount { get; set; }
 
-        public long UniqueSequencePoint { get; private set; }
+        public UInt32 UniqueSequencePoint { get; set; }
     }
 }

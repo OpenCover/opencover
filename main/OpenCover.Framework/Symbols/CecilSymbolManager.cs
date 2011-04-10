@@ -151,7 +151,7 @@ namespace OpenCover.Framework.Symbols
                     {
                         if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
                         {
-                            var ordinal = 0;
+                            UInt32 ordinal = 0;
                             foreach (var instruction in methodDefinition.Body.Instructions)
                             {
                                 if (instruction.SequencePoint != null)
