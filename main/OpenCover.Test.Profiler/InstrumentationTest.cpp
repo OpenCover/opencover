@@ -135,3 +135,93 @@ TEST_F(InstrumentationTest, HandlesSwitchBranches)
     ASSERT_EQ(instrument.m_instructions[1]->m_operation, 
         instrument.m_instructions[0]->m_branches[1]->m_operation);
 }
+
+TEST_F(InstrumentationTest, CanReadShortExceptions)
+{
+    BYTE data[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        CEE_NOP,  
+        CEE_NOP, //<--
+        CEE_NOP, 
+        CEE_LEAVE_S, 0X0A,
+        CEE_POP, 
+        CEE_NOP, 
+        CEE_NOP,
+        CEE_LEAVE_S, 0X05,
+        CEE_POP, 
+        CEE_NOP, 
+        CEE_NOP,
+        CEE_LEAVE_S, 0X00,
+        CEE_NOP, 
+        CEE_LEAVE_S, 0X03,
+        CEE_NOP, 
+        CEE_NOP, 
+        CEE_ENDFINALLY,
+        CEE_NOP, 
+        CEE_RET,
+        0x00, // align
+        0x00, 0x24, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x04, 0x05, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00,  
+        0x00, 0x00, 0x01, 0x00, 0x04, 0x0a, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00,  
+        0x02, 0x00, 0x01, 0x00, 0x11, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,  
+        
+    };
+
+    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+
+    pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
+    pHeader->CodeSize = 23;
+    pHeader->Size = 3;
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    ASSERT_EQ(19, instrument.m_instructions.size());
+    ASSERT_EQ(3, instrument.m_exceptions.size());
+}
+
+TEST_F(InstrumentationTest, CanReadFatExceptions)
+{
+    BYTE data[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        CEE_NOP,  
+        CEE_NOP, //<--
+        CEE_NOP, 
+        CEE_LEAVE_S, 0X0A,
+        CEE_POP, 
+        CEE_NOP, 
+        CEE_NOP,
+        CEE_LEAVE_S, 0X05,
+        CEE_POP, 
+        CEE_NOP, 
+        CEE_NOP,
+        CEE_LEAVE_S, 0X00,
+        CEE_NOP, 
+        CEE_LEAVE_S, 0X03,
+        CEE_NOP, 
+        CEE_NOP, 
+        CEE_ENDFINALLY,
+        CEE_NOP, 
+        CEE_RET,
+        0x00, // align
+        0x40, 0x48, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,  0x04, 0x00, 0x00, 0x00,  0x05, 0x00, 0x00, 0x00,  0x05, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,  
+        0x00, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,  0x04, 0x00, 0x00, 0x00,  0x0a, 0x00, 0x00, 0x00,  0x05, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,  
+        0x02, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,  0x11, 0x00, 0x00, 0x00,  0x12, 0x00, 0x00, 0x00,  0x03, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,  
+        
+    };
+
+    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+
+    pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
+    pHeader->CodeSize = 23;
+    pHeader->Size = 3;
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    ASSERT_EQ(19, instrument.m_instructions.size());
+    ASSERT_EQ(3, instrument.m_exceptions.size());
+}

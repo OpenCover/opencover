@@ -19,22 +19,22 @@ namespace OpenCover.Simple.Target
             }
         }
 
-        static void ThrowException()
+
+        static int ThrowException()
         {
             try
             {
-                Console.WriteLine("X0");
             }
             catch (InvalidOperationException)
             {
-                Console.WriteLine("X1");
-                //throw;
             }
             catch (Exception)
             {
-                Console.WriteLine("X2");
-                throw;
             }
+            finally
+            {
+            }
+            return 0;
         }
 
         static void ThrowException2()
