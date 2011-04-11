@@ -8,7 +8,6 @@ import "oaidl.idl";
 import "ocidl.idl";
 import "corprof.idl";
 
-
 [
 	uuid(437C5B7B-DA44-4DE8-8629-CC994EA549EC),
 	version(1.0),
@@ -17,14 +16,6 @@ library OpenCoverProfilerLib
 {
 	importlib("stdole2.tlb");
 	[
-		uuid(5BC0E58A-DFAB-4746-B318-BDF8BE5F452F)		
-	]
-	dispinterface _ICodeCoverageEvents
-	{
-		properties:
-		methods:
-	};
-	[
 		uuid(1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8)
 	]
 	coclass CodeCoverage
@@ -32,7 +23,5 @@ library OpenCoverProfilerLib
 		[default] interface ICorProfilerCallback;
 		interface ICorProfilerCallback2;
 		interface ICorProfilerCallback3;
-		[default, source] dispinterface _ICodeCoverageEvents;
 	};
 };
-

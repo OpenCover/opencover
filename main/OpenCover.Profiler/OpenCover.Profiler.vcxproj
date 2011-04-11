@@ -302,7 +302,6 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="xdlldata.h" />
     <ClInclude Include="Operations.h" />
-    <ClInclude Include="_ICodeCoverageEvents_CP.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenCover.Profiler.rc" />

@@ -78,9 +78,6 @@
     <ClInclude Include="OpenCoverProfiler_i.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="_ICodeCoverageEvents_CP.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CodeCoverage.h">
       <Filter>Header Files</Filter>
     </ClInclude>

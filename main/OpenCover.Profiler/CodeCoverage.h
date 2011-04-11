@@ -3,10 +3,7 @@
 #pragma once
 #include "resource.h"       // main symbols
 
-
-
 #include "OpenCoverProfiler_i.h"
-#include "_ICodeCoverageEvents_CP.h"
 
 #include "ProfilerCommunication.h"
 #include "ProfileBase.h"
@@ -16,15 +13,12 @@ using namespace ATL;
 #define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
 
-
 // CCodeCoverage
 
 /// <summary>The main profiler COM object</summary>
 class ATL_NO_VTABLE CCodeCoverage :
     public CComObjectRootEx<CComMultiThreadModel>,
     public CComCoClass<CCodeCoverage, &CLSID_CodeCoverage>,
-    public IConnectionPointContainerImpl<CCodeCoverage>,
-    public CProxy_ICodeCoverageEvents<CCodeCoverage>,
     public CProfilerBase
 {
 public:
@@ -38,12 +32,7 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback)
     COM_INTERFACE_ENTRY(ICorProfilerCallback2)
     COM_INTERFACE_ENTRY(ICorProfilerCallback3)
-    COM_INTERFACE_ENTRY(IConnectionPointContainer)
 END_COM_MAP()
-
-BEGIN_CONNECTION_POINT_MAP(CCodeCoverage)
-    CONNECTION_POINT_ENTRY(__uuidof(_ICodeCoverageEvents))
-END_CONNECTION_POINT_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
 
