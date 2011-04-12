@@ -11,142 +11,26 @@ namespace OpenCover.Simple.Target
     /// </summary>
     class Program
     {
+        delegate T SelfApplicable<T>(SelfApplicable<T> self);
+
         static void Main(string[] args)
         {
-            for (var i=0;i<5;i++)
-            {
-                Console.WriteLine("{0}",i);
-            }
-        }
+            // The Y combinator
+            SelfApplicable<Func<Func<Func<int, int>, Func<int, int>>, Func<int, int>>> Y = y => f => x => f(y(y)(f))(x);
 
+            // The fixed point generator
+            var Fix = Y(Y);
 
-        static int ThrowException()
-        {
-            try
-            {
-            }
-            catch (InvalidOperationException)
-            {
-            }
-            catch (Exception)
-            {
-            }
-            finally
-            {
-            }
-            return 0;
-        }
+            // The higher order function describing factorial
+            Func<Func<int, int>, Func<int, int>> F = fac => x => x == 0 ? 1 : x * fac(x - 1);
 
-        static void ThrowException2()
-        {
-            try
-            {
-                Console.WriteLine("Y0");
-            }
-            finally 
-            {
-                Console.WriteLine("Y1");
-            }
+            // The factorial function itself
+            var factorial = Fix(F);
 
-            try
+            for (var i = 0; i < 12; i++)
             {
-                Console.WriteLine("Y00");
+                Console.WriteLine(factorial(i));
             }
-            catch (InvalidOperationException)
-            {
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                Console.WriteLine("Y10");
-                throw;
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Y12");
-                throw;
-            }
-
-            try
-            {
-                Console.WriteLine("Y20");
-                try
-                {
-                    Console.WriteLine("Y011");
-                }
-                finally
-                {
-                    Console.WriteLine("Y010");
-                }
-            }
-            finally
-            {
-                Console.WriteLine("Y21");
-            }
-        }
-    }
-
-    public class Class
-    {
-        public Class()
-        {
-        }
-    }
-
-    public class GenericClass<T>
-    {
-        private int i;
-        public GenericClass()
-        {
-            i = 0;
         }
     }
 }

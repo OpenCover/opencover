@@ -118,9 +118,15 @@
     <None Include="CodeCoverage.rgs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="CodeCoverage64.rgs">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
+    <Midl Include="OpenCoverProfiler64.idl">
       <Filter>Source Files</Filter>
     </Midl>
   </ItemGroup>

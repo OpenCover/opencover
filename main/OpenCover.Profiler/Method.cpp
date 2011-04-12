@@ -535,7 +535,7 @@ long Method::GetMethodSize()
     {
         long align = sizeof(DWORD) - 1;
         size = ((size + align) & ~align);
-        size += ((m_exceptions.size() * 6) + 1) * sizeof(long);
+        size += (((long)m_exceptions.size() * 6) + 1) * sizeof(long);
     }
 
     return size;

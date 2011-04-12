@@ -118,7 +118,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             {
                 InstructionList instructions;
                 instructions.push_back(new Instruction(CEE_LDC_I4, ppPoints[i]->UniqueId));
+#if _WIN64
+                instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
+#else
                 instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
+#endif
                 instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
                 instumentedMethod.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);

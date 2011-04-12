@@ -71,7 +71,11 @@ namespace OpenCover.Console
                 if (Directory.Exists(parser.TargetDir)) Environment.CurrentDirectory = parser.TargetDir;
 
                 var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+#if _WIN64
+                startInfo.EnvironmentVariables.Add("Cor_Profiler", "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}");
+#else
                 startInfo.EnvironmentVariables.Add("Cor_Profiler", "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
+#endif
                 startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
                 startInfo.EnvironmentVariables.Add("OpenCover_Port", parser.PortNumber.ToString());
                 startInfo.Arguments = parser.TargetArgs;
