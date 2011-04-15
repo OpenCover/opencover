@@ -165,7 +165,6 @@ namespace OpenCover.Framework.Symbols
                                                         Ordinal = ordinal++,
                                                         StartColumn = sp.StartColumn,
                                                         StartLine = sp.StartLine,
-                                                        VisitCount = 0
                                                     };
                                     list.Add(point);
                                 }

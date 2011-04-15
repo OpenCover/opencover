@@ -4,6 +4,7 @@
     <xsd:schema targetNamespace="urn:opencover.profiler/Imports">
       <xsd:import namespace="urn:opencover.profiler" />
       <xsd:import namespace="http://schemas.microsoft.com/2003/10/Serialization/" />
+      <xsd:import namespace="http://schemas.datacontract.org/2004/07/OpenCover.Framework.Common" />
     </xsd:schema>
   </wsdl:types>
   <wsdl:message name="IProfilerCommunication_Started_InputMessage">
@@ -30,6 +31,12 @@
   <wsdl:message name="IProfilerCommunication_GetSequencePoints_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetSequencePointsResponse" />
   </wsdl:message>
+  <wsdl:message name="IProfilerCommunication_Visited_InputMessage">
+    <wsdl:part name="parameters" element="tns:Visited" />
+  </wsdl:message>
+  <wsdl:message name="IProfilerCommunication_Visited_OutputMessage">
+    <wsdl:part name="parameters" element="tns:VisitedResponse" />
+  </wsdl:message>
   <wsdl:portType name="IProfilerCommunication">
     <wsdl:operation name="Started">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Started" message="tns:IProfilerCommunication_Started_InputMessage" />
@@ -46,6 +53,10 @@
     <wsdl:operation name="GetSequencePoints">
       <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/GetSequencePoints" message="tns:IProfilerCommunication_GetSequencePoints_InputMessage" />
       <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse" message="tns:IProfilerCommunication_GetSequencePoints_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="Visited">
+      <wsdl:input wsaw:Action="urn:opencover.profiler/IProfilerCommunication/Visited" message="tns:IProfilerCommunication_Visited_InputMessage" />
+      <wsdl:output wsaw:Action="urn:opencover.profiler/IProfilerCommunication/VisitedResponse" message="tns:IProfilerCommunication_Visited_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
 </wsdl:definitions>

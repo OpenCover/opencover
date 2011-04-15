@@ -2,11 +2,22 @@
 using System.Net.Security;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using OpenCover.Framework.Common;
 
 namespace OpenCover.Framework.Service
 {
+
     [DataContract(Namespace = "urn:opencover.profiler")]
-    public class InstrumentPoint
+    public class VisitPoint
+    {
+        [DataMember]
+        public VisitType VisitType { get; set; }
+        [DataMember]
+        public UInt32 UniqueId { get; set; }  
+    }
+
+    [DataContract(Namespace = "urn:opencover.profiler")]
+    public class SequencePoint
     {
         [DataMember]
         public UInt32 Ordinal { get; set; }
@@ -29,7 +40,9 @@ namespace OpenCover.Framework.Service
         bool TrackAssembly(string moduleName, string assemblyName);
 
         [OperationContract]
-        bool GetSequencePoints(string moduleName, int functionToken, out InstrumentPoint[] sequencePoints);
+        bool GetSequencePoints(string moduleName, int functionToken, out SequencePoint[] sequencePoints);
 
+        [OperationContract]
+        void Visited(VisitPoint[] visitPoints);
     }
 }

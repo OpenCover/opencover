@@ -1,4 +1,6 @@
 #include "..\schema\opencover.profiler.xsd.h"
+#include "..\schema\OpenCover.Framework.Common.xsd.h"
+
 #pragma once
 
 /// <summary>Handles communication back to the profiler host</summary>
@@ -24,6 +26,8 @@ public:
     void Start();
     void Stop();
     BOOL TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName);
-    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, InstrumentPoint*** pppInstrumentPoints);
+    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, SequencePoint*** pppInstrumentPoints);
+    void SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints);
+
 };
 

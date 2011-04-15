@@ -13,6 +13,8 @@ using namespace ATL;
 #define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
 
+#define SEQ_BUFFER_SIZE 8000
+
 // CCodeCoverage
 
 /// <summary>The main profiler COM object</summary>
@@ -24,6 +26,8 @@ class ATL_NO_VTABLE CCodeCoverage :
 public:
     CCodeCoverage()
     {
+        m_ppVisitPoints = NULL;
+        AllocateCommunicationBuffer();
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -43,9 +47,32 @@ END_COM_MAP()
 
     void FinalRelease()
     {
+        DeallocateCommunicationBuffer();
         if (m_profilerInfo!=NULL) m_profilerInfo.Release();
         if (m_profilerInfo2!=NULL) m_profilerInfo2.Release();
         if (m_profilerInfo3!=NULL) m_profilerInfo3.Release();
+    }
+private:
+    void AllocateCommunicationBuffer()
+    {
+        DeallocateCommunicationBuffer();
+        m_ppVisitPoints = new VisitPoint*[SEQ_BUFFER_SIZE];
+        for (int i=0;i<SEQ_BUFFER_SIZE;i++)
+        {
+            m_ppVisitPoints[i] = new VisitPoint;
+        }
+        m_VisitPointCount = 0;
+    }
+
+    void DeallocateCommunicationBuffer()
+    {
+        if (m_ppVisitPoints==NULL) return;
+        for (int i=0;i<SEQ_BUFFER_SIZE;i++)
+        {
+            delete m_ppVisitPoints[i];
+        }
+        delete [] m_ppVisitPoints;
+        m_ppVisitPoints = NULL;
     }
 
 public:
@@ -56,10 +83,16 @@ public:
     std::wstring GetModuleName(ModuleID moduleId);
     std::wstring GetAssemblyName(AssemblyID assemblyId);
     BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName);
+    void AddVisitPoint(VisitPoint &point);
 
 private:
     ProfilerCommunication * m_host;
+    VisitPoint **m_ppVisitPoints;
+    unsigned int m_VisitPointCount;
+
+private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 
+    void SendVisitPoints();
 
 public:
     static CCodeCoverage* g_pProfiler;

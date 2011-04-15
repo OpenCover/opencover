@@ -97,6 +97,7 @@ extern "C" {
 // The following header files must be included in this order before this one
 
 // #include <WebServices.h>
+// #include "OpenCover.Framework.Common.xsd.h"
 // #include "opencover.profiler.xsd.h"
 
 ////////////////////////////////////////////////
@@ -154,6 +155,18 @@ typedef struct _opencover_profiler_wsdl
         // action: "urn:opencover.profiler/IProfilerCommunication/GetSequencePointsResponse"
         // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_GetSequencePoints_OutputMessage
         WS_MESSAGE_DESCRIPTION IProfilerCommunication_GetSequencePoints_OutputMessage;
+        
+        // message: IProfilerCommunication_Visited_InputMessage
+        // c type: _Visited
+        // action: "urn:opencover.profiler/IProfilerCommunication/Visited"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Visited_InputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Visited_InputMessage;
+        
+        // message: IProfilerCommunication_Visited_OutputMessage
+        // c type: _VisitedResponse
+        // action: "urn:opencover.profiler/IProfilerCommunication/VisitedResponse"
+        // messageDescription: opencover_profiler_wsdl.messages.IProfilerCommunication_Visited_OutputMessage
+        WS_MESSAGE_DESCRIPTION IProfilerCommunication_Visited_OutputMessage;
         
     } messages;
 } _opencover_profiler_wsdl;

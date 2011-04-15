@@ -135,6 +135,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Schema\OpenCover.Framework.Common.xsd.c" />
     <ClCompile Include="..\Schema\opencover.profiler.wsdl.c" />
     <ClCompile Include="..\Schema\opencover.profiler.xsd.c" />
     <ClCompile Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.c" />

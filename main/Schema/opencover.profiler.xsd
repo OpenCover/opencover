@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema xmlns:tns="urn:opencover.profiler" elementFormDefault="qualified" targetNamespace="urn:opencover.profiler" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://schemas.datacontract.org/2004/07/OpenCover.Framework.Common" />
   <xs:element name="Started">
     <xs:complexType>
       <xs:sequence />
@@ -47,22 +48,47 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element minOccurs="0" name="GetSequencePointsResult" type="xs:boolean" />
-        <xs:element minOccurs="0" name="sequencePoints" nillable="true" type="tns:ArrayOfInstrumentPoint" />
+        <xs:element minOccurs="0" name="sequencePoints" nillable="true" type="tns:ArrayOfSequencePoint" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
-  <xs:complexType name="ArrayOfInstrumentPoint">
+  <xs:complexType name="ArrayOfSequencePoint">
     <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" name="InstrumentPoint" nillable="true" type="tns:InstrumentPoint" />
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="SequencePoint" nillable="true" type="tns:SequencePoint" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="ArrayOfInstrumentPoint" nillable="true" type="tns:ArrayOfInstrumentPoint" />
-  <xs:complexType name="InstrumentPoint">
+  <xs:element name="ArrayOfSequencePoint" nillable="true" type="tns:ArrayOfSequencePoint" />
+  <xs:complexType name="SequencePoint">
     <xs:sequence>
       <xs:element minOccurs="0" name="Offset" type="xs:int" />
       <xs:element minOccurs="0" name="Ordinal" type="xs:unsignedInt" />
       <xs:element minOccurs="0" name="UniqueId" type="xs:unsignedInt" />
     </xs:sequence>
   </xs:complexType>
-  <xs:element name="InstrumentPoint" nillable="true" type="tns:InstrumentPoint" />
+  <xs:element name="SequencePoint" nillable="true" type="tns:SequencePoint" />
+  <xs:element name="Visited">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="visitPoints" nillable="true" type="tns:ArrayOfVisitPoint" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="ArrayOfVisitPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" name="VisitPoint" nillable="true" type="tns:VisitPoint" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="ArrayOfVisitPoint" nillable="true" type="tns:ArrayOfVisitPoint" />
+  <xs:complexType name="VisitPoint">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="UniqueId" type="xs:unsignedInt" />
+      <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/OpenCover.Framework.Common" minOccurs="0" name="VisitType" type="q1:VisitType" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="VisitPoint" nillable="true" type="tns:VisitPoint" />
+  <xs:element name="VisitedResponse">
+    <xs:complexType>
+      <xs:sequence />
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

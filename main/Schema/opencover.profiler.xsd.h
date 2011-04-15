@@ -41,8 +41,10 @@ extern "C" {
 
 // The following types were generated:
 
-//     struct ArrayOfInstrumentPoint;
-//     struct InstrumentPoint;
+//     struct ArrayOfSequencePoint;
+//     struct SequencePoint;
+//     struct ArrayOfVisitPoint;
+//     struct VisitPoint;
 //     struct _Started;
 //     struct _StartedResponse;
 //     struct _Stopping;
@@ -51,31 +53,50 @@ extern "C" {
 //     struct _TrackAssemblyResponse;
 //     struct _GetSequencePoints;
 //     struct _GetSequencePointsResponse;
-//     struct ArrayOfInstrumentPoint;
-//     struct InstrumentPoint;
+//     struct ArrayOfSequencePoint;
+//     struct SequencePoint;
+//     struct _Visited;
+//     struct ArrayOfVisitPoint;
+//     struct VisitPoint;
+//     struct _VisitedResponse;
 
 // The following header files must be included in this order before this one
 
 // #include <WebServices.h>
+// #include "OpenCover.Framework.Common.xsd.h"
 
 ////////////////////////////////////////////////
 // C structure definitions for generated types
 ////////////////////////////////////////////////
 
-// typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfInstrumentPoint
-typedef struct ArrayOfInstrumentPoint 
+// typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfSequencePoint
+typedef struct ArrayOfSequencePoint 
 {
-    unsigned int InstrumentPointCount;
-    __field_ecount(InstrumentPointCount)struct InstrumentPoint** InstrumentPoint; // optional
-} ArrayOfInstrumentPoint;
+    unsigned int SequencePointCount;
+    __field_ecount(SequencePointCount)struct SequencePoint** SequencePoint; // optional
+} ArrayOfSequencePoint;
 
-// typeDescription: opencover_profiler_xsd.globalTypes.InstrumentPoint
-typedef struct InstrumentPoint 
+// typeDescription: opencover_profiler_xsd.globalTypes.SequencePoint
+typedef struct SequencePoint 
 {
     int Offset;
     unsigned int Ordinal;
     unsigned int UniqueId;
-} InstrumentPoint;
+} SequencePoint;
+
+// typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfVisitPoint
+typedef struct ArrayOfVisitPoint 
+{
+    unsigned int VisitPointCount;
+    __field_ecount(VisitPointCount)struct VisitPoint** VisitPoint; // optional
+} ArrayOfVisitPoint;
+
+// typeDescription: opencover_profiler_xsd.globalTypes.VisitPoint
+typedef struct VisitPoint 
+{
+    unsigned int UniqueId;
+    enum VisitType VisitType;
+} VisitPoint;
 
 typedef struct _Started _Started;
 
@@ -110,8 +131,17 @@ typedef struct _GetSequencePointsResponse
 {
     BOOL GetSequencePointsResult;
     unsigned int sequencePointsCount;
-    __field_ecount_opt(sequencePointsCount)struct InstrumentPoint** sequencePoints; // optional
+    __field_ecount_opt(sequencePointsCount)struct SequencePoint** sequencePoints; // optional
 } _GetSequencePointsResponse;
+
+// typeDescription: n/a
+typedef struct _Visited 
+{
+    unsigned int visitPointsCount;
+    __field_ecount_opt(visitPointsCount)struct VisitPoint** visitPoints; // optional
+} _Visited;
+
+typedef struct _VisitedResponse _VisitedResponse;
 
 ////////////////////////////////////////////////
 // Global web service descriptions.
@@ -121,17 +151,29 @@ typedef struct _opencover_profiler_xsd
 {
     struct // globalTypes
     {
-        // xml type: ArrayOfInstrumentPoint ("urn:opencover.profiler")
-        // c type: ArrayOfInstrumentPoint
+        // xml type: ArrayOfSequencePoint ("urn:opencover.profiler")
+        // c type: ArrayOfSequencePoint
         // WS_TYPE: WS_STRUCT_TYPE
-        // typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfInstrumentPoint
-        WS_STRUCT_DESCRIPTION ArrayOfInstrumentPoint;
+        // typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfSequencePoint
+        WS_STRUCT_DESCRIPTION ArrayOfSequencePoint;
         
-        // xml type: InstrumentPoint ("urn:opencover.profiler")
-        // c type: InstrumentPoint
+        // xml type: SequencePoint ("urn:opencover.profiler")
+        // c type: SequencePoint
         // WS_TYPE: WS_STRUCT_TYPE
-        // typeDescription: opencover_profiler_xsd.globalTypes.InstrumentPoint
-        WS_STRUCT_DESCRIPTION InstrumentPoint;
+        // typeDescription: opencover_profiler_xsd.globalTypes.SequencePoint
+        WS_STRUCT_DESCRIPTION SequencePoint;
+        
+        // xml type: ArrayOfVisitPoint ("urn:opencover.profiler")
+        // c type: ArrayOfVisitPoint
+        // WS_TYPE: WS_STRUCT_TYPE
+        // typeDescription: opencover_profiler_xsd.globalTypes.ArrayOfVisitPoint
+        WS_STRUCT_DESCRIPTION ArrayOfVisitPoint;
+        
+        // xml type: VisitPoint ("urn:opencover.profiler")
+        // c type: VisitPoint
+        // WS_TYPE: WS_STRUCT_TYPE
+        // typeDescription: opencover_profiler_xsd.globalTypes.VisitPoint
+        WS_STRUCT_DESCRIPTION VisitPoint;
         
     } globalTypes;
     struct // globalElements
@@ -176,15 +218,35 @@ typedef struct _opencover_profiler_xsd
         // elementDescription: opencover_profiler_xsd.globalElements.GetSequencePointsResponse
         WS_ELEMENT_DESCRIPTION GetSequencePointsResponse;
         
-        // xml element: ArrayOfInstrumentPoint ("urn:opencover.profiler")
-        // c type: ArrayOfInstrumentPoint
-        // elementDescription: opencover_profiler_xsd.globalElements.ArrayOfInstrumentPoint
-        WS_ELEMENT_DESCRIPTION ArrayOfInstrumentPoint;
+        // xml element: ArrayOfSequencePoint ("urn:opencover.profiler")
+        // c type: ArrayOfSequencePoint
+        // elementDescription: opencover_profiler_xsd.globalElements.ArrayOfSequencePoint
+        WS_ELEMENT_DESCRIPTION ArrayOfSequencePoint;
         
-        // xml element: InstrumentPoint ("urn:opencover.profiler")
-        // c type: InstrumentPoint
-        // elementDescription: opencover_profiler_xsd.globalElements.InstrumentPoint
-        WS_ELEMENT_DESCRIPTION InstrumentPoint;
+        // xml element: SequencePoint ("urn:opencover.profiler")
+        // c type: SequencePoint
+        // elementDescription: opencover_profiler_xsd.globalElements.SequencePoint
+        WS_ELEMENT_DESCRIPTION SequencePoint;
+        
+        // xml element: Visited ("urn:opencover.profiler")
+        // c type: _Visited
+        // elementDescription: opencover_profiler_xsd.globalElements.Visited
+        WS_ELEMENT_DESCRIPTION Visited;
+        
+        // xml element: ArrayOfVisitPoint ("urn:opencover.profiler")
+        // c type: ArrayOfVisitPoint
+        // elementDescription: opencover_profiler_xsd.globalElements.ArrayOfVisitPoint
+        WS_ELEMENT_DESCRIPTION ArrayOfVisitPoint;
+        
+        // xml element: VisitPoint ("urn:opencover.profiler")
+        // c type: VisitPoint
+        // elementDescription: opencover_profiler_xsd.globalElements.VisitPoint
+        WS_ELEMENT_DESCRIPTION VisitPoint;
+        
+        // xml element: VisitedResponse ("urn:opencover.profiler")
+        // c type: _VisitedResponse
+        // elementDescription: opencover_profiler_xsd.globalElements.VisitedResponse
+        WS_ELEMENT_DESCRIPTION VisitedResponse;
         
     } globalElements;
     struct // externallyReferencedTypes
@@ -197,6 +259,8 @@ typedef struct _opencover_profiler_xsd
         WS_STRUCT_DESCRIPTION TrackAssemblyResponse;
         WS_STRUCT_DESCRIPTION GetSequencePoints;
         WS_STRUCT_DESCRIPTION GetSequencePointsResponse;
+        WS_STRUCT_DESCRIPTION Visited;
+        WS_STRUCT_DESCRIPTION VisitedResponse;
     } externallyReferencedTypes;
 } _opencover_profiler_xsd;
 

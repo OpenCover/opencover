@@ -8,5 +8,6 @@ namespace OpenCover.Framework.Persistance
         void PersistModule(Module module);
         void Commit();
         bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints);
+        void SaveVisitPoints(VisitPoint[] visitPoints);
     }
 }

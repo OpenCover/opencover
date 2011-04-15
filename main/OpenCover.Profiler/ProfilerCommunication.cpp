@@ -96,7 +96,7 @@ void ProfilerCommunication::Initialise()
 
     ATLTRACE(_T("WsOpenServiceProxy"));
 
-    hr = WsCreateHeap(2*1024*1024, 16*1024, NULL, 0, &heap, error); 
+    hr = WsCreateHeap(2*1024*1024, 64*1024, NULL, 0, &heap, error); 
     ONERROR_GOEXIT(hr);
 
     ATLTRACE(_T("WsCreateHeap"));
@@ -187,7 +187,7 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
     return result;
 }
 
-BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, InstrumentPoint*** pppInstrumentPoints)
+BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, SequencePoint*** pppInstrumentPoints)
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
@@ -208,4 +208,23 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
     ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_GetSequencePoints => %d"), *pNumPoints);
     return result;
 }
+
+
+void ProfilerCommunication::SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints)
+{
+    if (proxy==NULL) return;
+    WsResetHeap(heap, error);
+    HRESULT hr = NetTcpBinding_IProfilerCommunication_Visited(proxy,
+        numPoints,
+        ppPoints,
+        heap,
+        NULL,
+        0, 
+        NULL,
+        error);
+
+    if (FAILED(hr)) PrintError(hr, error);
+    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Visited => %d"), numPoints);
+}
+
 

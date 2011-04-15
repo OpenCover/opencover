@@ -128,6 +128,7 @@ extern "C" {
 //     NetTcpBinding_IProfilerCommunication_Stopping
 //     NetTcpBinding_IProfilerCommunication_TrackAssembly
 //     NetTcpBinding_IProfilerCommunication_GetSequencePoints
+//     NetTcpBinding_IProfilerCommunication_Visited
 
 // The following server function tables were generated:
 
@@ -141,6 +142,7 @@ extern "C" {
 // The following header files must be included in this order before this one
 
 // #include <WebServices.h>
+// #include "OpenCover.Framework.Common.xsd.h"
 // #include "opencover.profiler.xsd.h"
 // #include "opencover.profiler.wsdl.h"
 
@@ -213,7 +215,18 @@ HRESULT WINAPI NetTcpBinding_IProfilerCommunication_GetSequencePoints(
     __in int functionToken, 
     __out BOOL* GetSequencePointsResult, 
     __out unsigned int* sequencePointsCount, 
-    __deref_out_ecount_opt(*sequencePointsCount) InstrumentPoint*** sequencePoints, 
+    __deref_out_ecount_opt(*sequencePointsCount) SequencePoint*** sequencePoints, 
+    __in WS_HEAP* _heap,
+    __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
+    __in const ULONG _callPropertyCount,
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
+// operation: NetTcpBinding_IProfilerCommunication_Visited
+HRESULT WINAPI NetTcpBinding_IProfilerCommunication_Visited(
+    __in WS_SERVICE_PROXY* _serviceProxy,
+    __in unsigned int visitPointsCount, 
+    __in_ecount_opt(visitPointsCount) VisitPoint** visitPoints, 
     __in WS_HEAP* _heap,
     __in_ecount_opt(_callPropertyCount) const WS_CALL_PROPERTY* _callProperties,
     __in const ULONG _callPropertyCount,
@@ -248,7 +261,14 @@ typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_GetSequencePoint
     __in int functionToken, 
     __out BOOL* GetSequencePointsResult, 
     __out unsigned int* sequencePointsCount, 
-    __deref_out_ecount_opt(*sequencePointsCount) InstrumentPoint*** sequencePoints, 
+    __deref_out_ecount_opt(*sequencePointsCount) SequencePoint*** sequencePoints, 
+    __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
+    __in_opt WS_ERROR* _error);
+
+typedef HRESULT (CALLBACK* NetTcpBinding_IProfilerCommunication_VisitedCallback) (
+    __in const WS_OPERATION_CONTEXT* _context,
+    __in unsigned int visitPointsCount, 
+    __in_ecount_opt(visitPointsCount) VisitPoint** visitPoints, 
     __in_opt const WS_ASYNC_CONTEXT* _asyncContext,
     __in_opt WS_ERROR* _error);
 
@@ -259,6 +279,7 @@ typedef struct NetTcpBinding_IProfilerCommunicationFunctionTable
     NetTcpBinding_IProfilerCommunication_StoppingCallback NetTcpBinding_IProfilerCommunication_Stopping;
     NetTcpBinding_IProfilerCommunication_TrackAssemblyCallback NetTcpBinding_IProfilerCommunication_TrackAssembly;
     NetTcpBinding_IProfilerCommunication_GetSequencePointsCallback NetTcpBinding_IProfilerCommunication_GetSequencePoints;
+    NetTcpBinding_IProfilerCommunication_VisitedCallback NetTcpBinding_IProfilerCommunication_Visited;
 } NetTcpBinding_IProfilerCommunicationFunctionTable;
 
 ////////////////////////////////////////////////
@@ -283,6 +304,9 @@ typedef struct _tempuri_org_wsdl
         // operation: NetTcpBinding_IProfilerCommunication_GetSequencePoints
         //     input message: IProfilerCommunication_GetSequencePoints_InputMessage
         //     output message: IProfilerCommunication_GetSequencePoints_OutputMessage
+        // operation: NetTcpBinding_IProfilerCommunication_Visited
+        //     input message: IProfilerCommunication_Visited_InputMessage
+        //     output message: IProfilerCommunication_Visited_OutputMessage
         // contractDescription: tempuri_org_wsdl.contracts.NetTcpBinding_IProfilerCommunication
         WS_CONTRACT_DESCRIPTION NetTcpBinding_IProfilerCommunication;
         

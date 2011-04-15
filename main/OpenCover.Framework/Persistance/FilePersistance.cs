@@ -59,5 +59,11 @@ namespace OpenCover.Framework.Persistance
             }
             return false;       
         }
+
+        public void SaveVisitPoints(VisitPoint[] visitPoints)
+        {
+            _session.VisitPoints.AddRange(visitPoints);
+            Debug.WriteLine("Total {0}", _session.VisitPoints.Count);
+        }
     }
 }

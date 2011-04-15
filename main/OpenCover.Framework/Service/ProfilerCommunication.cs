@@ -1,15 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.ServiceModel;
-using System.Text;
-using System.Xml;
-using System.Xml.Serialization;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Service
 {
@@ -44,14 +37,14 @@ namespace OpenCover.Framework.Service
             return true;
         }
 
-        public bool GetSequencePoints(string moduleName, int functionToken, out InstrumentPoint[] instrumentPoints)
+        public bool GetSequencePoints(string moduleName, int functionToken, out SequencePoint[] instrumentPoints)
         {
-            instrumentPoints = new InstrumentPoint[0];
-            SequencePoint[] points;
+            instrumentPoints = new SequencePoint[0];
+            Model.SequencePoint[] points;
             if (_persistance.GetSequencePointsForFunction(moduleName, functionToken, out points))
             {
                 instrumentPoints = points
-                    .Select(sequencePoint => new InstrumentPoint()
+                    .Select(sequencePoint => new SequencePoint()
                                                  {
                                                      Ordinal = sequencePoint.Ordinal,
                                                      Offset = sequencePoint.Offset,
@@ -60,6 +53,12 @@ namespace OpenCover.Framework.Service
                 return true;
             }
             return false;
+        }
+
+        public void Visited(VisitPoint[] visitPoints)
+        {
+            var points = visitPoints.Select(p => new Model.VisitPoint() {UniqueId = p.UniqueId, VisitType = p.VisitType}).ToArray();
+            _persistance.SaveVisitPoints(points);
         }
 
         public void Stopping()

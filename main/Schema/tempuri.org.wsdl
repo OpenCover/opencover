@@ -49,6 +49,15 @@
         <soap12:body use="literal" />
       </wsdl:output>
     </wsdl:operation>
+    <wsdl:operation name="Visited">
+      <soap12:operation soapAction="urn:opencover.profiler/IProfilerCommunication/Visited" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
   </wsdl:binding>
   <wsdl:service name="ProfilerCommunication">
     <wsdl:port name="NetTcpBinding_IProfilerCommunication" binding="tns:NetTcpBinding_IProfilerCommunication">

@@ -3,6 +3,12 @@ using System.Text;
 
 namespace OpenCover.Framework
 {
+    public enum Architecture
+    {
+        Arch32 = 32,
+        Arch64 = 64
+    }
+
     /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
@@ -10,6 +16,7 @@ namespace OpenCover.Framework
     {
         public CommandLineParser(string arguments) : base(arguments)
         {
+            Architecture = Architecture.Arch32;
             PortNumber = 0xBABE;
             HostOnlySeconds = 20;
         }
@@ -23,6 +30,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-targetargs:<arguments for the target process>]");
             builder.AppendLine("    [-port:<port number>]");
             builder.AppendLine("    [-register[:user]]");
+            builder.AppendLine("    [-arch:<32|64>");
             builder.AppendLine("or");
             builder.AppendLine("    -host:<time in seconds>");
             builder.AppendLine("or");
@@ -74,6 +82,18 @@ namespace OpenCover.Framework
                             throw new InvalidOperationException(
                                 "The port argument did not have a valid portnumber i.e. -port:8000");
                         }
+                        break;
+                    case "arch":
+                        Architecture arch;
+                        if (!Enum.TryParse(GetArgumentValue("arch"), true, out arch))
+                        {
+                            throw new InvalidOperationException(string.Format("The arch {0} is not recognised", key));
+                        }
+                        if (arch != Framework.Architecture.Arch32 && arch != Framework.Architecture.Arch64)
+                        {
+                            throw new InvalidOperationException(string.Format("The arch {0} was not recognised", arch));
+                        }
+                        Architecture = arch;
                         break;
                     case "?":
                         PrintUsage = true;
@@ -134,7 +154,16 @@ namespace OpenCover.Framework
         /// </summary>
         public string TargetArgs { get; private set; }
 
+        /// <summary>
+        /// Requests that the user wants to see the commandline help
+        /// </summary>
         public bool PrintUsage { get; private set; }
+
+        /// <summary>
+        /// The runtime architecture to register the profiler for
+        /// </summary>
+        public Architecture Architecture { get; private set; }
+
     }
 
 }

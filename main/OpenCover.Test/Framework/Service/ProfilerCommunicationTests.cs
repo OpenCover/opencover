@@ -9,6 +9,8 @@ using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
+using SequencePoint = OpenCover.Framework.Model.SequencePoint;
+using SequencePoint2 = OpenCover.Framework.Service.SequencePoint;
 
 namespace OpenCover.Test.Framework.Service
 {
@@ -77,7 +79,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(false);
 
             // act
-            InstrumentPoint[] instrumentPoints;
+            SequencePoint2[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
 
             // assert
@@ -94,7 +96,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(true);
 
             // act
-            InstrumentPoint[] instrumentPoints;
+            SequencePoint2[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
 
             // assert

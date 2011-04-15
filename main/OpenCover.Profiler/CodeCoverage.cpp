@@ -50,6 +50,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
+    SendVisitPoints();
     m_host->Stop();
     delete m_host;
     return S_OK; 
@@ -62,11 +63,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
-    ATLTRACE(_T("::ModuleAttachedToAssembly(%X, %X)"), moduleId, assemblyId);
-
     std::wstring moduleName = GetModuleName(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
-    ATLTRACE(_T("    ::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
+    ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
     m_host->TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
@@ -80,7 +79,27 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 /// </remarks>
 static void __fastcall SequencePointVisit(ULONG seq)
 {
-    ATLTRACE(_T("Hello From Unmanaged Call I4 (%d)"), seq);
+    VisitPoint point;
+    point.UniqueId = seq;
+    point.VisitType = VisitTypeSequencePoint;
+    CCodeCoverage::g_pProfiler->AddVisitPoint(point);
+}
+
+void CCodeCoverage::AddVisitPoint(VisitPoint &point)
+{
+    m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
+    m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
+
+    if (++m_VisitPointCount==SEQ_BUFFER_SIZE)
+    {
+        SendVisitPoints();
+    }
+}
+
+void CCodeCoverage::SendVisitPoints()
+{
+    m_host->SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
+    m_VisitPointCount = 0;
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -97,7 +116,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     {
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
         unsigned int points;
-        InstrumentPoint ** ppPoints = NULL;
+        SequencePoint ** ppPoints = NULL;
         
         if (m_host->GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
         {

@@ -38,5 +38,8 @@
     <ClCompile Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Schema\OpenCover.Framework.Common.xsd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

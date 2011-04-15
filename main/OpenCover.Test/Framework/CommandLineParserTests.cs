@@ -212,5 +212,31 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(string.IsNullOrWhiteSpace(parser.Usage()));
         }
 
+        [Test]
+        public void HandlesTheArchitectureArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-arch:32" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(Architecture.Arch32, parser.Architecture);
+        }
+
+        [Test]
+        public void HandlesBadArchitectureArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-arch:128" + RequiredArgs);
+
+            // act
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+
+            // assert
+            Assert.IsNotNull(ex);
+        }
+
     }
 }
