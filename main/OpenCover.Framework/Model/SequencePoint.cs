@@ -20,6 +20,7 @@ namespace OpenCover.Framework.Model
         public int StartColumn { get; set; }
         public int EndLine { get; set; }
         public int EndColumn { get; set; }
+        public int VisitCount { get; set; }
 
         public UInt32 UniqueSequencePoint { get; set; }
     }

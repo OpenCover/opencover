@@ -62,8 +62,16 @@ namespace OpenCover.Framework.Persistance
 
         public void SaveVisitPoints(VisitPoint[] visitPoints)
         {
-            _session.VisitPoints.AddRange(visitPoints);
-            Debug.WriteLine("Total {0}", _session.VisitPoints.Count);
+            foreach (var sequencePoint in from visitPoint in visitPoints
+                                          from module in _session.Modules
+                                          from @class in module.Classes
+                                          from method in @class.Methods
+                                          from sequencePoint in method.SequencePoints
+                                          where sequencePoint.UniqueSequencePoint == visitPoint.UniqueId
+                                          select sequencePoint)
+            {
+                sequencePoint.VisitCount++;
+            }
         }
     }
 }
