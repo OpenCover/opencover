@@ -22,7 +22,7 @@
 	<include buildfile="${build.folder}/environment.build" />
 	<include buildfile="${build.folder}/schema.build" />
 
-	<target name="build-environment" depends="get-os-version, prepare-environment, get-version-number" />
+	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number" />
 
 	<target name="rebuild" depends="build-environment, clean, build, test" >
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />

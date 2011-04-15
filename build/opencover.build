@@ -10,6 +10,8 @@
     
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
 	
+	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
+	
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
