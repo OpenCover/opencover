@@ -107,6 +107,11 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
         }
     }
 
+    WriteSections();
+}
+
+void Method::WriteSections()
+{
     if (m_exceptions.size() > 0)
     {
         Align<DWORD>();
@@ -133,7 +138,6 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
             }
         }
     }
-
 }
 
 /// <summary>Read in a method body and any section handlers.</summary>

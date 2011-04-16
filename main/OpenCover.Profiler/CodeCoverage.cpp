@@ -13,7 +13,10 @@ CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
     /* [in] */ IUnknown *pICorProfilerInfoUnk) 
 {
-    ATLTRACE(_T("::Initialize"));
+    OLECHAR szGuid[40]={0};
+    int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
+
+    ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
 
     m_profilerInfo = pICorProfilerInfoUnk;
     if (m_profilerInfo != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo OK)"));

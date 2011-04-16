@@ -33,6 +33,7 @@ private:
     Instruction * GetInstructionAtOffset(long offset);
     void ReadSections();
     void RecalculateOffsets();
+    void WriteSections();
 
 private:
     // all instrumented methods will be FAT (with FAT SECTIONS if exist) regardless

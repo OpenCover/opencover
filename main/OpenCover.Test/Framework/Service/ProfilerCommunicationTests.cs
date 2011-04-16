@@ -5,12 +5,15 @@ using System.Text;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Common;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
-using SequencePoint = OpenCover.Framework.Model.SequencePoint;
-using SequencePoint2 = OpenCover.Framework.Service.SequencePoint;
+using ModelSequencePoint = OpenCover.Framework.Model.SequencePoint;
+using ServiceSequencePoint = OpenCover.Framework.Service.SequencePoint;
+using ServiceVisitPoint = OpenCover.Framework.Service.VisitPoint;
+using ModelVisitPoint = OpenCover.Framework.Model.VisitPoint;
 
 namespace OpenCover.Test.Framework.Service
 {
@@ -73,13 +76,13 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_False_When_No_Data_In_Model()
         {
             // arrange
-            SequencePoint[] points;
+            ModelSequencePoint[] points;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(false);
 
             // act
-            SequencePoint2[] instrumentPoints;
+            ServiceSequencePoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
 
             // assert
@@ -90,18 +93,36 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_SequencePoints_When_Data_In_Model()
         {
             // arrange
-            var points = new []{new SequencePoint()};
+            var points = new[] { new ModelSequencePoint() };
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(true);
 
             // act
-            SequencePoint2[] instrumentPoints;
+            ServiceSequencePoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsTrue(result);
             Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
+        }
+
+        [Test]
+        public void Visited_Saves_VisitedPoints()
+        {
+            // arrange
+            var savedPoints = new List<ModelVisitPoint>();
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.SaveVisitPoints(It.IsAny<ModelVisitPoint[]>()))
+                .Callback<ModelVisitPoint[]>(savedPoints.AddRange);
+
+            // act
+            Instance.Visited(new []{new ServiceVisitPoint(){UniqueId = 123, VisitType = VisitType.SequencePoint}});
+
+            // assert
+            Assert.AreEqual(1, savedPoints.Count);
+            Assert.AreEqual(123, savedPoints[0].UniqueId);
+
         }
     }
 }

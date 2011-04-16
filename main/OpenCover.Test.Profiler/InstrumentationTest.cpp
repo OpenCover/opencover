@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "..\OpenCover.Profiler\Method.h"
 
+// NOTE: Using pseudo IL code to exercise the code and is not necessarily runnable IL
+
 class InstrumentationTest : public ::testing::Test {
     virtual void SetUp() {
         
@@ -42,7 +44,6 @@ TEST_F(InstrumentationTest, CanReadMethodWithFatHeader)
 
 TEST_F(InstrumentationTest, CanConvertSmallBranchesToLongBranches)
 {
-    // This is pseudo IL code to exercise the code and is not runnable IL
     BYTE data[] = {(29 << 2) + CorILMethod_TinyFormat, 
         CEE_BR_S, 0x00,
         CEE_BRFALSE_S, 0x00,
@@ -82,7 +83,6 @@ TEST_F(InstrumentationTest, CanConvertSmallBranchesToLongBranches)
 
 TEST_F(InstrumentationTest, BranchesPointToCorrectTargets)
 {
-    // This is pseudo IL code to exercise the code and is not runnable IL
     BYTE data[] = {(11 << 2) + CorILMethod_TinyFormat, 
         CEE_BR, 0x05, 0x00, 0x00, 0x00,
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
@@ -100,7 +100,6 @@ TEST_F(InstrumentationTest, BranchesPointToCorrectTargets)
 
 TEST_F(InstrumentationTest, ConvertedBranchesPointToCorrectTargets)
 {
-    // This is pseudo IL code to exercise the code and is not runnable IL
     BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
         CEE_BR_S, 0x05,
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
@@ -119,7 +118,6 @@ TEST_F(InstrumentationTest, ConvertedBranchesPointToCorrectTargets)
 
 TEST_F(InstrumentationTest, HandlesSwitchBranches)
 {
-    // This is pseudo IL code to exercise the code and is not runnable IL
     BYTE data[] = {(14 << 2) + CorILMethod_TinyFormat, 
         CEE_SWITCH, 0x02, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00,
@@ -224,4 +222,68 @@ TEST_F(InstrumentationTest, CanReadFatExceptions)
 
     ASSERT_EQ(19, instrument.m_instructions.size());
     ASSERT_EQ(3, instrument.m_exceptions.size());
+}
+
+TEST_F(InstrumentationTest, Calculates_Size_NoExceptionHandlers)
+{
+    BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
+        CEE_BR_S, 0x05,
+        CEE_BR, 0x00, 0x00, 0x00, 0x00,
+        CEE_RET};
+    
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    
+    ASSERT_EQ(23, (int)instrument.GetMethodSize());
+}
+
+TEST_F(InstrumentationTest, Calculates_Size_WithExceptionHandlers)
+{
+    BYTE data[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,      
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,       
+        CEE_RET,
+        0x00, 0x00, 0x00, // align
+        0x00, 0x0C, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // will be turned into a long exception handler
+
+    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
+    pHeader->CodeSize = 25;
+    pHeader->Size = 3;
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    ASSERT_EQ(68, (int)instrument.GetMethodSize());
+}
+
+TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
+{
+    BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
+        CEE_BR_S, 0x05,
+        CEE_BR, 0x00, 0x00, 0x00, 0x00,
+        CEE_RET};
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    InstructionList instructions;
+    instructions.push_back(new Instruction(CEE_NOP, 0));
+
+    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+
+    instrument.DumpIL();
+
+    ASSERT_EQ(4, instrument.m_instructions.size());
+
+    ASSERT_EQ(CEE_NOP, instrument.m_instructions[2]->m_operation);
+    ASSERT_EQ(CEE_RET, instrument.m_instructions[3]->m_operation);
+    ASSERT_EQ(CEE_NOP, instrument.m_instructions[0]->m_branches[0]->m_operation);
+    ASSERT_EQ(CEE_NOP, instrument.m_instructions[1]->m_branches[0]->m_operation);
 }
