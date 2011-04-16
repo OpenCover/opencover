@@ -18,4 +18,4 @@ Dropbox is very useful for sharing files [[Dropbox|http://db.tt/VanqFDn]]
 Currently using AgileZen to organise the project and workflow, however you may have to become a member and/or get an invite. Initially I'll grant view only access to those who are just interested i.e. "Chickens" and grant greater rights to those people who wish to, or already actively, contribute i.e. "Pigs".
 
 ### Thanks
-I would like to thank the guys at CodeBetter, Devlicious and Los Techies who arranged my MSDN licence and also to the NextGenUG and their free swag from where I got lots of useful tools.
+I would like to thank the guys at CodeBetter, Devlicious and Los Techies who arranged my MSDN licence and also to the NextGenUG and their free swag from where I got lots of useful tools. I'd also like to thank my employers, colleagues and friends for all their support. 
