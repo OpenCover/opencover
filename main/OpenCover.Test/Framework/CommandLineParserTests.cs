@@ -1,13 +1,14 @@
 ﻿using System;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Common;
 
 namespace OpenCover.Test.Framework
 {
     [TestFixture]
     public class CommandLineParserTests
     {
-        private const string RequiredArgs = "-target:Required";
+        private const string RequiredArgs = " -target:Required";
 
         [Test]
         public void ParserHasKnownDefaultArguments()
@@ -23,7 +24,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.HostOnly);
             Assert.AreEqual(20, parser.HostOnlySeconds);
             Assert.AreEqual(0xBABE, parser.PortNumber);
-
+            Assert.IsFalse(parser.NoDefaultFilters);
         }
 
         [Test]
@@ -199,6 +200,19 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void HandlesTheOutputArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-output:ZYX" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("ZYX", parser.OutputFile);
+        }
+
+        [Test]
         public void HandlesTheUsageArgument()
         {
             // arrange  
@@ -226,7 +240,7 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        public void HandlesBadArchitectureArgument()
+        public void HandlesBadArchitectureArgumentNumber()
         {
             // arrange  
             var parser = new CommandLineParser("-arch:128" + RequiredArgs);
@@ -237,6 +251,85 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.IsNotNull(ex);
         }
+
+        [Test]
+        public void HandlesBadArchitectureArgumentAlt()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-arch:arch128" + RequiredArgs);
+
+            // act
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+
+            // assert
+            Assert.IsNotNull(ex);
+        }
+
+        [Test]
+        public void HandlesTheTypeArgumentSingle()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-type:method" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(CoverageType.Method, parser.CoverageType);
+        }
+
+        [Test]
+        public void HandlesTheTypeArgumentMultiple()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-type:method, sequence" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(CoverageType.Method | CoverageType.Sequence, parser.CoverageType);
+        }
+
+        [Test]
+        public void HandlesAnInvalidTypeArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-type:method,boris" + RequiredArgs);
+
+            // act
+            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+
+            // assert
+            Assert.IsNotNull(ex);
+        }
+
+        [Test]
+        public void HandlesNoDefaultFiltersArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-nodefaultfilters" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.NoDefaultFilters);
+        }
+
+        [Test]
+        public void HandlesFilterArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser("-filter:XYZ ABC" + RequiredArgs);
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.Filters.Count);
+        }
+
 
     }
 }

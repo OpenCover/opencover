@@ -10,6 +10,7 @@ using Microsoft.Practices.Unity;
 using OpenCover.Framework;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
+using System.Linq;
 
 namespace OpenCover.Console
 {
@@ -21,16 +22,11 @@ namespace OpenCover.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var parser = new CommandLineParser(string.Join("", args));
+            var parser = new CommandLineParser(string.Join(" ", args));
 
             var container = new Bootstrapper();
             var filter = new Filter();
             var persistance = new FilePersistance();
-            persistance.Initialise("temp.txt");
-
-            filter.AddFilter("-[mscorlib]*");
-            filter.AddFilter("-[System.*]*");
-            filter.AddFilter("+[*]*");
             
             container.Initialise(filter, parser, persistance);
 
@@ -60,6 +56,24 @@ namespace OpenCover.Console
                 System.Console.WriteLine(parser.Usage());
                 return;
             }
+
+            // apply filters
+            if (!parser.NoDefaultFilters)
+            {
+                filter.AddFilter("-[mscorlib]*");
+                filter.AddFilter("-[System.*]*");
+            }
+
+            if (parser.Filters.Count == 0)
+            {
+                filter.AddFilter("+[*]*");
+            }
+            else
+            {
+                parser.Filters.ForEach(filter.AddFilter);
+            }
+
+            persistance.Initialise(Path.Combine(Environment.CurrentDirectory, parser.OutputFile));
 
             try
             {

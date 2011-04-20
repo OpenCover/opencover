@@ -132,11 +132,11 @@
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <HeaderFileName>OpenCoverProfiler_i.h</HeaderFileName>
-      <InterfaceIdentifierFileName>OpenCoverProfiler_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>OpenCoverProfiler_p.c</ProxyFileName>
+      <HeaderFileName>OpenCoverProfiler64_i.h</HeaderFileName>
+      <InterfaceIdentifierFileName>OpenCoverProfiler64_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>OpenCoverProfiler64_p.c</ProxyFileName>
       <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>$(IntDir)OpenCoverProfiler.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)OpenCoverProfiler64.tlb</TypeLibraryName>
       <DllDataFileName>
       </DllDataFileName>
     </Midl>
@@ -204,11 +204,11 @@
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <HeaderFileName>OpenCoverProfiler_i.h</HeaderFileName>
-      <InterfaceIdentifierFileName>OpenCoverProfiler_i.c</InterfaceIdentifierFileName>
-      <ProxyFileName>OpenCoverProfiler_p.c</ProxyFileName>
+      <HeaderFileName>OpenCoverProfiler64_i.h</HeaderFileName>
+      <InterfaceIdentifierFileName>OpenCoverProfiler64_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>OpenCoverProfiler64_p.c</ProxyFileName>
       <GenerateStublessProxies>true</GenerateStublessProxies>
-      <TypeLibraryName>$(IntDir)OpenCoverProfiler.tlb</TypeLibraryName>
+      <TypeLibraryName>$(IntDir)OpenCoverProfiler64.tlb</TypeLibraryName>
       <DllDataFileName>
       </DllDataFileName>
     </Midl>
@@ -249,6 +249,14 @@
     <ClCompile Include="Instruction.cpp" />
     <ClCompile Include="Method.cpp" />
     <ClCompile Include="OpenCover.Profiler.cpp" />
+    <ClCompile Include="OpenCoverProfiler64_i.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="OpenCoverProfiler_i.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -262,6 +270,8 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ProfilerCommunication.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
@@ -293,7 +303,14 @@
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="Method.h" />
     <ClInclude Include="MethodBuffer.h" />
-    <ClInclude Include="OpenCoverProfiler_i.h" />
+    <ClInclude Include="OpenCoverProfiler64_i.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="OpenCoverProfiler_i.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ProfilerCommunication.h" />
     <ClInclude Include="Resource.h" />
@@ -326,6 +343,10 @@
     <Midl Include="OpenCoverProfiler64.idl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TargetEnvironment Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">X64</TargetEnvironment>
+      <TargetEnvironment Condition="'$(Configuration)|$(Platform)'=='Release|x64'">X64</TargetEnvironment>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

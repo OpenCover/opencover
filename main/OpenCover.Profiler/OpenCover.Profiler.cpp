@@ -3,7 +3,11 @@
 
 #include "stdafx.h"
 #include "resource.h"
+#ifdef _WIN64
+#include "OpenCoverProfiler64_i.h"
+#else
 #include "OpenCoverProfiler_i.h"
+#endif
 #include "dllmain.h"
 #include "xdlldata.h"
 

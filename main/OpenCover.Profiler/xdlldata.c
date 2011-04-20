@@ -13,6 +13,10 @@
 #define ENTRY_PREFIX	Prx
 
 #include "dlldata.c"
+#ifdef _WIN64
+#include "OpenCover.Profiler64_p.c"
+#else
 #include "OpenCover.Profiler_p.c"
+#endif
 
 #endif //_MERGE_PROXYSTUB

@@ -131,6 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Schema\OpenCover.Framework.Common.xsd.h" />
+    <ClInclude Include="..\Schema\opencover.profiler.wsdl.h" />
+    <ClInclude Include="..\Schema\opencover.profiler.xsd.h" />
+    <ClInclude Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.h" />
+    <ClInclude Include="..\Schema\tempuri.org.wsdl.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

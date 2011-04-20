@@ -213,6 +213,7 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
 void ProfilerCommunication::SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints)
 {
     if (proxy==NULL) return;
+    if (numPoints==0) return;
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Visited(proxy,
         numPoints,

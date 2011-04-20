@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Schema Generated Files">
+      <UniqueIdentifier>{c466879e-598a-49c8-9b41-4314ec7fef28}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -21,25 +24,40 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Schema\OpenCover.Framework.Common.xsd.h">
+      <Filter>Schema Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Schema\opencover.profiler.wsdl.h">
+      <Filter>Schema Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Schema\opencover.profiler.xsd.h">
+      <Filter>Schema Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.h">
+      <Filter>Schema Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Schema\tempuri.org.wsdl.h">
+      <Filter>Schema Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Schema\OpenCover.Framework.Common.xsd.c">
+      <Filter>Schema Generated Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Schema\opencover.profiler.wsdl.c">
-      <Filter>Source Files</Filter>
+      <Filter>Schema Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Schema\opencover.profiler.xsd.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Schema\tempuri.org.wsdl.c">
-      <Filter>Source Files</Filter>
+      <Filter>Schema Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Schema\schemas.microsoft.com.2003.10.Serialization.xsd.c">
-      <Filter>Source Files</Filter>
+      <Filter>Schema Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Schema\OpenCover.Framework.Common.xsd.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\Schema\tempuri.org.wsdl.c">
+      <Filter>Schema Generated Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

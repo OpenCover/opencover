@@ -3,7 +3,11 @@
 #pragma once
 #include "resource.h"       // main symbols
 
+#ifdef _WIN64
+#include "OpenCoverProfiler64_i.h"
+#else
 #include "OpenCoverProfiler_i.h"
+#endif
 
 #include "ProfilerCommunication.h"
 #include "ProfileBase.h"

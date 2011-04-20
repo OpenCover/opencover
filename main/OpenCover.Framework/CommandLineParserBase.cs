@@ -16,6 +16,7 @@ namespace OpenCover.Framework
         {
             _arguments = arguments ?? String.Empty;
             _arguments.Trim();
+            _arguments = (" " + _arguments).Replace(" -", " /");
             ParsedArguments = new Dictionary<string, string>();
             ParseArguments();
         }
@@ -24,7 +25,7 @@ namespace OpenCover.Framework
 
         private void ParseArguments()
         {
-            var arguments = _arguments.Split("-".ToCharArray());
+            var arguments = _arguments.Split("/".ToCharArray());
 
             foreach (var argument in arguments)
             {

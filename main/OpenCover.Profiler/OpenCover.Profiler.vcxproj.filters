@@ -58,6 +58,9 @@
     <ClCompile Include="ExceptionHandler.cpp">
       <Filter>Instrumentation</Filter>
     </ClCompile>
+    <ClCompile Include="OpenCoverProfiler64_i.c">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -101,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="ProfileBase.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCoverProfiler64_i.h">
+      <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

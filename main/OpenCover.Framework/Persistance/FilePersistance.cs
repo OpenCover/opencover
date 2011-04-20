@@ -49,10 +49,12 @@ namespace OpenCover.Framework.Persistance
         public bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints)
         {
             sequencePoints = new SequencePoint[0];
+            if (_session.Modules == null) return false;
             var module = _session.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
             if (module == null) return false;
             foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
             {
+                if (method == null) continue;
                 Debug.WriteLine(method.Name);
                 sequencePoints = method.SequencePoints;
                 return true;
@@ -62,15 +64,23 @@ namespace OpenCover.Framework.Persistance
 
         public void SaveVisitPoints(VisitPoint[] visitPoints)
         {
-            foreach (var sequencePoint in from visitPoint in visitPoints
-                                          from module in _session.Modules
-                                          from @class in module.Classes
-                                          from method in @class.Methods
-                                          from sequencePoint in method.SequencePoints
-                                          where sequencePoint.UniqueSequencePoint == visitPoint.UniqueId
-                                          select sequencePoint)
+            var summary = from point in visitPoints
+                          group point by point.UniqueId into counts
+                          let count = counts.Count()
+                          select new { point = counts.Key, Count = count };
+
+            foreach (var sum in summary)
             {
-                sequencePoint.VisitCount++;
+                var sum1 = sum;
+                foreach (var sequencePoint in from module in _session.Modules
+                                              from @class in module.Classes
+                                              from method in @class.Methods
+                                              from sequencePoint in method.SequencePoints
+                                              where sequencePoint.UniqueSequencePoint == sum1.point
+                                              select sequencePoint)
+                {
+                    sequencePoint.VisitCount += sum.Count;
+                }
             }
         }
     }

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Text;
+using OpenCover.Framework.Common;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenCover.Framework
 {
@@ -14,11 +17,14 @@ namespace OpenCover.Framework
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
     {
-        public CommandLineParser(string arguments) : base(arguments)
+        public CommandLineParser(string arguments)
+            : base(arguments)
         {
             Architecture = Architecture.Arch32;
             PortNumber = 0xBABE;
             HostOnlySeconds = 20;
+            OutputFile = "results.xml";
+            Filters = new List<string>();
         }
 
         public string Usage()
@@ -30,11 +36,23 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-targetargs:<arguments for the target process>]");
             builder.AppendLine("    [-port:<port number>]");
             builder.AppendLine("    [-register[:user]]");
-            builder.AppendLine("    [-arch:<32|64>");
+            builder.AppendLine("    [-arch:<32|64>]");
+            builder.AppendLine("    [-output:<path to file>]");
+            builder.AppendLine("    [-type:Sequence,Method,Branch]");
+            builder.AppendLine("    [-filter:<space seperated filters> ]");
+            builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("or");
             builder.AppendLine("    -host:<time in seconds>");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
+            builder.AppendLine("");
+            builder.AppendLine("Filters:");
+            builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
+            builder.AppendLine("    profiler coverage. Two default exclude filters are always applied to");
+            builder.AppendLine("    exclude the System.* and Microsoft.* assemblies unless the");
+            builder.AppendLine("    -nodefaultfilters option is supplied. If no other filters are supplied");
+            builder.AppendLine("    via the -filter option then a default inclusive all filter +[*]* is");
+            builder.AppendLine("    applied.");
             return builder.ToString();
         }
 
@@ -57,6 +75,28 @@ namespace OpenCover.Framework
                     case "targetargs":
                         TargetArgs = GetArgumentValue("targetargs");
                         break;
+                    case "output":
+                        OutputFile = GetArgumentValue("output");
+                        break;
+                    case "nodefaultfilters":
+                        NoDefaultFilters = true;
+                        break;
+                    case "filter":
+                        Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
+                        break;
+                    case "type":
+                        var types = GetArgumentValue("type").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                        CoverageType = CoverageType.None;
+                        foreach (var type in types)
+                        {
+                            CoverageType coverageType;
+                            if (!CoverageType.TryParse(type, true, out coverageType))
+                            {
+                                throw new InvalidOperationException(string.Format("The type {0} is not recognised", type));
+                            }
+                            CoverageType |= coverageType;
+                        }
+                        break;
                     case "port":
                         int port = 0;
                         if (int.TryParse(GetArgumentValue("port"), out port))
@@ -65,7 +105,7 @@ namespace OpenCover.Framework
                         }
                         else
                         {
-                            throw new InvalidOperationException("The port argument did not have a valid portnumber i.e. -port:8000");
+                            throw new InvalidOperationException(string.Format("The port argument did not have a valid portnumber i.e. -port:8000 {0}", GetArgumentValue("port")));
                         }
                         break;
                     case "host":
@@ -85,13 +125,14 @@ namespace OpenCover.Framework
                         break;
                     case "arch":
                         Architecture arch;
-                        if (!Enum.TryParse(GetArgumentValue("arch"), true, out arch))
+                        var val = GetArgumentValue("arch");
+                        if (!Architecture.TryParse(val, true, out arch))
                         {
-                            throw new InvalidOperationException(string.Format("The arch {0} is not recognised", key));
+                            throw new InvalidOperationException(string.Format("The arch {0} is not recognised", val));
                         }
                         if (arch != Framework.Architecture.Arch32 && arch != Framework.Architecture.Arch64)
                         {
-                            throw new InvalidOperationException(string.Format("The arch {0} was not recognised", arch));
+                            throw new InvalidOperationException(string.Format("The arch {0} was not recognised", val));
                         }
                         Architecture = arch;
                         break;
@@ -164,6 +205,25 @@ namespace OpenCover.Framework
         /// </summary>
         public Architecture Architecture { get; private set; }
 
+        /// <summary>
+        /// The name of the output file
+        /// </summary>
+        public string OutputFile { get; private set; }
+
+        /// <summary>
+        /// What type of coverage is required, can be a combination
+        /// </summary>
+        public CoverageType CoverageType { get; private set; }
+
+        /// <summary>
+        /// If specified then the default filters should not be applied
+        /// </summary>
+        public bool NoDefaultFilters { get; private set; }
+
+        /// <summary>
+        /// A list of filters
+        /// </summary>
+        public List<string> Filters { get; private set; }
     }
 
 }
