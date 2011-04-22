@@ -18,6 +18,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
 
+    if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
+
     m_profilerInfo = pICorProfilerInfoUnk;
     if (m_profilerInfo != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo OK)"));
     if (m_profilerInfo == NULL) return E_FAIL;
@@ -68,12 +70,13 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
+    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     std::wstring moduleName = GetModuleName(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
     ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
-    m_host->TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
+    m_allowModules[moduleName] = m_host->TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
     return S_OK; 
 }
 
@@ -120,25 +123,30 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
     if (GetTokenAndModule(functionId, functionToken, moduleId, moduleName))
     {
+        if (!m_allowModules[moduleName]) return S_OK;
+        CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
+
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
         unsigned int points;
         SequencePoint ** ppPoints = NULL;
         
         if (m_host->GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
         {
+            if (points==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
-            COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
             
             void (__fastcall *pt)(ULONG) = &SequencePointVisit ;
             mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 
             Method instumentedMethod(pMethod);
             instumentedMethod.SetMinimumStackSize(2);
-            
+
+            ATLTRACE(_T("Instrumenting..."));
+
             //points = 0;
             for (unsigned int i=0; i < points; i++)
             {
@@ -167,6 +175,4 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     
     return S_OK; 
 }
-
-
         

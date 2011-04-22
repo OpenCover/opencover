@@ -1,0 +1,1 @@
+OpenCover.Console.exe -port:8000 -register:user -target:opencovertests.cmd -filter:+[OpenCover.F*]* -output:opencovertests.xml

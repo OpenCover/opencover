@@ -93,7 +93,10 @@ private:
     ProfilerCommunication * m_host;
     VisitPoint **m_ppVisitPoints;
     unsigned int m_VisitPointCount;
-     CComAutoCriticalSection m_cs;
+    CComAutoCriticalSection m_cs;
+
+    std::hash_map<std::wstring, bool> m_allowModules;
+
 private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 
     void SendVisitPoints();

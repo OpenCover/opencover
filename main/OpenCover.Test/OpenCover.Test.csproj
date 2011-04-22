@@ -154,6 +154,16 @@
   <ItemGroup>
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\build\dogfood.cmd">
+      <Link>dogfood.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\build\opencovertests.cmd">
+      <Link>opencovertests.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

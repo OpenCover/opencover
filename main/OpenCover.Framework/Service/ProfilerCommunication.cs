@@ -30,8 +30,8 @@ namespace OpenCover.Framework.Service
 
         public bool TrackAssembly(string moduleName, string assemblyName)
         {
-            var ret = _filter.UseAssembly(assemblyName);
-            if (!ret) return false;
+            if (_persistance.IsTracking(moduleName)) return true;
+            if (!_filter.UseAssembly(assemblyName)) return false;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(moduleName);
             _persistance.PersistModule(builder.BuildModuleModel());
             return true;

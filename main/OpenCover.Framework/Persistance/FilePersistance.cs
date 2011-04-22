@@ -30,6 +30,12 @@ namespace OpenCover.Framework.Persistance
             _session.Modules = list.ToArray();
         }
 
+        public bool IsTracking(string moduleName)
+        {
+            if (_session.Modules == null) return false;
+            return _session.Modules.Any(x => x.FullName == moduleName);
+        }
+
         public void Commit()
         {
             try
