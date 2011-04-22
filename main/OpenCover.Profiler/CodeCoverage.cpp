@@ -52,7 +52,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
+    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     ATLTRACE(_T("::Shutdown"));
+    g_pProfiler = NULL;
     SendVisitPoints();
     m_host->Stop();
     delete m_host;
@@ -101,6 +103,7 @@ void CCodeCoverage::AddVisitPoint(VisitPoint &point)
 
 void CCodeCoverage::SendVisitPoints()
 {
+    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     m_host->SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
     m_VisitPointCount = 0;
 }
@@ -136,8 +139,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             Method instumentedMethod(pMethod);
             instumentedMethod.SetMinimumStackSize(2);
             
+            //points = 0;
             for (unsigned int i=0; i < points; i++)
             {
+                //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
                 InstructionList instructions;
                 instructions.push_back(new Instruction(CEE_LDC_I4, ppPoints[i]->UniqueId));
 #if _WIN64
@@ -156,12 +161,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc);
             IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
             instumentedMethod.WriteMethod(pNewMethod);
-
             m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
         }
     }
     
     return S_OK; 
 }
+
 
         

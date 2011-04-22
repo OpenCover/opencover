@@ -93,7 +93,7 @@ private:
     ProfilerCommunication * m_host;
     VisitPoint **m_ppVisitPoints;
     unsigned int m_VisitPointCount;
-
+     CComAutoCriticalSection m_cs;
 private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 
     void SendVisitPoints();
@@ -110,11 +110,11 @@ public:
     virtual HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly( 
         /* [in] */ ModuleID moduleId,
         /* [in] */ AssemblyID assemblyId);
-
     
     virtual HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock);
+
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(CodeCoverage), CCodeCoverage)

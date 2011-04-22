@@ -34,6 +34,7 @@ private:
     void ReadSections();
     void RecalculateOffsets();
     void WriteSections();
+    bool DoesTryHandlerPointToOffset(long offset);
 
 private:
     // all instrumented methods will be FAT (with FAT SECTIONS if exist) regardless

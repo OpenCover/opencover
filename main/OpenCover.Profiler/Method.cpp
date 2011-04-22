@@ -59,7 +59,14 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
     COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
-    memcpy(fatImage, &m_header, sizeof(IMAGE_COR_ILMETHOD_FAT));
+    
+    m_header.Flags &= ~CorILMethod_MoreSects;
+    if (m_exceptions.size() > 0)
+    {
+        m_header.Flags |= CorILMethod_MoreSects;
+    }
+    
+    memcpy(fatImage, &m_header, m_header.Size * sizeof(DWORD));
 
     pCode = fatImage->GetCode();
 
@@ -110,6 +117,7 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
     WriteSections();
 }
 
+/// <summary>Write out the FAT sections</summary>
 void Method::WriteSections()
 {
     if (m_exceptions.size() > 0)
@@ -117,7 +125,8 @@ void Method::WriteSections()
         Align<DWORD>();
         IMAGE_COR_ILMETHOD_SECT_FAT section;
         section.Kind = CorILMethod_Sect_FatFormat;
-        section.DataSize = m_exceptions.size();
+        section.Kind |= CorILMethod_Sect_EHTable;
+        section.DataSize = (m_exceptions.size() * 24) + 4;
         Write<IMAGE_COR_ILMETHOD_SECT_FAT>(section);
         for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
         {
@@ -125,7 +134,7 @@ void Method::WriteSections()
             Write<long>((*it)->m_tryStart->m_offset);
             Write<long>((*it)->m_tryEnd->m_offset - (*it)->m_tryStart->m_offset);
             Write<long>((*it)->m_handlerStart->m_offset);
-            Write<long>((*it)->m_handlerEnd->m_offset - (*it)->m_handlerEnd->m_offset);
+            Write<long>((*it)->m_handlerEnd->m_offset - (*it)->m_handlerStart->m_offset);
 
             switch ((*it)->m_handlerType)
             {
@@ -238,7 +247,6 @@ void Method::ReadSections()
             {
                 Advance(-1);
                 int count = ((Read<ULONG>() >> 8) / 24);
-                //IMAGE_COR_ILMETHOD_SECT_FAT section = Read<IMAGE_COR_ILMETHOD_SECT_FAT>();
                 ATLTRACE(_T("fat sect: (+?) + 4 + (%d * 24)"), count);
                 for (int i = 0; i < count; i++)
                 {
@@ -275,16 +283,15 @@ void Method::ReadSections()
             else
             {
                 int count = (int)(Read<BYTE>() / 12);
-                //IMAGE_COR_ILMETHOD_SECT_SMALL section = Read<IMAGE_COR_ILMETHOD_SECT_SMALL>();
                 ATLTRACE(_T("tiny sect: (+?) + 4 + (%d * 12)"), count);
                 Advance(2);
                 for (int i = 0; i < count; i++)
                 {
                     ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>();
-                    long tryStart = Read<short>();
-                    long tryEnd = Read<char>();
-                    long handlerStart = Read<short>();
-                    long handlerEnd = Read<char>();
+                    long tryStart = Read<USHORT>();
+                    long tryEnd = Read<BYTE>();
+                    long handlerStart = Read<USHORT>();
+                    long handlerEnd = Read<BYTE>();
                     long filterStart = 0;
                     ULONG token = 0;
                     switch (type)
@@ -535,8 +542,10 @@ long Method::GetMethodSize()
     m_header.CodeSize = lastInstruction->m_offset + details.length + details.operandSize;
     long size = sizeof(IMAGE_COR_ILMETHOD_FAT) + m_header.CodeSize;
 
+    m_header.Flags &= ~CorILMethod_MoreSects;
     if (m_exceptions.size() > 0)
     {
+        m_header.Flags |= CorILMethod_MoreSects;
         long align = sizeof(DWORD) - 1;
         size = ((size + align) & ~align);
         size += (((long)m_exceptions.size() * 6) + 1) * sizeof(long);
@@ -551,30 +560,46 @@ long Method::GetMethodSize()
 /// copy the data between them</remarks>
 void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, InstructionList &instructions)
 {
+    long actualOffset = 0;
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == offset)
         {
+            actualOffset = (*it)->m_offset;
             m_instructions.insert(++it, instructions.begin(), instructions.end());
             break;
         }
     } 
-    
-    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+
+    if (!DoesTryHandlerPointToOffset (actualOffset))
     {
-        if ((*it)->m_origOffset == offset)
+        for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-            Instruction orig = *(*it);
-            for (unsigned int i=0;i<instructions.size();i++)
-            {
-                InstructionListIter temp = it++;
-                *(*temp) = *(*it);
+            if ((*it)->m_origOffset == offset)
+            {            
+                Instruction orig = *(*it);
+                for (unsigned int i=0;i<instructions.size();i++)
+                {
+                    InstructionListIter temp = it++;
+                    *(*temp) = *(*it);
+                }
+                *(*it) = orig;
+                break;
             }
-            *(*it) = orig;
-            break;
         }
     }
-
     RecalculateOffsets();
     return;
+}
+
+/// <summary>Test if we have an exception where the handler start points to the 
+/// instruction at the supplied offset</summary>
+bool Method::DoesTryHandlerPointToOffset(long offset)
+{
+    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+    {
+        if (((*it)->m_handlerType == ExceptionHandlerType::CLAUSE_NONE) 
+            && ((*it)->m_handlerStart->m_offset == offset)) return true;
+    }
+    return false;
 }

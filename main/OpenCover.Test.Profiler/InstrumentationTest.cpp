@@ -287,3 +287,73 @@ TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
     ASSERT_EQ(CEE_NOP, instrument.m_instructions[0]->m_branches[0]->m_operation);
     ASSERT_EQ(CEE_NOP, instrument.m_instructions[1]->m_branches[0]->m_operation);
 }
+
+TEST_F(InstrumentationTest, CanWriteMethod)
+{
+    BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
+        CEE_BR_S, 0x05,
+        CEE_BR, 0x00, 0x00, 0x00, 0x00,
+        CEE_RET};
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    int size = instrument.GetMethodSize();
+
+    BYTE* pBuffer = new BYTE[size];
+
+    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
+
+    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
+    
+    ASSERT_TRUE(newMethod->IsFat());
+    ASSERT_EQ(0, newMethod->GetFlags() & CorILMethod_MoreSects);
+    ASSERT_EQ(3, newMethod->GetSize());
+    ASSERT_EQ(11, newMethod->GetCodeSize());
+
+    delete []newMethod;
+}
+
+TEST_F(InstrumentationTest, CanWriteMethodWithExceptions)
+{
+    BYTE data[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,      
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,       
+        CEE_RET,
+        0x00, 0x00, 0x00, // align
+        0x00, 0x0C, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // will be turned into a long exception handler
+
+    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
+    pHeader->CodeSize = 25;
+    pHeader->Size = 3;
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    int size = instrument.GetMethodSize();
+
+    BYTE* pBuffer = new BYTE[size];
+
+    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
+
+    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
+    
+    ASSERT_TRUE(newMethod->IsFat());
+    ASSERT_EQ(CorILMethod_MoreSects, newMethod->GetFlags() & CorILMethod_MoreSects);
+    ASSERT_EQ(3, newMethod->GetSize());
+    ASSERT_EQ(25, newMethod->GetCodeSize());
+
+    const COR_ILMETHOD_SECT *pSect = newMethod->GetSect();
+    ASSERT_TRUE(pSect->IsFat());
+    ASSERT_EQ(CorILMethod_Sect_EHTable, pSect->Kind());
+    ASSERT_EQ(28, pSect->DataSize()); // 24 (1 FAT section) + 4
+
+    delete []newMethod;
+}
