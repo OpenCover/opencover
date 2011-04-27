@@ -357,3 +357,52 @@ TEST_F(InstrumentationTest, CanWriteMethodWithExceptions)
 
     delete []newMethod;
 }
+
+TEST_F(InstrumentationTest, CanCalculateCorrectILMapSize)
+{
+    BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
+        CEE_BR_S, 0x05,
+        CEE_BR, 0x00, 0x00, 0x00, 0x00,
+        CEE_RET};
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    InstructionList instructions;
+    instructions.push_back(new Instruction(CEE_NOP, 0));
+    instructions.push_back(new Instruction(CEE_NOP, 0));
+
+    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+
+    ASSERT_EQ(3, (int)instrument.GetILMapSize());
+}
+
+TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
+{
+    BYTE data[] = {(8 << 2) + CorILMethod_TinyFormat, 
+        CEE_BR_S, 0x05,
+        CEE_BR, 0x00, 0x00, 0x00, 0x00,
+        CEE_RET};
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+    InstructionList instructions;
+    instructions.push_back(new Instruction(CEE_NOP, 0));
+    instructions.push_back(new Instruction(CEE_NOP, 0));
+
+    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+
+    COR_IL_MAP * map = new COR_IL_MAP[instrument.GetILMapSize()];
+
+    instrument.PopulateILMap(3, map);
+
+    ASSERT_EQ(0, map[0].oldOffset);
+    ASSERT_EQ(0, map[0].newOffset);
+
+    ASSERT_EQ(2, map[1].oldOffset);
+    ASSERT_EQ(5, map[1].newOffset);
+
+    ASSERT_EQ(7, map[2].oldOffset);
+    ASSERT_EQ(12, map[2].newOffset);
+
+    delete [] map;
+}

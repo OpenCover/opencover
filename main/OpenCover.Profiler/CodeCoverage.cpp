@@ -13,6 +13,7 @@ CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
     /* [in] */ IUnknown *pICorProfilerInfoUnk) 
 {
+    m_isV4 = FALSE;
     OLECHAR szGuid[40]={0};
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
 
@@ -27,7 +28,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     if (m_profilerInfo2 != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo2 OK)"));
     if (m_profilerInfo2 == NULL) return E_FAIL;
     m_profilerInfo3 = pICorProfilerInfoUnk;
-    if (m_profilerInfo3 != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
+    if (m_profilerInfo3 != NULL) 
+    {
+        m_isV4 = TRUE;
+        ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
+    }
 
     WCHAR pszPortNumber[10];
     ::GetEnvironmentVariableW(L"OpenCover_Port", pszPortNumber, 10);
@@ -70,7 +75,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     std::wstring moduleName = GetModuleName(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
     ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
@@ -95,6 +99,7 @@ static void __fastcall SequencePointVisit(ULONG seq)
 
 void CCodeCoverage::AddVisitPoint(VisitPoint &point)
 {
+    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
     m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
 
@@ -124,7 +129,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     if (GetTokenAndModule(functionId, functionToken, moduleId, moduleName))
     {
         if (!m_allowModules[moduleName]) return S_OK;
-        CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
 
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
         unsigned int points;
@@ -170,6 +174,13 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
             instumentedMethod.WriteMethod(pNewMethod);
             m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod);
+
+            ULONG mapSize = instumentedMethod.GetILMapSize();
+            COR_IL_MAP * pMap = (COR_IL_MAP *)CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP));
+            m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap);
+
+            // only do this for .NET4 as there are issues with earlier runtimes (Access Violations)
+            if (m_isV4) CoTaskMemFree(pMap);
         }
     }
     

@@ -96,6 +96,7 @@ private:
     CComAutoCriticalSection m_cs;
 
     std::hash_map<std::wstring, bool> m_allowModules;
+    BOOL m_isV4;
 
 private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 

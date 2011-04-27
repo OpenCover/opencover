@@ -15,6 +15,8 @@ public:
     void WriteMethod(IMAGE_COR_ILMETHOD* pMethod);
     void InsertSequenceInstructionsAtOriginalOffset(long offset, InstructionList &instructions);
     void DumpIL();
+    ULONG GetILMapSize();
+    void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
 
 public:
     void SetMinimumStackSize(unsigned int minimumStackSize)

@@ -16,7 +16,7 @@ private:
     WS_ERROR* error;
     WS_HEAP* heap;
     WS_SERVICE_PROXY* proxy;
-
+    ATL::CComAutoCriticalSection m_cs;
 
 public:
     ProfilerCommunication(int port);

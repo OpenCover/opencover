@@ -140,6 +140,7 @@ void ProfilerCommunication::Cleanup()
 void ProfilerCommunication::Start()
 {
     if (proxy==NULL) return;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Started(proxy, 
         heap, 
@@ -155,6 +156,7 @@ void ProfilerCommunication::Start()
 void ProfilerCommunication::Stop()
 {
     if (proxy==NULL) return;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Stopping(proxy, 
         heap, 
@@ -171,6 +173,7 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_TrackAssembly(proxy,
         pModuleName,
@@ -191,6 +194,7 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
 {
     BOOL result;
     if (proxy==NULL) return FALSE;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_GetSequencePoints(proxy,
         pModuleName,
@@ -214,6 +218,7 @@ void ProfilerCommunication::SendVisitPoints(unsigned int numPoints, VisitPoint *
 {
     if (proxy==NULL) return;
     if (numPoints==0) return;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
     WsResetHeap(heap, error);
     HRESULT hr = NetTcpBinding_IProfilerCommunication_Visited(proxy,
         numPoints,

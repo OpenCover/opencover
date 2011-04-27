@@ -603,3 +603,33 @@ bool Method::DoesTryHandlerPointToOffset(long offset)
     }
     return false;
 }
+
+ULONG Method::GetILMapSize()
+{
+    ULONG mapSize = 0;
+    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_origOffset != -1) 
+            ++mapSize;
+    }
+    return mapSize;
+}
+
+void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
+{
+    _ASSERTE(GetILMapSize() == mapSize);
+
+    mapSize = 0;
+    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_origOffset != -1)
+        {
+            maps[mapSize].fAccurate = TRUE;
+            maps[mapSize].oldOffset = (*it)->m_origOffset;
+            maps[mapSize].newOffset = (*it)->m_offset;
+
+            ++mapSize;
+        }
+    }
+}
+
