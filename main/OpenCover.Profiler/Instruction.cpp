@@ -19,6 +19,15 @@ Instruction::Instruction(CanonicalName operation, ULONGLONG operand)
     m_origOffset = -1;
 }
 
+Instruction::Instruction(CanonicalName operation)
+{
+    m_operation = operation;
+    m_operand = 0;
+    m_offset = -1;
+    m_isBranch = false;
+    m_origOffset = -1;
+}
+
 Instruction::~Instruction(void)
 {
 }

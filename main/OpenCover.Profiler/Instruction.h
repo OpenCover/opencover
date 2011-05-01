@@ -16,6 +16,7 @@ class Instruction
 {
 public:
     Instruction(CanonicalName operation, ULONGLONG operand);
+    Instruction(CanonicalName operation);
     ~Instruction(void);
 protected:
     Instruction(void);

@@ -384,10 +384,35 @@ void Method::DumpIL()
         }
         else
         {
-            if ((*it)->m_isBranch && (*it)->m_operation != CEE_SWITCH)
+            if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
             {
                 long offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
-                ATLTRACE(_T("IL_%04X %s IL_%04X"), (*it)->m_offset, details.stringName, offset);
+                ATLTRACE(_T("IL_%04X %s IL_%04X"), 
+                    (*it)->m_offset, details.stringName, offset);
+            }
+            else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
+            {
+                ATLTRACE(_T("IL_%04X %s (%02X)%02X%02X%02X"), 
+                    (*it)->m_offset, details.stringName, 
+                    (BYTE)((*it)->m_operand >> 24),
+                    (BYTE)((*it)->m_operand >> 16),
+                    (BYTE)((*it)->m_operand >> 8),
+                    (BYTE)((*it)->m_operand & 0xFF));
+            }
+            else if (details.operandSize == Byte)
+            {
+                ATLTRACE(_T("IL_%04X %s %02X"), 
+                    (*it)->m_offset, details.stringName, (*it)->m_operand);
+            }
+            else if (details.operandSize == Word)
+            {
+                ATLTRACE(_T("IL_%04X %s %04X"), 
+                    (*it)->m_offset, details.stringName, (*it)->m_operand);
+            }
+            else if (details.operandSize == Dword)
+            {
+                ATLTRACE(_T("IL_%04X %s %08X"), 
+                    (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
             else
             {
@@ -552,6 +577,38 @@ long Method::GetMethodSize()
     }
 
     return size;
+}
+
+void Method::InsertSequenceInstructionsAtOffset(long offset, InstructionList &instructions)
+{
+    long actualOffset = 0;
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_offset == offset)
+        {
+            actualOffset = (*it)->m_offset;
+            m_instructions.insert(++it, instructions.begin(), instructions.end());
+            break;
+        }
+    } 
+
+    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_origOffset == offset)
+        {            
+            Instruction orig = *(*it);
+            for (unsigned int i=0;i<instructions.size();i++)
+            {
+                InstructionListIter temp = it++;
+                *(*temp) = *(*it);
+            }
+            *(*it) = orig;
+            break;
+        }
+    }
+
+    RecalculateOffsets();
+    return;
 }
 
 /// <summary>Insert a sequence of instructions at a sequence point</summary>
