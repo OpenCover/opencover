@@ -34,6 +34,7 @@ private:
     void ConvertShortBranches();
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
+    Instruction * GetInstructionAtOffset(long offset, bool isFinally);
     void ReadSections();
     void RecalculateOffsets();
     void WriteSections();

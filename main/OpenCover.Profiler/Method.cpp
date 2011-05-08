@@ -79,6 +79,10 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
         {
             Write<BYTE>(details.op2);
         }
+        else if (details.op1 == MOOT)
+        {
+            continue;
+        }
         else
         {
             Write<BYTE>(details.op1);
@@ -243,11 +247,11 @@ void Method::ReadSections()
         {
             Align<DWORD>(); // must be DWORD aligned
             flags = Read<BYTE>();
+            _ASSERTE((flags & CorILMethod_Sect_EHTable) == CorILMethod_Sect_EHTable);
             if ((flags & CorILMethod_Sect_FatFormat) == CorILMethod_Sect_FatFormat)
             {
                 Advance(-1);
                 int count = ((Read<ULONG>() >> 8) / 24);
-                ATLTRACE(_T("fat sect: (+?) + 4 + (%d * 24)"), count);
                 for (int i = 0; i < count; i++)
                 {
                     ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
@@ -271,7 +275,8 @@ void Method::ReadSections()
                     pSection->m_tryStart = GetInstructionAtOffset(tryStart);
                     pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
+                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -283,7 +288,6 @@ void Method::ReadSections()
             else
             {
                 int count = (int)(Read<BYTE>() / 12);
-                ATLTRACE(_T("tiny sect: (+?) + 4 + (%d * 12)"), count);
                 Advance(2);
                 for (int i = 0; i < count; i++)
                 {
@@ -308,7 +312,8 @@ void Method::ReadSections()
                     pSection->m_tryStart = GetInstructionAtOffset(tryStart);
                     pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd);
+                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
+                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -335,6 +340,52 @@ Instruction * Method::GetInstructionAtOffset(long offset)
             return (*it);
         }
     }
+    _ASSERTE(FALSE);
+    return NULL;
+}
+
+/// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
+/// <param name="offset">The offset to look for.</param>
+/// <returns>An <c>Instruction</c> that exists at that location.</returns>
+/// <remarks>Ensure that the offsets are current by executing <c>RecalculateOffsets</c>
+/// beforehand. Only should be used when trying to find the instruction pointed to be a finally 
+/// block which may be beyond the bounds of the method itself</remarks>
+/// <example>
+///     void Method()
+///     {
+///            try
+///            {
+///                throw new Exception();
+///            }
+///            finally
+///            {
+///                Console.WriteLine("Finally");
+///            }
+///     }
+/// </example>
+Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally)
+{
+    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    {
+        if ((*it)->m_offset == offset)
+        {
+            return (*it);
+        }
+    }
+
+    if (isFinally)
+    {
+        Instruction *pLast = m_instructions.back();
+        OperationDetails &details = Operations::m_mapNameOperationDetails[pLast->m_operation];
+        if (offset == pLast->m_offset + details.length + details.operandSize)
+        {
+            // add a code label to hang the try/finally handler end off
+            Instruction *pInstruction = new Instruction(CEE_CODE_LABEL); 
+            pInstruction->m_offset = offset;
+            m_instructions.push_back(pInstruction);
+            return pInstruction;
+        }
+    }  
     _ASSERTE(FALSE);
     return NULL;
 }
