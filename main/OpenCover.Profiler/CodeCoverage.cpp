@@ -177,6 +177,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
             ULONG mapSize = instumentedMethod.GetILMapSize();
             COR_IL_MAP * pMap = (COR_IL_MAP *)CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP));
+            instumentedMethod.PopulateILMap(mapSize, pMap);
             m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap);
 
             // only do this for .NET4 as there are issues with earlier runtimes (Access Violations)
