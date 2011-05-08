@@ -28,7 +28,7 @@ protected:
     template<typename value_type> void Align() {
         _ASSERTE(m_bufferCurrent != NULL);
         long i = sizeof(value_type) - 1;
-        long incr = ((m_position + i) & ~3) - m_position;
+        long incr = ((m_position + i) & ~i) - m_position;
         Advance(incr);
     }
 
