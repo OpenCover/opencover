@@ -142,7 +142,7 @@ void Method::WriteSections()
 
             switch ((*it)->m_handlerType)
             {
-            case CLAUSE_FILTER:
+            case COR_ILEXCEPTION_CLAUSE_FILTER:
                 Write<long>((*it)->m_filterStart->m_offset);
                 break;
             default:
@@ -254,7 +254,7 @@ void Method::ReadSections()
                 int count = ((Read<ULONG>() >> 8) / 24);
                 for (int i = 0; i < count; i++)
                 {
-                    ExceptionHandlerType type = (ExceptionHandlerType)Read<ULONG>();
+                    CorExceptionFlag type = (CorExceptionFlag)Read<ULONG>();
                     long tryStart = Read<long>();
                     long tryEnd = Read<long>();
                     long handlerStart = Read<long>();
@@ -263,7 +263,7 @@ void Method::ReadSections()
                     ULONG token = 0;
                     switch (type)
                     {
-                    case CLAUSE_FILTER:
+                    case COR_ILEXCEPTION_CLAUSE_FILTER:
                         filterStart = Read<long>();
                         break;
                     default:
@@ -291,7 +291,7 @@ void Method::ReadSections()
                 Advance(2);
                 for (int i = 0; i < count; i++)
                 {
-                    ExceptionHandlerType type = (ExceptionHandlerType)Read<USHORT>();
+                    CorExceptionFlag type = (CorExceptionFlag)Read<USHORT>();
                     long tryStart = Read<USHORT>();
                     long tryEnd = Read<BYTE>();
                     long handlerStart = Read<USHORT>();
@@ -300,7 +300,7 @@ void Method::ReadSections()
                     ULONG token = 0;
                     switch (type)
                     {
-                    case CLAUSE_FILTER:
+                    case COR_ILEXCEPTION_CLAUSE_FILTER:
                         filterStart = Read<long>();
                         break;
                     default:
@@ -706,7 +706,7 @@ bool Method::DoesTryHandlerPointToOffset(long offset)
 {
     for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
-        if (((*it)->m_handlerType == ExceptionHandlerType::CLAUSE_NONE) 
+        if (((*it)->m_handlerType == COR_ILEXCEPTION_CLAUSE_NONE) 
             && ((*it)->m_handlerStart->m_offset == offset)) return true;
     }
     return false;
