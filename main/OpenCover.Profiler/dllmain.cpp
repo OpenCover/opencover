@@ -10,6 +10,8 @@
 #include "dllmain.h"
 #include "xdlldata.h"
 
+#include "CodeCoverage.h"
+
 COpenCoverProfilerModule _AtlModule;
 
 // DLL Entry Point
@@ -20,5 +22,21 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 		return FALSE;
 #endif
 	hInstance;
+
+    switch(dwReason)
+    {
+    case DLL_PROCESS_ATTACH:
+        DisableThreadLibraryCalls(hInstance);
+        break;
+    case DLL_PROCESS_DETACH:
+        if ((lpReserved != NULL) && (CCodeCoverage::g_pProfiler != NULL))
+        {
+            CCodeCoverage::g_pProfiler->Shutdown();
+        }
+        break;
+    default:
+        break;
+    };
+
 	return _AtlModule.DllMain(dwReason, lpReserved); 
 }

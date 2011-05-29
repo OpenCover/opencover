@@ -59,12 +59,15 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
     ATLTRACE(_T("::Shutdown"));
-    g_pProfiler = NULL;
-    SendVisitPoints();
-    m_host->Stop();
-    delete m_host;
+    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
+    if (g_pProfiler!=NULL)
+    {
+        g_pProfiler = NULL;
+        SendVisitPoints();
+        m_host->Stop();
+        delete m_host;
+    }
     return S_OK; 
 }
 
