@@ -34,12 +34,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
     }
 
-    WCHAR pszPortNumber[10];
-    ::GetEnvironmentVariableW(L"OpenCover_Port", pszPortNumber, 10);
-    int portNumber = _wtoi(pszPortNumber);
-    ATLTRACE(_T("->Port Number %d"), portNumber);
-
-    m_host = new ProfilerCommunication(portNumber);
+    m_host = new ProfilerCommunication(0);
 
     m_host->Start();
 
@@ -96,15 +91,15 @@ static void __fastcall SequencePointVisit(ULONG seq)
 {
     VisitPoint point;
     point.UniqueId = seq;
-    point.VisitType = VisitTypeSequencePoint;
+//    point.VisitType = VisitTypeSequencePoint;
     CCodeCoverage::g_pProfiler->AddVisitPoint(point);
 }
 
 void CCodeCoverage::AddVisitPoint(VisitPoint &point)
 {
     CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
-    m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
+//    m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
+//    m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
 
     if (++m_VisitPointCount==SEQ_BUFFER_SIZE)
     {

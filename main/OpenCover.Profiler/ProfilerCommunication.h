@@ -1,22 +1,21 @@
-#include "..\schema\opencover.profiler.xsd.h"
-#include "..\schema\OpenCover.Framework.Common.xsd.h"
-
 #pragma once
+
+typedef struct SequencePoint
+{
+    ULONG UniqueId;
+    long Offset;
+};
+
+typedef struct VisitPoint
+{
+    ULONG UniqueId;
+};
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
 class ProfilerCommunication
 {
 private:
-    int _port;
-
-    void Initialise();
-    void Cleanup();
-    void PrintError(HRESULT errorCode, WS_ERROR* error);
-    WS_ERROR* error;
-    WS_HEAP* heap;
-    WS_SERVICE_PROXY* proxy;
-    ATL::CComAutoCriticalSection m_cs;
 
 public:
     ProfilerCommunication(int port);
