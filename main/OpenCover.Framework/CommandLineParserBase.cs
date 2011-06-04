@@ -10,13 +10,11 @@ namespace OpenCover.Framework
     /// </summary>
     public abstract class CommandLineParserBase
     {
-        private readonly string _arguments;
+        private readonly string[] _arguments;
 
-        protected CommandLineParserBase(string arguments)
+        protected CommandLineParserBase(string[] arguments)
         {
-            _arguments = arguments ?? String.Empty;
-            _arguments.Trim();
-            _arguments = (" " + _arguments).Replace(" -", " /");
+            _arguments = arguments;
             ParsedArguments = new Dictionary<string, string>();
             ParseArguments();
         }
@@ -25,11 +23,13 @@ namespace OpenCover.Framework
 
         private void ParseArguments()
         {
-            var arguments = _arguments.Split("/".ToCharArray());
+            if (_arguments == null) return;
 
-            foreach (var argument in arguments)
+            foreach (var argument in _arguments)
             {
                 var trimmed = argument.Trim();
+                if (!trimmed.StartsWith("-")) continue;
+                trimmed = trimmed.Substring(1);
                 if (string.IsNullOrEmpty(trimmed)) continue;
                 var colonidx = trimmed.IndexOf(':');
                 if (colonidx>0)

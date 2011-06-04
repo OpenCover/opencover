@@ -22,7 +22,7 @@ namespace OpenCover.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var parser = new CommandLineParser(string.Join(" ", args));
+            var parser = new CommandLineParser(args);
 
             var container = new Bootstrapper();
             var filter = new Filter();

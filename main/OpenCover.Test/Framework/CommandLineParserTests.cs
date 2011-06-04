@@ -8,7 +8,7 @@ namespace OpenCover.Test.Framework
     [TestFixture]
     public class CommandLineParserTests
     {
-        private const string RequiredArgs = " -target:Required";
+        private const string RequiredArgs = "-target:Required";
 
         [Test]
         public void ParserHasKnownDefaultArguments()
@@ -16,7 +16,7 @@ namespace OpenCover.Test.Framework
             // arrange
     
             // act
-            var parser = new CommandLineParser(string.Empty);
+            var parser = new CommandLineParser(new[]{string.Empty});
 
             // assert
             Assert.IsFalse(parser.Register);
@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework
         public void ThrowsExceptionWhenArgumentUnrecognised()
         {
             // arrange
-            var parser = new CommandLineParser("-bork");
+            var parser = new CommandLineParser(new[]{"-bork"});
 
             // act
             Assert.Throws<InvalidOperationException>(() =>parser.ExtractAndValidateArguments());
@@ -43,7 +43,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheRegisterArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-register" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-register" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -57,7 +57,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheRegisterArgumentWithKnownValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-register:user" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-register:user" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -71,7 +71,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithDefault()
         {
             // arrange  
-            var parser = new CommandLineParser("-host");
+            var parser = new CommandLineParser(new[]{"-host"});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -85,7 +85,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentWithKnownValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-host:15");
+            var parser = new CommandLineParser(new[]{"-host:15"});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -99,7 +99,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheHostArgumentThrowsExceptionWithBadValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-host:badvalue" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-host:badvalue" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -112,7 +112,7 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentThrowsExceptionWithMissingValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-port" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-port" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -125,7 +125,7 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentWithKnownValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-port:9999" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-port:9999" , RequiredArgs});
             
             // act
             parser.ExtractAndValidateArguments();
@@ -138,7 +138,7 @@ namespace OpenCover.Test.Framework
         public void HandlesThePortArgumentThrowsExceptionWithBadValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-host:badvalue" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-host:badvalue" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -151,7 +151,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTargetArgumentThrowsExceptionWithMissingValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-target");
+            var parser = new CommandLineParser(new[]{"-target"});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -164,7 +164,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTargetArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-target:XXX");
+            var parser = new CommandLineParser(new[]{"-target:XXX"});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -177,7 +177,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTargetDirArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-targetdir:XXX" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-targetdir:XXX" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -190,7 +190,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTargetArgsArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-targetargs:XXX" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-targetargs:XXX" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -203,7 +203,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheOutputArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser("-output:ZYX" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-output:ZYX" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -216,7 +216,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheUsageArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-?");
+            var parser = new CommandLineParser(new[]{"-?"});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -230,7 +230,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheArchitectureArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-arch:32" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-arch:32" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -243,7 +243,7 @@ namespace OpenCover.Test.Framework
         public void HandlesBadArchitectureArgumentNumber()
         {
             // arrange  
-            var parser = new CommandLineParser("-arch:128" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-arch:128" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -256,7 +256,7 @@ namespace OpenCover.Test.Framework
         public void HandlesBadArchitectureArgumentAlt()
         {
             // arrange  
-            var parser = new CommandLineParser("-arch:arch128" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-arch:arch128" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -269,7 +269,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTypeArgumentSingle()
         {
             // arrange  
-            var parser = new CommandLineParser("-type:method" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-type:method" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -282,7 +282,7 @@ namespace OpenCover.Test.Framework
         public void HandlesTheTypeArgumentMultiple()
         {
             // arrange  
-            var parser = new CommandLineParser("-type:method, sequence" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-type:method,sequence" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -295,7 +295,7 @@ namespace OpenCover.Test.Framework
         public void HandlesAnInvalidTypeArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-type:method,boris" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-type:method,boris" , RequiredArgs});
 
             // act
             var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
@@ -308,7 +308,7 @@ namespace OpenCover.Test.Framework
         public void HandlesNoDefaultFiltersArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-nodefaultfilters" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-nodefaultfilters" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
@@ -321,7 +321,7 @@ namespace OpenCover.Test.Framework
         public void HandlesFilterArgument()
         {
             // arrange  
-            var parser = new CommandLineParser("-filter:XYZ ABC" + RequiredArgs);
+            var parser = new CommandLineParser(new[]{"-filter:XYZ ABC", RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();

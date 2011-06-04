@@ -17,7 +17,7 @@ namespace OpenCover.Framework
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
     {
-        public CommandLineParser(string arguments)
+        public CommandLineParser(string[] arguments)
             : base(arguments)
         {
             Architecture = Architecture.Arch32;
@@ -33,7 +33,7 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    -target:<target application>");
             builder.AppendLine("    [-targetdir:<target directory>]");
-            builder.AppendLine("    [-targetargs:<arguments for the target process>]");
+            builder.AppendLine("    [-targetargs:[\"]<arguments for the target process>][\"]");
             builder.AppendLine("    [-port:<port number>]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [-arch:<32|64>]");
@@ -53,12 +53,15 @@ namespace OpenCover.Framework
             builder.AppendLine("    -nodefaultfilters option is supplied. If no other filters are supplied");
             builder.AppendLine("    via the -filter option then a default inclusive all filter +[*]* is");
             builder.AppendLine("    applied.");
+            builder.AppendLine("Notes:");
+            builder.AppendLine("    Enclose arguments in quotes \"\" when spaces are required see -targetargs.");
+
             return builder.ToString();
         }
 
         public void ExtractAndValidateArguments()
         {
-            foreach (var key in ParsedArguments.Keys)
+            foreach (string key in ParsedArguments.Keys)
             {
                 switch(key.ToLowerInvariant())
                 {

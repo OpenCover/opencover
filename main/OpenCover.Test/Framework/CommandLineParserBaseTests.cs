@@ -13,7 +13,7 @@ namespace OpenCover.Test.Framework
         // this allows testing of the abstract class
         class CommandLineParserStub : CommandLineParserBase
         {
-            public CommandLineParserStub(string arguments)
+            public CommandLineParserStub(string[] arguments)
                 : base(arguments)
             {
             }
@@ -37,7 +37,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub(String.Empty);
+            var parser = new CommandLineParserStub(new[]{String.Empty});
 
             // assert
             Assert.AreEqual(0, parser.ArgumentCount);
@@ -49,7 +49,7 @@ namespace OpenCover.Test.Framework
             // arrange
            
             // act
-            var parser = new CommandLineParserStub("-arg");
+            var parser = new CommandLineParserStub(new[]{"-arg"});
 
             // assert
             Assert.AreEqual(1, parser.ArgumentCount);
@@ -62,7 +62,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub("-arg -arg2");
+            var parser = new CommandLineParserStub(new[] { "-arg", "-arg2" });
 
             // assert
             Assert.AreEqual(2, parser.ArgumentCount);
@@ -76,7 +76,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub("-arg:value");
+            var parser = new CommandLineParserStub(new[]{"-arg:value"});
 
             // assert
             Assert.AreEqual(1, parser.ArgumentCount);
@@ -90,7 +90,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub("-arg:value -arg1:value1");
+            var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg1:value1" });
 
             // assert
             Assert.AreEqual(2, parser.ArgumentCount);
@@ -106,7 +106,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub("-arg:");
+            var parser = new CommandLineParserStub(new[]{"-arg:"});
 
             // assert
             Assert.AreEqual(1, parser.ArgumentCount);
@@ -120,16 +120,16 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub("-arg:value -arg1 -arg2:");
+            var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg1", "-arg2:" });
 
             // assert
             Assert.AreEqual(3, parser.ArgumentCount);
             Assert.IsTrue(parser.HasArgument("arg"));
             Assert.AreEqual("value", parser.GetArgumentValue("arg"));
             Assert.IsTrue(parser.HasArgument("arg1"));
-            Assert.AreEqual(String.Empty, parser.GetArgumentValue("arg1"));
+            Assert.AreEqual(string.Empty, parser.GetArgumentValue("arg1"));
             Assert.IsTrue(parser.HasArgument("arg2"));
-            Assert.AreEqual(String.Empty, parser.GetArgumentValue("arg2"));
+            Assert.AreEqual(string.Empty, parser.GetArgumentValue("arg2"));
 
         }
     }
