@@ -17,14 +17,53 @@ namespace OpenCover.Framework
     {
         public enum MSG_Type : int
         {
-            MSG_TrackAssembly = 1    
+            MSG_TrackAssembly = 1,
+            MSG_GetSequencePoints = 2,
         }
 
-        private static int Incr(ref int index, int increment)
+        [StructLayout(LayoutKind.Sequential, Pack=1, CharSet = CharSet.Unicode)]
+        public struct MSG_TrackAssembly_Request1
         {
-            var ret = index;
-            index += increment;
-            return ret;
+            public MSG_Type type;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+            public string module;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+            public string assembly;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct MSG_TrackAssembly_Response
+        {
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool track;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+        public struct MSG_GetSequencePoints_Request
+        {
+            public MSG_Type type;
+            public int functionToken;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+            public string module;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct SequencePoint
+        {
+            public uint UniqueId;
+            public int Offset;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct MSG_GetSequencePoints_Response
+        {
+            [MarshalAs(UnmanagedType.Bool)]
+            public bool more;
+
+            public int count;
+
+            //[MarshalAs(UnmanagedType.LPArray,  = typeof(SequencePoint))]
+            //public SequencePoint[] points;  
         }
 
         public static void RunProcess(Action<Action<StringDictionary>> process, IProfilerCommunication communication)
@@ -40,7 +79,6 @@ namespace OpenCover.Framework
             const int msgSize = 4096;
 
             using (var mmf = MemoryMappedFile.CreateNew("OpenCover_Profiler_Communication_MemoryMapFile_" + key, msgSize))
-            using (var msgAccessor = mmf.CreateViewAccessor(0, msgSize, MemoryMappedFileAccess.ReadWrite))
             using (var streamAccessor = mmf.CreateViewStream(0, msgSize, MemoryMappedFileAccess.ReadWrite))
             {
                 ThreadPool.QueueUserWorkItem((state) =>
@@ -59,48 +97,79 @@ namespace OpenCover.Framework
                     }
                 });
 
+                const int bufSize = 400;
+
                 var continueWait = true;
                 do
                 {
-                    streamAccessor.Seek(0, SeekOrigin.Begin);
-                    int index = 0;
+                    
                     switch (WaitHandle.WaitAny(handles.ToArray()))
                     {
                         case 1:
-                            MSG_Type u;
-                            msgAccessor.Read(Incr(ref index, 4), out u);
+                            
+                            var data = new byte[4096];
+                            streamAccessor.Seek(0, SeekOrigin.Begin);
+                            streamAccessor.Read(data, 0, 4096);
 
-                            Debug.WriteLine("msg => {0}", u);
+                            var msgType = (MSG_Type)BitConverter.ToInt32(data, 0);
+                            var pinned = GCHandle.Alloc(data, GCHandleType.Pinned);
 
-                            switch(u)
+                            switch(msgType)
                             {
                                 case MSG_Type.MSG_TrackAssembly:
-                                    var nModule = msgAccessor.ReadInt16(Incr(ref index, 2));
+                                    var msgTA = (MSG_TrackAssembly_Request1)Marshal.PtrToStructure(pinned.AddrOfPinnedObject(), typeof (MSG_TrackAssembly_Request1));
+                                    var responseTA = new MSG_TrackAssembly_Response();
+                                    responseTA.track = communication.TrackAssembly(msgTA.module, msgTA.assembly);
+                                    Marshal.StructureToPtr(responseTA, pinned.AddrOfPinnedObject(), false);
+                                    break;
+
+                                case MSG_Type.MSG_GetSequencePoints:
+                                    var msgGSP = (MSG_GetSequencePoints_Request)Marshal.PtrToStructure(pinned.AddrOfPinnedObject(), typeof (MSG_GetSequencePoints_Request));
+                                    Service.SequencePoint[] origPoints;
+                                    var responseCSP = new MSG_GetSequencePoints_Response();
+                                    communication.GetSequencePoints(msgGSP.module, msgGSP.functionToken, out origPoints);
+                                    var num = origPoints == null ? 0 : origPoints.Length;
                                     
-                                    var module = new byte[1024];
-                                    streamAccessor.Seek(Incr(ref index, 1024), SeekOrigin.Begin);
-                                    streamAccessor.Read(module, 0, 1024);
-                                    var moduleName = Encoding.Unicode.GetString(module).Substring(0, nModule).Trim();
+                                    var index = 0;
+                                    do
+                                    {
+                                        responseCSP.more = num > bufSize;
+                                        responseCSP.count = num > bufSize ? bufSize : num;
+                                        Marshal.StructureToPtr(responseCSP, pinned.AddrOfPinnedObject(), false);
+                                        for (var i = 0; i < responseCSP.count; i++)
+                                        {
+                                            var point = new SequencePoint()
+                                                            {
+                                                                Offset = origPoints[index].Offset,
+                                                                UniqueId = origPoints[index].UniqueId
+                                                            };
+                                            Marshal.StructureToPtr(point, pinned.AddrOfPinnedObject() + 8 + (i * 8), false);
+                                            index++;
+                                        }
+                                        
+                                        if (responseCSP.more)
+                                        {
+                                            pinned.Free();
+                                            streamAccessor.Seek(0, SeekOrigin.Begin);
+                                            streamAccessor.Write(data, 0, 4096);
+                                            requestDataReady.Reset();
+                                            responseDataReady.Set();
+                                            responseDataReady.Reset();
 
-                                    var nAssembly = msgAccessor.ReadInt16(Incr(ref index, 2));
-                                    streamAccessor.Seek(Incr(ref index, 1024), SeekOrigin.Begin);
-                                    streamAccessor.Read(module, 0, 1024);
-                                    var assemblyName = Encoding.Unicode.GetString(module).Substring(0, nAssembly).Trim();
-
-                                    Debug.WriteLine("=> {1} => {0}", moduleName, moduleName.Length);
-                                    Debug.WriteLine("=> {1} => {0}", assemblyName, assemblyName.Length);
-
-                                    var response = communication.TrackAssembly(moduleName, assemblyName);
-                                    Debug.WriteLine("TA => => {0}", response);
-
-
-                                    msgAccessor.Write(0, response ? 1 : 0);
-
+                                            WaitHandle.WaitAny(new[] {requestDataReady});
+                                            pinned = GCHandle.Alloc(data, GCHandleType.Pinned);
+                                            num -= bufSize;
+                                        }
+                                    } while (responseCSP.more);
+                                    
                                     break;
                                 default:
                                     break;
                             }
-
+                            
+                            pinned.Free();
+                            streamAccessor.Seek(0, SeekOrigin.Begin);
+                            streamAccessor.Write(data, 0, 4096);
                             requestDataReady.Reset();
                             responseDataReady.Set();
                             responseDataReady.Reset();

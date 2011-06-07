@@ -302,6 +302,7 @@
     <ClInclude Include="CodeCoverage.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="Instruction.h" />
+    <ClInclude Include="Messages.h" />
     <ClInclude Include="Method.h" />
     <ClInclude Include="MethodBuffer.h" />
     <ClInclude Include="OpenCoverProfiler64_i.h">

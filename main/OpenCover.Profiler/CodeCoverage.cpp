@@ -131,12 +131,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         if (!m_allowModules[moduleName]) return S_OK;
 
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
-        unsigned int points;
-        SequencePoint ** ppPoints = NULL;
         
-        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
+        std::vector<SequencePoint> points;
+
+        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), points))
         {
-            if (points==0) return S_OK;
+            if (points.size()==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
@@ -150,13 +150,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             instumentedMethod.SetMinimumStackSize(2);
 
             ATLTRACE(_T("Instrumenting..."));
-
-            //points = 0;
-            for (unsigned int i=0; i < points; i++)
+            //points.clear();
+            for ( std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
             {
                 //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
                 InstructionList instructions;
-                instructions.push_back(new Instruction(CEE_LDC_I4, ppPoints[i]->UniqueId));
+                instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));
 #if _WIN64
                 instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
 #else
@@ -164,9 +163,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 #endif
                 instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
-                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
+                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
             }
-          
+
             instumentedMethod.DumpIL();
 
             CComPtr<IMethodMalloc> methodMalloc;
