@@ -37,3 +37,9 @@
 #include <string>
 #include <vector>
 #include <hash_map>
+
+#ifdef UNICODE
+#define tstring std::wstring
+#else
+#define tstring std::string
+#endif

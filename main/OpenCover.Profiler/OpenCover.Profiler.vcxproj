@@ -275,6 +275,7 @@
     </ClCompile>
     <ClCompile Include="ProfilerCommunication.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
+    <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -315,6 +316,8 @@
     <ClInclude Include="ProfilerCommunication.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ExceptionHandler.h" />
+    <ClInclude Include="SharedMemory.h" />
+    <ClInclude Include="Synchronization.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="xdlldata.h" />

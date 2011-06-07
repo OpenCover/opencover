@@ -61,6 +61,9 @@
     <ClCompile Include="OpenCoverProfiler64_i.c">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="SharedMemory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -107,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="OpenCoverProfiler64_i.h">
       <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Synchronization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedMemory.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using OpenCover.Framework;
 using OpenCover.Framework.Persistance;
+using OpenCover.Framework.Service;
 
 namespace OpenCover.Console
 {
@@ -63,24 +64,43 @@ namespace OpenCover.Console
             {
                 if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration);
 
-                if (Directory.Exists(parser.TargetDir)) Environment.CurrentDirectory = parser.TargetDir;
+               // var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+               // startInfo.EnvironmentVariables.Add("Cor_Profiler",
+               //                                    parser.Architecture == Architecture.Arch64
+               //                                        ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
+               //                                        : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
+               // startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
+               //// environment(startInfo.EnvironmentVariables);
 
-                var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
-                startInfo.EnvironmentVariables.Add("Cor_Profiler",
-                                                   parser.Architecture == Architecture.Arch64
-                                                       ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
-                                                       : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
-                startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
-                startInfo.Arguments = parser.TargetArgs;
-                startInfo.UseShellExecute = false;
+               // startInfo.Arguments = parser.TargetArgs;
+               // startInfo.UseShellExecute = false;
+               // startInfo.WorkingDirectory = parser.TargetDir;
 
-                var process = Process.Start(startInfo);
+               // var process = Process.Start(startInfo);
+               // process.WaitForExit();
 
-                process.WaitForExit();
+                Harness.RunProcess((environment) =>
+                                       {
+                                           var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+                                           startInfo.EnvironmentVariables.Add("Cor_Profiler",
+                                                                              parser.Architecture == Architecture.Arch64
+                                                                                  ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
+                                                                                  : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
+                                           startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
+                                           environment(startInfo.EnvironmentVariables);
+
+                                           startInfo.Arguments = parser.TargetArgs;
+                                           startInfo.UseShellExecute = false;
+                                           startInfo.WorkingDirectory = parser.TargetDir;
+
+                                           var process = Process.Start(startInfo);
+                                           process.WaitForExit();
+                                       }, (IProfilerCommunication)container.Container.Resolve(typeof(IProfilerCommunication), null));
+                
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception: {0}", ex.Message);
+                Debug.WriteLine("Exception: {0}\n{1}", ex.Message, ex.InnerException);
             }
             finally
             {

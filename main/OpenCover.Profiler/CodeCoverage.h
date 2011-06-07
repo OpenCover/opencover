@@ -90,11 +90,11 @@ public:
     void AddVisitPoint(VisitPoint &point);
 
 private:
-    ProfilerCommunication * m_host;
+    ProfilerCommunication m_host;
     VisitPoint **m_ppVisitPoints;
     unsigned int m_VisitPointCount;
     CComAutoCriticalSection m_cs;
-
+    
     std::hash_map<std::wstring, bool> m_allowModules;
     BOOL m_isV4;
 

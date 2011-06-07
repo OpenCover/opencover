@@ -20,10 +20,6 @@ namespace OpenCover.Framework.Service
 
     public interface IProfilerCommunication
     {
-        void Started();
-
-        void Stopping();
-
         bool TrackAssembly(string moduleName, string assemblyName);
 
         bool GetSequencePoints(string moduleName, int functionToken, out SequencePoint[] sequencePoints);

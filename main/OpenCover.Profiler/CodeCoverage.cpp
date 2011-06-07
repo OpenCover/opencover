@@ -19,6 +19,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
 
+    ATLTRACE( _T("sizeof(int) %d"), sizeof(int));
+    ATLTRACE( _T("sizeof(long) %d"), sizeof(long));
+    ATLTRACE( _T("sizeof(DWORD) %d"), sizeof(DWORD));
+
     if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
 
     m_profilerInfo = pICorProfilerInfoUnk;
@@ -34,9 +38,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
     }
 
-    m_host = new ProfilerCommunication(0);
-
-    m_host->Start();
+    TCHAR key[1024];
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
+    m_host.Initialise(key);
 
     DWORD dwMask = 0;
     dwMask |= COR_PRF_MONITOR_MODULE_LOADS;			// Controls the ModuleLoad, ModuleUnload, and ModuleAttachedToAssembly callbacks.
@@ -60,8 +64,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
     {
         g_pProfiler = NULL;
         SendVisitPoints();
-        m_host->Stop();
-        delete m_host;
     }
     return S_OK; 
 }
@@ -78,7 +80,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
-    m_allowModules[moduleName] = m_host->TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
+    m_allowModules[moduleName] = m_host.TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
     return S_OK; 
 }
 
@@ -110,7 +112,7 @@ void CCodeCoverage::AddVisitPoint(VisitPoint &point)
 void CCodeCoverage::SendVisitPoints()
 {
     CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    m_host->SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
+    m_host.SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
     m_VisitPointCount = 0;
 }
 
@@ -132,7 +134,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         unsigned int points;
         SequencePoint ** ppPoints = NULL;
         
-        if (m_host->GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
+        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
         {
             if (points==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;

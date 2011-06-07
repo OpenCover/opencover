@@ -32,6 +32,8 @@ namespace OpenCover.Framework
             _container.RegisterInstance(filter);
             _container.RegisterInstance(commandLine);
             _container.RegisterInstance(persistance);
+            _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
+            _container.RegisterType<ISymbolReaderFactory, SymbolReaderFactory>();
         }
 
     }
