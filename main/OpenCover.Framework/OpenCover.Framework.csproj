@@ -65,7 +65,11 @@
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Common\CoverageType.cs" />
     <Compile Include="Common\VisitType.cs" />
-    <Compile Include="Harness.cs" />
+    <Compile Include="Communication\MarshalWapper.cs" />
+    <Compile Include="Manager\ProfilerManager.cs" />
+    <Compile Include="Communication\MessageHandler.cs" />
+    <Compile Include="Communication\Messages.cs" />
+    <Compile Include="Manager\IProfilerManager.cs" />
     <Compile Include="Model\IInstrumentationModelBuilder.cs" />
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />

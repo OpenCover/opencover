@@ -2,6 +2,7 @@
 #include "ProfilerCommunication.h"
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
+#define MAX_MSG_SIZE 65536
 
 ProfilerCommunication::ProfilerCommunication() 
 {
@@ -23,7 +24,7 @@ void ProfilerCommunication::Initialise(TCHAR *key)
 
     m_memoryCommunication.OpenFileMapping((_T("Local\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
 
-    m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, 4096);
+    m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
 }
 
@@ -31,7 +32,7 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
 
-    ::ZeroMemory(m_pMSG, 4096);    
+    //::ZeroMemory(m_pMSG, MAX_MSG_SIZE);    
     m_pMSG->trackRequest.type = MSG_TrackAssembly; 
     wcscpy(m_pMSG->trackRequest.szModuleName, pModuleName);
     wcscpy(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
@@ -46,7 +47,7 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
 
-    ::ZeroMemory(m_pMSG, 4096); 
+    //::ZeroMemory(m_pMSG, MAX_MSG_SIZE); 
     m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
     m_pMSG->getSequencePointsRequest.functionToken = functionToken;
     wcscpy(m_pMSG->getSequencePointsRequest.szModuleName, pModuleName);

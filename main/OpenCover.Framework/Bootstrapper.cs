@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.Practices.Unity;
+using OpenCover.Framework.Communication;
+using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
@@ -34,6 +36,9 @@ namespace OpenCover.Framework
             _container.RegisterInstance(persistance);
             _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
             _container.RegisterType<ISymbolReaderFactory, SymbolReaderFactory>();
+            _container.RegisterType<IProfilerManager, ProfilerManager>();
+            _container.RegisterType<IMessageHandler, MessageHandler>();
+            _container.RegisterType<IMarshalWrapper, MarshalWrapper>();
         }
 
     }
