@@ -31,14 +31,14 @@ void ProfilerCommunication::Initialise(TCHAR *key)
 BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    m_eventReceiveData.Reset();
 
-    //::ZeroMemory(m_pMSG, MAX_MSG_SIZE);    
     m_pMSG->trackRequest.type = MSG_TrackAssembly; 
     wcscpy(m_pMSG->trackRequest.szModuleName, pModuleName);
     wcscpy(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
 
-    m_eventSendData.Set();
-    m_eventReceiveData.Wait();
+    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    m_eventReceiveData.Reset();
 
     return m_pMSG->trackResponse.bResponse;
 }
@@ -46,14 +46,14 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
 BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    m_eventReceiveData.Reset();
 
-    //::ZeroMemory(m_pMSG, MAX_MSG_SIZE); 
     m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
     m_pMSG->getSequencePointsRequest.functionToken = functionToken;
     wcscpy(m_pMSG->getSequencePointsRequest.szModuleName, pModuleName);
 
-    m_eventSendData.Set();
-    m_eventReceiveData.Wait();
+    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    m_eventReceiveData.Reset();
 
     BOOL hasMore = FALSE;
     do
@@ -66,8 +66,8 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         hasMore = m_pMSG->getSequencePointsResponse.hasMore;
         if (hasMore)
         {
-            m_eventSendData.Set();
-            m_eventReceiveData.Wait();
+            m_eventSendData.SignalAndWait(m_eventReceiveData);
+            m_eventReceiveData.Reset();
         }
     }while (hasMore);
     

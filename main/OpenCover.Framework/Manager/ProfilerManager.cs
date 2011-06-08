@@ -106,11 +106,9 @@ namespace OpenCover.Framework.Manager
         {
             _streamAccessor.Seek(0, SeekOrigin.Begin);
             _streamAccessor.Write(_data, 0, writeSize);
-                                            
-            _responseDataReady.Set();
-            _responseDataReady.Reset();
 
-            WaitHandle.WaitAny(new[] {_requestDataReady});
+            WaitHandle.SignalAndWait(_responseDataReady, _requestDataReady);
+            _responseDataReady.Reset();
         }
     }
 }
