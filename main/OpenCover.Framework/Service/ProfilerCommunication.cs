@@ -23,11 +23,6 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public void Started()
-        {
-           
-        }
-
         public bool TrackAssembly(string moduleName, string assemblyName)
         {
             if (_persistance.IsTracking(moduleName)) return true;

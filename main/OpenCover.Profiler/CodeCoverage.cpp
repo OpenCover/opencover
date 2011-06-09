@@ -19,10 +19,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
 
-    ATLTRACE( _T("sizeof(int) %d"), sizeof(int));
-    ATLTRACE( _T("sizeof(long) %d"), sizeof(long));
-    ATLTRACE( _T("sizeof(DWORD) %d"), sizeof(DWORD));
-
     if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
 
     m_profilerInfo = pICorProfilerInfoUnk;
@@ -59,12 +55,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    if (g_pProfiler!=NULL)
-    {
-        g_pProfiler = NULL;
-        SendVisitPoints();
-    }
+    g_pProfiler = NULL;
     return S_OK; 
 }
 
@@ -93,28 +84,10 @@ static void __fastcall SequencePointVisit(ULONG seq)
 {
     VisitPoint point;
     point.UniqueId = seq;
-//    point.VisitType = VisitTypeSequencePoint;
-    CCodeCoverage::g_pProfiler->AddVisitPoint(point);
+    point.VisitType = VT_SeqPt;
+    CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(point);
 }
 
-void CCodeCoverage::AddVisitPoint(VisitPoint &point)
-{
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-//    m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
-//    m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
-
-    if (++m_VisitPointCount==SEQ_BUFFER_SIZE)
-    {
-        SendVisitPoints();
-    }
-}
-
-void CCodeCoverage::SendVisitPoints()
-{
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    m_host.SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
-    m_VisitPointCount = 0;
-}
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
 /// <remarks>The 'workhorse' </remarks>

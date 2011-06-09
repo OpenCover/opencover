@@ -35,6 +35,9 @@ namespace OpenCover.Test.Framework.Manager
         public void Manager_Handles_StandardMessageEvent()
         {
             // arrange
+            Container.GetMock<IMessageHandler>()
+                .Setup(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()))
+                .Callback<MSG_Type, IntPtr, Action<int>>((t, p, action) => action(0));
 
             // act
             var dict = new StringDictionary();
@@ -48,14 +51,43 @@ namespace OpenCover.Test.Framework.Manager
 
                                         standardMessageDataReady.Set();
 
-                                        Thread.Sleep(new TimeSpan(0, 0, 0, 0, 500));
+                                        Thread.Sleep(new TimeSpan(0, 0, 0, 0, 50));
+                                        
+                                        standardMessageDataReady.Set();
+                                        
                                     });
-
-            
 
             // assert
             Container.GetMock<IMessageHandler>()
-                .Verify(x=>x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<IProfilerManager>()), Times.Once());
+                .Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()), Times.Once());
+
+            Container.GetMock<IMessageHandler>()
+                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Once());
+        }
+
+        [Test]
+        public void Manager_Handles_ResultsEvent()
+        {
+            // arrange
+
+            // act
+            var dict = new StringDictionary();
+
+            Instance.RunProcess(e =>
+            {
+                e(dict);
+
+                var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
+                    @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
+
+                standardMessageDataReady.Set();
+
+                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 50));
+            });
+
+            // assert
+            Container.GetMock<IMessageHandler>()
+                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Exactly(2));
         }
     }
 }

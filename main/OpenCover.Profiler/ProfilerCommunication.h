@@ -4,6 +4,8 @@
 #include "SharedMemory.h"
 #include "Messages.h"
 
+#define SEQ_BUFFER_SIZE 8000
+
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
 class ProfilerCommunication
@@ -18,16 +20,27 @@ public:
 public:
     BOOL TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName);
     BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points);
-    void SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints);
+    void AddVisitPoint(VisitPoint &point);
+
+private:
+    void SendVisitPoints();
+
+private:
+    tstring m_key;
 
 private:
     CMutex m_mutexCommunication;
     CSharedMemory m_memoryCommunication;
     CEvent m_eventSendData;
     CEvent m_eventReceiveData;
-
-    CMutex m_mutexResults;
-    tstring m_key;
     MSG_Union *m_pMSG;
+
+private:
+    CMutex m_mutexResults;
+    CSharedMemory m_memoryResults;
+    CEvent m_eventSendResults;
+    CEvent m_eventReceiveResults;
+    MSG_SendVisitPoints_Request *m_pVisitPoints;
+
 };
 

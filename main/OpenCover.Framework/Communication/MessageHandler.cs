@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using OpenCover.Framework.Manager;
@@ -8,9 +9,12 @@ namespace OpenCover.Framework.Communication
 {
     public interface IMessageHandler
     {
-        int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, IProfilerManager harness);
+        int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, Action<int> chunkReady);
         int ReadSize { get; }
         int MaxMsgSize { get; }
+
+        void ReceiveResults(IntPtr pinnedMemory);
+        void Complete();
     }
 
     public class MessageHandler : IMessageHandler
@@ -26,7 +30,7 @@ namespace OpenCover.Framework.Communication
             _marshalWrapper = marshalWrapper;
         }
 
-        public int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, IProfilerManager harness)
+        public int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, Action<int> chunkReady)
         {
             var writeSize = 0;
             switch (msgType)
@@ -67,7 +71,7 @@ namespace OpenCover.Framework.Communication
 
                         if (responseCSP.more)
                         {
-                            harness.SendChunkAndWaitForConfirmation(writeSize);
+                            chunkReady(writeSize);
                             num -= BufSize;
                         }
                     } while (responseCSP.more);
@@ -103,6 +107,25 @@ namespace OpenCover.Framework.Communication
                 }
                 return _maxMsgSize;
             }
+        }
+
+        public void ReceiveResults(IntPtr pinnedMemory)
+        {
+            var msgRes = _marshalWrapper.PtrToStructure<MSG_SendVisitPoints_Request>(pinnedMemory);
+            var list = new List<VisitPoint>();
+            pinnedMemory += Marshal.SizeOf(typeof (MSG_SendVisitPoints_Request));
+            for (var i = 0; i < msgRes.count; i++)
+            {
+                var pt = _marshalWrapper.PtrToStructure<MSG_VisitPoint>(pinnedMemory);
+                list.Add(new VisitPoint(){UniqueId = pt.UniqueId, VisitType = pt.VisitType});
+                pinnedMemory += Marshal.SizeOf(typeof(MSG_VisitPoint));          
+            }
+            _profilerCommunication.Visited(list.ToArray());
+        }
+
+        public void Complete()
+        {
+            _profilerCommunication.Stopping();
         }
     }
 

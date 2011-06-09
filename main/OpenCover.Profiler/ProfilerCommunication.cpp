@@ -22,10 +22,14 @@ void ProfilerCommunication::Initialise(TCHAR *key)
     m_eventSendData.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
     m_eventReceiveData.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
 
+    m_eventSendResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
+    m_eventReceiveResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
+
     m_memoryCommunication.OpenFileMapping((_T("Local\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
+    m_memoryResults.OpenFileMapping((_T("Local\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
 
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
-
+    m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 }
 
 BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName)
@@ -74,9 +78,23 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
     return (points.size() != 0);
 }
 
-void ProfilerCommunication::SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints)
+void ProfilerCommunication::AddVisitPoint(VisitPoint &point)
 {
     CScopedLock<CMutex> lock(m_mutexResults);
+    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = point.UniqueId;
+    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = point.VisitType;
+    if (++m_pVisitPoints->count == 8000)
+    {
+        SendVisitPoints();
+        ::ZeroMemory(m_pVisitPoints, 65536);
+    }
+}
+
+void ProfilerCommunication::SendVisitPoints()
+{
+    m_eventReceiveResults.Reset();
+    m_eventSendResults.SignalAndWait(m_eventReceiveResults);
+    m_eventReceiveResults.Reset();
     return;
 }
 
