@@ -146,7 +146,8 @@ namespace OpenCover.Framework.Manager
         {
             _streamAccessorComms.Seek(0, SeekOrigin.Begin);
             _streamAccessorComms.Write(_dataCommunication, 0, writeSize);
-
+            
+            _requestDataReady.Reset();
             WaitHandle.SignalAndWait(_responseDataReady, _requestDataReady);
             _responseDataReady.Reset();
         }

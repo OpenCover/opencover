@@ -45,6 +45,21 @@ namespace OpenCover.Framework.Persistance
                 var writer = new StreamWriter(fs, new UTF8Encoding());
                 serializer.Serialize(writer, _session);
                 writer.Close();
+
+                var totalSeqPoint = 0;
+                var visitedSeqPoint = 0;
+
+                foreach (var method in
+                    from module in _session.Modules
+                    from @class in module.Classes
+                    from method in @class.Methods
+                    select method)
+                {
+                    totalSeqPoint += method.SequencePoints.Count();
+                    visitedSeqPoint += method.SequencePoints.Where(pt => pt.VisitCount != 0).Count();
+                }
+
+                Console.WriteLine("Visited Points {0} of {1} ({2})", visitedSeqPoint, totalSeqPoint, (double)visitedSeqPoint*100.0/(double)totalSeqPoint );
             }
             catch (Exception ex)
             {
@@ -61,7 +76,6 @@ namespace OpenCover.Framework.Persistance
             foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
             {
                 if (method == null) continue;
-                Debug.WriteLine(method.Name);
                 sequencePoints = method.SequencePoints;
                 return true;
             }

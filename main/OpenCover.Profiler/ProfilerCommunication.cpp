@@ -42,9 +42,9 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
     wcscpy(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
 
     m_eventSendData.SignalAndWait(m_eventReceiveData);
+    bool response =  m_pMSG->trackResponse.bResponse;
     m_eventReceiveData.Reset();
-
-    return m_pMSG->trackResponse.bResponse;
+    return response;
 }
 
 BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points)
@@ -64,7 +64,7 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
     {
         for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
         {
-           points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
+            points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
         }
 
         hasMore = m_pMSG->getSequencePointsResponse.hasMore;
@@ -78,15 +78,16 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
     return (points.size() != 0);
 }
 
-void ProfilerCommunication::AddVisitPoint(VisitPoint &point)
+void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
 {
     CScopedLock<CMutex> lock(m_mutexResults);
-    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = point.UniqueId;
-    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = point.VisitType;
+    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
+    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = VT_SeqPt;
     if (++m_pVisitPoints->count == 8000)
     {
         SendVisitPoints();
-        ::ZeroMemory(m_pVisitPoints, 65536);
+        m_pVisitPoints->count=0;
+        //::ZeroMemory(m_pVisitPoints, 65536);
     }
 }
 

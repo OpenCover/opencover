@@ -82,10 +82,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 /// </remarks>
 static void __fastcall SequencePointVisit(ULONG seq)
 {
-    VisitPoint point;
-    point.UniqueId = seq;
-    point.VisitType = VT_SeqPt;
-    CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(point);
+    CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
 }
 
 
@@ -125,7 +122,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             ATLTRACE(_T("Instrumenting..."));
             //points.clear();
             for ( std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
-            {
+            {    
                 //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
                 InstructionList instructions;
                 instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));

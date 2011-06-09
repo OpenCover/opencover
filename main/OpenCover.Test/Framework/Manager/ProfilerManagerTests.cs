@@ -51,7 +51,7 @@ namespace OpenCover.Test.Framework.Manager
 
                                         standardMessageDataReady.Set();
 
-                                        Thread.Sleep(new TimeSpan(0, 0, 0, 0, 50));
+                                        Thread.Sleep(new TimeSpan(0, 0, 0, 0, 250));
                                         
                                         standardMessageDataReady.Set();
                                         
@@ -82,7 +82,7 @@ namespace OpenCover.Test.Framework.Manager
 
                 standardMessageDataReady.Set();
 
-                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 50));
+                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 250));
             });
 
             // assert
