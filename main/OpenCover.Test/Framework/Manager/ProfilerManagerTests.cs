@@ -37,7 +37,7 @@ namespace OpenCover.Test.Framework.Manager
             // arrange
             Container.GetMock<IMessageHandler>()
                 .Setup(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()))
-                .Callback<MSG_Type, IntPtr, Action<int>>((t, p, action) => action(0));
+                .Callback<MSG_Type, IntPtr, Action<int>>((t, p, action) => { });
 
             // act
             var dict = new StringDictionary();
@@ -52,8 +52,6 @@ namespace OpenCover.Test.Framework.Manager
                                         standardMessageDataReady.Set();
 
                                         Thread.Sleep(new TimeSpan(0, 0, 0, 0, 250));
-                                        
-                                        standardMessageDataReady.Set();
                                         
                                     });
 
