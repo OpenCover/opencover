@@ -1,236 +1,102 @@
 #include "StdAfx.h"
 #include "ProfilerCommunication.h"
 
-#include "..\schema\opencover.profiler.wsdl.h"
-#include "..\schema\tempuri.org.wsdl.h"
-#include "..\schema\schemas.microsoft.com.2003.10.Serialization.xsd.h"
-
-
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
+#define MAX_MSG_SIZE 65536
 
-ProfilerCommunication::ProfilerCommunication(int port)
+ProfilerCommunication::ProfilerCommunication() 
 {
-    error = NULL;
-    heap = NULL;
-    proxy = NULL;
-
-    _port = port;
-    Initialise();
 }
 
-ProfilerCommunication::~ProfilerCommunication(void)
+ProfilerCommunication::~ProfilerCommunication()
 {
-    Cleanup();
 }
 
-// Print out rich error info
-void ProfilerCommunication::PrintError(HRESULT errorCode, WS_ERROR* error)
+void ProfilerCommunication::Initialise(TCHAR *key)
 {
-    ATLTRACE(L"Failure: errorCode=0x%lx\n", errorCode);
+    m_key = key;
 
-    if (errorCode == E_INVALIDARG || errorCode == WS_E_INVALID_OPERATION)
-    {
-        // Correct use of the APIs should never generate these errors
-        ATLTRACE(_T("The error was due to an invalid use of an API.  This is likely due to a bug in the program.\n"));
-        DebugBreak();
-    }
+    m_mutexCommunication.Initialise((_T("Local\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
+    m_mutexResults.Initialise((_T("Local\\OpenCover_Profiler_Results_Mutex_") + m_key).c_str());
 
-    HRESULT hr = NOERROR;
-    if (error != NULL)
-    {
-        ULONG errorCount;
-        hr = WsGetErrorProperty(error, WS_ERROR_PROPERTY_STRING_COUNT, &errorCount, sizeof(errorCount));
-        ONERROR_GOEXIT(hr);
+    m_eventSendData.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
+    m_eventReceiveData.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
 
-        for (ULONG i = 0; i < errorCount; i++)
-        {
-            WS_STRING string;
-            hr = WsGetErrorString(error, i, &string);
-            ONERROR_GOEXIT(hr);
-            ATLTRACE(_T("%s"), W2CT(string.chars));
-        }
-    }
-Exit:
-    WsResetError(error);
-    if (FAILED(hr))
-    {
-        ATLTRACE(L"Could not get error string (errorCode=0x%lx)\n", hr);
-    }
-}
+    m_eventSendResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
+    m_eventReceiveResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
 
-void ProfilerCommunication::Initialise()
-{
-    HRESULT hr = ERROR_SUCCESS;
-    WS_ENDPOINT_ADDRESS address = {};
-    WCHAR szUrl[255] = {0};
+    m_memoryCommunication.OpenFileMapping((_T("Local\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
+    m_memoryResults.OpenFileMapping((_T("Local\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
 
-    ATLTRACE(_T("STARTING"));
-
-    hr = WsCreateError(NULL,  0,  &error);
-    ONERROR_GOEXIT(hr);
-
-    ATLTRACE(_T("WsCreateError"));
-
-    hr = NetTcpBinding_IProfilerCommunication_CreateServiceProxy
-        (
-        NULL,
-        NULL,
-        0,
-        &proxy,
-        error
-        );
-    ONERROR_GOEXIT(hr);
-    
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_CreateServiceProxy"));
-
-    wsprintf(szUrl, L"net.tcp://localhost:%d/OpenCover.Profiler.Host", _port);
-    address.url.chars = szUrl;
-    address.url.length = (ULONG)wcslen(address.url.chars);
-
-    hr = WsOpenServiceProxy(
-        proxy, 
-        &address, 
-        NULL, 
-        error);
-    ONERROR_GOEXIT(hr);
-
-    ATLTRACE(_T("WsOpenServiceProxy"));
-
-    hr = WsCreateHeap(2*1024*1024, 64*1024, NULL, 0, &heap, error); 
-    ONERROR_GOEXIT(hr);
-
-    ATLTRACE(_T("WsCreateHeap"));
-
-Exit:
-    if (FAILED(hr))
-    {
-        PrintError(hr, error);
-        Cleanup();
-    }
-}
-
-void ProfilerCommunication::Cleanup()
-{
-    if (proxy != NULL)
-    {
-        WsCloseServiceProxy(
-            proxy,
-            NULL,
-            NULL);
-
-        WsFreeServiceProxy(
-            proxy);
-
-        proxy = NULL;
-    }
-
-    if (heap != NULL)
-    {
-        WsFreeHeap(heap);
-        heap = NULL;
-    }
-
-    if (error != NULL)
-    {
-        WsFreeError(error);
-        error = NULL;
-    }
-}
-
-void ProfilerCommunication::Start()
-{
-    if (proxy==NULL) return;
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
-    WsResetHeap(heap, error);
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_Started(proxy, 
-        heap, 
-        NULL, 
-        0, 
-        NULL, 
-        error);
-
-    if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Started"));
-}
-
-void ProfilerCommunication::Stop()
-{
-    if (proxy==NULL) return;
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
-    WsResetHeap(heap, error);
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_Stopping(proxy, 
-        heap, 
-        NULL, 
-        0, 
-        NULL, 
-        error);
-
-    if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Stopping"));
+    m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
+    m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 }
 
 BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName)
 {
-    BOOL result;
-    if (proxy==NULL) return FALSE;
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
-    WsResetHeap(heap, error);
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_TrackAssembly(proxy,
-        pModuleName,
-        pAssemblyName,
-        &result,
-        heap, 
-        NULL, 
-        0, 
-        NULL, 
-        error);
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+    m_eventReceiveData.Reset();
 
-    if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_ShouldTrackAssembly %s => %s"), pAssemblyName, result ? _T("Yes") : _T("No"));
-    return result;
+    m_pMSG->trackRequest.type = MSG_TrackAssembly; 
+    wcscpy(m_pMSG->trackRequest.szModuleName, pModuleName);
+    wcscpy(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
+
+    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    bool response =  m_pMSG->trackResponse.bResponse;
+    m_eventReceiveData.Reset();
+    return response;
 }
 
-BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, SequencePoint*** pppInstrumentPoints)
+BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points)
 {
-    BOOL result;
-    if (proxy==NULL) return FALSE;
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
-    WsResetHeap(heap, error);
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_GetSequencePoints(proxy,
-        pModuleName,
-        functionToken,
-        &result,
-        pNumPoints,
-        pppInstrumentPoints,
-        heap, 
-        NULL,
-        0,
-        NULL,
-        error);
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+    m_eventReceiveData.Reset();
 
-    if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_GetSequencePoints => %d"), *pNumPoints);
-    return result;
+    m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
+    m_pMSG->getSequencePointsRequest.functionToken = functionToken;
+    wcscpy(m_pMSG->getSequencePointsRequest.szModuleName, pModuleName);
+
+    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    m_eventReceiveData.Reset();
+
+    BOOL hasMore = FALSE;
+    do
+    {
+        for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
+        {
+            points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
+        }
+
+        hasMore = m_pMSG->getSequencePointsResponse.hasMore;
+        if (hasMore)
+        {
+            m_eventSendData.SignalAndWait(m_eventReceiveData);
+            m_eventReceiveData.Reset();
+        }
+    }while (hasMore);
+    
+    return (points.size() != 0);
 }
 
-
-void ProfilerCommunication::SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints)
+void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
 {
-    if (proxy==NULL) return;
-    if (numPoints==0) return;
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_cs);
-    WsResetHeap(heap, error);
-    HRESULT hr = NetTcpBinding_IProfilerCommunication_Visited(proxy,
-        numPoints,
-        ppPoints,
-        heap,
-        NULL,
-        0, 
-        NULL,
-        error);
+    CScopedLock<CMutex> lock(m_mutexResults);
+    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
+    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = VT_SeqPt;
+    if (++m_pVisitPoints->count == 8000)
+    {
+        SendVisitPoints();
+        m_pVisitPoints->count=0;
+        //::ZeroMemory(m_pVisitPoints, 65536);
+    }
+}
 
-    if (FAILED(hr)) PrintError(hr, error);
-    ATLTRACE(_T("NetTcpBinding_IProfilerCommunication_Visited => %d"), numPoints);
+void ProfilerCommunication::SendVisitPoints()
+{
+    m_eventReceiveResults.Reset();
+    m_eventSendResults.SignalAndWait(m_eventReceiveResults);
+    m_eventReceiveResults.Reset();
+    return;
 }
 
 

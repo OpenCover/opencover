@@ -34,14 +34,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
     }
 
-    WCHAR pszPortNumber[10];
-    ::GetEnvironmentVariableW(L"OpenCover_Port", pszPortNumber, 10);
-    int portNumber = _wtoi(pszPortNumber);
-    ATLTRACE(_T("->Port Number %d"), portNumber);
-
-    m_host = new ProfilerCommunication(portNumber);
-
-    m_host->Start();
+    TCHAR key[1024];
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
+    m_host.Initialise(key);
 
     DWORD dwMask = 0;
     dwMask |= COR_PRF_MONITOR_MODULE_LOADS;			// Controls the ModuleLoad, ModuleUnload, and ModuleAttachedToAssembly callbacks.
@@ -60,14 +55,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    if (g_pProfiler!=NULL)
-    {
-        g_pProfiler = NULL;
-        SendVisitPoints();
-        m_host->Stop();
-        delete m_host;
-    }
+    g_pProfiler = NULL;
     return S_OK; 
 }
 
@@ -83,7 +71,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
-    m_allowModules[moduleName] = m_host->TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
+    m_allowModules[moduleName] = m_host.TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
     return S_OK; 
 }
 
@@ -94,30 +82,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 /// </remarks>
 static void __fastcall SequencePointVisit(ULONG seq)
 {
-    VisitPoint point;
-    point.UniqueId = seq;
-    point.VisitType = VisitTypeSequencePoint;
-    CCodeCoverage::g_pProfiler->AddVisitPoint(point);
+    CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
 }
 
-void CCodeCoverage::AddVisitPoint(VisitPoint &point)
-{
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    m_ppVisitPoints[m_VisitPointCount]->UniqueId = point.UniqueId;
-    m_ppVisitPoints[m_VisitPointCount]->VisitType = point.VisitType;
-
-    if (++m_VisitPointCount==SEQ_BUFFER_SIZE)
-    {
-        SendVisitPoints();
-    }
-}
-
-void CCodeCoverage::SendVisitPoints()
-{
-    CComCritSecLock<CComAutoCriticalSection> lock(m_cs);
-    m_host->SendVisitPoints(m_VisitPointCount, m_ppVisitPoints);
-    m_VisitPointCount = 0;
-}
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
 /// <remarks>The 'workhorse' </remarks>
@@ -134,12 +101,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         if (!m_allowModules[moduleName]) return S_OK;
 
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
-        unsigned int points;
-        SequencePoint ** ppPoints = NULL;
         
-        if (m_host->GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), &points, &ppPoints))
+        std::vector<SequencePoint> points;
+
+        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), points))
         {
-            if (points==0) return S_OK;
+            if (points.size()==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
@@ -153,13 +120,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             instumentedMethod.SetMinimumStackSize(2);
 
             ATLTRACE(_T("Instrumenting..."));
-
-            //points = 0;
-            for (unsigned int i=0; i < points; i++)
-            {
+            //points.clear();
+            for ( std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
+            {    
                 //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
                 InstructionList instructions;
-                instructions.push_back(new Instruction(CEE_LDC_I4, ppPoints[i]->UniqueId));
+                instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));
 #if _WIN64
                 instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
 #else
@@ -167,9 +133,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 #endif
                 instructions.push_back(new Instruction(CEE_CALLI, pmsig));
 
-                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset(ppPoints[i]->Offset, instructions);
+                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
             }
-          
+
             instumentedMethod.DumpIL();
 
             CComPtr<IMethodMalloc> methodMalloc;

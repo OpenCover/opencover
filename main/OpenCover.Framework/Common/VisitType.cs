@@ -13,17 +13,7 @@ namespace OpenCover.Framework.Common
         /// <summary>
         /// Corresponds to a sequence point
         /// </summary>
-        SequencePoint,
-
-        /// <summary>
-        /// Corresponds to a method enter point
-        /// </summary>
-        MethodEnter,
-
-        /// <summary>
-        /// Corresponds to a method leave point
-        /// </summary>
-        MethodLeave,
+        SequencePoint = 1,
     }
 
 }

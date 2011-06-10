@@ -51,8 +51,6 @@
       <HintPath>..\..\tools\mono.cecil.0.94\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +64,11 @@
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Common\VisitType.cs" />
+    <Compile Include="Communication\MarshalWapper.cs" />
+    <Compile Include="Manager\ProfilerManager.cs" />
+    <Compile Include="Communication\MessageHandler.cs" />
+    <Compile Include="Communication\Messages.cs" />
+    <Compile Include="Manager\IProfilerManager.cs" />
     <Compile Include="Model\IInstrumentationModelBuilder.cs" />
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
@@ -89,10 +92,6 @@
     <Compile Include="Service\ProfilerCommunication.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Service\ProfilerCommunicationInstanceProvider.cs" />
-    <Compile Include="Service\ProfilerCommunicationServiceBehaviour.cs" />
-    <Compile Include="Service\ProfilerCommunicationServiceHost.cs" />
-    <Compile Include="Service\ProfilerServiceHost.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\CecilSymbolManagerFactory.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />

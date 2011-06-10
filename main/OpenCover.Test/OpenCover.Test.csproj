@@ -122,13 +122,14 @@
     <Compile Include="..\..\tools\Moq.contrib\UnityAutoMockContainer.cs">
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
+    <Compile Include="Framework\Communication\MessageHandlerTests.cs" />
     <Compile Include="Framework\BootstrapperTests.cs" />
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />
     <Compile Include="Framework\CommandLineParserTests.cs" />
     <Compile Include="Framework\FilterTests.cs" />
+    <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
-    <Compile Include="Framework\Service\ServiceTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />

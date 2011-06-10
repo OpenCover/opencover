@@ -38,4 +38,8 @@
 #include <vector>
 #include <hash_map>
 
-#include <WebServices.h>
+#ifdef UNICODE
+#define tstring std::wstring
+#else
+#define tstring std::string
+#endif

@@ -1,33 +1,46 @@
-#include "..\schema\opencover.profiler.xsd.h"
-#include "..\schema\OpenCover.Framework.Common.xsd.h"
-
 #pragma once
+
+#include "Synchronization.h"
+#include "SharedMemory.h"
+#include "Messages.h"
+
+#define SEQ_BUFFER_SIZE 8000
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
 class ProfilerCommunication
 {
 private:
-    int _port;
-
-    void Initialise();
-    void Cleanup();
-    void PrintError(HRESULT errorCode, WS_ERROR* error);
-    WS_ERROR* error;
-    WS_HEAP* heap;
-    WS_SERVICE_PROXY* proxy;
-    ATL::CComAutoCriticalSection m_cs;
 
 public:
-    ProfilerCommunication(int port);
+    ProfilerCommunication();
     ~ProfilerCommunication(void);
+    void Initialise(TCHAR* key);
 
 public:
-    void Start();
-    void Stop();
     BOOL TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName);
-    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, unsigned int* pNumPoints, SequencePoint*** pppInstrumentPoints);
-    void SendVisitPoints(unsigned int numPoints, VisitPoint **ppPoints);
+    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points);
+    void AddVisitPoint(ULONG uniqueId);
+
+private:
+    void SendVisitPoints();
+
+private:
+    tstring m_key;
+
+private:
+    CMutex m_mutexCommunication;
+    CSharedMemory m_memoryCommunication;
+    CEvent m_eventSendData;
+    CEvent m_eventReceiveData;
+    MSG_Union *m_pMSG;
+
+private:
+    CMutex m_mutexResults;
+    CSharedMemory m_memoryResults;
+    CEvent m_eventSendResults;
+    CEvent m_eventReceiveResults;
+    MSG_SendVisitPoints_Request *m_pVisitPoints;
 
 };
 
