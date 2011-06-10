@@ -65,7 +65,6 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
-    <Compile Include="Common\CoverageType.cs" />
     <Compile Include="Common\VisitType.cs" />
     <Compile Include="Model\IInstrumentationModelBuilder.cs" />
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />

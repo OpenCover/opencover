@@ -266,32 +266,6 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        public void HandlesTheTypeArgumentSingle()
-        {
-            // arrange  
-            var parser = new CommandLineParser(new[]{"-type:method" , RequiredArgs});
-
-            // act
-            parser.ExtractAndValidateArguments();
-
-            // assert
-            Assert.AreEqual(CoverageType.Method, parser.CoverageType);
-        }
-
-        [Test]
-        public void HandlesTheTypeArgumentMultiple()
-        {
-            // arrange  
-            var parser = new CommandLineParser(new[]{"-type:method,sequence" , RequiredArgs});
-
-            // act
-            parser.ExtractAndValidateArguments();
-
-            // assert
-            Assert.AreEqual(CoverageType.Method | CoverageType.Sequence, parser.CoverageType);
-        }
-
-        [Test]
         public void HandlesAnInvalidTypeArgument()
         {
             // arrange  

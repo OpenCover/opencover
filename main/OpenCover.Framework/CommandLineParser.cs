@@ -33,13 +33,12 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    -target:<target application>");
             builder.AppendLine("    [-targetdir:<target directory>]");
-            builder.AppendLine("    [-targetargs:[\"]<arguments for the target process>][\"]");
+            builder.AppendLine("    [-targetargs:[\"]<arguments for the target process>[\"]]");
             builder.AppendLine("    [-port:<port number>]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [-arch:<32|64>]");
-            builder.AppendLine("    [-output:<path to file>]");
-            builder.AppendLine("    [-type:Sequence,Method,Branch]");
-            builder.AppendLine("    [-filter:<space seperated filters> ]");
+            builder.AppendLine("    [-output:[\"]<path to file>[\"]]");
+            builder.AppendLine("    [-filter:[\"]<space seperated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("or");
             builder.AppendLine("    -host:<time in seconds>");
@@ -86,19 +85,6 @@ namespace OpenCover.Framework
                         break;
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
-                        break;
-                    case "type":
-                        var types = GetArgumentValue("type").Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-                        CoverageType = CoverageType.None;
-                        foreach (var type in types)
-                        {
-                            CoverageType coverageType;
-                            if (!CoverageType.TryParse(type, true, out coverageType))
-                            {
-                                throw new InvalidOperationException(string.Format("The type {0} is not recognised", type));
-                            }
-                            CoverageType |= coverageType;
-                        }
                         break;
                     case "port":
                         int port = 0;
@@ -212,11 +198,6 @@ namespace OpenCover.Framework
         /// The name of the output file
         /// </summary>
         public string OutputFile { get; private set; }
-
-        /// <summary>
-        /// What type of coverage is required, can be a combination
-        /// </summary>
-        public CoverageType CoverageType { get; private set; }
 
         /// <summary>
         /// If specified then the default filters should not be applied
