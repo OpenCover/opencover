@@ -126,7 +126,8 @@ namespace OpenCover.Test.Framework.Symbols
             var points = _reader.GetSequencePointsForToken(0);
 
             // assert
-            Assert.IsNull(points);
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
 
         }
 
