@@ -1,4 +1,6 @@
-﻿namespace OpenCover.Test.Samples
+﻿using System;
+
+namespace OpenCover.Test.Samples
 {
     class ConstructorNotDeclaredClass
     {
@@ -15,5 +17,15 @@
         void Method() {}
 
         string AutoProperty { get; set;}
+
+        void DoThing(Action<object> doThing)
+        {
+            doThing(1);
+        }
+
+        void CallDoThing()
+        {
+            DoThing((x) => { Console.WriteLine(x.ToString()); });
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace OpenCover.Framework.Symbols
 {
     public class CecilSymbolManager : ISymbolManager
     {
+        private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
         private string _modulePath;
         private AssemblyDefinition _sourceAssembly;
@@ -76,8 +77,16 @@ namespace OpenCover.Framework.Symbols
         public Class[] GetInstrumentableTypes()
         {
             var classes = new List<Class>();
-            foreach (var typeDefinition in SourceAssembly.MainModule.Types)
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            GetInstrumentableTypes(typeDefinitions, classes);
+            return classes.ToArray();
+        }
+
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes)
+        {
+            foreach (var typeDefinition in typeDefinitions)
             {
+                if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class() {FullName = typeDefinition.FullName};
                 var list = new List<string>();
                 foreach (var methodDefinition in typeDefinition.Methods)
@@ -96,14 +105,21 @@ namespace OpenCover.Framework.Symbols
                 }
                 @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
                 classes.Add(@class);
+                if (typeDefinition.HasNestedTypes) GetInstrumentableTypes(typeDefinition.NestedTypes, classes); 
             }
-            return classes.ToArray();
         }
 
         public Method[] GetConstructorsForType(Class type)
         {
             var methods = new List<Method>();
-            foreach (var typeDefinition in SourceAssembly.MainModule.Types)
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            GetConstructorsForType(typeDefinitions, type, methods);
+            return methods.ToArray();
+        }
+
+        private static void GetConstructorsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods)
+        {
+            foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.FullName == type.FullName)
                 {
@@ -116,14 +132,21 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
+                if (typeDefinition.HasNestedTypes) GetConstructorsForType(typeDefinition.NestedTypes, type, methods); 
             }
-            return methods.ToArray();
         }
 
         public Method[] GetMethodsForType(Class type)
         {
             var methods = new List<Method>();
-            foreach (var typeDefinition in SourceAssembly.MainModule.Types)
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            GetMethodsForType(typeDefinitions, type, methods);
+            return methods.ToArray();
+        }
+
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods)
+        {
+            foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.FullName == type.FullName)
                 {
@@ -136,14 +159,21 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
+                if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods);
             }
-            return methods.ToArray();
         }
 
         public SequencePoint[] GetSequencePointsForToken(int token)
         {
             var list = new List<SequencePoint>();
-            foreach (var typeDefinition in SourceAssembly.MainModule.Types)
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            GetSequencePointsForToken(typeDefinitions, token, list);
+            return list.ToArray();
+        }
+
+        private static void GetSequencePointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<SequencePoint> list)
+        {
+            foreach (var typeDefinition in typeDefinitions)
             {
                 foreach (var methodDefinition in typeDefinition.Methods)
                 {
@@ -154,7 +184,7 @@ namespace OpenCover.Framework.Symbols
                             UInt32 ordinal = 0;
                             foreach (var instruction in methodDefinition.Body.Instructions)
                             {
-                                if (instruction.SequencePoint != null)
+                                if (instruction.SequencePoint != null && instruction.SequencePoint.StartLine != stepOverLineCode)
                                 {
                                     var sp = instruction.SequencePoint;
                                     var point = new SequencePoint()
@@ -169,12 +199,11 @@ namespace OpenCover.Framework.Symbols
                                     list.Add(point);
                                 }
                             }
-                        }
-                        return list.ToArray();
+                        }   
                     }
                 }
+                if (typeDefinition.HasNestedTypes) GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
             }
-            return null;
         }
     }
 }
