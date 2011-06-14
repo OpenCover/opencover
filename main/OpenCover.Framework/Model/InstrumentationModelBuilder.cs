@@ -22,17 +22,17 @@ namespace OpenCover.Framework.Model
             module.Classes = _symbolManager.GetInstrumentableTypes();
             foreach (var @class in module.Classes)
             {
-                BuildClassModel(@class);
+                BuildClassModel(@class, module.Files);
             }
 
             return module;
         }
 
-        private void BuildClassModel(Class @class)
+        private void BuildClassModel(Class @class, File[] files)
         {
             var methods = _symbolManager
-                .GetConstructorsForType(@class)
-                .Union(_symbolManager.GetMethodsForType(@class));
+                .GetConstructorsForType(@class, files)
+                .Union(_symbolManager.GetMethodsForType(@class, files));
 
             foreach (var method in methods)
             {

@@ -96,10 +96,6 @@
     <Compile Include="Symbols\CecilSymbolManagerFactory.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManagerFactory.cs" />
-    <Compile Include="Symbols\SymbolManager.cs" />
-    <Compile Include="Symbols\SymbolManagerFactory.cs" />
-    <Compile Include="Symbols\SymbolReaderFactory.cs" />
-    <Compile Include="Symbols\ISymbolReaderFactory.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

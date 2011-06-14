@@ -54,7 +54,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetConstructorsForType(@class))
+                .Setup(x => x.GetConstructorsForType(@class, It.IsAny<File[]>()))
                 .Returns(new [] {@method});
 
             Container.GetMock<ISymbolManager>()
@@ -80,7 +80,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()
@@ -107,7 +107,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()
@@ -133,7 +133,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()

@@ -35,7 +35,6 @@ namespace OpenCover.Framework
             _container.RegisterInstance(commandLine);
             _container.RegisterInstance(persistance);
             _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
-            _container.RegisterType<ISymbolReaderFactory, SymbolReaderFactory>();
             _container.RegisterType<IProfilerManager, ProfilerManager>();
             _container.RegisterType<IMessageHandler, MessageHandler>();
             _container.RegisterType<IMarshalWrapper, MarshalWrapper>();

@@ -109,15 +109,15 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        public Method[] GetConstructorsForType(Class type)
+        public Method[] GetConstructorsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetConstructorsForType(typeDefinitions, type, methods);
+            GetConstructorsForType(typeDefinitions, type, methods, files);
             return methods.ToArray();
         }
 
-        private static void GetConstructorsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods)
+        private static void GetConstructorsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
@@ -128,23 +128,38 @@ namespace OpenCover.Framework.Symbols
                         if (methodDefinition.IsConstructor)
                         {
                             var method = new Method() { Name = methodDefinition.FullName, MetadataToken = methodDefinition.MetadataToken.ToInt32()};
+                            var definition = methodDefinition;
+                            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition)).Select(x => new FileRef() { UniqueId = x.UniqueId }).FirstOrDefault();
                             methods.Add(method);
                         }
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetConstructorsForType(typeDefinition.NestedTypes, type, methods); 
+                if (typeDefinition.HasNestedTypes) GetConstructorsForType(typeDefinition.NestedTypes, type, methods, files); 
             }
         }
 
-        public Method[] GetMethodsForType(Class type)
+        public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type, methods);
+            GetMethodsForType(typeDefinitions, type, methods, files);
             return methods.ToArray();
         }
 
-        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods)
+        private static string GetFirstFile(MethodDefinition definition)
+        {
+            if (definition.HasBody && definition.Body.Instructions!=null)
+            {
+                var filePath = definition.Body.Instructions
+                    .Where(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != stepOverLineCode)
+                    .Select(x => x.SequencePoint.Document.Url)
+                    .FirstOrDefault();
+                return filePath;
+            }
+            return null;
+        }
+
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
@@ -155,11 +170,13 @@ namespace OpenCover.Framework.Symbols
                         if (!methodDefinition.IsConstructor)
                         {
                             var method = new Method() { Name = methodDefinition.FullName, MetadataToken = methodDefinition.MetadataToken.ToInt32() };
+                            var definition = methodDefinition;
+                            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition)).Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
                             methods.Add(method);
                         }
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods);
+                if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods, files);
             }
         }
 

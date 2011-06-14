@@ -16,24 +16,25 @@ namespace OpenCover.Framework.Persistance
     public class FilePersistance : IPersistance
     {
         private string _fileName;
-        private CoverageSession _session;
+
+        public CoverageSession CoverageSession { get; private set; }
 
         public void Initialise(string fileName)
         {
             _fileName = fileName;
-            _session = new CoverageSession();
+            CoverageSession = new CoverageSession();
         }
 
         public void PersistModule(Module module)
         {
-            var list = new List<Module>(_session.Modules ?? new Module[0]) {module};
-            _session.Modules = list.ToArray();
+            var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
+            CoverageSession.Modules = list.ToArray();
         }
 
         public bool IsTracking(string moduleName)
         {
-            if (_session.Modules == null) return false;
-            return _session.Modules.Any(x => x.FullName == moduleName);
+            if (CoverageSession.Modules == null) return false;
+            return CoverageSession.Modules.Any(x => x.FullName == moduleName);
         }
 
         public void Commit()
@@ -43,7 +44,7 @@ namespace OpenCover.Framework.Persistance
                 var serializer = new XmlSerializer(typeof(CoverageSession), new[] { typeof(Module), typeof(Model.File), typeof(Class) });
                 var fs = new FileStream(_fileName, FileMode.Create);
                 var writer = new StreamWriter(fs, new UTF8Encoding());
-                serializer.Serialize(writer, _session);
+                serializer.Serialize(writer, CoverageSession);
                 writer.Close();
 
                 var totalClasses = 0;
@@ -54,25 +55,27 @@ namespace OpenCover.Framework.Persistance
                 var totalMethods = 0;
                 var visitedMethods = 0;
 
-                foreach (var @class in
-                    from module in _session.Modules
-                    from @class in module.Classes
-                    select @class)
+                if (CoverageSession.Modules != null)
                 {
-                    //Console.WriteLine("{0}",@class.FullName);
-                    if ((@class.Methods.Where(x=>x.SequencePoints.Count()>0).Any()))
+                    foreach (var @class in
+                        from module in CoverageSession.Modules
+                        from @class in module.Classes
+                        select @class)
                     {
-                        totalClasses += 1;
-                        //Console.WriteLine("{0} : {1}", @class.FullName, (@class.Methods.Where(x => x.SequencePoints.Where(y => y.VisitCount > 0).Any()).Any()));
-                    }
-                    visitedClasses += (@class.Methods.Where(x => x.SequencePoints.Where(y => y.VisitCount > 0).Any()).Any()) ? 1 : 0;
+                        if ((@class.Methods.Where(x => x.FileRef != null).Any()))
+                        {
+                            totalClasses += 1;
+                        }
+                        visitedClasses += (@class.Methods.Where(x => x.SequencePoints.Where(y => y.VisitCount > 0).Any()).Any())? 1 : 0;
+                        if (@class.Methods == null) continue;
 
-                    foreach (var method in @class.Methods)
-                    {
-                        totalMethods += (method.SequencePoints.Count() > 0) ? 1 : 0;
-                        visitedMethods += (method.SequencePoints.Where(x => x.VisitCount > 0).Any()) ? 1 : 0;
-                        totalSeqPoint += method.SequencePoints.Count();
-                        visitedSeqPoint += method.SequencePoints.Where(pt => pt.VisitCount != 0).Count();
+                        foreach (var method in @class.Methods)
+                        {
+                            totalMethods += (method.FileRef != null) ? 1 : 0;
+                            visitedMethods += (method.SequencePoints.Where(x => x.VisitCount > 0).Any()) ? 1 : 0;
+                            totalSeqPoint += method.SequencePoints.Count();
+                            visitedSeqPoint += method.SequencePoints.Where(pt => pt.VisitCount != 0).Count();
+                        }
                     }
                 }
 
@@ -89,8 +92,8 @@ namespace OpenCover.Framework.Persistance
         public bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints)
         {
             sequencePoints = new SequencePoint[0];
-            if (_session.Modules == null) return false;
-            var module = _session.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
+            if (CoverageSession.Modules == null) return false;
+            var module = CoverageSession.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
             if (module == null) return false;
             foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
             {
@@ -111,7 +114,7 @@ namespace OpenCover.Framework.Persistance
             foreach (var sum in summary)
             {
                 var sum1 = sum;
-                foreach (var sequencePoint in from module in _session.Modules
+                foreach (var sequencePoint in from module in CoverageSession.Modules
                                               from @class in module.Classes
                                               from method in @class.Methods
                                               from sequencePoint in method.SequencePoints

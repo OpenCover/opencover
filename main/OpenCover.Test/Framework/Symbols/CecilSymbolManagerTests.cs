@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Symbols;
+using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
 {
@@ -19,7 +20,6 @@ namespace OpenCover.Test.Framework.Symbols
         public void Setup()
         {
             _mockCommandLine = new Mock<ICommandLine>();
-            var factory = new SymbolReaderFactory();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object);
@@ -66,7 +66,7 @@ namespace OpenCover.Test.Framework.Symbols
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
 
             // act
-            var ctors = _reader.GetConstructorsForType(type);
+            var ctors = _reader.GetConstructorsForType(type, new File[0]);
 
             // assert
             Assert.IsNotNull(ctors);
@@ -80,7 +80,7 @@ namespace OpenCover.Test.Framework.Symbols
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
 
             // act
-            var methods = _reader.GetMethodsForType(type);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // assert
             Assert.IsNotNull(methods);
@@ -92,7 +92,7 @@ namespace OpenCover.Test.Framework.Symbols
             // arrange
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
-            var methods = _reader.GetMethodsForType(type);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
             var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
@@ -107,7 +107,7 @@ namespace OpenCover.Test.Framework.Symbols
             // arrange
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
-            var ctors = _reader.GetConstructorsForType(type);
+            var ctors = _reader.GetConstructorsForType(type, new File[0]);
 
             // act
             var points = _reader.GetSequencePointsForToken(ctors[0].MetadataToken);

@@ -130,12 +130,10 @@
     <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
-    <Compile Include="Framework\Symbols\SymbolManagerFactoryTests.cs" />
-    <Compile Include="Framework\Symbols\SymbolManagerTests.cs" />
-    <Compile Include="Framework\Symbols\SymbolReaderWrapperTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />
@@ -150,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Console\" />
-    <Folder Include="Framework\Persistance\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Samples\ReadMe.txt" />
