@@ -23,6 +23,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
 
     ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
+    ::OutputDebugStringW(szGuid);
 
     if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
 

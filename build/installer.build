@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+	
+	<property name="wix.folder" value="${tools.folder}/wix35" />
+	<property name="candle.exe" value="${wix.folder}/candle.exe" />
+	<property name="light.exe" value="${wix.folder}/light.exe" />
+
+	<target name="build-installer" >
+		<exec program="${candle.exe}" 
+			commandline="-arch x86 -out ${solution.folder}\bin\installer\temp\Product.wxi ${solution.folder}\OpenCover.Installer\Product.wxs" />
+
+		<exec program="${light.exe}" 
+			commandline="-b ${solution.folder}\OpenCover.Installer -ext WixUtilExtension.dll -out ${solution.folder}\bin\installer\opencover.msi ${solution.folder}\bin\installer\temp\Product.wxi" />
+		
+	</target>
+	
+</project>

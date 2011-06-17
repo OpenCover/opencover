@@ -102,7 +102,7 @@
 			<arg value="/n" />
             <arg value="/i:user" />
             <arg value="/s" />
-            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+            <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />	
         </exec>
     </target>
 
@@ -111,7 +111,7 @@
             <arg value="/n" />
             <arg value="/i:user" />
             <arg value="/s" />
-            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Profiler.dll" />	
+            <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />	
         </exec>
     </target>
     

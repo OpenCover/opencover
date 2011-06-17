@@ -6,8 +6,6 @@
 /main/**/Debug
 /main/**/Release
 /main/**/*.user
-/main/x86
-/main/x64
 /main/OpenCover.opensdf
 /main/OpenCover.sdf
 /main/OpenCover.suo
@@ -29,3 +27,4 @@
 /build/Version/opencover.snk
 /build/Version/opencover.public.snk
 /tools/wix35
+/main/bin

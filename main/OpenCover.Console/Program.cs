@@ -68,7 +68,7 @@ namespace OpenCover.Console
 
             try
             {
-                if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration);
+                if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
 
                 var harness = (IProfilerManager)container.Container.Resolve(typeof (IProfilerManager), null);
 
@@ -97,7 +97,7 @@ namespace OpenCover.Console
             }
             finally
             {
-                if (parser.Register) ProfilerRegistration.Unregister(parser.UserRegistration);
+                if (parser.Register) ProfilerRegistration.Unregister(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
             }
         }
     }

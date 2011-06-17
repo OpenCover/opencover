@@ -19,15 +19,17 @@ namespace OpenCover.Framework
     /// </remarks>
     public class ProfilerRegistration
     {
-        private const string UserRegistrationString = "/n /i:user ";
+        private const string UserRegistrationString = "/n /i:user";
+
         /// <summary>
         /// Register the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
         /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        public static void Register(bool userRegistration)
+        /// <param name="is64"></param>
+        public static void Register(bool userRegistration, bool is64)
         {
             var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"), 
-                string.Format("/s {0}OpenCover.Profiler.dll", userRegistration ? UserRegistrationString : String.Empty)) { CreateNoWindow = true };
+                string.Format("/s {0} {1}\\OpenCover.Profiler.dll", userRegistration ? UserRegistrationString : String.Empty, is64 ? "x64" : "x86")) { CreateNoWindow = true };
 
             var process = Process.Start(startInfo);
             process.WaitForExit();
@@ -37,10 +39,11 @@ namespace OpenCover.Framework
         /// Unregister the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
         /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        public static void Unregister(bool userRegistration)
+        /// <param name="is64"></param>
+        public static void Unregister(bool userRegistration, bool is64)
         {
             var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"),
-                string.Format("/s /u {0}OpenCover.Profiler.dll", userRegistration ? UserRegistrationString : String.Empty)) { CreateNoWindow = true };
+                string.Format("/s /u {0} {1}\\OpenCover.Profiler.dll", userRegistration ? UserRegistrationString : String.Empty, is64 ? "x64" : "x86")) { CreateNoWindow = true };
 
             var process = Process.Start(startInfo);
             process.WaitForExit();

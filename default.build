@@ -20,6 +20,7 @@
 	<include buildfile="${build.folder}/version.build" />
 	<include buildfile="${build.folder}/opencover.build" />
 	<include buildfile="${build.folder}/environment.build" />
+	<include buildfile="${build.folder}/installer.build" />
 
 	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number" />
 
@@ -30,6 +31,11 @@
 	<target name="teamcity-build" depends="build-environment, clean" >
 		<echo>##teamcity[buildNumber '${buildnumber.version}']</echo>
 		<call target="build-all-platforms" />
+	</target>
+	
+	<target name="create-release">
+		<call target="build-all-platforms"/>		
+		<call target="build-installer"/>		
 	</target>
 		
 </project>
