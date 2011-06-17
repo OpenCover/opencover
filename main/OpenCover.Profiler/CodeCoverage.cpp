@@ -9,6 +9,7 @@
 #include "CodeCoverage.h"
 #include "NativeCallback.h"
 #include "Method.h"
+#include "dllmain.h"
 
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
@@ -18,12 +19,16 @@ CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
     /* [in] */ IUnknown *pICorProfilerInfoUnk) 
 {
+    ATLTRACE(_T("::Initialize"));
+    
     m_isV4 = FALSE;
     OLECHAR szGuid[40]={0};
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
-
-    ATLTRACE(_T("::Initialize - %s"), W2CT(szGuid));
     ::OutputDebugStringW(szGuid);
+
+    WCHAR szModuleName[MAX_PATH];
+    GetModuleFileNameW(_AtlModule.m_hModule, szModuleName, MAX_PATH);
+    ::OutputDebugStringW(szModuleName);
 
     if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
 

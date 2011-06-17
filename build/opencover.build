@@ -65,7 +65,7 @@
 		    <arg value="/p:Configuration=${configuration},Platform=${platform}" />
 		</exec>
       
-        <property name="expected.output" value="${solution.folder}/${platform}/${configuration}/OpenCover.Console.exe"/>
+        <property name="expected.output" value="${solution.folder}/bin/${configuration}/OpenCover.Console.exe"/>
         <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     </target>
     
