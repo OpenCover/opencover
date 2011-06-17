@@ -1,4 +1,9 @@
-﻿using System.Runtime.InteropServices;
+﻿//
+// OpenCover - S. Wilde
+//
+// This source code is released under the MIT License; see the accompanying license file.
+//
+using System.Runtime.InteropServices;
 using OpenCover.Framework.Common;
 
 namespace OpenCover.Framework.Communication

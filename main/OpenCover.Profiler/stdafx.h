@@ -1,3 +1,8 @@
+//
+// OpenCover - S Wilde
+//
+// This source code is released under the MIT License; see the accompanying license file.
+//
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently,
 // but are changed infrequently
@@ -15,7 +20,6 @@
 #define _ATL_NO_AUTOMATIC_NAMESPACE
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
-
 
 #define ATL_NO_ASSERT_ON_DESTROY_NONEXISTENT_WINDOW
 

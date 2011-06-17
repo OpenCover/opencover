@@ -1,3 +1,8 @@
+//
+// OpenCover - S Wilde
+//
+// This source code is released under the MIT License; see the accompanying license file.
+//
 #pragma once
 
 /// <summary>The <c>MethodBuffer</c> encapsulates all the buffer handling</summary>
