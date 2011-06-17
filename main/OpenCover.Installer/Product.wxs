@@ -22,7 +22,6 @@
 						<File Id="OPENCOVER_CONSOLE_EXE_CONFIG" Source="..\bin\Release\OpenCover.Console.exe.config" />
 						<File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" />
 						<File Id="MICROSOFT_PRACTICES_UNITY_DLL" Source="..\bin\Release\Microsoft.Practices.Unity.dll" />
-						<File Id="MICROSOFT_PRACTICES_SERVICELOCATION_DLL" Source="..\bin\Release\Microsoft.Practices.ServiceLocation.dll" />
 						<File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" />
 						<File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
 						<File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" />

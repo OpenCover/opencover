@@ -15,9 +15,14 @@
 	<target name="get-version-number" >
 		<property name="version.file" value="${build.folder}\Version\build.number" />
 		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="02/23/2011" />
-		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;</echo>
-		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]</echo>
-		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]</echo>
+		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
+		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
+		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>
+	
+		<echo file="${build.folder}\Version\Version.h">#define FILEVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
+		<echo file="${build.folder}\Version\Version.h" append="true">#define PRODUCTVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
+		<echo file="${build.folder}\Version\Version.h" append="true">#define STRFILEVER        "${buildnumber.version}"&#xa;</echo>
+		<echo file="${build.folder}\Version\Version.h" append="true">#define STRPRODUCTVER        "${buildnumber.version}"&#xa;</echo>
 	</target>
 
 	<target name="get-os-version" >

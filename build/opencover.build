@@ -6,7 +6,7 @@
     <property name="nunit.path" value="${tools.folder}/NUnit-2.5.9.10348/bin/net-2.0"/>
     <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
     <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
-    <property name="open-cover-test-console" value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.Profiler.exe"/>
+    <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
     
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
 	
@@ -83,9 +83,9 @@
         <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
         
         <exec program="${nunit-console}">
-            <arg value="${solution.folder}/${platform}/${configuration}/OpenCover.Test.dll" />
+            <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
             <arg value="/framework=4.0" />
-            <arg value="/xml=${solution.folder}/${platform}/${configuration}/TestResult.xml" />
+            <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
         </exec>
         
     </target>
@@ -107,6 +107,7 @@
     </target>
 
     <target name="register" description="Register the profiler assembly (per-user)" >
+	    <echo message="test: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
         <exec program="regsvr32" >	
             <arg value="/n" />
             <arg value="/i:user" />
