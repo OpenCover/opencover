@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project name="OpenCover" >
 	
-	<property name="wix.folder" value="${tools.folder}/wix35" />
+	<property name="wix.folder" value="${tools.folder}/wix36" />
 	<property name="candle.exe" value="${wix.folder}/candle.exe" />
 	<property name="light.exe" value="${wix.folder}/light.exe" />
 

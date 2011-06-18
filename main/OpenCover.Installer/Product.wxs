@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" >
 	
-	<Product Id="*" Name="OpenCover" Language="1033" Version="!(bind.FileVersion.OPENCOVER_FRAMEWORK_DLL)" Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
+	<Product Id="*" Name="OpenCover" Language="1033" Version="!(bind.FileVersion.OPENCOVER_FRAMEWORK_DLL)" 
+			Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
+			
 		<Package InstallerVersion="200" Compressed="yes" />
 
 		<Upgrade Id="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
@@ -31,8 +33,10 @@
 					<Directory Id="X86" Name="x86">
 						<Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
 							<File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">
-								<TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib" Language="0" MajorVersion="1" MinorVersion="0">
-									<Class Id="{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}" Context="InprocServer32" Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
+								<TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib" 
+										Language="0" MajorVersion="1" MinorVersion="0">
+									<Class Id="{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}" Context="InprocServer32" 
+											Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
 									</Class>
 								</TypeLib>
 							</File>
@@ -42,8 +46,10 @@
 						<Component Id="X64Profiler" Guid="F52FC3F3-FACB-4EFE-8248-210C73BD1C36" >
 							<File Id="OPENCOVER_PROFILER_DLL_X64" Source="..\bin\Release\x64\OpenCover.Profiler.dll" KeyPath="yes" >
 								<!--
-								<TypeLib Id="{9F34E05F-9627-4477-A016-0D56DEF7A38E}" Description="OpenCoverProfilerLib" Language="0" MajorVersion="1" MinorVersion="0">
-									<Class Id="{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}" Context="InprocServer32" Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
+								<TypeLib Id="{9F34E05F-9627-4477-A016-0D56DEF7A38E}" Description="OpenCoverProfilerLib" 
+										Language="0" MajorVersion="1" MinorVersion="0">
+									<Class Id="{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}" Context="InprocServer32" 
+											Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
 									</Class>
 								</TypeLib>
 								-->
@@ -69,7 +75,7 @@
 			</Directory>
 		</Directory>
 
-		<Feature Id="ProductFeature" Title="OpenCover.Installer" Level="1">
+		<Feature Id="ProductFeature" Title="OpenCover" Level="1">
 			<ComponentRef Id="ProductComponent" />
 			<ComponentRef Id="X86Profiler" />
 			<ComponentRef Id="X64Profiler" />
