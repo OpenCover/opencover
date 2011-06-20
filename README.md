@@ -12,7 +12,11 @@ To build the code in 32-bit Debug mode just run Build in the root of the project
 
 ### Reports
 
-For viewing the output from OpenCover start [here.] (https://github.com/sawilde/opencover/wiki/Reports)
+For viewing the output from OpenCover [start here.] (https://github.com/sawilde/opencover/wiki/Reports)
+
+### Latest Drop as ZIP
+
+No Git? Don't worry you can download the latest code as a [zip file] (http://github.com/sawilde/opencover/zipball/master).
 
 ### Issues
 Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix.
