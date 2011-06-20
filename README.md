@@ -10,6 +10,10 @@ Nant scripts (encapsulated by the build.bat file) are used to build the project 
 
 To build the code in 32-bit Debug mode just run Build in the root of the project folder.
 
+### Reports
+
+For viewing the output from OpenCover start [here.] (https://github.com/sawilde/opencover/wiki/Reports)
+
 ### Issues
 Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix.
 Dropbox is very useful for sharing files [Dropbox] (http://db.tt/VanqFDn)
