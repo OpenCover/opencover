@@ -3,6 +3,7 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
+using System;
 using System.Diagnostics;
 using System.Linq;
 using OpenCover.Framework.Symbols;
@@ -31,6 +32,11 @@ namespace OpenCover.Framework.Model
             }
 
             return module;
+        }
+
+        public bool CanInstrument
+        {
+            get { return _symbolManager.SourceAssembly != null; }
         }
 
         private void BuildClassModel(Class @class, File[] files)

@@ -33,6 +33,7 @@ namespace OpenCover.Framework.Service
             if (_persistance.IsTracking(moduleName)) return true;
             if (!_filter.UseAssembly(assemblyName)) return false;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(moduleName);
+            if (!builder.CanInstrument) return false;
             _persistance.PersistModule(builder.BuildModuleModel());
             return true;
         }

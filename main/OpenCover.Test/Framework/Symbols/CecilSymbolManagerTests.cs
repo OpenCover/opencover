@@ -137,5 +137,18 @@ namespace OpenCover.Test.Framework.Symbols
             // arrange, act, assert
             Assert.AreEqual(_location, _reader.ModulePath);
         }
+
+        [Test]
+        public void SourceAssembly_Returns_Null_On_Failure()
+        {
+            // arrange
+            _reader.Initialise("");
+
+            // act
+            var val = _reader.SourceAssembly;
+
+            // assert
+            Assert.IsNull(val);    
+        }
     }
 }

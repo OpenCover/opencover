@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,31 +38,38 @@ namespace OpenCover.Framework.Symbols
             _modulePath = modulePath;
         }
 
-        private AssemblyDefinition SourceAssembly
+        public AssemblyDefinition SourceAssembly
         {
             get
             {
                 if (_sourceAssembly==null)
                 {
-                    var resolver = new DefaultAssemblyResolver();
-                    if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
+                    try
                     {
-                        resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
-                        if (!string.IsNullOrEmpty(_commandLine.TargetDir))
+                        var resolver = new DefaultAssemblyResolver();
+                        if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
                         {
-                            resolver.AddSearchDirectory(_commandLine.TargetDir);
+                            resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
+                            if (!string.IsNullOrEmpty(_commandLine.TargetDir))
+                            {
+                                resolver.AddSearchDirectory(_commandLine.TargetDir);
+                            }
                         }
+
+                        var parameters = new ReaderParameters
+                        {
+                            SymbolReaderProvider = new PdbReaderProvider(),
+                            ReadingMode = ReadingMode.Immediate,
+                            AssemblyResolver = resolver,
+                        };
+                        _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
+                        _sourceAssembly.MainModule.ReadSymbols();
                     }
-
-                    var parameters = new ReaderParameters
+                    catch (Exception)
                     {
-                        SymbolReaderProvider = new PdbReaderProvider(),
-                        ReadingMode = ReadingMode.Immediate,
-                        AssemblyResolver = resolver,
-                    };
-
-                    _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
-                    _sourceAssembly.MainModule.ReadSymbols();
+                        // failure to here is quite normal for DLL's with no PDBs => no instrumentation
+                        _sourceAssembly = null;
+                    }
                 }
                 return _sourceAssembly;
             }

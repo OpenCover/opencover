@@ -29,9 +29,14 @@ namespace OpenCover.Test.Framework.Service
                 .Setup(x => x.UseAssembly(It.IsAny<string>()))
                 .Returns(true);
 
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
-                .Setup(x => x.CreateModelBuilder(It.IsAny<string>()))
-                .Returns(new Mock<IInstrumentationModelBuilder>().Object);
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>()))
+               .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(true);
 
             // act
             var track = Instance.TrackAssembly("moduleName", "assemblyName");
@@ -57,6 +62,33 @@ namespace OpenCover.Test.Framework.Service
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
                 .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+        }
+
+        [Test]
+        public void TrackAssembly_DoesntAdd_AssemblyToModel_If_CanInstrument_Returns_False()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>()))
+               .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(false);
+
+            // act
+            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+
+            // assembly
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+
         }
 
         [Test]

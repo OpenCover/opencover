@@ -1,4 +1,6 @@
-﻿using Moq;
+﻿using System;
+using Mono.Cecil;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
@@ -145,6 +147,23 @@ namespace OpenCover.Test.Framework.Model
 
             // assert
             Assert.AreEqual(0, module.Classes[0].Methods.GetLength(0));
+        }
+
+        [Test]
+        public void CanInstrument_If_AssemblyFound()
+        {
+            // arrange 
+            var mockDef = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition("temp", new Version()), "temp", ModuleKind.Dll);
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.SourceAssembly)
+                .Returns(mockDef);
+
+            // act
+            var canInstrument = Instance.CanInstrument;
+
+            // assert
+            Assert.IsTrue(canInstrument);
         }
     }
 }
