@@ -1,5 +1,5 @@
 ### Licence
-All Original Software is licensed under the [MIT Licence] (License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
+All Original Software is licensed under the [MIT Licence] (https://github.com/sawilde/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
