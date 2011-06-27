@@ -33,6 +33,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{
 		OpenCover.Installer\Product.wxs = OpenCover.Installer\Product.wxs
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Integration.Test", "OpenCover.Integration.Test\OpenCover.Integration.Test.csproj", "{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}"
+	ProjectSection(ProjectDependencies) = postProject
+		{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2} = {BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -87,6 +92,14 @@ Global
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x64.Build.0 = Release|Any CPU
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x86.ActiveCfg = Release|Any CPU
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}.Release|x86.Build.0 = Release|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Debug|x64.Build.0 = Debug|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Debug|x86.Build.0 = Debug|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Release|x64.ActiveCfg = Release|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Release|x64.Build.0 = Release|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Release|x86.ActiveCfg = Release|Any CPU
+		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

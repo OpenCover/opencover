@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Samples.Framework", "OpenCover.Samples.Framework\OpenCover.Samples.Framework.csproj", "{B3766786-B2D2-4E33-9A13-9BB5FEBD57D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Samples.CS", "OpenCover.Samples.CS\OpenCover.Samples.CS.csproj", "{4A681374-9BF8-49E6-86CD-289F02286748}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "OpenCover.Samples.VB", "OpenCover.Samples.VB\OpenCover.Samples.VB.vbproj", "{66A5B0F3-E8DD-433A-A918-83A5542F6932}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OpenCover.Samples.IL", "OpenCover.Samples.IL", "{06FC7F41-94F2-497A-BC1A-FA5F6E5BA8A1}"
+	ProjectSection(SolutionItems) = preProject
+		OpenCover.Samples.IL\OpenCover.Samples.IL.il = OpenCover.Samples.IL\OpenCover.Samples.IL.il
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B3766786-B2D2-4E33-9A13-9BB5FEBD57D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3766786-B2D2-4E33-9A13-9BB5FEBD57D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3766786-B2D2-4E33-9A13-9BB5FEBD57D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3766786-B2D2-4E33-9A13-9BB5FEBD57D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A681374-9BF8-49E6-86CD-289F02286748}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A681374-9BF8-49E6-86CD-289F02286748}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A681374-9BF8-49E6-86CD-289F02286748}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A681374-9BF8-49E6-86CD-289F02286748}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66A5B0F3-E8DD-433A-A918-83A5542F6932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66A5B0F3-E8DD-433A-A918-83A5542F6932}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66A5B0F3-E8DD-433A-A918-83A5542F6932}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66A5B0F3-E8DD-433A-A918-83A5542F6932}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -71,6 +71,20 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="OpenCover.Samples.CS">
+      <HintPath>..\..\samples\bin\OpenCover.Samples.CS.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCover.Samples.Framework">
+      <HintPath>..\..\samples\bin\OpenCover.Samples.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCover.Samples.IL, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3f34f3510e664452, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\samples\bin\OpenCover.Samples.IL.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenCover.Samples.VB, Version=1.0.0.0, Culture=neutral, PublicKeyToken=3f34f3510e664452, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\samples\bin\OpenCover.Samples.VB.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.ServiceModel" />
@@ -103,6 +117,7 @@
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
+    <Compile Include="Integration\SimpleExceptionTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />

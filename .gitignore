@@ -28,3 +28,6 @@
 /tools/wix35
 /main/bin
 /tools/wix36
+/samples/**/bin/**/*
+/samples/**/obj/**/*
+/samples/OpenCover.Samples.suo

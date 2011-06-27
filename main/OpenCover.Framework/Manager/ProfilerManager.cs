@@ -64,7 +64,7 @@ namespace OpenCover.Framework.Manager
                         process(dictionary =>
                         {
                             if (dictionary == null) return;
-                            dictionary.Add(@"OpenCover_Profiler_Key", key);
+                            dictionary[@"OpenCover_Profiler_Key"] = key;
                             environmentKeyRead.Set();
                         });
                     }

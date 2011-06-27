@@ -73,6 +73,7 @@
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\VisitPoint.cs" />
+    <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="ICommandLine.cs" />
