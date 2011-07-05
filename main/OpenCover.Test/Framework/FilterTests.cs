@@ -10,7 +10,7 @@ namespace OpenCover.Test.Framework
     [TestFixture]
     public class FilterTests
     {
-        #region TestData
+        #region TestData for AddFilter tests
 
         public class AssemblyClassData
         {
@@ -98,76 +98,186 @@ namespace OpenCover.Test.Framework
                 filter.InclusionFilter[0].Value : filter.ExclusionFilter[0].Value);
         }
 
+        #region Test Data or UseAssembly tests
+
+        public class UseAssemblyData
+        {
+            public string[] Filters { get; set; }
+            public string Assembly { get; set; }
+            public bool ExpectedResult { get; set; }
+        }
+
+        private UseAssemblyData[] _useAssemblyData = new[]
+                                                         {
+                                                             new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new string[0],
+                                                                     Assembly = "System.Debug",
+                                                                     ExpectedResult = false
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"-[System.*]R*"},
+                                                                     Assembly = "System.Debug",
+                                                                     ExpectedResult = true
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"-[System.*]*"},
+                                                                     Assembly = "System.Debug",
+                                                                     ExpectedResult = false
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"+[System.*]*"},
+                                                                     Assembly = "System.Debug",
+                                                                     ExpectedResult = true
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"-[mscorlib]*", "-[System.*]*", "+[*]*"},
+                                                                     Assembly = "mscorlib",
+                                                                     ExpectedResult = false
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"+[XYZ]*"},
+                                                                     Assembly = "XYZ",
+                                                                     ExpectedResult = true
+                                                                 },
+                                                                 new UseAssemblyData()
+                                                                 {
+                                                                     Filters = new [] {"+[XYZ]*"},
+                                                                     Assembly = "XYZA",
+                                                                     ExpectedResult = false
+                                                                 }
+                                                         };
+        #endregion
+
         [Test]
-        public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_NoFilters()
+        public void UseAssembly_Tests(
+            [ValueSource("_useAssemblyData")]UseAssemblyData data)
         {
             // arrange
             var filter = new Filter();
-            
+            data.Filters.ToList().ForEach(filter.AddFilter);
+
             // act
-            var result = filter.UseAssembly("System.Debug");
+            var result = filter.UseAssembly(data.Assembly);
 
             // result
-            Assert.IsFalse(result);
+            Assert.AreEqual(data.ExpectedResult, result, 
+                "Filter: '{0}' Assembly: {1} => Expected: {2}", 
+                string.Join(",", data.Filters, data.Assembly, data.ExpectedResult));
         }
+
+        #region Test Data for InstrumentClass tests
+
+        public class InstrumentClassData
+        {
+            public string[] Filters { get; set; }
+            public string Assembly { get; set; }
+            public string Class { get; set; }
+            public bool ExpectedResult { get; set; }
+        }
+
+        private InstrumentClassData[] _instrumentClassData = new[]
+                                                                 {
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = true
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]A*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ*]A*"},
+                                                                             Assembly = "XYZA",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]A*"},
+                                                                             Assembly = "XYZA",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]*Class"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = true
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]*Name"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[XYZ]*space.C*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = true
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[XYZ*]*"},
+                                                                             Assembly = "XYZA",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[XYZ]*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[*]*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[X*Z]*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         }
+                                                                 };
+        #endregion
 
         [Test]
-        public void UseAssembly_ReturnsTrue_WhenAssembly_Matches_ExclusionFilter()
+        public void InstrumentClass_Tests(
+            [ValueSource("_instrumentClassData")]InstrumentClassData data)
         {
-            // arrange
+            //// arrange
             var filter = new Filter();
-            filter.AddFilter("-[System.*]R*");
+            data.Filters.ToList().ForEach(filter.AddFilter);
 
             // act
-            var result = filter.UseAssembly("System.Debug");
+            var result = filter.InstrumentClass(data.Assembly, data.Class);
 
             // result
-            Assert.IsTrue(result);
+            Assert.AreEqual(data.ExpectedResult, result,
+               "Filter: '{0}' Assembly: {1} Class: {2} => Expected: {3}", 
+               string.Join(",", data.Filters, data.Assembly, data.Class, data.ExpectedResult));
         }
-
-        [Test]
-        public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_ExclusionFilter()
-        {
-            // arrange
-            var filter = new Filter();
-            filter.AddFilter("-[System.*]*");
-
-            // act
-            var result = filter.UseAssembly("System.Debug");
-
-            // result
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void UseAssembly_ReturnsFalse_WhenAssembly_Matches_ExclusionFilter_Complex()
-        {
-            // arrange
-            var filter = new Filter();
-            filter.AddFilter("-[mscorlib]*");
-            filter.AddFilter("-[System.*]*");
-            filter.AddFilter("+[*]*");
-
-            // act
-            var result = filter.UseAssembly("mscorlib");
-
-            // result
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void UseAssembly_ReturnsTrue_WhenAssembly_Matches_InclusionFilter()
-        {
-            // arrange
-            var filter = new Filter();
-            filter.AddFilter("+[System.*]*");
-
-            // act
-            var result = filter.UseAssembly("System.Debug");
-
-            // result
-            Assert.IsTrue(result);
-        }
-
     }
 }

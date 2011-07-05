@@ -10,9 +10,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using File = OpenCover.Framework.Model.File;
+using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
 namespace OpenCover.Framework.Symbols
 {
@@ -21,6 +23,7 @@ namespace OpenCover.Framework.Symbols
         private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
         private string _modulePath;
+        private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
 
         public CecilSymbolManager(ICommandLine commandLine)
@@ -33,9 +36,15 @@ namespace OpenCover.Framework.Symbols
             get { return _modulePath; }
         }
 
-        public void Initialise(string modulePath)
+        public string ModuleName
+        {
+            get { return _moduleName; }
+        }
+
+        public void Initialise(string modulePath, string moduleName)
         {
             _modulePath = modulePath;
+            _moduleName = moduleName;
         }
 
         public AssemblyDefinition SourceAssembly
@@ -214,7 +223,8 @@ namespace OpenCover.Framework.Symbols
                             UInt32 ordinal = 0;
                             foreach (var instruction in methodDefinition.Body.Instructions)
                             {
-                                if (instruction.SequencePoint != null && instruction.SequencePoint.StartLine != stepOverLineCode)
+                                if (instruction.SequencePoint != null &&
+                                    instruction.SequencePoint.StartLine != stepOverLineCode)
                                 {
                                     var sp = instruction.SequencePoint;
                                     var point = new SequencePoint()
@@ -229,7 +239,7 @@ namespace OpenCover.Framework.Symbols
                                     list.Add(point);
                                 }
                             }
-                        }   
+                        }
                     }
                 }
                 if (typeDefinition.HasNestedTypes) GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);

@@ -22,7 +22,7 @@ namespace OpenCover.Framework.Persistance
             _fileName = fileName;
         }
 
-        public virtual void Commit()
+        public override void Commit()
         {
             try
             {

@@ -4,10 +4,7 @@ using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Persistance
 {
-    /// <summary>
-    /// This class is temporary until I decide 
-    /// on a proper persistance framework.
-    /// </summary>
+    
     public class BasePersistance : IPersistance
     {
         public BasePersistance()
@@ -36,16 +33,43 @@ namespace OpenCover.Framework.Persistance
         public bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints)
         {
             sequencePoints = new SequencePoint[0];
-            if (CoverageSession.Modules == null) return false;
-            var module = CoverageSession.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
-            if (module == null) return false;
-            foreach (var method in module.Classes.SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken)))
+            Class @class;
+            var method = GetMethod(moduleName, functionToken, out @class);
+            if (method !=null)
             {
-                if (method == null) continue;
-                sequencePoints = method.SequencePoints;
+                sequencePoints = method.SequencePoints.ToArray();
                 return true;
             }
-            return false;       
+            return false;      
+        }
+
+        private Method GetMethod(string moduleName, int functionToken, out Class @class)
+        {
+            @class = null;
+            //c = null;
+            if (CoverageSession.Modules == null) return null;
+            var module = CoverageSession.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
+            if (module == null) return null;
+            foreach (var c in module.Classes)
+            {
+                @class = c;
+                foreach (var method in c.Methods)
+                {
+                    if (method.MetadataToken == functionToken) return method;
+                }
+            }
+            @class = null;
+            return null;
+            //return module.Classes
+            //    .SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken))
+            //    .FirstOrDefault(method => method != null);
+        }
+
+        public string GetClassFullName(string moduleName, int functionToken)
+        {
+            Class @class;
+            GetMethod(moduleName, functionToken, out @class);
+            return @class != null ? @class.FullName : null;
         }
 
         public void SaveVisitPoints(VisitPoint[] visitPoints)

@@ -83,6 +83,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
         moduleId, W2CT(moduleName.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
     m_allowModules[moduleName] = m_host.TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
+    m_allowModulesAssemblyMap[moduleName] = assemblyName;
     return S_OK; 
 }
 
@@ -115,7 +116,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         
         std::vector<SequencePoint> points;
 
-        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), points))
+        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), (LPWSTR)m_allowModulesAssemblyMap[moduleName].c_str(), points))
         {
             if (points.size()==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;

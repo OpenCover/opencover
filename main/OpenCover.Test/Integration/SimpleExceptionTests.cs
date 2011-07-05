@@ -12,7 +12,9 @@ using OpenCover.Samples.VB;
 
 namespace OpenCover.Test.Integration
 {
-    [TestFixture(Description="Theses tests are targets used for integration testing"), Category("Integration")]
+    [TestFixture(Description="Theses tests are targets used for integration testing")] 
+    [Category("Integration")]
+    [Explicit("Integration")]
     public class SimpleExceptionTests
     {
         [Test]

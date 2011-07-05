@@ -28,19 +28,21 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public bool TrackAssembly(string moduleName, string assemblyName)
+        public bool TrackAssembly(string modulePath, string moduleName)
         {
-            if (_persistance.IsTracking(moduleName)) return true;
-            if (!_filter.UseAssembly(assemblyName)) return false;
-            var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(moduleName);
+            if (_persistance.IsTracking(modulePath)) return true;
+            if (!_filter.UseAssembly(moduleName)) return false;
+            var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, moduleName);
             if (!builder.CanInstrument) return false;
             _persistance.PersistModule(builder.BuildModuleModel());
             return true;
         }
 
-        public bool GetSequencePoints(string moduleName, int functionToken, out SequencePoint[] instrumentPoints)
+        public bool GetSequencePoints(string moduleName, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
         {
             instrumentPoints = new SequencePoint[0];
+            var className = _persistance.GetClassFullName(moduleName, functionToken);
+            if (!_filter.InstrumentClass(assemblyName, className)) return false;
             Model.SequencePoint[] points;
             if (_persistance.GetSequencePointsForFunction(moduleName, functionToken, out points))
             {

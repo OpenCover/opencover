@@ -27,7 +27,7 @@ namespace OpenCover.Framework.Service
     {
         bool TrackAssembly(string moduleName, string assemblyName);
 
-        bool GetSequencePoints(string moduleName, int functionToken, out SequencePoint[] sequencePoints);
+        bool GetSequencePoints(string moduleName, string assemblyName, int functionToken, out SequencePoint[] sequencePoints);
 
         void Visited(VisitPoint[] visitPoints);
 

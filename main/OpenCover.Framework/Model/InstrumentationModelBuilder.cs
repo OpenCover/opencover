@@ -24,7 +24,7 @@ namespace OpenCover.Framework.Model
 
         public Module BuildModuleModel()
         {
-            var module = new Module {FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles()};
+            var module = new Module {ModuleName = _symbolManager.ModuleName, FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles()};
             module.Classes = _symbolManager.GetInstrumentableTypes();
             foreach (var @class in module.Classes)
             {

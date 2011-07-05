@@ -52,7 +52,7 @@ namespace OpenCover.Framework.Communication
                     var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
                     Service.SequencePoint[] origPoints;
                     var responseCSP = new MSG_GetSequencePoints_Response();
-                    _profilerCommunication.GetSequencePoints(msgGSP.module, msgGSP.functionToken, out origPoints);
+                    _profilerCommunication.GetSequencePoints(msgGSP.module,msgGSP.assembly, msgGSP.functionToken, out origPoints);
                     var num = origPoints == null ? 0 : origPoints.Length;
 
                     var index = 0;

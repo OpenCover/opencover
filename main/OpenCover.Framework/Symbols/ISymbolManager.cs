@@ -11,6 +11,7 @@ namespace OpenCover.Framework.Symbols
     public interface ISymbolManager
     {
         string ModulePath { get; }
+        string ModuleName { get; }
         File[] GetFiles();
         Class[] GetInstrumentableTypes();
         Method[] GetConstructorsForType(Class type, File[] files);

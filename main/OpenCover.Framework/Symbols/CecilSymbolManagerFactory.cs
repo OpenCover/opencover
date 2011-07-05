@@ -19,10 +19,10 @@ namespace OpenCover.Framework.Symbols
             _commandLine = commandLine;
         }
 
-        public ISymbolManager CreateSymbolManager(string modulePath)
+        public ISymbolManager CreateSymbolManager(string modulePath, string moduleName)
         {
             var manager = new CecilSymbolManager(_commandLine);
-            manager.Initialise(modulePath);
+            manager.Initialise(modulePath, moduleName);
             return manager;
         }
     }

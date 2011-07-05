@@ -24,7 +24,7 @@ public:
 
 public:
     BOOL TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyName);
-    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points);
+    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     void AddVisitPoint(ULONG uniqueId);
 
 private:

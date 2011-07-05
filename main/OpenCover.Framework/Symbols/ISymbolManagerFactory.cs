@@ -7,6 +7,6 @@ namespace OpenCover.Framework.Symbols
 {
     public interface ISymbolManagerFactory
     {
-        ISymbolManager CreateSymbolManager(string modulePath);
+        ISymbolManager CreateSymbolManager(string modulePath, string moduleName);
     }
 }

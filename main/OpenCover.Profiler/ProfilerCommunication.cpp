@@ -43,8 +43,8 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
     m_eventReceiveData.Reset();
 
     m_pMSG->trackRequest.type = MSG_TrackAssembly; 
-    wcscpy(m_pMSG->trackRequest.szModuleName, pModuleName);
-    wcscpy(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
+    wcscpy_s(m_pMSG->trackRequest.szModuleName, pModuleName);
+    wcscpy_s(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
 
     m_eventSendData.SignalAndWait(m_eventReceiveData);
     bool response =  m_pMSG->trackResponse.bResponse;
@@ -52,14 +52,15 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModuleName, WCHAR* pAssemblyNa
     return response;
 }
 
-BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName, std::vector<SequencePoint> &points)
+BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModuleName,  WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
     m_eventReceiveData.Reset();
 
     m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
     m_pMSG->getSequencePointsRequest.functionToken = functionToken;
-    wcscpy(m_pMSG->getSequencePointsRequest.szModuleName, pModuleName);
+    wcscpy_s(m_pMSG->getSequencePointsRequest.szModuleName, pModuleName);
+    wcscpy_s(m_pMSG->getSequencePointsRequest.szAssemblyName, pAssemblyName);
 
     m_eventSendData.SignalAndWait(m_eventReceiveData);
     m_eventReceiveData.Reset();

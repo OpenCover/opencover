@@ -72,6 +72,7 @@ public:
 
 private:
     std::hash_map<std::wstring, bool> m_allowModules;
+    std::hash_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
     BOOL m_isV4;
 
 private:

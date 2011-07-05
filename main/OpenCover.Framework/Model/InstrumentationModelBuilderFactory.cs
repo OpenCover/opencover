@@ -16,9 +16,9 @@ namespace OpenCover.Framework.Model
             _symbolManagerFactory = symbolManagerFactory;
         }
 
-        public IInstrumentationModelBuilder CreateModelBuilder(string moduleName)
+        public IInstrumentationModelBuilder CreateModelBuilder(string modulePath, string moduleName)
         {
-            var manager = _symbolManagerFactory.CreateSymbolManager(moduleName);
+            var manager = _symbolManagerFactory.CreateSymbolManager(modulePath, moduleName);
             return new InstrumentationModelBuilder(manager);
         }
     }

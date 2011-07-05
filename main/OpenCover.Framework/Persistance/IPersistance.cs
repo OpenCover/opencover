@@ -15,6 +15,7 @@ namespace OpenCover.Framework.Persistance
         bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints);
         void SaveVisitPoints(VisitPoint[] visitPoints);
         bool IsTracking(string moduleName);
+        string GetClassFullName(string moduleName, int functionToken);
 
         CoverageSession CoverageSession { get; }
     }

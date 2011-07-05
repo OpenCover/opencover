@@ -38,6 +38,8 @@ namespace OpenCover.Framework.Communication
         public int functionToken;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
         public string module;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        public string assembly;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

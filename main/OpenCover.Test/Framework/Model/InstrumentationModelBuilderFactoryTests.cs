@@ -18,7 +18,7 @@ namespace OpenCover.Test.Framework.Model
             // arrange
 
             // act
-            var model = Instance.CreateModelBuilder("x");
+            var model = Instance.CreateModelBuilder("x", "y");
 
             // assert
             Assert.IsNotNull(model);

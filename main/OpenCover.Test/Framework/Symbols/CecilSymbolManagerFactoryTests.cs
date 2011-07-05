@@ -13,13 +13,15 @@ namespace OpenCover.Test.Framework.Symbols
         {
             // arrange
             var modulePath = GetType().Assembly.Location;
+            var moduleName = GetType().Assembly.FullName;
 
             // act
-            var manager = Instance.CreateSymbolManager(modulePath);
+            var manager = Instance.CreateSymbolManager(modulePath, moduleName);
 
             // assert
             Assert.IsNotNull(manager);
             Assert.AreEqual(modulePath, manager.ModulePath);
+            Assert.AreEqual(moduleName, manager.ModuleName);
 
         }
     }

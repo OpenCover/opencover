@@ -30,7 +30,7 @@ namespace OpenCover.Integration.Test
             _filter.AddFilter("-[System]*");
             _filter.AddFilter("-[System.*]*");
             _filter.AddFilter("-[Microsoft.VisualBasic]*");
-            _filter.AddFilter("+[Open*]*");
+            _filter.AddFilter("+[OpenCover.Samples.*]*");
 
             _commandLine = new Mock<ICommandLine>().Object;
 

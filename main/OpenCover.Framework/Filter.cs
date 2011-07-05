@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,12 +16,21 @@ namespace OpenCover.Framework
     {
         void AddFilter(string assemblyClassName);
         bool UseAssembly(string assemblyName);
+        bool InstrumentClass(string assemblyName, string className);
     }
 
     public enum FilterType
     {
         Inclusion,
         Exclusion
+    }
+
+    internal static class FilterHelper
+    {
+        internal static string WrapWithAnchors(this string data)
+        {
+            return string.Format("^{0}$", data);
+        }
     }
 
     public class Filter : IFilter
@@ -43,21 +53,47 @@ namespace OpenCover.Framework
         /// as it is usually the class that is being filtered</remarks>
         public bool UseAssembly(string assemblyName)
         {
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success && keyValuePair.Value == ".*"))
+            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
             {
                 return false;
             }
 
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success && keyValuePair.Value != ".*"))
+            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value != ".*"))
             {
                 return true;
             }
 
-            if (InclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key).Success))
+            if (InclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success))
             {
                 return true;
             }
 
+            return false;
+        }
+
+        public bool InstrumentClass(string assemblyName, string className)
+        {
+            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
+            {
+                return false;
+            }
+
+            if (ExclusionFilter
+                .Where(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value != ".*")
+                .Any(keyValuePair => Regex.Match(className, keyValuePair.Value.WrapWithAnchors()).Success))
+            {
+                Debug.WriteLine("Rejecting {0} {1}", assemblyName, className);
+                return false;
+            }
+
+            if (InclusionFilter
+                .Where(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success)
+                .Any(keyValuePair => Regex.Match(className, keyValuePair.Value.WrapWithAnchors()).Success))
+            {
+                return true;
+            }
+
+            Debug.WriteLine("Rejecting {0} {1}", assemblyName, className);
             return false;
         }
 

@@ -54,6 +54,7 @@ typedef struct _MSG_GetSequencePoints_Request
     MSG_Type type;
     int functionToken;
     WCHAR szModuleName[512];
+    WCHAR szAssemblyName[512];
 } MSG_GetSequencePoints_Request;
 
 typedef struct _MSG_GetSequencePoints_Response

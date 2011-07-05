@@ -7,6 +7,6 @@ namespace OpenCover.Framework.Model
 {
     public interface IInstrumentationModelBuilderFactory
     {
-        IInstrumentationModelBuilder CreateModelBuilder(string moduleName);
+        IInstrumentationModelBuilder CreateModelBuilder(string modulePath, string moduleName);
     }
 }

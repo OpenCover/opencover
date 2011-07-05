@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework.Service
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
-               .Setup(x => x.CreateModelBuilder(It.IsAny<string>()))
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
                .Returns(mockModelBuilder.Object);
 
             mockModelBuilder
@@ -74,7 +74,7 @@ namespace OpenCover.Test.Framework.Service
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
-               .Setup(x => x.CreateModelBuilder(It.IsAny<string>()))
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
                .Returns(mockModelBuilder.Object);
 
             mockModelBuilder
@@ -111,14 +111,69 @@ namespace OpenCover.Test.Framework.Service
             ModelSequencePoint[] points;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
-                .Returns(false);
+                .Returns(false)
+                .Verifiable();
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(true);
+            Container.GetMock<IFilter>()
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(true);
 
             // act
             ServiceSequencePoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsFalse(result);
+            Container.GetMock<IPersistance>().Verify();
+        }
+
+        [Test]
+        public void GetSequencePoints_Returns_False_When_Not_Tracking_Assembly()
+        {
+            // arrange
+            ModelSequencePoint[] points;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(false);
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(false);
+           
+            // act
+            ServiceSequencePoint[] instrumentPoints;
+            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsFalse(result);
+            Container.GetMock<IPersistance>()
+                 .Verify(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points), Times.Never());
+        }
+
+        [Test]
+        public void GetSequencePoints_Returns_False_When_Not_Tracking_Class()
+        {
+            // arrange
+            ModelSequencePoint[] points;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(false);
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(true);
+            Container.GetMock<IFilter>()
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(false);
+
+            // act
+            ServiceSequencePoint[] instrumentPoints;
+            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsFalse(result);
+            Container.GetMock<IPersistance>()
+                 .Verify(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points), Times.Never());
         }
 
         [Test]
@@ -128,15 +183,23 @@ namespace OpenCover.Test.Framework.Service
             var points = new[] { new ModelSequencePoint() };
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
-                .Returns(true);
+                .Returns(true)
+                .Verifiable();
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(true);
+            Container.GetMock<IFilter>()
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(true);
 
             // act
             ServiceSequencePoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsTrue(result);
             Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
+            Container.GetMock<IPersistance>().Verify();
         }
 
         [Test]

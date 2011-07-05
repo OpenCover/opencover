@@ -45,7 +45,7 @@ namespace OpenCover.Test.Framework.Communication
             // assert
             SequencePoint[] points;
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
+                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
         }
 
@@ -59,7 +59,7 @@ namespace OpenCover.Test.Framework.Communication
 
             var points = new []{new SequencePoint(), new SequencePoint()};
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var mockHarness = new Mock<IProfilerManager>();
 
@@ -84,7 +84,7 @@ namespace OpenCover.Test.Framework.Communication
 
             var points = new[] { new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint() };
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
             
             var mockHarness = new Mock<IProfilerManager>();
 

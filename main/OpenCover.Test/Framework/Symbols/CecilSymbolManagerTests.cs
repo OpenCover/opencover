@@ -23,7 +23,7 @@ namespace OpenCover.Test.Framework.Symbols
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object);
-            _reader.Initialise(_location);
+            _reader.Initialise(_location, "OpenCover.Test");
         }
 
         [TearDown]
@@ -142,7 +142,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void SourceAssembly_Returns_Null_On_Failure()
         {
             // arrange
-            _reader.Initialise("");
+            _reader.Initialise("", "");
 
             // act
             var val = _reader.SourceAssembly;
