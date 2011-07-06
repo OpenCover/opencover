@@ -43,7 +43,7 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_TrackAssembly:
                     var msgTA = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
                     var responseTA = new MSG_TrackAssembly_Response();
-                    responseTA.track = _profilerCommunication.TrackAssembly(msgTA.module, msgTA.assembly);
+                    responseTA.track = _profilerCommunication.TrackAssembly(msgTA.modulePath, msgTA.assemblyName);
                     _marshalWrapper.StructureToPtr(responseTA, pinnedMemory, false);
                     writeSize = Marshal.SizeOf(typeof(MSG_TrackAssembly_Response));
                     break;
@@ -52,7 +52,7 @@ namespace OpenCover.Framework.Communication
                     var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
                     Service.SequencePoint[] origPoints;
                     var responseCSP = new MSG_GetSequencePoints_Response();
-                    _profilerCommunication.GetSequencePoints(msgGSP.module,msgGSP.assembly, msgGSP.functionToken, out origPoints);
+                    _profilerCommunication.GetSequencePoints(msgGSP.modulePath,msgGSP.assemblyName, msgGSP.functionToken, out origPoints);
                     var num = origPoints == null ? 0 : origPoints.Length;
 
                     var index = 0;

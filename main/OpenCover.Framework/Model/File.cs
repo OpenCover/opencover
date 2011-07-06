@@ -12,6 +12,9 @@ using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
 {
+    /// <summary>
+    /// A file reference within the coverage session and is used to point to an existing File entity
+    /// </summary>
     public class FileRef
     {
         [XmlAttribute("uid")]
@@ -19,22 +22,28 @@ namespace OpenCover.Framework.Model
     }
 
     /// <summary>
-    /// File details
+    /// File details of a source file
     /// </summary>
     public class File : FileRef
     {
         private static int _uId;
         
+        /// <summary>
+        /// A standard constructor
+        /// </summary>
         public File()
         {
             UniqueId = (UInt32)Interlocked.Increment(ref _uId);
         }
 
+        /// <summary>
+        /// The path to file
+        /// </summary>
         [XmlAttribute("fullPath")]
         public string FullPath { get; set; }
     }
 
-    public class FileEqualityComparer : IEqualityComparer<File>
+    internal class FileEqualityComparer : IEqualityComparer<File>
     {
         public bool Equals(File x, File y)
         {

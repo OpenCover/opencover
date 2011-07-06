@@ -20,21 +20,21 @@ namespace OpenCover.Framework.Persistance
             CoverageSession.Modules = list.ToArray();
         }
 
-        public bool IsTracking(string moduleName)
+        public bool IsTracking(string modulePath)
         {
             if (CoverageSession.Modules == null) return false;
-            return CoverageSession.Modules.Any(x => x.FullName == moduleName);
+            return CoverageSession.Modules.Any(x => x.FullName == modulePath);
         }
 
         public virtual void Commit()
         {
         }
 
-        public bool GetSequencePointsForFunction(string moduleName, int functionToken, out SequencePoint[] sequencePoints)
+        public bool GetSequencePointsForFunction(string modulePath, int functionToken, out SequencePoint[] sequencePoints)
         {
             sequencePoints = new SequencePoint[0];
             Class @class;
-            var method = GetMethod(moduleName, functionToken, out @class);
+            var method = GetMethod(modulePath, functionToken, out @class);
             if (method !=null)
             {
                 sequencePoints = method.SequencePoints.ToArray();
@@ -43,12 +43,12 @@ namespace OpenCover.Framework.Persistance
             return false;      
         }
 
-        private Method GetMethod(string moduleName, int functionToken, out Class @class)
+        private Method GetMethod(string modulePath, int functionToken, out Class @class)
         {
             @class = null;
             //c = null;
             if (CoverageSession.Modules == null) return null;
-            var module = CoverageSession.Modules.Where(x => x.FullName == moduleName).FirstOrDefault();
+            var module = CoverageSession.Modules.Where(x => x.FullName == modulePath).FirstOrDefault();
             if (module == null) return null;
             foreach (var c in module.Classes)
             {
@@ -60,15 +60,12 @@ namespace OpenCover.Framework.Persistance
             }
             @class = null;
             return null;
-            //return module.Classes
-            //    .SelectMany(@class => @class.Methods.Where(method => method.MetadataToken == functionToken))
-            //    .FirstOrDefault(method => method != null);
         }
 
-        public string GetClassFullName(string moduleName, int functionToken)
+        public string GetClassFullName(string modulePath, int functionToken)
         {
             Class @class;
-            GetMethod(moduleName, functionToken, out @class);
+            GetMethod(modulePath, functionToken, out @class);
             return @class != null ? @class.FullName : null;
         }
 

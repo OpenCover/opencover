@@ -9,7 +9,7 @@ using OpenCover.Test.MoqFramework;
 namespace OpenCover.Test.Framework.Model
 {
     [TestFixture]
-    public class InstrumentationModelBuilderTests :
+    internal class InstrumentationModelBuilderTests :
         UnityAutoMockContainerBase<IInstrumentationModelBuilder, InstrumentationModelBuilder>
     {
         [Test]

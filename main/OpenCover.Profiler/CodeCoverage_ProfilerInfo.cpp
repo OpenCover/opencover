@@ -12,12 +12,12 @@
 /// <summary>
 /// Gets the module name from a ModuleID
 /// </summary>
-std::wstring CCodeCoverage::GetModuleName(ModuleID moduleId)
+std::wstring CCodeCoverage::GetModulePath(ModuleID moduleId)
 {
     ULONG dwNameSize = 512;
-    WCHAR szModuleName[512] = {};
-    COM_FAIL_RETURN(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModuleName, NULL), std::wstring());
-    return std::wstring(szModuleName);
+    WCHAR szModulePath[512] = {};
+    COM_FAIL_RETURN(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModulePath, NULL), std::wstring());
+    return std::wstring(szModulePath);
 }
 
 /// <summary>
@@ -34,10 +34,10 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
 /// <summary>
 /// Get the function token, module ID and module name for a supplied FunctionID
 /// </summary>
-BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName)
+BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath)
 {
     COM_FAIL_RETURN(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
-    moduleName = GetModuleName(moduleId);
+    modulePath = GetModulePath(moduleId);
     return TRUE;
 }
 

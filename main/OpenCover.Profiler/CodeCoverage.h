@@ -63,9 +63,9 @@ public:
     CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
     CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
 
-    std::wstring GetModuleName(ModuleID moduleId);
+    std::wstring GetModulePath(ModuleID moduleId);
     std::wstring GetAssemblyName(AssemblyID assemblyId);
-    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &moduleName);
+    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath);
 
 public:
     ProfilerCommunication m_host;

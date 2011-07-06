@@ -10,13 +10,14 @@ using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Model
 {
-    /// <summary>
-    /// The purpose of this class is to be build the instumentation model for a target assembly
-    /// </summary>
-    public class InstrumentationModelBuilder : IInstrumentationModelBuilder
+    internal class InstrumentationModelBuilder : IInstrumentationModelBuilder
     {
         private readonly ISymbolManager _symbolManager;
 
+        /// <summary>
+        /// Standard constructor
+        /// </summary>
+        /// <param name="symbolManager">the symbol manager that will provide the data</param>
         public InstrumentationModelBuilder(ISymbolManager symbolManager)
         {
             _symbolManager = symbolManager;

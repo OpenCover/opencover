@@ -5,7 +5,7 @@ using OpenCover.Test.MoqFramework;
 namespace OpenCover.Test.Framework.Symbols
 {
     [TestFixture]
-    public class CecilSymbolManagerFactoryTests :
+    internal class CecilSymbolManagerFactoryTests :
         UnityAutoMockContainerBase<ISymbolManagerFactory, CecilSymbolManagerFactory>
     {
         [Test]

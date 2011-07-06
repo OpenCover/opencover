@@ -11,7 +11,7 @@ using OpenCover.Framework.Persistance;
 
 namespace OpenCover.Framework.Service
 {
-    public class ProfilerCommunication : IProfilerCommunication
+    internal class ProfilerCommunication : IProfilerCommunication
     {
         private readonly IFilter _filter;
         private readonly IPersistance _persistance;
@@ -28,23 +28,23 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public bool TrackAssembly(string modulePath, string moduleName)
+        public bool TrackAssembly(string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
-            if (!_filter.UseAssembly(moduleName)) return false;
-            var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, moduleName);
+            if (!_filter.UseAssembly(assemblyName)) return false;
+            var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
             if (!builder.CanInstrument) return false;
             _persistance.PersistModule(builder.BuildModuleModel());
             return true;
         }
 
-        public bool GetSequencePoints(string moduleName, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
+        public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
         {
             instrumentPoints = new SequencePoint[0];
-            var className = _persistance.GetClassFullName(moduleName, functionToken);
+            var className = _persistance.GetClassFullName(modulePath, functionToken);
             if (!_filter.InstrumentClass(assemblyName, className)) return false;
             Model.SequencePoint[] points;
-            if (_persistance.GetSequencePointsForFunction(moduleName, functionToken, out points))
+            if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
             {
                 instrumentPoints = points
                     .Select(sequencePoint => new SequencePoint()

@@ -10,7 +10,7 @@ using System.Text;
 
 namespace OpenCover.Framework.Symbols
 {
-    public class CecilSymbolManagerFactory : ISymbolManagerFactory
+    internal class CecilSymbolManagerFactory : ISymbolManagerFactory
     {
         private readonly ICommandLine _commandLine;
 

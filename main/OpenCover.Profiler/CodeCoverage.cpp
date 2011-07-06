@@ -77,13 +77,13 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
-    std::wstring moduleName = GetModuleName(moduleId);
+    std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
     ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
-        moduleId, W2CT(moduleName.c_str()), 
+        moduleId, W2CT(modulePath.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
-    m_allowModules[moduleName] = m_host.TrackAssembly((LPWSTR)moduleName.c_str(), (LPWSTR)assemblyName.c_str());
-    m_allowModulesAssemblyMap[moduleName] = assemblyName;
+    m_allowModules[modulePath] = m_host.TrackAssembly((LPWSTR)modulePath.c_str(), (LPWSTR)assemblyName.c_str());
+    m_allowModulesAssemblyMap[modulePath] = assemblyName;
     return S_OK; 
 }
 

@@ -40,7 +40,7 @@ enum MSG_Type : int
 typedef struct _MSG_TrackAssembly_Request
 {
     MSG_Type type;
-    WCHAR szModuleName[512];
+    WCHAR szModulePath[512];
     WCHAR szAssemblyName[512];
 } MSG_TrackAssembly_Request;
 
@@ -53,7 +53,7 @@ typedef struct _MSG_GetSequencePoints_Request
 {
     MSG_Type type;
     int functionToken;
-    WCHAR szModuleName[512];
+    WCHAR szModulePath[512];
     WCHAR szAssemblyName[512];
 } MSG_GetSequencePoints_Request;
 

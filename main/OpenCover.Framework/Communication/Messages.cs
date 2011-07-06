@@ -19,9 +19,9 @@ namespace OpenCover.Framework.Communication
     {
         public MSG_Type type;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string module;
+        public string modulePath;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string assembly;
+        public string assemblyName;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -37,9 +37,9 @@ namespace OpenCover.Framework.Communication
         public MSG_Type type;
         public int functionToken;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string module;
+        public string modulePath;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string assembly;
+        public string assemblyName;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

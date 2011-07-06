@@ -18,7 +18,7 @@ using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
 namespace OpenCover.Framework.Symbols
 {
-    public class CecilSymbolManager : ISymbolManager
+    internal class CecilSymbolManager : ISymbolManager
     {
         private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
@@ -83,8 +83,6 @@ namespace OpenCover.Framework.Symbols
                 return _sourceAssembly;
             }
         }
-
-
 
         public File[] GetFiles()
         {
@@ -220,25 +218,29 @@ namespace OpenCover.Framework.Symbols
                     {
                         if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
                         {
-                            UInt32 ordinal = 0;
-                            foreach (var instruction in methodDefinition.Body.Instructions)
+                            //if (methodDefinition.Body.Instructions.Any(x => x.SequencePoint == null))
                             {
-                                if (instruction.SequencePoint != null &&
-                                    instruction.SequencePoint.StartLine != stepOverLineCode)
+                                UInt32 ordinal = 0;
+                                foreach (var instruction in methodDefinition.Body.Instructions)
                                 {
-                                    var sp = instruction.SequencePoint;
-                                    var point = new SequencePoint()
-                                                    {
-                                                        EndColumn = sp.EndColumn,
-                                                        EndLine = sp.EndLine,
-                                                        Offset = instruction.Offset,
-                                                        Ordinal = ordinal++,
-                                                        StartColumn = sp.StartColumn,
-                                                        StartLine = sp.StartLine,
-                                                    };
-                                    list.Add(point);
+                                    if (instruction.SequencePoint != null &&
+                                        instruction.SequencePoint.StartLine != stepOverLineCode)
+                                    {
+                                        var sp = instruction.SequencePoint;
+                                        var point = new SequencePoint()
+                                                        {
+                                                            EndColumn = sp.EndColumn,
+                                                            EndLine = sp.EndLine,
+                                                            Offset = instruction.Offset,
+                                                            Ordinal = ordinal++,
+                                                            StartColumn = sp.StartColumn,
+                                                            StartLine = sp.StartLine,
+                                                        };
+                                        list.Add(point);
+                                    }
                                 }
                             }
+                            
                         }
                     }
                 }

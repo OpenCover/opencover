@@ -12,18 +12,37 @@ using System.Text.RegularExpressions;
 
 namespace OpenCover.Framework
 {
+    /// <summary>
+    /// A filter that is used to decide whether an assembly/class pair is instrumented
+    /// </summary>
     public interface IFilter
     {
+        /// <summary>
+        /// Add a filter
+        /// </summary>
+        /// <param name="assemblyClassName">A filter is of the format (+ or -)[assemblyName]className, wildcards are allowed. <br/>
+        /// i.e. -[mscorlib], -[System.*]*, +[App.*]*, +[*]*
+        /// 
+        /// </param>
         void AddFilter(string assemblyClassName);
-        bool UseAssembly(string assemblyName);
-        bool InstrumentClass(string assemblyName, string className);
-    }
 
-    public enum FilterType
-    {
-        Inclusion,
-        Exclusion
-    }
+        /// <summary>
+        /// Decides whether an assembly should be included in the instrumentation
+        /// </summary>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <returns>the name of the class under profile</returns>
+        /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
+        /// as it is the class that is being filtered within these unless the class filter is *</remarks>
+        bool UseAssembly(string assemblyName);
+
+        /// <summary>
+        /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
+        /// </summary>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="className">the name of the class under profile</param>
+        /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
+        bool InstrumentClass(string assemblyName, string className);
+    }  
 
     internal static class FilterHelper
     {
@@ -33,24 +52,41 @@ namespace OpenCover.Framework
         }
     }
 
+    /// <summary>
+    /// The type of filter, an exclusion filter takes precedence over inclusion filter
+    /// </summary>
+    public enum FilterType
+    {
+        /// <summary>
+        /// The filter is an inclusion type, i.e. if a assembly/class pair 
+        /// matches the filter then it is included for instrumentation
+        /// </summary>
+        Inclusion,
+
+        /// <summary>
+        /// The filter is an exclusion type, i.e. if a assembly/class pair 
+        /// matches the filter then it is excluded for instrumentation
+        /// </summary>
+        Exclusion
+    }
+    
+    /// <summary>
+    ///  A filter that is used to decide whether an assembly/class pair is instrumented
+    /// </summary>
     public class Filter : IFilter
     {
-        public IList<KeyValuePair<string, string>> InclusionFilter { get; set;}
-        public IList<KeyValuePair<string, string>> ExclusionFilter { get; set;}
+        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set;}
+        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set;}
 
+        /// <summary>
+        /// Standard constructor
+        /// </summary>
         public Filter()
         {
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
         }
-
-        /// <summary>
-        /// Decides whether an assembly should be included in the instrumentation
-        /// </summary>
-        /// <param name="assemblyName"></param>
-        /// <returns></returns>
-        /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
-        /// as it is usually the class that is being filtered</remarks>
+        
         public bool UseAssembly(string assemblyName)
         {
             if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
@@ -97,13 +133,6 @@ namespace OpenCover.Framework
             return false;
         }
 
-        /// <summary>
-        /// Add a filter
-        /// </summary>
-        /// <param name="assemblyClassName">A filter is of the format (+ or -)[assemblyName]className, wildcards are allowed. <br/>
-        /// i.e. -[mscorlib], -[System.*]*, +[App.*]*, +[*]*
-        /// 
-        /// </param>
         public void AddFilter(string assemblyClassName)
         {
             string assemblyName;
@@ -117,16 +146,8 @@ namespace OpenCover.Framework
             if (filterType == FilterType.Inclusion) InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
 
             if (filterType == FilterType.Exclusion) ExclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
-
         }
 
-        /// <summary>
-        /// Extracts the type of filter and assembly/class (optional) pair
-        /// </summary>
-        /// <param name="assemblyClassName"></param>
-        /// <param name="filterType"></param>
-        /// <param name="assemblyName"></param>
-        /// <param name="className"></param>
         private static void GetAssemblyClassName(string assemblyClassName, out FilterType filterType, out string assemblyName, out string className)
         {
             className = string.Empty;
@@ -148,11 +169,6 @@ namespace OpenCover.Framework
             }
         }
 
-        /// <summary>
-        /// Validates the assembly class format and then escapes it for future regex usage
-        /// </summary>
-        /// <param name="match"></param>
-        /// <returns></returns>
         private static string ValidateAndEscape(string match)
         {
             if (match.IndexOfAny(@"\[]".ToCharArray())>=0) throw new InvalidOperationException(string.Format("The string is invalid for an assembly/class name {0}", match));

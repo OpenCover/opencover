@@ -18,7 +18,7 @@ using ModelVisitPoint = OpenCover.Framework.Model.VisitPoint;
 namespace OpenCover.Test.Framework.Service
 {
     [TestFixture]
-    public class ProfilerCommunicationTests :
+    internal class ProfilerCommunicationTests :
         UnityAutoMockContainerBase<IProfilerCommunication, ProfilerCommunication>
     {
         [Test]

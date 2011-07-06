@@ -11,12 +11,19 @@ namespace OpenCover.Framework.Symbols
     public interface ISymbolManager
     {
         string ModulePath { get; }
+
         string ModuleName { get; }
+
         File[] GetFiles();
+
         Class[] GetInstrumentableTypes();
+
         Method[] GetConstructorsForType(Class type, File[] files);
+
         Method[] GetMethodsForType(Class type, File[] files);
+
         SequencePoint[] GetSequencePointsForToken(int token);
+
         AssemblyDefinition SourceAssembly { get; }
     }
 }
