@@ -21,61 +21,69 @@ namespace OpenCover.Console
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            var parser = new CommandLineParser(args);
-
-            var container = new Bootstrapper();
-            var filter = new Filter();
-            var persistance = new FilePersistance();
-            
-            container.Initialise(filter, parser, persistance);
-
             try
             {
-                parser.ExtractAndValidateArguments();
-
-                if (parser.PrintUsage)
+                CommandLineParser parser;
+                try
                 {
+                    parser = new CommandLineParser(args);
+                }
+                catch (Exception)
+                {
+                    throw new InvalidOperationException("An error occurred whilst parsing the command line; try /? for command line arguments.");
+                }
+
+                var container = new Bootstrapper();
+                var filter = new Filter();
+                var persistance = new FilePersistance();
+
+                container.Initialise(filter, parser, persistance);
+
+                try
+                {
+                    parser.ExtractAndValidateArguments();
+
+                    if (parser.PrintUsage)
+                    {
+                        System.Console.WriteLine(parser.Usage());
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
                     System.Console.WriteLine(parser.Usage());
                     return;
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
-                System.Console.WriteLine(parser.Usage());
-                return;
-            }
 
-            // apply filters
-            if (!parser.NoDefaultFilters)
-            {
-                filter.AddFilter("-[mscorlib]*");
-                filter.AddFilter("-[System]*");
-                filter.AddFilter("-[System.*]*");
-                filter.AddFilter("-[Microsoft.VisualBasic]*");
-            }
+                // apply filters
+                if (!parser.NoDefaultFilters)
+                {
+                    filter.AddFilter("-[mscorlib]*");
+                    filter.AddFilter("-[System]*");
+                    filter.AddFilter("-[System.*]*");
+                    filter.AddFilter("-[Microsoft.VisualBasic]*");
+                }
 
-            if (parser.Filters.Count == 0)
-            {
-                filter.AddFilter("+[*]*");
-            }
-            else
-            {
-                parser.Filters.ForEach(filter.AddFilter);
-            }
+                if (parser.Filters.Count == 0)
+                {
+                    filter.AddFilter("+[*]*");
+                }
+                else
+                {
+                    parser.Filters.ForEach(filter.AddFilter);
+                }
 
-            var outputFile = Path.Combine(Environment.CurrentDirectory, parser.OutputFile);
-            if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
-            {
-                System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
-                return;
-            }
+                var outputFile = Path.Combine(Environment.CurrentDirectory, parser.OutputFile);
+                if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
+                {
+                    System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
+                    return;
+                }
 
-            persistance.Initialise(outputFile);
-            bool registered = false;
-            try
-            {
-                
+                persistance.Initialise(outputFile);
+                bool registered = false;
+
                 try
                 {
                     if (parser.Register)
@@ -84,7 +92,7 @@ namespace OpenCover.Console
                                                       parser.Architecture == Architecture.Arch64);
                         registered = true;
                     }
-                    var harness = (IProfilerManager) container.Container.Resolve(typeof (IProfilerManager), null);
+                    var harness = (IProfilerManager)container.Container.Resolve(typeof(IProfilerManager), null);
 
                     harness.RunProcess((environment) =>
                                            {
@@ -123,7 +131,6 @@ namespace OpenCover.Console
             {
                 System.Console.WriteLine("An exception occured: {0}", ex.Message);
             }
-
         }
     }
 }

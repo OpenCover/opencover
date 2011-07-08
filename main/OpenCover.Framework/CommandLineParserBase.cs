@@ -46,8 +46,7 @@ namespace OpenCover.Framework
                 else
                 {
                     ParsedArguments.Add(trimmed, String.Empty);    
-                }
-                
+                }       
             }
         }
 
