@@ -33,6 +33,11 @@ public:
         }
     }
 
+    void IncrementStackSize(unsigned int extraStackSize)
+    {
+        m_header.MaxStack += extraStackSize;
+    }
+
 private:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
     void ReadBody();

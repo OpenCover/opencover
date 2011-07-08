@@ -129,7 +129,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 
             Method instumentedMethod(pMethod);
-            instumentedMethod.SetMinimumStackSize(2);
+            instumentedMethod.IncrementStackSize(2);
 
             ATLTRACE(_T("Instrumenting..."));
             //points.clear();
