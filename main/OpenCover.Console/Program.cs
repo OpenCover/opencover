@@ -65,40 +65,57 @@ namespace OpenCover.Console
             }
 
             persistance.Initialise(Path.Combine(Environment.CurrentDirectory, parser.OutputFile));
-
+            bool registered = false;
             try
             {
-                if (parser.Register) ProfilerRegistration.Register(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
+                try
+                {
+                    if (parser.Register)
+                    {
+                        ProfilerRegistration.Register(parser.UserRegistration,
+                                                      parser.Architecture == Architecture.Arch64);
+                        registered = true;
+                    }
+                    var harness = (IProfilerManager) container.Container.Resolve(typeof (IProfilerManager), null);
 
-                var harness = (IProfilerManager)container.Container.Resolve(typeof (IProfilerManager), null);
+                    harness.RunProcess((environment) =>
+                                           {
+                                               var startInfo =
+                                                   new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory,
+                                                                                     parser.Target));
+                                               startInfo.EnvironmentVariables.Add("Cor_Profiler",
+                                                                                  parser.Architecture ==
+                                                                                  Architecture.Arch64
+                                                                                      ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
+                                                                                      : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
+                                               startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
+                                               environment(startInfo.EnvironmentVariables);
 
-                harness.RunProcess((environment) =>
-                                       {
-                                           var startInfo = new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
-                                           startInfo.EnvironmentVariables.Add("Cor_Profiler",
-                                                                              parser.Architecture == Architecture.Arch64
-                                                                                  ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
-                                                                                  : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
-                                           startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
-                                           environment(startInfo.EnvironmentVariables);
+                                               startInfo.Arguments = parser.TargetArgs;
+                                               startInfo.UseShellExecute = false;
+                                               startInfo.WorkingDirectory = parser.TargetDir;
 
-                                           startInfo.Arguments = parser.TargetArgs;
-                                           startInfo.UseShellExecute = false;
-                                           startInfo.WorkingDirectory = parser.TargetDir;
+                                               var process = Process.Start(startInfo);
+                                               process.WaitForExit();
+                                           });
 
-                                           var process = Process.Start(startInfo);
-                                           process.WaitForExit();
-                                       });
-                
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Exception: {0}\n{1}", ex.Message, ex.InnerException);
+                    throw;
+                }
+                finally
+                {
+                    if (parser.Register && registered)
+                        ProfilerRegistration.Unregister(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
+                }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Exception: {0}\n{1}", ex.Message, ex.InnerException);
+                System.Console.WriteLine("An exception occured: {0}", ex.Message);
             }
-            finally
-            {
-                if (parser.Register) ProfilerRegistration.Unregister(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
-            }
+
         }
     }
 }

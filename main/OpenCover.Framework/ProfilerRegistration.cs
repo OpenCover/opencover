@@ -49,6 +49,10 @@ namespace OpenCover.Framework
 
             var process = Process.Start(startInfo);
             process.WaitForExit();
+            if (0!=process.ExitCode)
+            {
+                throw new InvalidOperationException(string.Format("Failed to {0} the profiler assembly; you may want to look into permissions or using the -register:user option instead.", register ? "register" : "unregister"));
+            }
         }
 
         /// <summary>
