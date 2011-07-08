@@ -64,10 +64,18 @@ namespace OpenCover.Console
                 parser.Filters.ForEach(filter.AddFilter);
             }
 
-            persistance.Initialise(Path.Combine(Environment.CurrentDirectory, parser.OutputFile));
+            var outputFile = Path.Combine(Environment.CurrentDirectory, parser.OutputFile);
+            if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
+            {
+                System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
+                return;
+            }
+
+            persistance.Initialise(outputFile);
             bool registered = false;
             try
             {
+                
                 try
                 {
                     if (parser.Register)
