@@ -115,7 +115,6 @@
     <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
-    <Compile Include="Framework\Symbols\CecilSymbolManagerFactoryTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Integration\SimpleExceptionTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />

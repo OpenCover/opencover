@@ -9,16 +9,17 @@ namespace OpenCover.Framework.Model
 {
     public class InstrumentationModelBuilderFactory : IInstrumentationModelBuilderFactory
     {
-        private readonly ISymbolManagerFactory _symbolManagerFactory;
+        private readonly ICommandLine _commandLine;
 
-        public InstrumentationModelBuilderFactory(ISymbolManagerFactory symbolManagerFactory)
+        public InstrumentationModelBuilderFactory(ICommandLine commandLine)
         {
-            _symbolManagerFactory = symbolManagerFactory;
+            _commandLine = commandLine;
         }
 
         public IInstrumentationModelBuilder CreateModelBuilder(string modulePath, string moduleName)
         {
-            var manager = _symbolManagerFactory.CreateSymbolManager(modulePath, moduleName);
+            var manager = new CecilSymbolManager(_commandLine);
+            manager.Initialise(modulePath, moduleName);
             return new InstrumentationModelBuilder(manager);
         }
     }

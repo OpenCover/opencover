@@ -33,12 +33,10 @@ namespace OpenCover.Framework
 
         public void Initialise(IFilter filter, ICommandLine commandLine, IPersistance persistance)
         {
-            _container.RegisterType<IProfilerCommunication, ProfilerCommunication>();
-            _container.RegisterType<ISymbolManagerFactory, CecilSymbolManagerFactory>();
-            _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
             _container.RegisterInstance(filter);
             _container.RegisterInstance(commandLine);
             _container.RegisterInstance(persistance);
+            _container.RegisterType<IProfilerCommunication, ProfilerCommunication>();
             _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
             _container.RegisterType<IProfilerManager, ProfilerManager>();
             _container.RegisterType<IMessageHandler, MessageHandler>();

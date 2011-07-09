@@ -94,9 +94,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Symbols\CecilSymbolManager.cs" />
-    <Compile Include="Symbols\CecilSymbolManagerFactory.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
-    <Compile Include="Symbols\ISymbolManagerFactory.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

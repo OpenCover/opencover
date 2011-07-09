@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -18,10 +19,12 @@ namespace OpenCover.Test.Framework.Model
             // arrange
 
             // act
-            var model = Instance.CreateModelBuilder("x", "y");
+            var model = Instance.CreateModelBuilder(Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"), "OpenCover.Test");
 
             // assert
             Assert.IsNotNull(model);
+            Assert.IsTrue(model.CanInstrument);
+            model.BuildModuleModel();
         }
 
     }
