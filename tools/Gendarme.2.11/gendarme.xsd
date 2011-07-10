@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="gendarme">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ruleset" type="ruleSetType"
+				minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<!-- Types -->
+
+	<xs:complexType name="ruleSetType">
+		<xs:sequence>
+			<xs:element name="rules" type="rulesType" minOccurs="1"
+			maxOccurs="unbounded"/>	
+		</xs:sequence>
+		<xs:attribute name="name" type="notEmptyString" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="rulesType">
+		<xs:sequence>
+			<xs:element name="parameter" type="parameterType"
+			minOccurs="0" maxOccurs="unbounded"/>	
+		</xs:sequence>
+		<xs:attribute name="include" type="notEmptyString" use="required"/>
+		<xs:attribute name="exclude" type="notEmptyString"/>
+		<xs:attribute name="from" type="notEmptyString" use="required"/>
+		<xs:attribute name="applyTo" type="visibilityModifier"/>
+	</xs:complexType>
+
+	<xs:complexType name="parameterType">
+		<xs:attribute name="rule" type="notEmptyString" use="required"/>
+		<xs:attribute name="property" type="notEmptyString" use="required"/>
+		<xs:attribute name="value" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<!-- Facets -->
+	
+	<xs:simpleType name="notEmptyString">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="visibilityModifier">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="all"/>
+			<xs:enumeration value="visible"/>
+			<xs:enumeration value="nonvisible"/>
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>
