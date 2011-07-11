@@ -19,7 +19,8 @@ For viewing the output from OpenCover [start here.] (https://github.com/sawilde/
 No Git? Don't worry you can download the latest code as a [zip file] (http://github.com/sawilde/opencover/zipball/master).
 
 ### Issues
-Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix.
+Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix. Please do not hijack unrelated issues, I would rather you create a new issue than add noise to an unrelated issue.
+
 Dropbox is very useful for sharing files [Dropbox] (http://db.tt/VanqFDn)
 
 ### Project Management
