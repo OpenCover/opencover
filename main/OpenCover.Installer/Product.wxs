@@ -26,6 +26,8 @@
 						<File Id="MICROSOFT_PRACTICES_UNITY_DLL" Source="..\bin\Release\Microsoft.Practices.Unity.dll" />
 						<File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" />
 						<File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
+						<File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" />
+						<File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
 						<File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" />
 						<File Id="SAMPLE64_CMD" Source="Assets\Sample64.cmd" Name="Sample64.cmd" />
 						<File Id="LICENCE_TXT" Source="..\..\License.md" Name="License.txt" />

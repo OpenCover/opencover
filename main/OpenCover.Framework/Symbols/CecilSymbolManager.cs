@@ -208,44 +208,61 @@ namespace OpenCover.Framework.Symbols
             return list.ToArray();
         }
 
+        public int GetCyclomaticComplexityForToken(int token)
+        {
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            return GetCyclomaticComplexityForToken(typeDefinitions, token);
+        }
+
         private static void GetSequencePointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<SequencePoint> list)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
-                foreach (var methodDefinition in typeDefinition.Methods)
+                foreach (var methodDefinition in
+                    typeDefinition.Methods
+                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
+                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
                 {
-                    if (methodDefinition.MetadataToken.ToInt32() == token)
+                    UInt32 ordinal = 0;
+                    foreach (var instruction in methodDefinition.Body.Instructions)
                     {
-                        if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
+                        if (instruction.SequencePoint != null &&
+                            instruction.SequencePoint.StartLine != stepOverLineCode)
                         {
-                            //if (methodDefinition.Body.Instructions.Any(x => x.SequencePoint == null))
-                            {
-                                UInt32 ordinal = 0;
-                                foreach (var instruction in methodDefinition.Body.Instructions)
-                                {
-                                    if (instruction.SequencePoint != null &&
-                                        instruction.SequencePoint.StartLine != stepOverLineCode)
-                                    {
-                                        var sp = instruction.SequencePoint;
-                                        var point = new SequencePoint()
-                                                        {
-                                                            EndColumn = sp.EndColumn,
-                                                            EndLine = sp.EndLine,
-                                                            Offset = instruction.Offset,
-                                                            Ordinal = ordinal++,
-                                                            StartColumn = sp.StartColumn,
-                                                            StartLine = sp.StartLine,
-                                                        };
-                                        list.Add(point);
-                                    }
-                                }
-                            }
-                            
+                            var sp = instruction.SequencePoint;
+                            var point = new SequencePoint()
+                                            {
+                                                EndColumn = sp.EndColumn,
+                                                EndLine = sp.EndLine,
+                                                Offset = instruction.Offset,
+                                                Ordinal = ordinal++,
+                                                StartColumn = sp.StartColumn,
+                                                StartLine = sp.StartLine,
+                                            };
+                            list.Add(point);
                         }
                     }
                 }
                 if (typeDefinition.HasNestedTypes) GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
             }
+        }
+
+        private static int GetCyclomaticComplexityForToken(IEnumerable<TypeDefinition> typeDefinitions, int token)
+        {
+            var ret = 0;
+            foreach (var typeDefinition in typeDefinitions)
+            {
+                foreach (var methodDefinition in
+                    typeDefinition.Methods
+                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
+                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
+                {
+                    return Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
+                }
+                if (typeDefinition.HasNestedTypes) ret = GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token);
+                if (ret != 0) return ret;
+            }
+            return 0;
         }
     }
 }

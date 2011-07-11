@@ -49,6 +49,7 @@ namespace OpenCover.Framework.Model
             foreach (var method in methods)
             {
                 method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
+                method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
 
             @class.Methods = methods.Where(method => method.SequencePoints != null).ToArray();

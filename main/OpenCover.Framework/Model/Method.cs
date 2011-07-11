@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
 {
@@ -16,5 +17,8 @@ namespace OpenCover.Framework.Model
         public string Name { get; set; }
         public FileRef FileRef { get; set; }
         public SequencePoint[] SequencePoints { get; set; }
+
+        [XmlAttribute("cyclomaticComplexity")]
+        public int CyclomaticComplexity { get; set; }
     }
 }
