@@ -13,18 +13,22 @@ namespace OpenCover.Framework.Model
     internal class InstrumentationModelBuilder : IInstrumentationModelBuilder
     {
         private readonly ISymbolManager _symbolManager;
+        private readonly IFilter _filter;
 
         /// <summary>
         /// Standard constructor
         /// </summary>
         /// <param name="symbolManager">the symbol manager that will provide the data</param>
-        public InstrumentationModelBuilder(ISymbolManager symbolManager)
+        /// <param name="filter">A filter to decide whether to include or exclude an assembly or its classes</param>
+        public InstrumentationModelBuilder(ISymbolManager symbolManager, IFilter filter)
         {
             _symbolManager = symbolManager;
+            _filter = filter;
         }
 
         public Module BuildModuleModel()
         {
+            if (!_filter.UseAssembly(_symbolManager.ModuleName)) return null;
             var module = new Module {ModuleName = _symbolManager.ModuleName, FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles()};
             module.Classes = _symbolManager.GetInstrumentableTypes();
             foreach (var @class in module.Classes)

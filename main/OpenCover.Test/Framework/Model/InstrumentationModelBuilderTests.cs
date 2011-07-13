@@ -2,6 +2,7 @@
 using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
+using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.MoqFramework;
@@ -20,6 +21,10 @@ namespace OpenCover.Test.Framework.Model
                 .SetupGet(x => x.ModulePath)
                 .Returns("ModulePath");
 
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
             // act
             var module = Instance.BuildModuleModel();
 
@@ -36,6 +41,10 @@ namespace OpenCover.Test.Framework.Model
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetInstrumentableTypes())
                 .Returns(new[] {@class});
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
 
             // act
             var module = Instance.BuildModuleModel();
@@ -63,6 +72,10 @@ namespace OpenCover.Test.Framework.Model
                 .Setup(x => x.GetSequencePointsForToken(It.IsAny<int>()))
                 .Returns(new[] {new SequencePoint()});
 
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
             // act
             var module = Instance.BuildModuleModel();
 
@@ -88,6 +101,10 @@ namespace OpenCover.Test.Framework.Model
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetSequencePointsForToken(It.IsAny<int>()))
                 .Returns(new[] { new SequencePoint() });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
 
             // act
             var module = Instance.BuildModuleModel();
@@ -116,6 +133,10 @@ namespace OpenCover.Test.Framework.Model
                 .Setup(x => x.GetSequencePointsForToken(101))
                 .Returns(new[] { @seqPoint });
 
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
             // act
             var module = Instance.BuildModuleModel();
 
@@ -141,6 +162,10 @@ namespace OpenCover.Test.Framework.Model
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetSequencePointsForToken(101))
                 .Returns(default(SequencePoint[]));
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
 
             // act
             var module = Instance.BuildModuleModel();

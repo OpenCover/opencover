@@ -109,6 +109,9 @@ namespace OpenCover.Framework
 
         public bool InstrumentClass(string assemblyName, string className)
         {
+            if (string.IsNullOrEmpty(assemblyName)) return false;
+            if (string.IsNullOrEmpty(className)) return false;
+
             if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
             {
                 return false;

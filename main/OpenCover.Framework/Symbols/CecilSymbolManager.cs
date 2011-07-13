@@ -22,13 +22,15 @@ namespace OpenCover.Framework.Symbols
     {
         private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
+        private readonly IFilter _filter;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
 
-        public CecilSymbolManager(ICommandLine commandLine)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter)
         {
             _commandLine = commandLine;
+            _filter = filter;
         }
 
         public string ModulePath
@@ -99,7 +101,7 @@ namespace OpenCover.Framework.Symbols
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
             GetInstrumentableTypes(typeDefinitions, classes);
-            return classes.ToArray();
+            return classes.Where(c => _filter.InstrumentClass(_moduleName, c.FullName)).ToArray();
         }
 
         private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes)

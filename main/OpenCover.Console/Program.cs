@@ -130,6 +130,7 @@ namespace OpenCover.Console
             catch (Exception ex)
             {
                 System.Console.WriteLine("An exception occured: {0}", ex.Message);
+                System.Console.WriteLine("stack: {0}", ex.StackTrace);
             }
         }
     }

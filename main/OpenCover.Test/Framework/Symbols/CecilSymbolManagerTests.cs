@@ -15,14 +15,16 @@ namespace OpenCover.Test.Framework.Symbols
         private CecilSymbolManager _reader;
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
+        private Mock<IFilter> _mockFilter;
 
         [SetUp]
         public void Setup()
         {
             _mockCommandLine = new Mock<ICommandLine>();
+            _mockFilter = new Mock<IFilter>();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 
@@ -36,6 +38,9 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetFiles_Returns_AllFiles_InModule()
         {
             //arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
 
             // act
             var files = _reader.GetFiles();
@@ -49,6 +54,9 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetInstrumentableTypes_Returns_AllTypes_InModule_ThatCanBeInstrumented()
         {
             // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
 
             // act
             var types = _reader.GetInstrumentableTypes();
@@ -62,8 +70,13 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetConstructorsForType_Returns_AllDeclared_ForType()
         {
             // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+
 
             // act
             var ctors = _reader.GetConstructorsForType(type, new File[0]);
@@ -76,8 +89,13 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetMethodsForType_Returns_AllDeclared_ForType()
         {
             // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
+
 
             // act
             var methods = _reader.GetMethodsForType(type, new File[0]);
@@ -90,6 +108,10 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetSequencePointsForMethodToken()
         {
             // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
@@ -105,6 +127,10 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetSequencePointsForConstructorToken()
         {
             // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
             var ctors = _reader.GetConstructorsForType(type, new File[0]);
