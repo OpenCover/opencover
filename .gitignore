@@ -31,3 +31,12 @@
 /samples/**/bin/**/*
 /samples/**/obj/**/*
 /samples/OpenCover.Samples.suo
+/main/OpenCover.6.0.ReSharper.user
+/main/_ReSharper.OpenCover
+/main/OpenCover.Profiler/RDa01252
+/main/OpenCover.Profiler/RCa01252
+/samples/_ReSharper.OpenCover.Samples
+/main/OpenCover_mm_cache.bin
+/samples/OpenCover.Samples.5.0.ReSharper.user
+/tools/Gendarme.2.11/Temp/Gendarme.Rules.Maintainability.il
+/tools/Gendarme.2.11/Temp/Gendarme.Rules.Maintainability.res
