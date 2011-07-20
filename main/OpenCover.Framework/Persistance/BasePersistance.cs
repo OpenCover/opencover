@@ -7,8 +7,11 @@ namespace OpenCover.Framework.Persistance
     
     public class BasePersistance : IPersistance
     {
-        public BasePersistance()
+        private readonly ICommandLine _commandLine;
+
+        public BasePersistance(ICommandLine commandLine)
         {
+            _commandLine = commandLine;
             CoverageSession = new CoverageSession();
         }
 
@@ -16,6 +19,10 @@ namespace OpenCover.Framework.Persistance
 
         public void PersistModule(Module module)
         {
+            if (_commandLine.MergeByHash)
+            {
+                if ((CoverageSession.Modules ?? new Module[0]).Any(x => x.ModuleHash == module.ModuleHash)) return;
+            }
             var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
             CoverageSession.Modules = list.ToArray();
         }

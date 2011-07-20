@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
 {
@@ -34,5 +35,11 @@ namespace OpenCover.Framework.Model
         /// The classes that make up the module
         /// </summary>
         public Class[] Classes { get; set; }
+
+        /// <summary>
+        /// A hash of the file used to group them together (especially when running against mstest)
+        /// </summary>
+        [XmlAttribute("hash")]
+        public string ModuleHash { get; set; }
     }
 }

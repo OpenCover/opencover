@@ -35,6 +35,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-output:[\"]<path to file>[\"]]");
             builder.AppendLine("    [-filter:[\"]<space seperated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
+            builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -75,6 +76,9 @@ namespace OpenCover.Framework
                         break;
                     case "nodefaultfilters":
                         NoDefaultFilters = true;
+                        break;
+                    case "mergebyhash":
+                        MergeByHash = true;
                         break;
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
@@ -134,6 +138,11 @@ namespace OpenCover.Framework
         /// If specified then the default filters should not be applied
         /// </summary>
         public bool NoDefaultFilters { get; private set; }
+
+        /// <summary>
+        /// If specified then results to be merged by matching hash 
+        /// </summary>
+        public bool MergeByHash { get; private set; }
 
         /// <summary>
         /// A list of filters

@@ -5,7 +5,9 @@
 //
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Model
@@ -29,7 +31,12 @@ namespace OpenCover.Framework.Model
         public Module BuildModuleModel()
         {
             if (!_filter.UseAssembly(_symbolManager.ModuleName)) return null;
-            var module = new Module {ModuleName = _symbolManager.ModuleName, FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles()};
+            var hash = string.Empty;
+            if (System.IO.File.Exists(_symbolManager.ModulePath))
+            {
+                hash = HashFile(_symbolManager.ModulePath);
+            }
+            var module = new Module {ModuleName = _symbolManager.ModuleName, FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles(), ModuleHash = hash};
             module.Classes = _symbolManager.GetInstrumentableTypes();
             foreach (var @class in module.Classes)
             {
@@ -37,6 +44,15 @@ namespace OpenCover.Framework.Model
             }
 
             return module;
+        }
+
+        public string HashFile(string sPath)
+        {
+            using (var sr = new StreamReader(sPath))
+            using (var prov = new SHA1CryptoServiceProvider())
+            {
+                return BitConverter.ToString(prov.ComputeHash(sr.BaseStream));
+            }
         }
 
         public bool CanInstrument

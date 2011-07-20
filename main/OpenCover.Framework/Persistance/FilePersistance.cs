@@ -16,6 +16,11 @@ namespace OpenCover.Framework.Persistance
 {
     public class FilePersistance : BasePersistance
     {
+
+        public FilePersistance(ICommandLine commandLine) : base(commandLine)
+        {
+        }
+
         private string _fileName;
 
         public void Initialise(string fileName)

@@ -182,6 +182,18 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(2, parser.Filters.Count);
         }
 
+        [Test]
+        public void HandlesMergeByHashArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-mergebyhash", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.MergeByHash);
+        }
 
     }
 }

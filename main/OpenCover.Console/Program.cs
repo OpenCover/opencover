@@ -35,7 +35,7 @@ namespace OpenCover.Console
 
                 var container = new Bootstrapper();
                 var filter = new Filter();
-                var persistance = new FilePersistance();
+                var persistance = new FilePersistance(parser);
 
                 container.Initialise(filter, parser, persistance);
 

@@ -17,7 +17,7 @@ namespace OpenCover.Integration.Test
     public abstract class ProfilerBaseFixture
     {
         private IFilter _filter;
-        private ICommandLine _commandLine;
+        private Mock<ICommandLine> _commandLine;
         private IPersistance _persistance;
 
         protected string TestTarget { get; set; }
@@ -32,9 +32,9 @@ namespace OpenCover.Integration.Test
             _filter.AddFilter("-[Microsoft.VisualBasic]*");
             _filter.AddFilter("+[OpenCover.Samples.*]*");
 
-            _commandLine = new Mock<ICommandLine>().Object;
+            _commandLine = new Mock<ICommandLine>();
 
-            var filePersistance = new BasePersistance();
+            var filePersistance = new BasePersistance(_commandLine.Object);
             _persistance = filePersistance;
         }
 
@@ -48,7 +48,7 @@ namespace OpenCover.Integration.Test
         private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
         {
             var bootstrapper = new Bootstrapper();
-            bootstrapper.Initialise(_filter, _commandLine, _persistance);
+            bootstrapper.Initialise(_filter, _commandLine.Object, _persistance);
             var harness = (IProfilerManager)bootstrapper.Container.Resolve(typeof(IProfilerManager), null);
 
             harness.RunProcess((environment) =>

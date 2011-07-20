@@ -4,7 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Moq;
 using NUnit.Framework;
+using OpenCover.Framework;
 using OpenCover.Framework.Common;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
@@ -18,12 +20,14 @@ namespace OpenCover.Test.Framework.Persistance
         private FilePersistance _persistence;
         private string _filePath;
         private TextWriter _textWriter;
+        private Mock<ICommandLine> _mockCommandLine;
 
         [SetUp]
         public void SetUp()
         {
+            _mockCommandLine = new Mock<ICommandLine>();
             _filePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            _persistence = new FilePersistance();
+            _persistence = new FilePersistance(_mockCommandLine.Object);
             _persistence.Initialise(_filePath);
             _textWriter = Console.Out;
             var stringWriter = new StringWriter(new StringBuilder());

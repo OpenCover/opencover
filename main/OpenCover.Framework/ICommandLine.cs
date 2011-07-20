@@ -8,5 +8,6 @@ namespace OpenCover.Framework
     public interface ICommandLine
     {
         string TargetDir { get; }
+        bool MergeByHash { get; }
     }
 }
