@@ -43,7 +43,7 @@ namespace OpenCover.Framework
         private static void ExecuteRegsvr32(bool userRegistration, bool register)
         {
             ExecuteRegsvr32(userRegistration, register, false);
-            if (Environment.Is64BitOperatingSystem) { ExecuteRegsvr32(userRegistration, true, true); }
+            if (Environment.Is64BitOperatingSystem) { ExecuteRegsvr32(userRegistration, register, true); }
         }
 
         private static void ExecuteRegsvr32(bool userRegistration, bool register, bool is64)
