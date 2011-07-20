@@ -144,45 +144,6 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        public void HandlesTheArchitectureArgument()
-        {
-            // arrange  
-            var parser = new CommandLineParser(new[]{"-arch:32" , RequiredArgs});
-
-            // act
-            parser.ExtractAndValidateArguments();
-
-            // assert
-            Assert.AreEqual(Architecture.Arch32, parser.Architecture);
-        }
-
-        [Test]
-        public void HandlesBadArchitectureArgumentNumber()
-        {
-            // arrange  
-            var parser = new CommandLineParser(new[]{"-arch:128" , RequiredArgs});
-
-            // act
-            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
-
-            // assert
-            Assert.IsNotNull(ex);
-        }
-
-        [Test]
-        public void HandlesBadArchitectureArgumentAlt()
-        {
-            // arrange  
-            var parser = new CommandLineParser(new[]{"-arch:arch128" , RequiredArgs});
-
-            // act
-            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
-
-            // assert
-            Assert.IsNotNull(ex);
-        }
-
-        [Test]
         public void HandlesAnInvalidTypeArgument()
         {
             // arrange  

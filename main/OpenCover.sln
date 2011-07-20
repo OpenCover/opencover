@@ -31,6 +31,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{299202E9-EDCF-4386-8795-C20DCDCE0122}"
 	ProjectSection(SolutionItems) = preProject
 		OpenCover.Installer\Product.wxs = OpenCover.Installer\Product.wxs
+		OpenCover.Installer\Assets\sample.cmd = OpenCover.Installer\Assets\sample.cmd
+		OpenCover.Installer\Assets\sample64.cmd = OpenCover.Installer\Assets\sample64.cmd
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Integration.Test", "OpenCover.Integration.Test\OpenCover.Integration.Test.csproj", "{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}"

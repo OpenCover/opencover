@@ -11,11 +11,6 @@ using System.Linq;
 
 namespace OpenCover.Framework
 {
-    public enum Architecture
-    {
-        Arch32 = 32,
-        Arch64 = 64
-    }
 
     /// <summary>
     /// Parse the command line arguments and set the appropriate properties
@@ -25,7 +20,6 @@ namespace OpenCover.Framework
         public CommandLineParser(string[] arguments)
             : base(arguments)
         {
-            Architecture = Architecture.Arch32;
             OutputFile = "results.xml";
             Filters = new List<string>();
         }
@@ -38,7 +32,6 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-targetdir:<target directory>]");
             builder.AppendLine("    [-targetargs:[\"]<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
-            builder.AppendLine("    [-arch:<32|64>]");
             builder.AppendLine("    [-output:[\"]<path to file>[\"]]");
             builder.AppendLine("    [-filter:[\"]<space seperated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
@@ -86,19 +79,6 @@ namespace OpenCover.Framework
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
                         break;
-                    case "arch":
-                        Architecture arch;
-                        var val = GetArgumentValue("arch");
-                        if (!Architecture.TryParse(val, true, out arch))
-                        {
-                            throw new InvalidOperationException(string.Format("The arch {0} is not recognised", val));
-                        }
-                        if (arch != Framework.Architecture.Arch32 && arch != Framework.Architecture.Arch64)
-                        {
-                            throw new InvalidOperationException(string.Format("The arch {0} was not recognised", val));
-                        }
-                        Architecture = arch;
-                        break;
                     case "?":
                         PrintUsage = true;
                         break;
@@ -144,11 +124,6 @@ namespace OpenCover.Framework
         /// Requests that the user wants to see the commandline help
         /// </summary>
         public bool PrintUsage { get; private set; }
-
-        /// <summary>
-        /// The runtime architecture to register the profiler for
-        /// </summary>
-        public Architecture Architecture { get; private set; }
 
         /// <summary>
         /// The name of the output file

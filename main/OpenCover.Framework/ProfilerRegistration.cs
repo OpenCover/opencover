@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 
 namespace OpenCover.Framework
 {
@@ -25,41 +26,47 @@ namespace OpenCover.Framework
         /// Register the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
         /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        /// <param name="is64">true - register 64 bit</param>
-        public static void Register(bool userRegistration, bool is64)
+        public static void Register(bool userRegistration)
         {
-            ExecuteRegsvr32(userRegistration, is64, true);
+            ExecuteRegsvr32(userRegistration, true);
         }
 
         /// <summary>
         /// Unregister the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
         /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        /// <param name="is64">true - unregister 64 bit</param>
-        public static void Unregister(bool userRegistration, bool is64)
+        public static void Unregister(bool userRegistration)
         {
-            ExecuteRegsvr32(userRegistration, is64, false);
+            ExecuteRegsvr32(userRegistration, false);
         }
 
-        private static void ExecuteRegsvr32(bool userRegistration, bool is64, bool register)
+        private static void ExecuteRegsvr32(bool userRegistration, bool register)
+        {
+            ExecuteRegsvr32(userRegistration, register, false);
+            if (Environment.Is64BitOperatingSystem) { ExecuteRegsvr32(userRegistration, true, true); }
+        }
+
+        private static void ExecuteRegsvr32(bool userRegistration, bool register, bool is64)
         {
             var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"),
-                string.Format("/s {2} {0} \"{1}\"", userRegistration ? UserRegistrationString : String.Empty,
-                GetProfilerPath(is64), register ? string.Empty : "/u")) { CreateNoWindow = true };
+                                     string.Format("/s {2} {0} \"{1}\"",userRegistration ? UserRegistrationString : String.Empty,
+                                     GetProfilerPath(is64), register ? string.Empty : "/u")) {CreateNoWindow = true};
 
             var process = Process.Start(startInfo);
             process.WaitForExit();
-            if (0!=process.ExitCode)
+            if (register && 0 != process.ExitCode) // there is an oddity where unregistering the x64 version after the x86 (or vice versa) issues an access denied (5)
             {
-                throw new InvalidOperationException(string.Format("Failed to {0} the profiler assembly; you may want to look into permissions or using the -register:user option instead.", register ? "register" : "unregister"));
+                throw new InvalidOperationException(
+                    string.Format("Failed to register(user:{0},register:{1},is64:{2}):{3} the profiler assembly; you may want to look into permissions or using the -register:user option instead. {4} {5}",
+                        userRegistration, register, is64, process.ExitCode, process.StartInfo.FileName, process.StartInfo.Arguments));
             }
         }
 
         /// <summary>
-        /// 
+        /// Get the current location of this assembly
         /// </summary>
         /// <returns></returns>
-        public static string GetAssemblyLocation()
+        private static string GetAssemblyLocation()
         {
             return Path.GetDirectoryName(typeof(ProfilerRegistration).Assembly.Location ?? string.Empty);
         }

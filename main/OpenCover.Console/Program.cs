@@ -88,8 +88,7 @@ namespace OpenCover.Console
                 {
                     if (parser.Register)
                     {
-                        ProfilerRegistration.Register(parser.UserRegistration,
-                                                      parser.Architecture == Architecture.Arch64);
+                        ProfilerRegistration.Register(parser.UserRegistration);
                         registered = true;
                     }
                     var harness = (IProfilerManager)container.Container.Resolve(typeof(IProfilerManager), null);
@@ -99,8 +98,6 @@ namespace OpenCover.Console
                                                var startInfo =
                                                    new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory,
                                                                                      parser.Target));
-                                               startInfo.EnvironmentVariables.Add("Cor_Profiler", "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}");
-                                               startInfo.EnvironmentVariables.Add("Cor_Enable_Profiling", "1");
                                                environment(startInfo.EnvironmentVariables);
 
                                                startInfo.Arguments = parser.TargetArgs;
@@ -120,7 +117,7 @@ namespace OpenCover.Console
                 finally
                 {
                     if (parser.Register && registered)
-                        ProfilerRegistration.Unregister(parser.UserRegistration, parser.Architecture == Architecture.Arch64);
+                        ProfilerRegistration.Unregister(parser.UserRegistration);
                 }
             }
             catch (Exception ex)

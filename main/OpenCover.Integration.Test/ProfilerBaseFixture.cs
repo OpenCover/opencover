@@ -40,12 +40,12 @@ namespace OpenCover.Integration.Test
 
         protected void ExecuteProfiler32(Action<ProcessStartInfo> testProcess)
         {
-            ProfilerRegistration.Register(true, false);
-            ExecuteProfiler(Architecture.Arch32, testProcess);
-            ProfilerRegistration.Unregister(true, false);
+            ProfilerRegistration.Register(true);
+            ExecuteProfiler(testProcess);
+            ProfilerRegistration.Unregister(true);
         }
 
-        private void ExecuteProfiler(Architecture architecture, Action<ProcessStartInfo> testProcess)
+        private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
         {
             var bootstrapper = new Bootstrapper();
             bootstrapper.Initialise(_filter, _commandLine, _persistance);
@@ -54,11 +54,6 @@ namespace OpenCover.Integration.Test
             harness.RunProcess((environment) =>
             {
                 var startInfo = new ProcessStartInfo();
-                startInfo.EnvironmentVariables["Cor_Profiler"] = 
-                                                   architecture == Architecture.Arch64
-                                                       ? "{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}"
-                                                       : "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
-                startInfo.EnvironmentVariables["Cor_Enable_Profiling"] = "1";
                 environment(startInfo.EnvironmentVariables);
                 testProcess(startInfo);
                 startInfo.UseShellExecute = false;

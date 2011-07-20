@@ -65,6 +65,8 @@ namespace OpenCover.Framework.Manager
                         {
                             if (dictionary == null) return;
                             dictionary[@"OpenCover_Profiler_Key"] = key;
+                            dictionary["Cor_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
+                            dictionary["Cor_Enable_Profiling"] = "1";
                             environmentKeyRead.Set();
                         });
                     }
@@ -90,7 +92,6 @@ namespace OpenCover.Framework.Manager
                 {
                     pinnedComms.Free();
                     pinnedResults.Free();
-                    
                 }
             }
         }
