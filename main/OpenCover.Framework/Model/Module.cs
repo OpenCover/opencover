@@ -17,9 +17,23 @@ namespace OpenCover.Framework.Model
     public class Module
     {
         /// <summary>
+        /// simple constructor
+        /// </summary>
+        public Module()
+        {
+            Aliases = new List<string>();
+        }
+
+        /// <summary>
         /// The full path name to the module
         /// </summary>
         public string FullName { get; set; }
+
+        /// <summary>
+        /// A list of aliases
+        /// </summary>
+        [XmlIgnore]
+        public IList<string> Aliases { get; private set; } 
 
         /// <summary>
         /// The name of the module

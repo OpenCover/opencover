@@ -45,10 +45,12 @@ namespace OpenCover.Test.Framework.Persistance
         public void IsTracking_True_IfModuleKnown()
         {
             // arrange
-            _persistence.PersistModule(new Module(){FullName = "ModuleName"});
+            var module = new Module() {FullName = "ModulePath"};
+            module.Aliases.Add("ModulePath");
+            _persistence.PersistModule(module);
 
             // act
-            var tracking = _persistence.IsTracking("ModuleName");
+            var tracking = _persistence.IsTracking("ModulePath");
 
             // assert
             Assert.IsTrue(tracking);
@@ -58,11 +60,14 @@ namespace OpenCover.Test.Framework.Persistance
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
         {
             // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new []{new Class(){Methods = new []{new Method(){MetadataToken = 1, SequencePoints = new []{new SequencePoint(){VisitCount = 1000} }}}}}});
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
+
+            module.Aliases.Add("ModulePath");
+            _persistence.PersistModule(module);
 
             // act
             SequencePoint[] points;
-            _persistence.GetSequencePointsForFunction("ModuleName", 1, out points);
+            _persistence.GetSequencePointsForFunction("ModulePath", 1, out points);
 
             // assert
             Assert.IsNotNull(points);

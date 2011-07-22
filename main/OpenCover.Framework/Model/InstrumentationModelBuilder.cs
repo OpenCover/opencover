@@ -36,7 +36,14 @@ namespace OpenCover.Framework.Model
             {
                 hash = HashFile(_symbolManager.ModulePath);
             }
-            var module = new Module {ModuleName = _symbolManager.ModuleName, FullName = _symbolManager.ModulePath, Files = _symbolManager.GetFiles(), ModuleHash = hash};
+            var module = new Module
+                             {
+                                 ModuleName = _symbolManager.ModuleName,
+                                 FullName = _symbolManager.ModulePath,
+                                 Files = _symbolManager.GetFiles(),
+                                 ModuleHash = hash
+                             };
+            module.Aliases.Add(_symbolManager.ModulePath);
             module.Classes = _symbolManager.GetInstrumentableTypes();
             foreach (var @class in module.Classes)
             {

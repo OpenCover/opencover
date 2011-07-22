@@ -35,8 +35,12 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNull(Instance.CoverageSession.Modules);
 
             // act 
-            Instance.PersistModule(new Module() { ModuleHash = "123" });
-            Instance.PersistModule(new Module() { ModuleHash = "123" });
+            var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
+            module1.Aliases.Add("Path1");
+            var module2 = new Module() { ModuleHash = "123", FullName = "Path2" };
+            module2.Aliases.Add("Path2");
+            Instance.PersistModule(module1);
+            Instance.PersistModule(module2);
 
             // assert
             Assert.AreEqual(2, Instance.CoverageSession.Modules.Count());
@@ -53,9 +57,12 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNull(Instance.CoverageSession.Modules);
 
             // act 
-            Instance.PersistModule(new Module() { ModuleHash = "123" });
-            Instance.PersistModule(new Module() { ModuleHash = "123" });
-
+            var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
+            module1.Aliases.Add("Path1");
+            var module2 = new Module() { ModuleHash = "123", FullName = "Path2" };
+            module2.Aliases.Add("Path2");
+            Instance.PersistModule(module1);
+            Instance.PersistModule(module2);
             // assert
             Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
         }
