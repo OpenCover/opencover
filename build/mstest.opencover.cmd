@@ -1,0 +1,1 @@
+OpenCover.Console.exe -register:user -target:"c:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\MSTest.exe" -targetargs:"/testcontainer:OpenCover.Test.dll" -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml
