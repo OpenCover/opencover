@@ -23,6 +23,11 @@ public:
     void DumpIL();
     ULONG GetILMapSize();
     void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
+#if _WIN64
+    void AddBranchCoverage(mdSignature bpvsig, ULONGLONG bpt);
+#else
+    void AddBranchCoverage(mdSignature bpvsig, ULONG bpt);
+#endif
 
 public:
     void SetMinimumStackSize(unsigned int minimumStackSize)

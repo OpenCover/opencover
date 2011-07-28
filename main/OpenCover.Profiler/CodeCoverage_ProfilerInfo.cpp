@@ -60,4 +60,23 @@ mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID
     return pmsig;
 }
 
+/// <summary>Get the token for an unmamaged method having a two I4 parameters</summary>
+mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I4I4(ModuleID moduleID)
+{
+    static COR_SIGNATURE unmanagedCallSignature[] = 
+    {
+        IMAGE_CEE_CS_CALLCONV_DEFAULT,          // Default CallKind!
+        0x02,                                   // Parameter count
+        ELEMENT_TYPE_VOID,                      // Return type
+        ELEMENT_TYPE_I4,                        // Parameter type (I4)
+        ELEMENT_TYPE_I4                         // Parameter type (I4)
+    };
+
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURN(m_profilerInfo2->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit), 0);
+
+    mdSignature pmsig ;
+    COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
+    return pmsig;
+}
 

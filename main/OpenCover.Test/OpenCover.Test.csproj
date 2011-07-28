@@ -118,6 +118,7 @@
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
+    <Compile Include="Integration\SimpleBranchTests.cs" />
     <Compile Include="Integration\SimpleExceptionTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />

@@ -746,3 +746,68 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
     }
 }
 
+#if _WIN64
+void Method::AddBranchCoverage(mdSignature bpvsig, ULONGLONG bpt)
+#else
+void Method::AddBranchCoverage(mdSignature bpvsig, ULONG bpt)
+#endif
+{
+    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    {
+        if ((*it)->m_isBranch && ((*it)->m_origOffset != -1))
+        {
+            OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+            if (details.controlFlow == COND_BRANCH)
+            {
+                if (details.canonicalName != CEE_SWITCH)
+                {
+                    Instruction *pCurrent = *it;
+                    Instruction *pOriginalTarget = pCurrent->m_branches[0];
+                    ++it;
+                    Instruction *pNext = *it;
+
+                    InstructionList instructions;
+                    instructions.push_back(new Instruction(CEE_LDC_I4, pCurrent->m_origOffset));
+                    instructions.push_back(new Instruction(CEE_LDC_I4, 0));
+#if _WIN64
+                    instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)bpt));
+#else
+                    instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)bpt));
+#endif
+                    instructions.push_back(new Instruction(CEE_CALLI, bpvsig));
+
+                    Instruction *pJumpNext = new Instruction(CEE_BR);
+                    pJumpNext->m_isBranch = true;
+                    instructions.push_back(pJumpNext);
+
+                    Instruction *pRecordJmp = new Instruction(CEE_LDC_I4, pCurrent->m_origOffset);
+                    instructions.push_back(pRecordJmp);
+
+                    instructions.push_back(new Instruction(CEE_LDC_I4, 1));
+#if _WIN64
+                    instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)bpt));
+#else
+                    instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)bpt));
+#endif
+                    instructions.push_back(new Instruction(CEE_CALLI, bpvsig));
+
+                    Instruction *pJumpTarget = new Instruction(CEE_BR);
+                    pJumpTarget->m_isBranch = true;
+                    instructions.push_back(pJumpTarget);
+                    
+                    // wire up
+                    pJumpNext->m_branches.push_back(pNext);
+                    pJumpTarget->m_branches.push_back(pOriginalTarget);
+                    pCurrent->m_branches[0] = pRecordJmp;
+                    
+                    m_instructions.insert(it, instructions.begin(), instructions.end());
+                    for (it = m_instructions.begin(); *it != pJumpTarget; ++it);
+                    ++it;
+                }
+            }
+        }
+    }
+    RecalculateOffsets();
+}
+
+

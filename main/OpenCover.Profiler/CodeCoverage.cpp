@@ -97,6 +97,16 @@ static void __fastcall SequencePointVisit(ULONG seq)
     CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
 }
 
+/// <summary>An unmanaged callback that can be called from .NET that has a three I4 parameter</summary>
+/// <remarks>
+/// void (__fastcall *pt)(long) = &SequencePointVisit ;
+/// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
+/// </remarks>
+static void __fastcall BranchPointVisit(ULONG offset, ULONG seq)
+{
+    //CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
+    ATLTRACE(_T("BranchPointVisit %d, %d"), offset, seq);
+}
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
 /// <remarks>The 'workhorse' </remarks>
@@ -125,29 +135,37 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
             
-            void (__fastcall *pt)(ULONG) = &SequencePointVisit ;
-            mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
+            void (__fastcall *spt)(ULONG) = &SequencePointVisit ;
+            mdSignature spvsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
+
+            void (__fastcall *bpt)(ULONG, ULONG) = &BranchPointVisit ;
+            mdSignature bpvsig = GetUnmanagedMethodSignatureToken_I4I4(moduleId);
 
             Method instumentedMethod(pMethod);
-            instumentedMethod.IncrementStackSize(2);
+            instumentedMethod.IncrementStackSize(3);
 
             ATLTRACE(_T("Instrumenting..."));
-            //points.clear();
-            for ( std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
+            points.clear();
+            for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
             {    
                 //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
                 InstructionList instructions;
                 instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));
 #if _WIN64
-                instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
+                instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)spt));
 #else
-                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
+                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)spt));
 #endif
-                instructions.push_back(new Instruction(CEE_CALLI, pmsig));
+                instructions.push_back(new Instruction(CEE_CALLI, spvsig));
 
                 instumentedMethod.InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
             }
 
+#if _WIN64
+            instumentedMethod.AddBranchCoverage(bpvsig, (ULONG)bpt);
+#else
+            instumentedMethod.AddBranchCoverage(bpvsig, (ULONGLONG)bpt);
+#endif
             instumentedMethod.DumpIL();
 
             CComPtr<IMethodMalloc> methodMalloc;

@@ -16,7 +16,7 @@ namespace OpenCover.Integration.Test
     [TestFixture]
     public abstract class ProfilerBaseFixture
     {
-        private IFilter _filter;
+        protected IFilter _filter;
         private Mock<ICommandLine> _commandLine;
         private IPersistance _persistance;
 
@@ -40,9 +40,9 @@ namespace OpenCover.Integration.Test
 
         protected void ExecuteProfiler32(Action<ProcessStartInfo> testProcess)
         {
-            ProfilerRegistration.Register(true);
+            //ProfilerRegistration.Register(true);
             ExecuteProfiler(testProcess);
-            ProfilerRegistration.Unregister(true);
+            //ProfilerRegistration.Unregister(true);
         }
 
         private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
