@@ -100,7 +100,7 @@ void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
 void ProfilerCommunication::SendVisitPoints()
 {
     m_eventReceiveResults.Reset();
-    m_eventSendResults.SignalAndWait(m_eventReceiveResults);
+    m_eventSendResults.SignalAndWait(m_eventReceiveResults, 5000);
     m_eventReceiveResults.Reset();
     return;
 }
