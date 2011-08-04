@@ -110,13 +110,13 @@ namespace OpenCover.Test.Framework.Persistance
         public void SaveVisitPoints_AggregatesResults()
         {
             // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { UniqueSequencePoint = 100 } } } } } } });
+            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { UniqueSequencePoint = 1 } } } } } } });
 
             // act
-            _persistence.SaveVisitPoints(new[] { new VisitPoint() { UniqueId = 100, VisitType = VisitType.SequencePoint }, new VisitPoint() { UniqueId = 100, VisitType = VisitType.SequencePoint } });
+            _persistence.SaveVisitPoints(new[] { new VisitPoint() { UniqueId = 1, VisitType = VisitType.SequencePoint }, new VisitPoint() { UniqueId = 1, VisitType = VisitType.SequencePoint } });
 
             // assert
-            Assert.AreEqual(2, _persistence.CoverageSession.Modules[0].Classes[0].Methods[0].SequencePoints[0].VisitCount);
+            Assert.AreEqual(2, SequencePoint.GetCount(1));
         }
 
         [Test]

@@ -88,24 +88,24 @@ namespace OpenCover.Framework.Persistance
 
         public void SaveVisitPoints(VisitPoint[] visitPoints)
         {
-            var summary = from point in visitPoints
-                          group point by point.UniqueId into counts
-                          let count = counts.Count()
-                          select new { point = counts.Key, Count = count };
-
-            foreach (var sum in summary)
+            foreach (var x in visitPoints)
             {
-                var sum1 = sum;
-                foreach (var sequencePoint in from module in CoverageSession.Modules
-                                              from @class in module.Classes
-                                              from method in @class.Methods
-                                              from sequencePoint in method.SequencePoints
-                                              where sequencePoint.UniqueSequencePoint == sum1.point
-                                              select sequencePoint)
-                {
-                    sequencePoint.VisitCount += sum.Count;
-                }
+                SequencePoint.AddCount(x.UniqueId);
             }
+
+            //foreach (var sum in summary)
+            //{
+            //    var sum1 = sum;
+            //    foreach (var sequencePoint in from module in CoverageSession.Modules
+            //                                  from @class in module.Classes
+            //                                  from method in @class.Methods
+            //                                  from sequencePoint in method.SequencePoints
+            //                                  where sequencePoint.UniqueSequencePoint == sum1.point
+            //                                  select sequencePoint)
+            //    {
+            //        sequencePoint.VisitCount += sum.Count;
+            //    }
+            //}
         }
     }
 }
