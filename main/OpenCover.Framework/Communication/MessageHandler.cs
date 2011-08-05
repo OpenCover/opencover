@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Service;
+using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
 namespace OpenCover.Framework.Communication
 {
@@ -117,15 +118,13 @@ namespace OpenCover.Framework.Communication
         public void ReceiveResults(IntPtr pinnedMemory)
         {
             var msgRes = _marshalWrapper.PtrToStructure<MSG_SendVisitPoints_Request>(pinnedMemory);
-            var list = new List<VisitPoint>();
             pinnedMemory += Marshal.SizeOf(typeof (MSG_SendVisitPoints_Request));
             for (var i = 0; i < msgRes.count; i++)
             {
                 var pt = _marshalWrapper.PtrToStructure<MSG_VisitPoint>(pinnedMemory);
-                list.Add(new VisitPoint(){UniqueId = pt.UniqueId, VisitType = pt.VisitType});
+                SequencePoint.AddCount(pt.UniqueId);
                 pinnedMemory += Marshal.SizeOf(typeof(MSG_VisitPoint));          
             }
-            _profilerCommunication.Visited(list.ToArray());
         }
 
         public void Complete()
