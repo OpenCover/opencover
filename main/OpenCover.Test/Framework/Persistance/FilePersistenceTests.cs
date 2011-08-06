@@ -41,20 +41,7 @@ namespace OpenCover.Test.Framework.Persistance
             Console.SetOut(_textWriter);
         }
 
-        [Test]
-        public void IsTracking_True_IfModuleKnown()
-        {
-            // arrange
-            var module = new Module() {FullName = "ModulePath"};
-            module.Aliases.Add("ModulePath");
-            _persistence.PersistModule(module);
-
-            // act
-            var tracking = _persistence.IsTracking("ModulePath");
-
-            // assert
-            Assert.IsTrue(tracking);
-        }
+       
 
         [Test]
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
@@ -104,19 +91,6 @@ namespace OpenCover.Test.Framework.Persistance
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count());
-        }
-
-        [Test]
-        public void SaveVisitPoints_AggregatesResults()
-        {
-            // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { UniqueSequencePoint = 1 } } } } } } });
-
-            // act
-            _persistence.SaveVisitPoints(new[] { new VisitPoint() { UniqueId = 1, VisitType = VisitType.SequencePoint }, new VisitPoint() { UniqueId = 1, VisitType = VisitType.SequencePoint } });
-
-            // assert
-            Assert.AreEqual(2, SequencePoint.GetCount(1));
         }
 
         [Test]

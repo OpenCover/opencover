@@ -58,12 +58,6 @@ namespace OpenCover.Framework.Service
             return false;
         }
 
-        public void Visited(VisitPoint[] visitPoints)
-        {
-            var points = visitPoints.Select(p => new Model.VisitPoint() {UniqueId = p.UniqueId, VisitType = p.VisitType}).ToArray();
-            _persistance.SaveVisitPoints(points);
-        }
-
         public void Stopping()
         {
             _persistance.Commit();

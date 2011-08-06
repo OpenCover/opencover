@@ -14,6 +14,8 @@ using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Threading;
 using OpenCover.Framework.Communication;
+using OpenCover.Framework.Model;
+using OpenCover.Framework.Persistance;
 
 namespace OpenCover.Framework.Manager
 {
@@ -22,6 +24,7 @@ namespace OpenCover.Framework.Manager
         const int maxMsgSize = 65536;
 
         private readonly IMessageHandler _messageHandler;
+        private readonly IPersistance _persistance;
         private MemoryMappedViewStream _streamAccessorComms;
         private MemoryMappedViewStream _streamAccessorResults;
         private EventWaitHandle _requestDataReady;
@@ -31,9 +34,10 @@ namespace OpenCover.Framework.Manager
         private byte[] _dataCommunication;
         private new ConcurrentQueue<byte[]> _messageQueue;
 
-        public ProfilerManager(IMessageHandler messageHandler)
+        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance)
         {
             _messageHandler = messageHandler;
+            _persistance = persistance;
         }
 
         public void RunProcess(Action<Action<StringDictionary>> process)
@@ -83,7 +87,6 @@ namespace OpenCover.Framework.Manager
 
                 ThreadPool.QueueUserWorkItem((state) =>
                 {
-                    int count = 0;
                     while (true)
                     {
                         byte[] data;
@@ -95,17 +98,13 @@ namespace OpenCover.Framework.Manager
                                 queueMgmt.Set();
                                 return;
                             }
-                            count++;
-                            var pinnedResults = GCHandle.Alloc(data, GCHandleType.Pinned);
-                            _messageHandler.ReceiveResults(pinnedResults.AddrOfPinnedObject());
-                            pinnedResults.Free();
-                            Trace.WriteLine(string.Format("Queue: {0} {1}", _messageQueue.Count, count));
+                            
+                            _persistance.SaveVisitData(data);
                         }
                         else
                         {
-                            Thread.Sleep(50);
-                        }
-                        
+                            Thread.Yield();
+                        } 
                     }
                 });
 
@@ -130,10 +129,11 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(List<WaitHandle> handles, GCHandle pinnedComms)
         {
-            byte[] data;
+            byte[] data = null;
             var continueWait = true;
             do
             {
+                if (data == null) data = new byte[maxMsgSize];
                 switch (WaitHandle.WaitAny(handles.ToArray()))
                 {
                     case 1:
@@ -154,8 +154,7 @@ namespace OpenCover.Framework.Manager
                         _responseDataReady.Reset();
 
                         break;
-                    case 2:
-                        data = new byte[maxMsgSize];
+                    case 2:                     
                         _requestResultsReady.Reset();
 
                         _streamAccessorResults.Seek(0, SeekOrigin.Begin);
@@ -165,8 +164,7 @@ namespace OpenCover.Framework.Manager
                         _responseResultsReady.Reset();
 
                         _messageQueue.Enqueue(data);
-                        //_messageHandler.ReceiveResults(pinnedResults.AddrOfPinnedObject());
-
+                        data = null;
                         break;
                     default:
                         continueWait = false;
@@ -174,16 +172,11 @@ namespace OpenCover.Framework.Manager
                 }
             } while (continueWait);
 
-            data = new byte[maxMsgSize];
             _streamAccessorResults.Seek(0, SeekOrigin.Begin);
             _streamAccessorResults.Read(data, 0, maxMsgSize);
 
             _messageQueue.Enqueue(data);
             _messageQueue.Enqueue(new byte[0]);
-
-            //_messageHandler.ReceiveResults(pinnedResults.AddrOfPinnedObject());
-
-            //_messageHandler.Complete();
 
         }
 

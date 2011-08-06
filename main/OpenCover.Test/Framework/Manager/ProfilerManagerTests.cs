@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
+using OpenCover.Framework.Persistance;
 using OpenCover.Test.MoqFramework;
 
 namespace OpenCover.Test.Framework.Manager
@@ -82,24 +83,18 @@ namespace OpenCover.Test.Framework.Manager
             // assert
             Container.GetMock<IMessageHandler>()
                 .Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()), Times.Once());
-
-            Container.GetMock<IMessageHandler>()
-                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Once());
         }
 
         [Test]
-        public void Manager_Handles_ResultsEvent()
+        public void Manager_SendsResults_ForProcessing()
         {
             // arrange
 
             // act
-            var dict = new StringDictionary();
-
-            RunProcess(dict);
+            Instance.RunProcess(e => e(new StringDictionary()));
 
             // assert
-            Container.GetMock<IMessageHandler>()
-                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Exactly(2));
+            Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
         }
 
         private void RunProcess(StringDictionary dict)

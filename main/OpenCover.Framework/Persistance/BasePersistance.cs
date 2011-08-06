@@ -86,26 +86,13 @@ namespace OpenCover.Framework.Persistance
             return @class != null ? @class.FullName : null;
         }
 
-        public void SaveVisitPoints(VisitPoint[] visitPoints)
+        public void SaveVisitData(byte[] data)
         {
-            foreach (var x in visitPoints)
+            var nCount = BitConverter.ToUInt32(data, 0);
+            for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
-                SequencePoint.AddCount(x.UniqueId);
+                SequencePoint.AddCount(BitConverter.ToUInt32(data, idx));   
             }
-
-            //foreach (var sum in summary)
-            //{
-            //    var sum1 = sum;
-            //    foreach (var sequencePoint in from module in CoverageSession.Modules
-            //                                  from @class in module.Classes
-            //                                  from method in @class.Methods
-            //                                  from sequencePoint in method.SequencePoints
-            //                                  where sequencePoint.UniqueSequencePoint == sum1.point
-            //                                  select sequencePoint)
-            //    {
-            //        sequencePoint.VisitCount += sum.Count;
-            //    }
-            //}
         }
     }
 }

@@ -9,7 +9,6 @@
 #include "SharedMemory.h"
 #include "Messages.h"
 
-#define SEQ_BUFFER_SIZE 8000
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>

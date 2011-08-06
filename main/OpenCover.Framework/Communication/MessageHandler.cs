@@ -19,7 +19,6 @@ namespace OpenCover.Framework.Communication
         int ReadSize { get; }
         int MaxMsgSize { get; }
 
-        void ReceiveResults(IntPtr pinnedMemory);
         void Complete();
     }
 
@@ -112,18 +111,6 @@ namespace OpenCover.Framework.Communication
                         Marshal.SizeOf(typeof(MSG_GetSequencePoints_Response)) + BufSize *  Marshal.SizeOf(typeof(MSG_SequencePoint)) }).Max();
                 }
                 return _maxMsgSize;
-            }
-        }
-
-        public void ReceiveResults(IntPtr pinnedMemory)
-        {
-            var msgRes = _marshalWrapper.PtrToStructure<MSG_SendVisitPoints_Request>(pinnedMemory);
-            pinnedMemory += Marshal.SizeOf(typeof (MSG_SendVisitPoints_Request));
-            for (var i = 0; i < msgRes.count; i++)
-            {
-                var pt = _marshalWrapper.PtrToStructure<MSG_VisitPoint>(pinnedMemory);
-                SequencePoint.AddCount(pt.UniqueId);
-                pinnedMemory += Marshal.SizeOf(typeof(MSG_VisitPoint));          
             }
         }
 

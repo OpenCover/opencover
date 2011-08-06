@@ -57,18 +57,4 @@ namespace OpenCover.Framework.Communication
 
         public int count;
     }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MSG_SendVisitPoints_Request
-    {
-        public int count;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct MSG_VisitPoint
-    {
-        public uint UniqueId;
-        public VisitType VisitType;
-    }
-
 }

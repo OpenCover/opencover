@@ -118,5 +118,6 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        
     }
 }

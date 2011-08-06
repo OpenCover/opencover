@@ -29,8 +29,6 @@ namespace OpenCover.Framework.Service
 
         bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] sequencePoints);
 
-        void Visited(VisitPoint[] visitPoints);
-
         void Stopping();
     }
 }
