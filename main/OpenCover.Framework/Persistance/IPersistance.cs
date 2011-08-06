@@ -34,12 +34,6 @@ namespace OpenCover.Framework.Persistance
         bool GetSequencePointsForFunction(string modulePath, int functionToken, out SequencePoint[] sequencePoints);
 
         /// <summary>
-        /// Save a batch of visit points - this method will be called repeatedly and the rsults aggregated
-        /// </summary>
-        /// <param name="visitPoints">the current batch of visit points</param>
-        void SaveVisitPoints(VisitPoint[] visitPoints);
-
-        /// <summary>
         /// Check if the module is to be tracked i.e. instrumented
         /// </summary>
         /// <param name="modulePath"></param>
@@ -58,5 +52,11 @@ namespace OpenCover.Framework.Persistance
         /// The coverage session - this is the root entity of a persisted document
         /// </summary>
         CoverageSession CoverageSession { get; }
+
+        /// <summary>
+        /// extract and save the visit data
+        /// </summary>
+        /// <param name="data"></param>
+        void SaveVisitData(byte[] data);
     }
 }

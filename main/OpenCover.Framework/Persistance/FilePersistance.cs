@@ -32,6 +32,16 @@ namespace OpenCover.Framework.Persistance
         {
             try
             {
+                Console.WriteLine("Committing....");
+                foreach (var sequencePoint in from module in CoverageSession.Modules
+                                                from @class in module.Classes
+                                                from method in @class.Methods
+                                                from sequencePoint in method.SequencePoints
+                                                select sequencePoint)
+                {
+                    sequencePoint.VisitCount = SequencePoint.GetCount(sequencePoint.UniqueSequencePoint);
+                } 
+
                 var serializer = new XmlSerializer(typeof(CoverageSession), new[] { typeof(Module), typeof(Model.File), typeof(Class) });
                 var fs = new FileStream(_fileName, FileMode.Create);
                 var writer = new StreamWriter(fs, new UTF8Encoding());
@@ -108,5 +118,6 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        
     }
 }

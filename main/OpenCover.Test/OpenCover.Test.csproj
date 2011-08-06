@@ -116,6 +116,7 @@
     <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Model\SequencePointTests.cs" />
     <Compile Include="Framework\Persistance\BasePersistenceTests.cs" />
     <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />

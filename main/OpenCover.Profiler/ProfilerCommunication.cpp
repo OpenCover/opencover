@@ -88,12 +88,10 @@ void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
 {
     CScopedLock<CMutex> lock(m_mutexResults);
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
-    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = VT_SeqPt;
-    if (++m_pVisitPoints->count == 8000)
+    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
         m_pVisitPoints->count=0;
-        //::ZeroMemory(m_pVisitPoints, 65536);
     }
 }
 

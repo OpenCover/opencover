@@ -5,10 +5,8 @@
 //
 #pragma once
 
-enum VisitType : int
-{
-    VT_SeqPt = 1,
-};
+#define SEQ_BUFFER_SIZE 8000
+#define VP_BUFFER_SIZE 16000
 
 #pragma pack(push)
 #pragma pack(1)
@@ -22,7 +20,6 @@ typedef struct SequencePoint
 typedef struct VisitPoint
 {
     ULONG UniqueId;
-    VisitType VisitType;
 };
 
 #pragma pack(pop)
@@ -61,13 +58,13 @@ typedef struct _MSG_GetSequencePoints_Response
 {
     BOOL hasMore;
     int count;
-    SequencePoint points[8000];
+    SequencePoint points[SEQ_BUFFER_SIZE];
 } MSG_GetSequencePoints_Response;
 
 typedef struct _MSG_SendVisitPoints_Request
 {
     int count;
-    VisitPoint points[8000];
+    VisitPoint points[VP_BUFFER_SIZE];
 } MSG_SendVisitPoints_Request;
 
 #pragma pack(pop)

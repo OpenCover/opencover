@@ -201,23 +201,5 @@ namespace OpenCover.Test.Framework.Service
             Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
             Container.GetMock<IPersistance>().Verify();
         }
-
-        [Test]
-        public void Visited_Saves_VisitedPoints()
-        {
-            // arrange
-            var savedPoints = new List<ModelVisitPoint>();
-            Container.GetMock<IPersistance>()
-                .Setup(x => x.SaveVisitPoints(It.IsAny<ModelVisitPoint[]>()))
-                .Callback<ModelVisitPoint[]>(savedPoints.AddRange);
-
-            // act
-            Instance.Visited(new []{new ServiceVisitPoint(){UniqueId = 123, VisitType = VisitType.SequencePoint}});
-
-            // assert
-            Assert.AreEqual(1, savedPoints.Count);
-            Assert.AreEqual(123, savedPoints[0].UniqueId);
-
-        }
     }
 }

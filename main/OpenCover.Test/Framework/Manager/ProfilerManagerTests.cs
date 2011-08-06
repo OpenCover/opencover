@@ -9,6 +9,7 @@ using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
+using OpenCover.Framework.Persistance;
 using OpenCover.Test.MoqFramework;
 
 namespace OpenCover.Test.Framework.Manager
@@ -24,7 +25,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            Instance.RunProcess(e => e(dict));
+            RunProcess(dict);
 
             // assert
             Assert.NotNull(dict[@"OpenCover_Profiler_Key"]);
@@ -37,7 +38,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            Instance.RunProcess(e => e(dict));
+            RunProcess(dict);
 
             // assert
             Assert.AreEqual("{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}".ToUpper(), dict[@"Cor_Profiler"].ToUpper());
@@ -50,7 +51,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            Instance.RunProcess(e => e(dict));
+            RunProcess(dict);
 
             // assert
             Assert.AreEqual("1", dict[@"Cor_Enable_Profiling"]);
@@ -71,30 +72,33 @@ namespace OpenCover.Test.Framework.Manager
             {
                 e(dict);
 
-                var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
+                var standardMessageReady = new EventWaitHandle(false, EventResetMode.ManualReset,
                     @"Local\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
-                standardMessageDataReady.Set();
+                standardMessageReady.Set();
 
-                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 250));
+                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
             });
 
             // assert
             Container.GetMock<IMessageHandler>()
                 .Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()), Times.Once());
-
-            Container.GetMock<IMessageHandler>()
-                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Once());
         }
 
         [Test]
-        public void Manager_Handles_ResultsEvent()
+        public void Manager_SendsResults_ForProcessing()
         {
             // arrange
 
             // act
-            var dict = new StringDictionary();
+            Instance.RunProcess(e => e(new StringDictionary()));
 
+            // assert
+            Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
+        }
+
+        private void RunProcess(StringDictionary dict)
+        {
             Instance.RunProcess(e =>
             {
                 e(dict);
@@ -104,12 +108,8 @@ namespace OpenCover.Test.Framework.Manager
 
                 standardMessageDataReady.Set();
 
-                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 250));
+                Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
             });
-
-            // assert
-            Container.GetMock<IMessageHandler>()
-                .Verify(x => x.ReceiveResults(It.IsAny<IntPtr>()), Times.Exactly(2));
         }
     }
 }

@@ -114,34 +114,5 @@ namespace OpenCover.Test.Framework.Communication
             Assert.AreNotEqual(0, size);
         }
 
-        [Test]
-        public void ReceiveResults_Converts_VisitPoints()
-        {
-            // arrange
-            Container.GetMock<IMarshalWrapper>()
-                .Setup(x => x.PtrToStructure<MSG_SendVisitPoints_Request>(It.IsAny<IntPtr>()))
-                .Returns(new MSG_SendVisitPoints_Request() {count = 2});
-
-            uint uniqueid = 0;
-            Container.GetMock<IMarshalWrapper>()
-                .Setup(x => x.PtrToStructure<MSG_VisitPoint>(It.IsAny<IntPtr>()))
-                .Returns<IntPtr>(p => new MSG_VisitPoint() { UniqueId = ++uniqueid, VisitType = VisitType.SequencePoint });
-
-            VisitPoint[] list = null;
-            Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.Visited(It.IsAny<VisitPoint[]>()))
-                .Callback<VisitPoint[]>((x) => list = x);
-
-            // act
-            Instance.ReceiveResults(IntPtr.Zero);
-
-           
-            // assert
-            Assert.NotNull(list);
-            Assert.AreEqual(2, list.Length);
-            Assert.AreEqual(1, list[0].UniqueId);
-            Assert.AreEqual(2, list[1].UniqueId);
-        }
-
     }
 }
