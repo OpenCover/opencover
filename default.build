@@ -38,7 +38,7 @@
 		<call target="build-all-platforms"/>		
 		<call target="build-installer"/>	
         <move file="${solution.folder}/bin/installer/opencover.msi" 
-		    tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
+        tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
 		<call target="nuget-package"/>
 	</target>
 		
