@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+	
+	<property name="nuget.folder" value="${tools.folder}/NuGet.CommandLine" />
+	<property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
+	<property name="version" value="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+	<property name="out.folder" value="${solution.folder}\bin\nugetpackage" />
+
+	<target name="nuget-package" >
+		<mkdir dir="${out.folder}" />
+		<exec program="${nuget.exe}" 
+			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${out.folder} -Version ${version}" />
+	</target>
+	
+</project>
