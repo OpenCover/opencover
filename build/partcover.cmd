@@ -1,0 +1,1 @@
+..\..\..\..\..\partcover.git\working\partcover.net4\main\bin\PartCover.exe --register --target ..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe --target-args "OpenCover.Test.dll /noshadow" --include [Open*]* --exclude [OpenCover.T*]* --output partcover.results.xml

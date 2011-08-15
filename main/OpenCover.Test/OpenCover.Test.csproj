@@ -94,6 +94,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="xunit">
+      <HintPath>..\..\tools\xunit-1.8\xunit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\build\Version\GlobalAssemblyInfo.cs">
@@ -113,6 +116,7 @@
     <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Model\SequencePointTests.cs" />
     <Compile Include="Framework\Persistance\BasePersistenceTests.cs" />
     <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />
@@ -126,6 +130,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\Samples.cs" />
     <Compile Include="Samples\SimpleMsTest.cs" />
+    <Compile Include="Samples\Simple_xUnit.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">
@@ -148,12 +153,28 @@
       <Link>dogfood64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\build\mstest.opencover.cmd">
+      <Link>mstest.opencover.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\..\build\opencovertests.cmd">
       <Link>opencovertests.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\..\build\opencovertests64.cmd">
       <Link>opencovertests64.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\build\partcover.cmd">
+      <Link>partcover.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\build\report_coverage.cmd">
+      <Link>report_coverage.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\build\xunit.opencover.cmd">
+      <Link>xunit.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

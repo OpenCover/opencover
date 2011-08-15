@@ -42,7 +42,7 @@ public:
     void Wait() { ::WaitForSingleObject(m_hEvent, INFINITE); }
 
     void Reset() { ::ResetEvent(m_hEvent); }
-	void SignalAndWait(CEvent &waitEvent) {::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, INFINITE, false);}
+	void SignalAndWait(CEvent &waitEvent, DWORD dwMilliSeconds = INFINITE) {::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, dwMilliSeconds, false);}
 
 private:
     HANDLE m_hEvent;

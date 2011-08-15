@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using OpenCover.Framework.Model;
 
@@ -21,7 +22,16 @@ namespace OpenCover.Framework.Persistance
         {
             if (_commandLine.MergeByHash)
             {
-                if ((CoverageSession.Modules ?? new Module[0]).Any(x => x.ModuleHash == module.ModuleHash)) return;
+                var modules = CoverageSession.Modules ?? new Module[0];
+                if (modules.Any(x => x.ModuleHash == module.ModuleHash))
+                {
+                    var existingModule = modules.First(x => x.ModuleHash == module.ModuleHash);
+                    if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                    {
+                        existingModule.Aliases.Add(module.FullName); 
+                    }
+                    return;
+                }
             }
             var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
             CoverageSession.Modules = list.ToArray();
@@ -30,7 +40,7 @@ namespace OpenCover.Framework.Persistance
         public bool IsTracking(string modulePath)
         {
             if (CoverageSession.Modules == null) return false;
-            return CoverageSession.Modules.Any(x => x.FullName == modulePath);
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
         }
 
         public virtual void Commit()
@@ -55,7 +65,7 @@ namespace OpenCover.Framework.Persistance
             @class = null;
             //c = null;
             if (CoverageSession.Modules == null) return null;
-            var module = CoverageSession.Modules.Where(x => x.FullName == modulePath).FirstOrDefault();
+            var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
             if (module == null) return null;
             foreach (var c in module.Classes)
             {
@@ -76,25 +86,12 @@ namespace OpenCover.Framework.Persistance
             return @class != null ? @class.FullName : null;
         }
 
-        public void SaveVisitPoints(VisitPoint[] visitPoints)
+        public void SaveVisitData(byte[] data)
         {
-            var summary = from point in visitPoints
-                          group point by point.UniqueId into counts
-                          let count = counts.Count()
-                          select new { point = counts.Key, Count = count };
-
-            foreach (var sum in summary)
+            var nCount = BitConverter.ToUInt32(data, 0);
+            for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
-                var sum1 = sum;
-                foreach (var sequencePoint in from module in CoverageSession.Modules
-                                              from @class in module.Classes
-                                              from method in @class.Methods
-                                              from sequencePoint in method.SequencePoints
-                                              where sequencePoint.UniqueSequencePoint == sum1.point
-                                              select sequencePoint)
-                {
-                    sequencePoint.VisitCount += sum.Count;
-                }
+                SequencePoint.AddCount(BitConverter.ToUInt32(data, idx));   
             }
         }
     }

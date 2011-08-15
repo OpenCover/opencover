@@ -41,28 +41,20 @@ namespace OpenCover.Test.Framework.Persistance
             Console.SetOut(_textWriter);
         }
 
-        [Test]
-        public void IsTracking_True_IfModuleKnown()
-        {
-            // arrange
-            _persistence.PersistModule(new Module(){FullName = "ModuleName"});
-
-            // act
-            var tracking = _persistence.IsTracking("ModuleName");
-
-            // assert
-            Assert.IsTrue(tracking);
-        }
+       
 
         [Test]
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
         {
             // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new []{new Class(){Methods = new []{new Method(){MetadataToken = 1, SequencePoints = new []{new SequencePoint(){VisitCount = 1000} }}}}}});
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
+
+            module.Aliases.Add("ModulePath");
+            _persistence.PersistModule(module);
 
             // act
             SequencePoint[] points;
-            _persistence.GetSequencePointsForFunction("ModuleName", 1, out points);
+            _persistence.GetSequencePointsForFunction("ModulePath", 1, out points);
 
             // assert
             Assert.IsNotNull(points);
@@ -99,19 +91,6 @@ namespace OpenCover.Test.Framework.Persistance
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count());
-        }
-
-        [Test]
-        public void SaveVisitPoints_AggregatesResults()
-        {
-            // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { UniqueSequencePoint = 100 } } } } } } });
-
-            // act
-            _persistence.SaveVisitPoints(new[] { new VisitPoint() { UniqueId = 100, VisitType = VisitType.SequencePoint }, new VisitPoint() { UniqueId = 100, VisitType = VisitType.SequencePoint } });
-
-            // assert
-            Assert.AreEqual(2, _persistence.CoverageSession.Modules[0].Classes[0].Methods[0].SequencePoints[0].VisitCount);
         }
 
         [Test]

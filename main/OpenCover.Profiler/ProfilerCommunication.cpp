@@ -88,19 +88,17 @@ void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
 {
     CScopedLock<CMutex> lock(m_mutexResults);
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
-    m_pVisitPoints->points[m_pVisitPoints->count].VisitType = VT_SeqPt;
-    if (++m_pVisitPoints->count == 8000)
+    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
         m_pVisitPoints->count=0;
-        //::ZeroMemory(m_pVisitPoints, 65536);
     }
 }
 
 void ProfilerCommunication::SendVisitPoints()
 {
     m_eventReceiveResults.Reset();
-    m_eventSendResults.SignalAndWait(m_eventReceiveResults);
+    m_eventSendResults.SignalAndWait(m_eventReceiveResults, 5000);
     m_eventReceiveResults.Reset();
     return;
 }

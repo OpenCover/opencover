@@ -33,9 +33,11 @@
 		<call target="build-all-platforms" />
 	</target>
 	
-	<target name="create-release">
+	<target name="create-release" depends="get-version-number">
 		<call target="build-all-platforms"/>		
-		<call target="build-installer"/>		
+		<call target="build-installer"/>	
+        <move file="${solution.folder}/bin/installer/opencover.msi" 
+		    tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />		
 	</target>
 		
 </project>

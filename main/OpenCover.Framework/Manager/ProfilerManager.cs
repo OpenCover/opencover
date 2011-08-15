@@ -4,6 +4,8 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -12,6 +14,8 @@ using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
 using System.Threading;
 using OpenCover.Framework.Communication;
+using OpenCover.Framework.Model;
+using OpenCover.Framework.Persistance;
 
 namespace OpenCover.Framework.Manager
 {
@@ -20,6 +24,7 @@ namespace OpenCover.Framework.Manager
         const int maxMsgSize = 65536;
 
         private readonly IMessageHandler _messageHandler;
+        private readonly IPersistance _persistance;
         private MemoryMappedViewStream _streamAccessorComms;
         private MemoryMappedViewStream _streamAccessorResults;
         private EventWaitHandle _requestDataReady;
@@ -27,17 +32,19 @@ namespace OpenCover.Framework.Manager
         private EventWaitHandle _requestResultsReady;
         private EventWaitHandle _responseResultsReady;
         private byte[] _dataCommunication;
-        private byte[] _dataResults;
+        private new ConcurrentQueue<byte[]> _messageQueue;
 
-        public ProfilerManager(IMessageHandler messageHandler)
+        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance)
         {
             _messageHandler = messageHandler;
+            _persistance = persistance;
         }
 
         public void RunProcess(Action<Action<StringDictionary>> process)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
             var processMgmt = new AutoResetEvent(false);
+            var queueMgmt = new AutoResetEvent(false);
             var environmentKeyRead = new AutoResetEvent(false);
             var handles = new List<WaitHandle> { processMgmt };
 
@@ -50,6 +57,8 @@ namespace OpenCover.Framework.Manager
             _responseResultsReady = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
 
             handles.Add(_requestResultsReady);
+
+            _messageQueue = new ConcurrentQueue<byte[]>();
 
             using (var mmfComms = MemoryMappedFile.CreateNew(@"Local\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
             using (var mmfResults = MemoryMappedFile.CreateNew(@"Local\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
@@ -76,31 +85,55 @@ namespace OpenCover.Framework.Manager
                     }
                 });
 
+                ThreadPool.QueueUserWorkItem((state) =>
+                {
+                    while (true)
+                    {
+                        byte[] data;
+                        if (_messageQueue.TryDequeue(out data))
+                        {
+                            if (data.Length == 0)
+                            {
+                                _messageHandler.Complete();
+                                queueMgmt.Set();
+                                return;
+                            }
+                            
+                            _persistance.SaveVisitData(data);
+                        }
+                        else
+                        {
+                            Thread.Yield();
+                        } 
+                    }
+                });
+
                 // wait for the environment key to be read
                 if (WaitHandle.WaitAny(new[] { environmentKeyRead }, new TimeSpan(0, 0, 0, 10)) == -1) 
                     return;
 
                 _dataCommunication = new byte[maxMsgSize];
-                _dataResults = new byte[maxMsgSize];
                 var pinnedComms = GCHandle.Alloc(_dataCommunication, GCHandleType.Pinned);
-                var pinnedResults = GCHandle.Alloc(_dataResults, GCHandleType.Pinned);
                 try
                 {
-                    ProcessMessages(handles, pinnedComms, pinnedResults);
+                    ProcessMessages(handles, pinnedComms);
                 }
                 finally
                 {
                     pinnedComms.Free();
-                    pinnedResults.Free();
                 }
+
+                queueMgmt.WaitOne();
             }
         }
 
-        private void ProcessMessages(List<WaitHandle> handles, GCHandle pinnedComms, GCHandle pinnedResults)
+        private void ProcessMessages(List<WaitHandle> handles, GCHandle pinnedComms)
         {
+            byte[] data = null;
             var continueWait = true;
             do
             {
+                if (data == null) data = new byte[maxMsgSize];
                 switch (WaitHandle.WaitAny(handles.ToArray()))
                 {
                     case 1:
@@ -121,17 +154,17 @@ namespace OpenCover.Framework.Manager
                         _responseDataReady.Reset();
 
                         break;
-                    case 2:
+                    case 2:                     
                         _requestResultsReady.Reset();
 
                         _streamAccessorResults.Seek(0, SeekOrigin.Begin);
-                        _streamAccessorResults.Read(_dataResults, 0, maxMsgSize);
+                        _streamAccessorResults.Read(data, 0, maxMsgSize);
 
                         _responseResultsReady.Set();
                         _responseResultsReady.Reset();
 
-                        _messageHandler.ReceiveResults(pinnedResults.AddrOfPinnedObject());
-
+                        _messageQueue.Enqueue(data);
+                        data = null;
                         break;
                     default:
                         continueWait = false;
@@ -140,11 +173,10 @@ namespace OpenCover.Framework.Manager
             } while (continueWait);
 
             _streamAccessorResults.Seek(0, SeekOrigin.Begin);
-            _streamAccessorResults.Read(_dataResults, 0, maxMsgSize);
+            _streamAccessorResults.Read(data, 0, maxMsgSize);
 
-            _messageHandler.ReceiveResults(pinnedResults.AddrOfPinnedObject());
-
-            _messageHandler.Complete();
+            _messageQueue.Enqueue(data);
+            _messageQueue.Enqueue(new byte[0]);
 
         }
 
