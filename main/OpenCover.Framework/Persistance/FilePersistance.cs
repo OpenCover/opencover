@@ -39,7 +39,16 @@ namespace OpenCover.Framework.Persistance
                                                 from sequencePoint in method.SequencePoints
                                                 select sequencePoint)
                 {
-                    sequencePoint.VisitCount = SequencePoint.GetCount(sequencePoint.UniqueSequencePoint);
+                    sequencePoint.VisitCount = InstrumentationPoint.GetCount(sequencePoint.UniqueSequencePoint);
+                }
+
+                foreach (var branchPoint in from module in CoverageSession.Modules
+                                              from @class in module.Classes
+                                              from method in @class.Methods
+                                              from branchPoint in method.BranchPoints
+                                              select branchPoint)
+                {
+                    branchPoint.VisitCount = InstrumentationPoint.GetCount(branchPoint.UniqueSequencePoint);
                 } 
 
                 var serializer = new XmlSerializer(typeof(CoverageSession), new[] { typeof(Module), typeof(Model.File), typeof(Class) });

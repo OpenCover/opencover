@@ -144,6 +144,71 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForConstructorToken_NoBranches()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var ctors = _reader.GetConstructorsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(ctors[0].MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_OneBranch()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasSingleDecision")).First().MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(0, points[0].Path);
+            Assert.AreEqual(1, points[1].Path);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_TwoBranch()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasTwoDecisions")).First().MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[2].Offset, points[3].Offset);
+        }
+
+        [Test]
         public void GetSequencePointsForToken_HandlesUnknownTokens()
         {
             // arrange

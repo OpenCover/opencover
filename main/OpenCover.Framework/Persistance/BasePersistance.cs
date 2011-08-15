@@ -60,6 +60,19 @@ namespace OpenCover.Framework.Persistance
             return false;      
         }
 
+        public bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints)
+        {
+            branchPoints = new BranchPoint[0];
+            Class @class;
+            var method = GetMethod(modulePath, functionToken, out @class);
+            if (method != null)
+            {
+                branchPoints = method.BranchPoints.ToArray();
+                return true;
+            }
+            return false;
+        }
+
         private Method GetMethod(string modulePath, int functionToken, out Class @class)
         {
             @class = null;

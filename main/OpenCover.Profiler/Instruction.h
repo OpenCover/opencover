@@ -30,7 +30,7 @@ protected:
 #ifdef TEST_FRAMEWORK
 public:
 #else
-private:
+public:
 #endif
     long m_offset;
     CanonicalName m_operation;

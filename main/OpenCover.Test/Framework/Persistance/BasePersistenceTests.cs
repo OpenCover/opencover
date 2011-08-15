@@ -106,6 +106,32 @@ namespace OpenCover.Test.Framework.Persistance
         }
 
         [Test]
+        public void Can_GetBranchPoints_Of_MethodByToken()
+        {
+            // arrange
+            var target = new BranchPoint();
+            BranchPoint[] pts;
+            var module = new Module()
+            {
+                FullName = "ModulePath",
+                Classes = new[]
+            {
+                new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MetadataToken = 1001, 
+                    BranchPoints = new[] { target } } } }
+            }
+            };
+
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            Instance.GetBranchPointsForFunction("ModulePath", 1001, out pts);
+
+            // assert
+            Assert.AreEqual(target.UniqueSequencePoint, pts[0].UniqueSequencePoint);
+        }
+
+        [Test]
         public void Can_GetFullClassName_Of_MethodByToken()
         {
             // arrange

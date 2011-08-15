@@ -232,6 +232,7 @@
   <ItemGroup>
     <ClCompile Include="CodeCoverage.cpp" />
     <ClCompile Include="CodeCoverage_ProfilerInfo.cpp" />
+    <ClCompile Include="CoverageInstrumentation.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -290,6 +291,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CodeCoverage.h" />
+    <ClInclude Include="CoverageInstrumentation.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="Messages.h" />

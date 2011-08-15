@@ -24,6 +24,8 @@ namespace OpenCover.Framework.Symbols
 
         SequencePoint[] GetSequencePointsForToken(int token);
 
+        BranchPoint[] GetBranchPointsForToken(int token);
+
         int GetCyclomaticComplexityForToken(int token);
 
         AssemblyDefinition SourceAssembly { get; }

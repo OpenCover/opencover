@@ -38,6 +38,28 @@ namespace OpenCover.Framework.Service
             return true;
         }
 
+        public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
+        {
+            instrumentPoints = new BranchPoint[0];
+            var className = _persistance.GetClassFullName(modulePath, functionToken);
+            if (!_filter.InstrumentClass(assemblyName, className)) return false;
+            Model.BranchPoint[] points;
+            if (_persistance.GetBranchPointsForFunction(modulePath, functionToken, out points))
+            {
+                instrumentPoints = points
+                    .Select(point => new BranchPoint()
+                                         {
+                                             Ordinal = point.Ordinal,
+                                             Offset = point.Offset,
+                                             Path = point.Path,
+                                             UniqueId = point.UniqueSequencePoint
+                                         })
+                    .ToArray();
+                return true;
+            }
+            return false;
+        }
+
         public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
         {
             instrumentPoints = new SequencePoint[0];
@@ -47,12 +69,13 @@ namespace OpenCover.Framework.Service
             if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
             {
                 instrumentPoints = points
-                    .Select(sequencePoint => new SequencePoint()
+                    .Select(point => new SequencePoint()
                                                  {
-                                                     Ordinal = sequencePoint.Ordinal,
-                                                     Offset = sequencePoint.Offset,
-                                                     UniqueId = sequencePoint.UniqueSequencePoint
-                                                 }).ToArray();
+                                                     Ordinal = point.Ordinal,
+                                                     Offset = point.Offset,
+                                                     UniqueId = point.UniqueSequencePoint
+                                                 })
+                    .ToArray();
                 return true;
             }
             return false;

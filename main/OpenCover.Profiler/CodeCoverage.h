@@ -73,7 +73,6 @@ private:
 
 private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 
-    mdSignature GetUnmanagedMethodSignatureToken_I4I4(ModuleID moduleID); 
 
 public:
     static CCodeCoverage* g_pProfiler;

@@ -6,6 +6,7 @@
 #pragma once
 
 #define SEQ_BUFFER_SIZE 8000
+#define BRANCH_BUFFER_SIZE 4000
 #define VP_BUFFER_SIZE 16000
 
 #pragma pack(push)
@@ -15,6 +16,13 @@ typedef struct SequencePoint
 {
     ULONG UniqueId;
     long Offset;
+};
+
+typedef struct BranchPoint
+{
+    ULONG UniqueId;
+    long Offset;
+    long Path; // for a branch 0 == false, 1 == true ; for a switch it is ...
 };
 
 typedef struct VisitPoint
@@ -29,6 +37,7 @@ enum MSG_Type : int
     MSG_Unknown = 0,
     MSG_TrackAssembly = 1,
     MSG_GetSequencePoints = 2,
+    MSG_GetBranchPoints = 3,
 };
 
 #pragma pack(push)
@@ -61,6 +70,21 @@ typedef struct _MSG_GetSequencePoints_Response
     SequencePoint points[SEQ_BUFFER_SIZE];
 } MSG_GetSequencePoints_Response;
 
+typedef struct _MSG_GetBranchPoints_Request
+{
+    MSG_Type type;
+    int functionToken;
+    WCHAR szModulePath[512];
+    WCHAR szAssemblyName[512];
+} MSG_GetBranchPoints_Request;
+
+typedef struct _MSG_GetBranchPoints_Response
+{
+    BOOL hasMore;
+    int count;
+    BranchPoint points[BRANCH_BUFFER_SIZE];
+} MSG_GetBranchPoints_Response;
+
 typedef struct _MSG_SendVisitPoints_Request
 {
     int count;
@@ -76,4 +100,6 @@ typedef union _MSG_Union
     MSG_TrackAssembly_Response trackResponse;
     MSG_GetSequencePoints_Request getSequencePointsRequest;
     MSG_GetSequencePoints_Response getSequencePointsResponse;
+    MSG_GetBranchPoints_Request getBranchPointsRequest;
+    MSG_GetBranchPoints_Response getBranchPointsResponse;
 } MSG_Union;

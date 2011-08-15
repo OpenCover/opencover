@@ -22,12 +22,15 @@ public:
     void Initialise(TCHAR* key);
 
 public:
-    BOOL TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
-    BOOL GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
+    bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
+    bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
     void AddVisitPoint(ULONG uniqueId);
 
 private:
     void SendVisitPoints();
+    bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
+    bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
+
 
 private:
     tstring m_key;

@@ -34,6 +34,15 @@ namespace OpenCover.Framework.Persistance
         bool GetSequencePointsForFunction(string modulePath, int functionToken, out SequencePoint[] sequencePoints);
 
         /// <summary>
+        /// Get the branch points for a function
+        /// </summary>
+        /// <param name="modulePath">The identifying path to the module</param>
+        /// <param name="functionToken">The token of the function</param>
+        /// <param name="branchPoints">The branch points that make up that function</param>
+        /// <returns>true - if sequence points exist</returns>
+        bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints);
+
+        /// <summary>
         /// Check if the module is to be tracked i.e. instrumented
         /// </summary>
         /// <param name="modulePath"></param>

@@ -23,11 +23,6 @@ public:
     void DumpIL();
     ULONG GetILMapSize();
     void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
-#if _WIN64
-    void AddBranchCoverage(mdSignature bpvsig, ULONGLONG bpt);
-#else
-    void AddBranchCoverage(mdSignature bpvsig, ULONG bpt);
-#endif
 
 public:
     void SetMinimumStackSize(unsigned int minimumStackSize)
@@ -43,6 +38,9 @@ public:
         m_header.MaxStack += extraStackSize;
     }
 
+protected:
+    void RecalculateOffsets();
+
 private:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
     void ReadBody();
@@ -51,7 +49,6 @@ private:
     Instruction * GetInstructionAtOffset(long offset);
     Instruction * GetInstructionAtOffset(long offset, bool isFinally);
     void ReadSections();
-    void RecalculateOffsets();
     void WriteSections();
     bool DoesTryHandlerPointToOffset(long offset);
 
@@ -62,11 +59,10 @@ private:
 #ifdef TEST_FRAMEWORK
 public:
 #else
-private:
+protected:
 #endif
     ExceptionHandlerList m_exceptions;
     InstructionList m_instructions;
-
 };
 
  

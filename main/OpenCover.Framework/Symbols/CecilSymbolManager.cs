@@ -210,6 +210,14 @@ namespace OpenCover.Framework.Symbols
             return list.ToArray();
         }
 
+        public BranchPoint[] GetBranchPointsForToken(int token)
+        {
+            var list = new List<BranchPoint>();
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            GetBranchPointsForToken(typeDefinitions, token, list);
+            return list.ToArray();
+        }
+
         public int GetCyclomaticComplexityForToken(int token)
         {
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
@@ -246,6 +254,32 @@ namespace OpenCover.Framework.Symbols
                     }
                 }
                 if (typeDefinition.HasNestedTypes) GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
+            }
+        }
+
+        private static void GetBranchPointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<BranchPoint> list)
+        {
+            foreach (var typeDefinition in typeDefinitions)
+            {
+                foreach (var methodDefinition in
+                    typeDefinition.Methods
+                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
+                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
+                {
+                    UInt32 ordinal = 0;
+                    foreach (var instruction in methodDefinition.Body.Instructions)
+                    {
+                        if (instruction.OpCode.FlowControl == FlowControl.Cond_Branch)
+                        {
+                            if (instruction.OpCode.Code != Code.Switch)
+                            {
+                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
+                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
+                            }
+                        }
+                    }
+                }
+                if (typeDefinition.HasNestedTypes) GetBranchPointsForToken(typeDefinition.NestedTypes, token, list);
             }
         }
 

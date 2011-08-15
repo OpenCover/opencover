@@ -17,6 +17,7 @@ namespace OpenCover.Framework.Model
         public string Name { get; set; }
         public FileRef FileRef { get; set; }
         public SequencePoint[] SequencePoints { get; set; }
+        public BranchPoint[] BranchPoints { get; set; }
 
         [XmlAttribute("cyclomaticComplexity")]
         public int CyclomaticComplexity { get; set; }

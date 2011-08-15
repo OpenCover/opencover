@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "CodeCoverage.h"
 #include "NativeCallback.h"
-#include "Method.h"
+#include "CoverageInstrumentation.h"
 #include "dllmain.h"
 
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
@@ -92,20 +92,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 /// void (__fastcall *pt)(long) = &SequencePointVisit ;
 /// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 /// </remarks>
-static void __fastcall SequencePointVisit(ULONG seq)
+static void __fastcall InstrumentPointVisit(ULONG seq)
 {
     CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
-}
-
-/// <summary>An unmanaged callback that can be called from .NET that has a three I4 parameter</summary>
-/// <remarks>
-/// void (__fastcall *pt)(long) = &SequencePointVisit ;
-/// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
-/// </remarks>
-static void __fastcall BranchPointVisit(ULONG offset, ULONG seq)
-{
-    //CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
-    ATLTRACE(_T("BranchPointVisit %d, %d"), offset, seq);
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -124,47 +113,33 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
         
-        std::vector<SequencePoint> points;
+        std::vector<SequencePoint> seqPoints;
+        std::vector<BranchPoint> brPoints;
 
-        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), (LPWSTR)m_allowModulesAssemblyMap[moduleName].c_str(), points))
+        if (m_host.GetPoints(functionToken, (LPWSTR)moduleName.c_str(), 
+            (LPWSTR)m_allowModulesAssemblyMap[moduleName].c_str(), seqPoints, brPoints))
         {
-            if (points.size()==0) return S_OK;
+            if (seqPoints.size()==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
             
-            void (__fastcall *spt)(ULONG) = &SequencePointVisit ;
+            void (__fastcall *spt)(ULONG) = &InstrumentPointVisit ;
             mdSignature spvsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 
-            void (__fastcall *bpt)(ULONG, ULONG) = &BranchPointVisit ;
-            mdSignature bpvsig = GetUnmanagedMethodSignatureToken_I4I4(moduleId);
-
-            Method instumentedMethod(pMethod);
-            instumentedMethod.IncrementStackSize(3);
+            CoverageInstrumentation instumentedMethod(pMethod);
+            instumentedMethod.IncrementStackSize(2);
 
             ATLTRACE(_T("Instrumenting..."));
-            points.clear();
-            for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
-            {    
-                //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
-                InstructionList instructions;
-                instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));
+            //seqPoints.clear();
 #if _WIN64
-                instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)spt));
+            instumentedMethod.AddSequenceCoverage(spvsig, (ULONGLONG)spt, seqPoints);
+            instumentedMethod.AddBranchCoverage(spvsig, (ULONGLONG)spt, brPoints);
 #else
-                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)spt));
-#endif
-                instructions.push_back(new Instruction(CEE_CALLI, spvsig));
-
-                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
-            }
-
-#if _WIN64
-            instumentedMethod.AddBranchCoverage(bpvsig, (ULONG)bpt);
-#else
-            instumentedMethod.AddBranchCoverage(bpvsig, (ULONGLONG)bpt);
+            instumentedMethod.AddSequenceCoverage(spvsig, (ULONG)spt, seqPoints);
+            instumentedMethod.AddBranchCoverage(spvsig, (ULONG)spt, brPoints);
 #endif
             instumentedMethod.DumpIL();
 

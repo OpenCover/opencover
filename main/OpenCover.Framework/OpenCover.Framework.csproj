@@ -74,9 +74,11 @@
     <Compile Include="Communication\MessageHandler.cs" />
     <Compile Include="Communication\Messages.cs" />
     <Compile Include="Manager\IProfilerManager.cs" />
+    <Compile Include="Model\BranchPoint.cs" />
     <Compile Include="Model\IInstrumentationModelBuilder.cs" />
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
+    <Compile Include="Model\InstrumentationPoint.cs" />
     <Compile Include="Model\VisitPoint.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />

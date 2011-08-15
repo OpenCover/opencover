@@ -37,7 +37,7 @@ void ProfilerCommunication::Initialise(TCHAR *key)
     m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 }
 
-BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
+bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
     m_eventReceiveData.Reset();
@@ -52,7 +52,18 @@ BOOL ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
     return response;
 }
 
-BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
+bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath, 
+    WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints)
+{
+     bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
+     
+     GetBranchPoints(functionToken, pModulePath, pAssemblyName, brPoints);
+
+    return ret;
+}
+
+bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  
+    WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
     m_eventReceiveData.Reset();
@@ -74,6 +85,39 @@ BOOL ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         }
 
         hasMore = m_pMSG->getSequencePointsResponse.hasMore;
+        if (hasMore)
+        {
+            m_eventSendData.SignalAndWait(m_eventReceiveData);
+            m_eventReceiveData.Reset();
+        }
+    }while (hasMore);
+    
+    return (points.size() != 0);
+}
+
+bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, 
+    WCHAR* pAssemblyName, std::vector<BranchPoint> &points)
+{
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+    m_eventReceiveData.Reset();
+
+    m_pMSG->getSequencePointsRequest.type = MSG_GetBranchPoints;
+    m_pMSG->getSequencePointsRequest.functionToken = functionToken;
+    wcscpy_s(m_pMSG->getSequencePointsRequest.szModulePath, pModulePath);
+    wcscpy_s(m_pMSG->getSequencePointsRequest.szAssemblyName, pAssemblyName);
+
+    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    m_eventReceiveData.Reset();
+
+    BOOL hasMore = FALSE;
+    do
+    {
+        for (int i=0; i < m_pMSG->getBranchPointsResponse.count;i++)
+        {
+            points.push_back(m_pMSG->getBranchPointsResponse.points[i]); 
+        }
+
+        hasMore = m_pMSG->getBranchPointsResponse.hasMore;
         if (hasMore)
         {
             m_eventSendData.SignalAndWait(m_eventReceiveData);

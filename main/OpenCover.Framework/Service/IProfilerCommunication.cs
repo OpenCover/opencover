@@ -16,11 +16,19 @@ namespace OpenCover.Framework.Service
         public UInt32 UniqueId { get; set; }  
     }
 
-   public class SequencePoint
+    public class SequencePoint
     {
         public UInt32 Ordinal { get; set; }
         public UInt32 UniqueId { get; set; }
         public int Offset { get; set; }
+    }
+
+    public class BranchPoint
+    {
+        public UInt32 Ordinal { get; set; }
+        public UInt32 UniqueId { get; set; }
+        public int Offset { get; set; }
+        public int Path { get; set; }
     }
 
     public interface IProfilerCommunication
@@ -28,6 +36,8 @@ namespace OpenCover.Framework.Service
         bool TrackAssembly(string modulePath, string assemblyName);
 
         bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] sequencePoints);
+
+        bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] branchPoints);
 
         void Stopping();
     }
