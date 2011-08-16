@@ -269,13 +269,20 @@ namespace OpenCover.Framework.Symbols
                     UInt32 ordinal = 0;
                     foreach (var instruction in methodDefinition.Body.Instructions)
                     {
-                        if (instruction.OpCode.FlowControl == FlowControl.Cond_Branch)
+                        if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch) continue;
+                        if (instruction.OpCode.Code != Code.Switch)
                         {
-                            if (instruction.OpCode.Code != Code.Switch)
+                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
+                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
+                        }
+                        else
+                        {
+                            var i = 0;
+                            for (; i< (instruction.Operand as Instruction[]).Count(); i++)
                             {
-                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
-                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
+                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
                             }
+                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = -1 }); // used for the default
                         }
                     }
                 }

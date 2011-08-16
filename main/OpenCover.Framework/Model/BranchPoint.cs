@@ -7,6 +7,9 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public class BranchPoint : InstrumentationPoint
     {
+        /// <summary>
+        /// A path that can be taken
+        /// </summary>
         [XmlAttribute("path")]
         public int Path { get; set; }
     }

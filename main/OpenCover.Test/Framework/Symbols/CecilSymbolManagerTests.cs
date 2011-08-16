@@ -209,6 +209,29 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForMethodToken_Switch()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasSwitch")).First().MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(-1, points[3].Path);
+        }
+
+        [Test]
         public void GetSequencePointsForToken_HandlesUnknownTokens()
         {
             // arrange

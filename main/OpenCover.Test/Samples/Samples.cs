@@ -23,6 +23,20 @@ namespace OpenCover.Test.Samples
             if (input.Contains("xxx")) return true;
             return false;
         }
+
+        public bool HasSwitch(int input)
+        {
+            switch (input)
+            {
+                case 0:
+                    return true;
+                case 1:
+                    return false;
+                case 2:
+                    return true;
+            }
+            return false;
+        }
     }
 
     class DeclaredMethodClass
