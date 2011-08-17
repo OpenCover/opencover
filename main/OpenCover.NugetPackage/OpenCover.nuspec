@@ -3,14 +3,14 @@
   <metadata>
     <id>OpenCover</id>
     <version>1.0.0.0</version>
-    <title />
+    <title>OpenCover - an open source code coverage tool for .NET</title>
     <authors>sawilde</authors>
     <owners />
     <licenseUrl>https://github.com/sawilde/opencover/blob/master/License.md</licenseUrl>
     <projectUrl>https://github.com/sawilde/opencover</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>An open source code coverage tool for .NET with its roots proudly based in PartCover.</description>
-    <summary />
+    <description>An open source code coverage tool for all .NET Frameworks 2 and above.</description>
+    <summary>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above. Also capable of handling 32 and 64 bit processes.</summary>
     <language>en-US</language>
     <tags>Code Coverage Reporting Testing</tags>
   </metadata>
