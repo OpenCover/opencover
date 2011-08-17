@@ -3,6 +3,13 @@
 #include "method.h"
 #include "Messages.h"
 
+#if _WIN64
+typedef unsigned __int64 FPTR; 
+#else
+typedef unsigned long FPTR;
+#endif
+
+
 class CoverageInstrumentation :
     public Method
 {
@@ -11,13 +18,10 @@ public:
     ~CoverageInstrumentation(void);
 
 public:
-#if _WIN64
-    void AddBranchCoverage(mdSignature pvsig, ULONGLONG pt, std::vector<BranchPoint> points);
-    void AddSequenceCoverage(mdSignature pvsig, ULONGLONG pt, std::vector<BranchPoint> points);
-#else
-    void AddBranchCoverage(mdSignature pvsig, ULONG pt, std::vector<BranchPoint> points);
-    void AddSequenceCoverage(mdSignature pvsig, ULONG pt, std::vector<SequencePoint> points);
-#endif
+    void AddBranchCoverage(mdSignature pvsig, FPTR pt, std::vector<BranchPoint> points);
+    void AddSequenceCoverage(mdSignature pvsig, FPTR pt, std::vector<SequencePoint> points);
 
+private:
+    Instruction* CreateInstrumentationBlock(InstructionList &instructions, mdSignature pvsig, FPTR pt, ULONGLONG uniqueId);
 };
 

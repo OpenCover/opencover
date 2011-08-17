@@ -278,11 +278,11 @@ namespace OpenCover.Framework.Symbols
                         else
                         {
                             var i = 0;
-                            for (; i< (instruction.Operand as Instruction[]).Count(); i++)
+                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i }); // used for the default
+                            for (i = 1; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
                             {
                                 list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
                             }
-                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = -1 }); // used for the default
                         }
                     }
                 }

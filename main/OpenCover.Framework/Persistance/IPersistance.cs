@@ -31,7 +31,7 @@ namespace OpenCover.Framework.Persistance
         /// <param name="functionToken">The token of the function</param>
         /// <param name="sequencePoints">The sequence points that make up that function</param>
         /// <returns>true - if sequence points exist</returns>
-        bool GetSequencePointsForFunction(string modulePath, int functionToken, out SequencePoint[] sequencePoints);
+        bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints);
 
         /// <summary>
         /// Get the branch points for a function

@@ -134,13 +134,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
             ATLTRACE(_T("Instrumenting..."));
             //seqPoints.clear();
-#if _WIN64
-            instumentedMethod.AddSequenceCoverage(spvsig, (ULONGLONG)spt, seqPoints);
-            instumentedMethod.AddBranchCoverage(spvsig, (ULONGLONG)spt, brPoints);
-#else
-            instumentedMethod.AddSequenceCoverage(spvsig, (ULONG)spt, seqPoints);
-            instumentedMethod.AddBranchCoverage(spvsig, (ULONG)spt, brPoints);
-#endif
+            //brPoints.clear();
+
+            instumentedMethod.AddSequenceCoverage(spvsig, (FPTR)spt, seqPoints);
+            instumentedMethod.AddBranchCoverage(spvsig, (FPTR)spt, brPoints);
+
             instumentedMethod.DumpIL();
 
             CComPtr<IMethodMalloc> methodMalloc;

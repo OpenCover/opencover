@@ -65,7 +65,7 @@ namespace OpenCover.Framework.Service
             instrumentPoints = new SequencePoint[0];
             var className = _persistance.GetClassFullName(modulePath, functionToken);
             if (!_filter.InstrumentClass(assemblyName, className)) return false;
-            Model.SequencePoint[] points;
+            Model.InstrumentationPoint[] points;
             if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
             {
                 instrumentPoints = points
