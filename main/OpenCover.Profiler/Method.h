@@ -38,6 +38,9 @@ public:
         m_header.MaxStack += extraStackSize;
     }
 
+protected:
+    void RecalculateOffsets();
+
 private:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
     void ReadBody();
@@ -46,7 +49,6 @@ private:
     Instruction * GetInstructionAtOffset(long offset);
     Instruction * GetInstructionAtOffset(long offset, bool isFinally);
     void ReadSections();
-    void RecalculateOffsets();
     void WriteSections();
     bool DoesTryHandlerPointToOffset(long offset);
 
@@ -57,11 +59,10 @@ private:
 #ifdef TEST_FRAMEWORK
 public:
 #else
-private:
+protected:
 #endif
     ExceptionHandlerList m_exceptions;
     InstructionList m_instructions;
-
 };
 
  

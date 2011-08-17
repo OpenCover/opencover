@@ -10,10 +10,7 @@ using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
-using ModelSequencePoint = OpenCover.Framework.Model.SequencePoint;
 using ServiceSequencePoint = OpenCover.Framework.Service.SequencePoint;
-using ServiceVisitPoint = OpenCover.Framework.Service.VisitPoint;
-using ModelVisitPoint = OpenCover.Framework.Model.VisitPoint;
 
 namespace OpenCover.Test.Framework.Service
 {
@@ -108,7 +105,7 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_False_When_No_Data_In_Model()
         {
             // arrange
-            ModelSequencePoint[] points;
+            InstrumentationPoint[] points;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(false)
@@ -133,7 +130,7 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_False_When_Not_Tracking_Assembly()
         {
             // arrange
-            ModelSequencePoint[] points;
+            InstrumentationPoint[] points;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(false);
@@ -155,7 +152,7 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_False_When_Not_Tracking_Class()
         {
             // arrange
-            ModelSequencePoint[] points;
+            InstrumentationPoint[] points;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(false);
@@ -180,7 +177,7 @@ namespace OpenCover.Test.Framework.Service
         public void GetSequencePoints_Returns_SequencePoints_When_Data_In_Model()
         {
             // arrange
-            var points = new[] { new ModelSequencePoint() };
+            var points = new[] { new InstrumentationPoint() };
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetSequencePointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(true)

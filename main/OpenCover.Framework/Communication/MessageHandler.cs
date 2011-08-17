@@ -17,14 +17,14 @@ namespace OpenCover.Framework.Communication
     {
         int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, Action<int> chunkReady);
         int ReadSize { get; }
-        int MaxMsgSize { get; }
 
         void Complete();
     }
 
     public class MessageHandler : IMessageHandler
     {
-        const int BufSize = 5;
+        const int GSP_BufSize = 50;
+        const int GBP_BufSize = 50;
 
         private readonly IProfilerCommunication _profilerCommunication;
         private readonly IMarshalWrapper _marshalWrapper;
@@ -41,46 +41,88 @@ namespace OpenCover.Framework.Communication
             switch (msgType)
             {
                 case MSG_Type.MSG_TrackAssembly:
-                    var msgTA = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
-                    var responseTA = new MSG_TrackAssembly_Response();
-                    responseTA.track = _profilerCommunication.TrackAssembly(msgTA.modulePath, msgTA.assemblyName);
-                    _marshalWrapper.StructureToPtr(responseTA, pinnedMemory, false);
-                    writeSize = Marshal.SizeOf(typeof(MSG_TrackAssembly_Response));
+                    {
+                        var msgTA = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
+                        var responseTA = new MSG_TrackAssembly_Response();
+                        responseTA.track = _profilerCommunication.TrackAssembly(msgTA.modulePath, msgTA.assemblyName);
+                        _marshalWrapper.StructureToPtr(responseTA, pinnedMemory, false);
+                        writeSize = Marshal.SizeOf(typeof (MSG_TrackAssembly_Response));
+                    }
                     break;
 
                 case MSG_Type.MSG_GetSequencePoints:
-                    var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
-                    Service.SequencePoint[] origPoints;
-                    var responseCSP = new MSG_GetSequencePoints_Response();
-                    _profilerCommunication.GetSequencePoints(msgGSP.modulePath,msgGSP.assemblyName, msgGSP.functionToken, out origPoints);
-                    var num = origPoints == null ? 0 : origPoints.Length;
-
-                    var index = 0;
-                    var chunk = Marshal.SizeOf(typeof(MSG_SequencePoint));
-                    do
                     {
-                        writeSize = Marshal.SizeOf(typeof(MSG_GetSequencePoints_Response));
-                        responseCSP.more = num > BufSize;
-                        responseCSP.count = num > BufSize ? BufSize : num;
-                        _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
-                        for (var i = 0; i < responseCSP.count; i++)
+                        var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
+                        Service.SequencePoint[] origPoints;
+                        var responseCSP = new MSG_GetSequencePoints_Response();
+                        _profilerCommunication.GetSequencePoints(msgGSP.modulePath, msgGSP.assemblyName,
+                                                                 msgGSP.functionToken, out origPoints);
+                        var num = origPoints == null ? 0 : origPoints.Length;
+
+                        var index = 0;
+                        var chunk = Marshal.SizeOf(typeof (MSG_SequencePoint));
+                        do
                         {
-                            var point = new MSG_SequencePoint();
-                            point.Offset = origPoints[index].Offset;
-                            point.UniqueId = origPoints[index].UniqueId;
+                            writeSize = Marshal.SizeOf(typeof (MSG_GetSequencePoints_Response));
+                            responseCSP.more = num > GSP_BufSize;
+                            responseCSP.count = num > GSP_BufSize ? GSP_BufSize : num;
+                            _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
+                            for (var i = 0; i < responseCSP.count; i++)
+                            {
+                                var point = new MSG_SequencePoint();
+                                point.Offset = origPoints[index].Offset;
+                                point.UniqueId = origPoints[index].UniqueId;
 
-                            _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
-                            writeSize += chunk;
-                            index++;
-                        }
+                                _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
+                                writeSize += chunk;
+                                index++;
+                            }
 
-                        if (responseCSP.more)
+                            if (responseCSP.more)
+                            {
+                                chunkReady(writeSize);
+                                num -= GSP_BufSize;
+                            }
+                        } while (responseCSP.more);
+                    }
+                    break;
+
+                case MSG_Type.MSG_GetBranchPoints:
+                    {
+                        var msgGBP = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
+                        Service.BranchPoint[] origPoints;
+                        var responseCSP = new MSG_GetSequencePoints_Response();
+                        _profilerCommunication.GetBranchPoints(msgGBP.modulePath, msgGBP.assemblyName,
+                                                                 msgGBP.functionToken, out origPoints);
+                        var num = origPoints == null ? 0 : origPoints.Length;
+
+                        var index = 0;
+                        var chunk = Marshal.SizeOf(typeof (MSG_BranchPoint));
+                        do
                         {
-                            chunkReady(writeSize);
-                            num -= BufSize;
-                        }
-                    } while (responseCSP.more);
+                            writeSize = Marshal.SizeOf(typeof (MSG_GetBranchPoints_Response));
+                            responseCSP.more = num > GBP_BufSize;
+                            responseCSP.count = num > GBP_BufSize ? GBP_BufSize : num;
+                            _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
+                            for (var i = 0; i < responseCSP.count; i++)
+                            {
+                                var point = new MSG_BranchPoint();
+                                point.Offset = origPoints[index].Offset;
+                                point.UniqueId = origPoints[index].UniqueId;
+                                point.Path = origPoints[index].Path;
 
+                                _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
+                                writeSize += chunk;
+                                index++;
+                            }
+
+                            if (responseCSP.more)
+                            {
+                                chunkReady(writeSize);
+                                num -= GBP_BufSize;
+                            }
+                        } while (responseCSP.more);
+                    }
                     break;
             }
             return writeSize;                
@@ -93,24 +135,13 @@ namespace OpenCover.Framework.Communication
             {
                 if (_readSize == 0)
                 {
-                    _readSize = (new[] { Marshal.SizeOf(typeof(MSG_TrackAssembly_Request)), 
-                        Marshal.SizeOf(typeof(MSG_GetSequencePoints_Request)) }).Max();
+                    _readSize = (new[] { 
+                        Marshal.SizeOf(typeof(MSG_TrackAssembly_Request)), 
+                        Marshal.SizeOf(typeof(MSG_GetSequencePoints_Request)),
+                        Marshal.SizeOf(typeof(MSG_GetBranchPoints_Request)),
+                    }).Max();
                 }
                 return _readSize;
-            }
-        }
-
-        private int _maxMsgSize;
-        public int MaxMsgSize
-        {
-            get 
-            {
-                if (_maxMsgSize==0)
-                {
-                    _maxMsgSize = (new[] {ReadSize, Marshal.SizeOf(typeof (MSG_TrackAssembly_Request)), 
-                        Marshal.SizeOf(typeof(MSG_GetSequencePoints_Response)) + BufSize *  Marshal.SizeOf(typeof(MSG_SequencePoint)) }).Max();
-                }
-                return _maxMsgSize;
             }
         }
 

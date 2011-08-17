@@ -59,5 +59,3 @@ mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID
     COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
     return pmsig;
 }
-
-

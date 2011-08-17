@@ -47,19 +47,20 @@ namespace OpenCover.Test.Framework.Persistance
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
         {
             // arrange
+            var methodPoint = new InstrumentationPoint();
             var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
 
             module.Aliases.Add("ModulePath");
             _persistence.PersistModule(module);
 
             // act
-            SequencePoint[] points;
+            InstrumentationPoint[] points;
             _persistence.GetSequencePointsForFunction("ModulePath", 1, out points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(1, points.Count());
-            Assert.AreEqual(1000, points[0].VisitCount);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(1000, points[1].VisitCount);
         }
 
         [Test]
@@ -69,7 +70,7 @@ namespace OpenCover.Test.Framework.Persistance
             _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } });
 
             // act
-            SequencePoint[] points;
+            InstrumentationPoint[] points;
             _persistence.GetSequencePointsForFunction("ModuleName1", 1, out points);
 
             // assert
@@ -85,7 +86,7 @@ namespace OpenCover.Test.Framework.Persistance
             _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } });
 
             // act
-            SequencePoint[] points;
+            InstrumentationPoint[] points;
             _persistence.GetSequencePointsForFunction("ModuleName", 2, out points);
 
             // assert

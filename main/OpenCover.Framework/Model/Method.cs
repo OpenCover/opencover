@@ -17,8 +17,21 @@ namespace OpenCover.Framework.Model
         public string Name { get; set; }
         public FileRef FileRef { get; set; }
         public SequencePoint[] SequencePoints { get; set; }
+        public BranchPoint[] BranchPoints { get; set; }
+
+        public InstrumentationPoint MethodPoint { get; set; }
+
+        [XmlAttribute("visited")]
+        public bool Visited { get; set; }
 
         [XmlAttribute("cyclomaticComplexity")]
         public int CyclomaticComplexity { get; set; }
+
+        [XmlAttribute("sequenceCoverage")]
+        public int SequenceCoverage { get; set; }
+
+        [XmlAttribute("branchCoverage")]
+        public int BranchCoverage { get; set; }
+
     }
 }

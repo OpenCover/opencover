@@ -8,7 +8,7 @@
 #include "stdafx.h"
 #include "CodeCoverage.h"
 #include "NativeCallback.h"
-#include "Method.h"
+#include "CoverageInstrumentation.h"
 #include "dllmain.h"
 
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
@@ -92,11 +92,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 /// void (__fastcall *pt)(long) = &SequencePointVisit ;
 /// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 /// </remarks>
-static void __fastcall SequencePointVisit(ULONG seq)
+static void __fastcall InstrumentPointVisit(ULONG seq)
 {
     CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
 }
-
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
 /// <remarks>The 'workhorse' </remarks>
@@ -114,39 +113,31 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
         
-        std::vector<SequencePoint> points;
+        std::vector<SequencePoint> seqPoints;
+        std::vector<BranchPoint> brPoints;
 
-        if (m_host.GetSequencePoints(functionToken, (LPWSTR)moduleName.c_str(), (LPWSTR)m_allowModulesAssemblyMap[moduleName].c_str(), points))
+        if (m_host.GetPoints(functionToken, (LPWSTR)moduleName.c_str(), 
+            (LPWSTR)m_allowModulesAssemblyMap[moduleName].c_str(), seqPoints, brPoints))
         {
-            if (points.size()==0) return S_OK;
+            if (seqPoints.size()==0) return S_OK;
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
             
-            void (__fastcall *pt)(ULONG) = &SequencePointVisit ;
-            mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
+            void (__fastcall *spt)(ULONG) = &InstrumentPointVisit ;
+            mdSignature spvsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 
-            Method instumentedMethod(pMethod);
+            CoverageInstrumentation instumentedMethod(pMethod);
             instumentedMethod.IncrementStackSize(2);
 
             ATLTRACE(_T("Instrumenting..."));
-            //points.clear();
-            for ( std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
-            {    
-                //ATLTRACE(_T("SEQPT %02d IL_%04X"), i, ppPoints[i]->Offset);
-                InstructionList instructions;
-                instructions.push_back(new Instruction(CEE_LDC_I4, (*it).UniqueId));
-#if _WIN64
-                instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
-#else
-                instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
-#endif
-                instructions.push_back(new Instruction(CEE_CALLI, pmsig));
+            //seqPoints.clear();
+            //brPoints.clear();
 
-                instumentedMethod.InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
-            }
+            instumentedMethod.AddSequenceCoverage(spvsig, (FPTR)spt, seqPoints);
+            instumentedMethod.AddBranchCoverage(spvsig, (FPTR)spt, brPoints);
 
             instumentedMethod.DumpIL();
 

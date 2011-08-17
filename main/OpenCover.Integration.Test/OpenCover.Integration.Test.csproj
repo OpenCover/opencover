@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BranchTests.cs" />
     <Compile Include="ExceptionTests.cs" />
     <Compile Include="ProfilerBaseFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

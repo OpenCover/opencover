@@ -47,17 +47,33 @@ namespace OpenCover.Framework.Persistance
         {
         }
 
-        public bool GetSequencePointsForFunction(string modulePath, int functionToken, out SequencePoint[] sequencePoints)
+        public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {
-            sequencePoints = new SequencePoint[0];
+            sequencePoints = new InstrumentationPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
             if (method !=null)
             {
-                sequencePoints = method.SequencePoints.ToArray();
+                var points = new List<InstrumentationPoint>();
+                points.Add(method.MethodPoint);
+                points.AddRange(method.SequencePoints);
+                sequencePoints = points.ToArray();
                 return true;
             }
             return false;      
+        }
+
+        public bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints)
+        {
+            branchPoints = new BranchPoint[0];
+            Class @class;
+            var method = GetMethod(modulePath, functionToken, out @class);
+            if (method != null)
+            {
+                branchPoints = method.BranchPoints.ToArray();
+                return true;
+            }
+            return false;
         }
 
         private Method GetMethod(string modulePath, int functionToken, out Class @class)

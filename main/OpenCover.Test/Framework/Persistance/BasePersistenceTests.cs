@@ -87,19 +87,45 @@ namespace OpenCover.Test.Framework.Persistance
         public void Can_GetSequencePoints_Of_MethodByToken()
         {
             // arrange
+            var methodPoint = new InstrumentationPoint();
             var target = new SequencePoint();
-            SequencePoint[] pts;
+            InstrumentationPoint[] pts;
             var module = new Module() { FullName = "ModulePath", Classes = new[]
-            {
-                new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MetadataToken = 1001, 
-                    SequencePoints = new[] { target } } } }
-            }};
+                {
+                    new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MethodPoint = methodPoint, MetadataToken = 1001, 
+                        SequencePoints = new[] { target } } } }
+                }};
 
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);
 
             // act
             Instance.GetSequencePointsForFunction("ModulePath", 1001, out pts);
+
+            // assert
+            Assert.AreEqual(methodPoint.UniqueSequencePoint, pts[0].UniqueSequencePoint);
+            Assert.AreEqual(target.UniqueSequencePoint, pts[1].UniqueSequencePoint);
+        }
+
+        [Test]
+        public void Can_GetBranchPoints_Of_MethodByToken()
+        {
+            // arrange
+            var target = new BranchPoint();
+            BranchPoint[] pts;
+            var module = new Module() {
+                    FullName = "ModulePath",
+                    Classes = new[]
+                    {
+                        new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MetadataToken = 1001, 
+                            BranchPoints = new[] { target } } } }
+                    }};
+
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            Instance.GetBranchPointsForFunction("ModulePath", 1001, out pts);
 
             // assert
             Assert.AreEqual(target.UniqueSequencePoint, pts[0].UniqueSequencePoint);
@@ -111,13 +137,12 @@ namespace OpenCover.Test.Framework.Persistance
             // arrange
             var target = new SequencePoint();
             SequencePoint[] pts;
-            var module = new Module()
-            {
+            var module = new Module() {
                 FullName = "ModulePath",
                 Classes = new[]
-            {
-                new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MetadataToken = 1001 } } }
-            }};
+                {
+                    new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MetadataToken = 1001 } } }
+                }};
 
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);
