@@ -21,6 +21,7 @@
 	<include buildfile="${build.folder}/opencover.build" />
 	<include buildfile="${build.folder}/environment.build" />
 	<include buildfile="${build.folder}/installer.build" />
+	<include buildfile="${build.folder}/nuget_package.build" />
 
 	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number" />
 
@@ -37,7 +38,8 @@
 		<call target="build-all-platforms"/>		
 		<call target="build-installer"/>	
         <move file="${solution.folder}/bin/installer/opencover.msi" 
-		    tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />		
+        tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
+		<call target="nuget-package"/>
 	</target>
 		
 </project>
