@@ -14,9 +14,15 @@ CoverageInstrumentation::~CoverageInstrumentation(void)
 
 void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, std::vector<SequencePoint> points)
 {
+#ifdef DEBUG
     for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
     {    
-        //ATLTRACE(_T("SEQPT IL_%04X"), (*it).Offset);
+        ATLTRACE(_T("SEQPT IL_%04X"), (*it).Offset);
+    }
+#endif
+
+    for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
+    {    
         InstructionList instructions;
 
         CreateInstrumentationBlock(instructions, pvsig, pt, (*it).UniqueId);
@@ -41,12 +47,12 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
 {
     if (points.size() == 0) return;
 
-    /*
+#ifdef DEBUG
     for (std::vector<BranchPoint>::iterator bit = points.begin(); bit != points.end(); bit++)
     {
         ATLTRACE(_T("BRPT IL_%04X %d"), (*bit).Offset, (*bit).Path);
     }
-    */
+#endif
 
     for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
@@ -88,7 +94,6 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
 
                 m_instructions.insert(it, instructions.begin(), instructions.end());
                 for (it = m_instructions.begin(); *it != pNext; ++it);
-                ++it;
             }
         }
     }
