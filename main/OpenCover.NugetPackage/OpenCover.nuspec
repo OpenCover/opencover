@@ -7,6 +7,7 @@
     <authors>sawilde</authors>
     <owners />
     <licenseUrl>https://github.com/sawilde/opencover/blob/master/License.md</licenseUrl>
+    <iconUrl>https://github.com/sawilde/opencover/blob/master/main/Icons/Icon.ico</iconUrl>
     <projectUrl>https://github.com/sawilde/opencover</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An open source code coverage tool for all .NET Frameworks 2 and above.</description>
