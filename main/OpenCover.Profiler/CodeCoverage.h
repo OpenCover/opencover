@@ -13,11 +13,26 @@
 #include "ProfilerCommunication.h"
 #include "ProfileBase.h"
 
+#include <unordered_map>
+
 using namespace ATL;
 
 #define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
+#define MAGIC_NUMBER  0x9e3779b9
 
+template<>
+struct std::hash<std::pair<std::wstring, ULONG32> > {
+private:
+   const std::hash<std::wstring> _hash;
+   const std::hash<ULONG32> _hash2;
+public:
+   std::hash<std::pair<std::wstring, ULONG32>>() {}
+   size_t operator()(const std::pair<std::wstring, ULONG32> &p) const {
+      size_t seed = _hash(p.first);
+      return _hash2(p.second) + MAGIC_NUMBER + (seed<<6) + (seed>>2);
+   }
+};
 
 // CCodeCoverage
 
@@ -67,9 +82,11 @@ public:
     ProfilerCommunication m_host;
 
 private:
-    std::hash_map<std::wstring, bool> m_allowModules;
-    std::hash_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
+    std::tr1::unordered_map<std::wstring, bool> m_allowModules;
+    std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
     BOOL m_isV4;
+
+    std::tr1::unordered_map<std::pair<std::wstring, ULONG32>, bool> m_jitdMethods;
 
 private:
     mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 

@@ -111,7 +111,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     {
         if (!m_allowModules[moduleName]) return S_OK;
 
-        ATLTRACE(_T("::JITCompilationStarted(%X, %d, %s)"), functionId, functionToken, W2CT(moduleName.c_str()));
+        std::pair<std::wstring, ULONG32> key(moduleName, functionToken);
+        if (m_jitdMethods[key]) return S_OK;
+        m_jitdMethods[key] = true;
+
+        ATLTRACE(_T("::JITCompilationStarted(%X, %d, (%X)%s)"), functionId, functionToken, moduleId, W2CT(moduleName.c_str()));
         
         std::vector<SequencePoint> seqPoints;
         std::vector<BranchPoint> brPoints;
