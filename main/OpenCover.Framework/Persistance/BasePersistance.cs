@@ -54,6 +54,7 @@ namespace OpenCover.Framework.Persistance
             var method = GetMethod(modulePath, functionToken, out @class);
             if (method !=null)
             {
+                System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
                 points.Add(method.MethodPoint);
                 points.AddRange(method.SequencePoints);
@@ -104,10 +105,27 @@ namespace OpenCover.Framework.Persistance
 
         public void SaveVisitData(byte[] data)
         {
+            //System.Diagnostics.Trace.WriteLine(string.Format("Received data buffer {0}", data.Length));
+            if (data.Length < 4)
+            {
+                System.Diagnostics.Trace.WriteLine("The data buffer size must be greated than 4");
+                return;
+            }
             var nCount = BitConverter.ToUInt32(data, 0);
+            if (nCount < 1 || nCount > 16000)
+            {
+                System.Diagnostics.Trace.WriteLine(string.Format("The count was outside the accepted range {0}", nCount));
+                return;
+            }
+            if (data.Length < 4 + (nCount *4))
+            {
+                System.Diagnostics.Trace.WriteLine(string.Format("The data buffer ({0}) was not big enough for the supplied count ({1})", nCount, data.Length));
+                return;
+            }
+
             for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
-                SequencePoint.AddCount(BitConverter.ToUInt32(data, idx));   
+                InstrumentationPoint.AddCount(BitConverter.ToUInt32(data, idx));   
             }
         }
     }
