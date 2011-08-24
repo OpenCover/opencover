@@ -53,7 +53,7 @@ namespace OpenCover.Framework.Model
             return module;
         }
 
-        public string HashFile(string sPath)
+        private string HashFile(string sPath)
         {
             using (var sr = new StreamReader(sPath))
             using (var prov = new SHA1CryptoServiceProvider())

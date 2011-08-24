@@ -12,6 +12,17 @@ using OpenCover.Framework.Persistance;
 
 namespace OpenCover.Integration.Test
 {
+    internal class BasePersistanceStub : BasePersistance
+    {
+        public BasePersistanceStub(ICommandLine commandLine) : base(commandLine)
+        {
+        }
+
+        public override void Commit()
+        {
+            //throw new NotImplementedException();
+        }
+    }
 
     [TestFixture]
     public abstract class ProfilerBaseFixture
@@ -34,7 +45,7 @@ namespace OpenCover.Integration.Test
 
             _commandLine = new Mock<ICommandLine>();
 
-            var filePersistance = new BasePersistance(_commandLine.Object);
+            var filePersistance = new BasePersistanceStub(_commandLine.Object);
             _persistance = filePersistance;
         }
 

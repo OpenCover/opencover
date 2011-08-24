@@ -190,5 +190,25 @@ namespace OpenCover.Test.Framework.Model
             // assert
             Assert.IsTrue(canInstrument);
         }
+
+        [Test]
+        public void CanBuildModelOf_RealAssembly()
+        {
+            // arrange
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.ModulePath)
+                .Returns(System.IO.Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"));
+            
+            Container.GetMock<IFilter>()
+               .Setup(x => x.UseAssembly(It.IsAny<string>()))
+               .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel();
+
+            // assert
+            Assert.IsNotNullOrEmpty(module.ModuleHash);
+
+        }
     }
 }

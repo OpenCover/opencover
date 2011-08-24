@@ -41,59 +41,6 @@ namespace OpenCover.Test.Framework.Persistance
             Console.SetOut(_textWriter);
         }
 
-       
-
-        [Test]
-        public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
-        {
-            // arrange
-            var methodPoint = new InstrumentationPoint();
-            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
-
-            module.Aliases.Add("ModulePath");
-            _persistence.PersistModule(module);
-
-            // act
-            InstrumentationPoint[] points;
-            _persistence.GetSequencePointsForFunction("ModulePath", 1, out points);
-
-            // assert
-            Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
-            Assert.AreEqual(1000, points[1].VisitCount);
-        }
-
-        [Test]
-        public void GetSequencePoints_GetsZeroPoints_When_ModuleNotKnown()
-        {
-            // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } });
-
-            // act
-            InstrumentationPoint[] points;
-            _persistence.GetSequencePointsForFunction("ModuleName1", 1, out points);
-
-            // assert
-            Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
-        }
-
-
-        [Test]
-        public void GetSequencePoints_GetsZeroPoints_When_FunctionNotKnown()
-        {
-            // arrange
-            _persistence.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } });
-
-            // act
-            InstrumentationPoint[] points;
-            _persistence.GetSequencePointsForFunction("ModuleName", 2, out points);
-
-            // assert
-            Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
-        }
-
         [Test]
         public void Commit_CreatesFile()
         {

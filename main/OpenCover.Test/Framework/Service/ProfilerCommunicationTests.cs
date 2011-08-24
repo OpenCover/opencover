@@ -10,7 +10,9 @@ using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
+using BranchPoint = OpenCover.Framework.Model.BranchPoint;
 using ServiceSequencePoint = OpenCover.Framework.Service.SequencePoint;
+using ServiceBranchPoint = OpenCover.Framework.Service.BranchPoint;
 
 namespace OpenCover.Test.Framework.Service
 {
@@ -192,6 +194,57 @@ namespace OpenCover.Test.Framework.Service
             // act
             ServiceSequencePoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
+            Container.GetMock<IPersistance>().Verify();
+        }
+
+        [Test]
+        public void GetBranchPoints_Returns_False_When_No_Data_In_Model()
+        {
+            // arrange
+            BranchPoint[] points;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetBranchPointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(false)
+                .Verifiable();
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(true);
+            Container.GetMock<IFilter>()
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(true);
+
+            // act
+            ServiceBranchPoint[] instrumentPoints;
+            var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
+
+            // assert
+            Assert.IsFalse(result);
+            Container.GetMock<IPersistance>().Verify();
+        }
+
+        [Test]
+        public void GetBranchPoints_Returns_SequencePoints_When_Data_In_Model()
+        {
+            // arrange
+            var points = new[] { new BranchPoint(),  };
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetBranchPointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Returns(true)
+                .Verifiable();
+            Container.GetMock<IPersistance>()
+               .Setup(x => x.IsTracking(It.IsAny<string>()))
+               .Returns(true);
+            Container.GetMock<IFilter>()
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(true);
+
+            // act
+            ServiceBranchPoint[] instrumentPoints;
+            var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsTrue(result);

@@ -11,9 +11,22 @@ using OpenCover.Test.MoqFramework;
 
 namespace OpenCover.Test.Framework.Persistance
 {
+    public class BasePersistanceStub : BasePersistance
+    {
+        public BasePersistanceStub(ICommandLine commandLine)
+            : base(commandLine)
+        {
+        }
+
+        public override void Commit()
+        {
+            //throw new NotImplementedException();
+        }
+    }
+
     [TestFixture]
     public class BasePersistenceTests :
-        UnityAutoMockContainerBase<IPersistance, BasePersistance>
+        UnityAutoMockContainerBase<IPersistance, BasePersistanceStub>
     {
         [Test]
         public void Can_Add_Module_To_Session()
@@ -175,5 +188,87 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(1, SequencePoint.GetCount(pt1.UniqueSequencePoint));
             Assert.AreEqual(3, SequencePoint.GetCount(pt2.UniqueSequencePoint));
         }
+
+
+        [Test]
+        public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
+        {
+            // arrange
+            var methodPoint = new InstrumentationPoint();
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
+
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            InstrumentationPoint[] points;
+            Instance.GetSequencePointsForFunction("ModulePath", 1, out points);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(1000, points[1].VisitCount);
+        }
+
+        [Test]
+        public void GetSequencePoints_GetsZeroPoints_When_ModuleNotKnown()
+        {
+            // arrange
+            Instance.PersistModule(new Module() { FullName = "ModuleName", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } });
+
+            // act
+            InstrumentationPoint[] points;
+            Instance.GetSequencePointsForFunction("ModuleName1", 1, out points);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
+        }
+
+
+        [Test]
+        public void GetSequencePoints_GetsZeroPoints_When_FunctionNotKnown()
+        {
+            // arrange
+            var module = new Module()
+            {
+                FullName = "ModuleName",
+                Classes = new[] { new Class() { Methods = new[] 
+                { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } }
+            };
+            module.Aliases.Add("ModuleName");
+            Instance.PersistModule(module);
+
+            // act
+            InstrumentationPoint[] points;
+            Instance.GetSequencePointsForFunction("ModuleName", 2, out points);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
+        }
+
+        [Test]
+        public void GeBranchPoints_GetsZeroPoints_When_FunctionNotKnown()
+        {
+            // arrange
+            var module = new Module()
+            {
+                FullName = "ModuleName",
+                Classes = new[] { new Class() { Methods = new[] 
+                { new Method() { MetadataToken = 1, BranchPoints = new[] { new BranchPoint() { VisitCount = 1000 } } } } } }
+            };
+            module.Aliases.Add("ModuleName");
+            Instance.PersistModule(module);
+
+            // act
+            BranchPoint[] points;
+            Instance.GetBranchPointsForFunction("ModuleName", 2, out points);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
+        }
+
     }
 }

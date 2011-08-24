@@ -6,7 +6,7 @@ using OpenCover.Framework.Model;
 namespace OpenCover.Framework.Persistance
 {
     
-    public class BasePersistance : IPersistance
+    public abstract class BasePersistance : IPersistance
     {
         private readonly ICommandLine _commandLine;
 
@@ -43,9 +43,7 @@ namespace OpenCover.Framework.Persistance
             return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public virtual void Commit()
-        {
-        }
+        public abstract void Commit();
 
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {

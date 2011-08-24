@@ -40,45 +40,64 @@ namespace OpenCover.Framework.Service
 
         public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
         {
-            instrumentPoints = new BranchPoint[0];
-            var className = _persistance.GetClassFullName(modulePath, functionToken);
-            if (!_filter.InstrumentClass(assemblyName, className)) return false;
-            Model.BranchPoint[] points;
-            if (_persistance.GetBranchPointsForFunction(modulePath, functionToken, out points))
-            {
-                instrumentPoints = points
-                    .Select(point => new BranchPoint()
-                                         {
-                                             Ordinal = point.Ordinal,
-                                             Offset = point.Offset,
-                                             Path = point.Path,
-                                             UniqueId = point.UniqueSequencePoint
-                                         })
-                    .ToArray();
-                return true;
-            }
-            return false;
+            var brPoints = new BranchPoint[0];
+
+            var ret = GetPoints(() =>
+                                    {
+                                        Model.BranchPoint[] points;
+                                        if (_persistance.GetBranchPointsForFunction(modulePath, functionToken, out points))
+                                        {
+                                            brPoints = points.Select(point => new BranchPoint()
+                                                                                  {
+                                                                                      Ordinal = point.Ordinal,
+                                                                                      Offset = point.Offset,
+                                                                                      Path = point.Path,
+                                                                                      UniqueId =
+                                                                                          point.UniqueSequencePoint
+                                                                                  }).ToArray();
+                                            return true;
+                                        }
+                                        return false;
+                                    }, modulePath, assemblyName, functionToken, out instrumentPoints);
+
+            instrumentPoints = brPoints;
+            return ret;
         }
 
         public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
         {
-            instrumentPoints = new SequencePoint[0];
+            var seqPoints = new SequencePoint[0];
+
+            var ret = GetPoints(() =>
+                                 {
+                                     Model.InstrumentationPoint[] points;
+                                     if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
+                                     {
+                                         seqPoints = points.Select(point => new SequencePoint()
+                                         {
+                                             Ordinal = point.Ordinal,
+                                             Offset = point.Offset,
+                                             UniqueId = point.UniqueSequencePoint
+                                         }).ToArray();
+                                         return true;
+                                     }
+                                     return false;
+                                 }, modulePath, assemblyName, functionToken, out instrumentPoints);
+
+            instrumentPoints = seqPoints;
+            return ret;
+        }
+
+        private bool GetPoints<T>(Func<bool> getPointsFunc, string modulePath, string assemblyName, int functionToken, out T[] points)
+        {
+            points = new T[0];
+            return CanReturnPoints(modulePath, assemblyName, functionToken) && getPointsFunc();
+        }
+
+        private bool CanReturnPoints(string modulePath, string assemblyName, int functionToken)
+        {
             var className = _persistance.GetClassFullName(modulePath, functionToken);
-            if (!_filter.InstrumentClass(assemblyName, className)) return false;
-            Model.InstrumentationPoint[] points;
-            if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
-            {
-                instrumentPoints = points
-                    .Select(point => new SequencePoint()
-                                                 {
-                                                     Ordinal = point.Ordinal,
-                                                     Offset = point.Offset,
-                                                     UniqueId = point.UniqueSequencePoint
-                                                 })
-                    .ToArray();
-                return true;
-            }
-            return false;
+            return _filter.InstrumentClass(assemblyName, className);
         }
 
         public void Stopping()
