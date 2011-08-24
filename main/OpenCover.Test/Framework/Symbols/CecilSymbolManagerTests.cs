@@ -264,5 +264,24 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNull(val);    
         }
+
+        [Test]
+        public void AssemblyWith_SecurityTransparentAttribute_IsNotLoaded()
+        {
+            // arrange
+            _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Integration.Test.dll");
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object);
+            
+            // act
+            _reader.Initialise(_location, "OpenCover.Integration.Test");
+
+            // assert
+            Assert.IsTrue(System.IO.File.Exists(_location));
+            Assert.IsNull(_reader.SourceAssembly);
+        }
     }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
@@ -74,6 +75,15 @@ namespace OpenCover.Framework.Symbols
                             AssemblyResolver = resolver,
                         };
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
+                        if (_sourceAssembly.HasCustomAttributes)
+                        {
+                            // this attribute seems to force the runtime to hiccup with the OpenCover instrumentation
+                            if (_sourceAssembly.CustomAttributes.Any(x=>x.AttributeType.FullName == typeof(SecurityTransparentAttribute).FullName))
+                            {
+                                Console.WriteLine("Cannot instrument {0} as it has the SecurityTransparent attribute", _modulePath);
+                                _sourceAssembly = null;
+                            }
+                        }
                         _sourceAssembly.MainModule.ReadSymbols();
                     }
                     catch (Exception)
