@@ -77,20 +77,33 @@ namespace OpenCover.Framework.Symbols
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
                         if (_sourceAssembly.HasCustomAttributes)
                         {
+                           
                             // this attribute seems to force the runtime to hiccup with the OpenCover instrumentation
-                            if (_sourceAssembly.CustomAttributes.Any(x=>x.AttributeType.FullName == typeof(SecurityTransparentAttribute).FullName))
+                            var awkwardTypes = new List<Type>()
+                                                   {
+                                                       typeof (SecurityTransparentAttribute),
+                                                       typeof (AllowPartiallyTrustedCallersAttribute)
+                                                   };
+
+                            if (_sourceAssembly.CustomAttributes.Any(x => awkwardTypes.Any(y => x.AttributeType.FullName == y.FullName)))
                             {
-                                Console.WriteLine("Cannot instrument {0} as it has the SecurityTransparent attribute", _modulePath);
+                               
+                                var types = _sourceAssembly.CustomAttributes
+                                        .Where(x => awkwardTypes.Any(y => x.AttributeType.FullName == y.FullName))
+                                        .Select(x => x.AttributeType.Name);
+                                Console.WriteLine("Cannot instrument {0} as it has the {1} attribute(s)", _modulePath, string.Join(",", types));
                                 _sourceAssembly = null;
                             }
                         }
-                        _sourceAssembly.MainModule.ReadSymbols();
+                        if (_sourceAssembly != null) 
+                            _sourceAssembly.MainModule.ReadSymbols();
                     }
                     catch (Exception)
                     {
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
                     }
+                    if (_sourceAssembly == null) Console.WriteLine("**** {0}", _modulePath);
                 }
                 return _sourceAssembly;
             }
