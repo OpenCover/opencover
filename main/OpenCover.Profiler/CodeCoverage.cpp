@@ -47,6 +47,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     TCHAR key[1024];
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
+    ATLTRACE(_T("key = %s"), key);
     m_host.Initialise(key);
 
     DWORD dwMask = 0;

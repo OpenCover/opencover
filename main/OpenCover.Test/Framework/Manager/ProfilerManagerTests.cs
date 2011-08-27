@@ -77,6 +77,11 @@ namespace OpenCover.Test.Framework.Manager
 
                 standardMessageReady.Set();
 
+                var standardMessageChunk = new EventWaitHandle(false, EventResetMode.ManualReset,
+                   @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+
+                standardMessageChunk.Set();
+
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
             });
 

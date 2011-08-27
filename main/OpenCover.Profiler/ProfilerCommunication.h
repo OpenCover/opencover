@@ -38,15 +38,16 @@ private:
 private:
     CMutex m_mutexCommunication;
     CSharedMemory m_memoryCommunication;
-    CEvent m_eventSendData;
-    CEvent m_eventReceiveData;
+    CEvent m_eventProfilerRequestsInformation;
+    CEvent m_eventInformationReadyForProfiler;
     MSG_Union *m_pMSG;
+    CEvent m_eventInformationReadByProfiler;
 
 private:
     CMutex m_mutexResults;
     CSharedMemory m_memoryResults;
-    CEvent m_eventSendResults;
-    CEvent m_eventReceiveResults;
+    CEvent m_eventProfilerHasResults;
+    CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
 
 };

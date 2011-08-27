@@ -7,7 +7,8 @@
 #include "Method.h"
 
 #ifdef DEBUG
-#define DUMP_IL 1
+// uncommment to get debug builds to dump out instrumented functions (slow)
+//#define DUMP_IL 1
 #endif
 
 Method::Method(IMAGE_COR_ILMETHOD* pMethod) 
@@ -635,7 +636,13 @@ long Method::GetMethodSize()
     return size;
 }
 
-void Method::InsertSequenceInstructionsAtOffset(long offset, InstructionList &instructions)
+/// <summary>Insert a sequence of instructions at a specific offset</summary>
+/// <param name="offset">The offset to look for.</param>
+/// <param name="instructions">The list of instructions to insert at that location.</param>
+/// <remarks>Original pointer references are maintained by inserting the sequence of instructions 
+/// after the intended target and then using a copy operator on the <c>Instruction</c> objects to 
+/// copy the data between them</remarks>
+void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructions)
 {
     long actualOffset = 0;
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -668,15 +675,17 @@ void Method::InsertSequenceInstructionsAtOffset(long offset, InstructionList &in
 }
 
 /// <summary>Insert a sequence of instructions at a sequence point</summary>
-/// <remarks>Original pointer references are maintianed by inserting the sequence of instructions 
+/// <param name="origOffset">The original (as in before any instrumentation) offset to look for.</param>
+/// <param name="instructions">The list of instructions to insert at that location.</param>
+/// <remarks>Original pointer references are maintained by inserting the sequence of instructions 
 /// after the intended target and then using a copy operator on the <c>Instruction</c> objects to 
 /// copy the data between them</remarks>
-void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, InstructionList &instructions)
+void Method::InsertInstructionsAtOriginalOffset(long origOffset, InstructionList &instructions)
 {
     long actualOffset = 0;
     for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-        if ((*it)->m_origOffset == offset)
+        if ((*it)->m_origOffset == origOffset)
         {
             actualOffset = (*it)->m_offset;
             m_instructions.insert(++it, instructions.begin(), instructions.end());
@@ -688,7 +697,7 @@ void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, Instruction
     {
         for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-            if ((*it)->m_origOffset == offset)
+            if ((*it)->m_origOffset == origOffset)
             {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<instructions.size();i++)
@@ -707,6 +716,8 @@ void Method::InsertSequenceInstructionsAtOriginalOffset(long offset, Instruction
 
 /// <summary>Test if we have an exception where the handler start points to the 
 /// instruction at the supplied offset</summary>
+/// <param name="offset">The offset to look for.</param>
+/// <returns>An <c>Instruction</c> that exists at that location.</returns>
 bool Method::DoesTryHandlerPointToOffset(long offset)
 {
     for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
@@ -717,6 +728,11 @@ bool Method::DoesTryHandlerPointToOffset(long offset)
     return false;
 }
 
+/// <summary>Get the size of the COR_IL_MAP block</summary>
+/// <returns>The size (number of elements) of the array to allocate</returns>
+/// <remarks>Used with PopulateILMap to allocate and populate an array of COR_IL_MAP
+/// which when used with SetILInstrumentedCodeMap can be used to inform any attached 
+/// debugger where the new debug points are.</remarks>
 ULONG Method::GetILMapSize()
 {
     ULONG mapSize = 0;
@@ -728,6 +744,12 @@ ULONG Method::GetILMapSize()
     return mapSize;
 }
 
+/// <summary>Populate a supplied COR_IL_MAP block</summary>
+/// <param name="mapSize">The size of the array.</param>
+/// <param name="maps">The preallocated (CoTaskMemAlloc) array to populate.</param>
+/// <remarks>Used with ULONG Method::GetILMapSize to allocate and populate an array of COR_IL_MAP
+/// which when used with SetILInstrumentedCodeMap can be used to inform any attached 
+/// debugger where the new debug points are.</remarks>
 void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 {
     _ASSERTE(GetILMapSize() == mapSize);

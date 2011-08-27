@@ -15,9 +15,10 @@ CoverageInstrumentation::~CoverageInstrumentation(void)
 void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, std::vector<SequencePoint> points)
 {
 #ifdef DEBUG
+    int i = 0;
     for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
     {    
-        ATLTRACE(_T("SEQPT IL_%04X"), (*it).Offset);
+        ATLTRACE(_T("SEQPT %04d IL_%04X"), i++, (*it).Offset);
     }
 #endif
 
@@ -27,7 +28,7 @@ void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, st
 
         CreateInstrumentationBlock(instructions, pvsig, pt, (*it).UniqueId);
 
-        InsertSequenceInstructionsAtOriginalOffset((*it).Offset, instructions);
+        InsertInstructionsAtOriginalOffset((*it).Offset, instructions);
     }
 }
 
@@ -48,9 +49,10 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
     if (points.size() == 0) return;
 
 #ifdef DEBUG
+    int i = 0;
     for (std::vector<BranchPoint>::iterator bit = points.begin(); bit != points.end(); bit++)
     {
-        ATLTRACE(_T("BRPT IL_%04X %d"), (*bit).Offset, (*bit).Path);
+        ATLTRACE(_T("BRPT %04d IL_%04X %d"), i++, (*bit).Offset, (*bit).Path);
     }
 #endif
 

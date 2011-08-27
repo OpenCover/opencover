@@ -103,7 +103,6 @@ namespace OpenCover.Framework.Symbols
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
                     }
-                    if (_sourceAssembly == null) Console.WriteLine("**** {0}", _modulePath);
                 }
                 return _sourceAssembly;
             }

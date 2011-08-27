@@ -37,12 +37,12 @@ public:
     ~CEvent() { if (m_hEvent!= NULL) { ::CloseHandle(m_hEvent); m_hEvent = NULL; } }
 
 public:
-    void Initialise(const TCHAR * pName) { m_hEvent = ::CreateEvent(NULL, true, false, pName); }
+    void Initialise(const TCHAR * pName, BOOL bManualReset = TRUE) { m_hEvent = ::CreateEvent(NULL, bManualReset, FALSE, pName); }
     void Set() { ::SetEvent(m_hEvent); }
     void Wait() { ::WaitForSingleObject(m_hEvent, INFINITE); }
 
     void Reset() { ::ResetEvent(m_hEvent); }
-	void SignalAndWait(CEvent &waitEvent, DWORD dwMilliSeconds = INFINITE) {::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, dwMilliSeconds, false);}
+	DWORD SignalAndWait(CEvent &waitEvent, DWORD dwMilliSeconds = INFINITE) {return ::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, dwMilliSeconds, FALSE);}
 
 private:
     HANDLE m_hEvent;

@@ -19,6 +19,11 @@ using OpenCover.Framework.Persistance;
 
 namespace OpenCover.Framework.Manager
 {
+    /// <summary>
+    /// This is the core manager for integrating the host the target 
+    /// application and the profiler 
+    /// </summary>
+    /// <remarks>It probably does too much!</remarks>
     public class ProfilerManager : IProfilerManager
     {
         const int maxMsgSize = 65536;
@@ -27,10 +32,11 @@ namespace OpenCover.Framework.Manager
         private readonly IPersistance _persistance;
         private MemoryMappedViewStream _streamAccessorComms;
         private MemoryMappedViewStream _streamAccessorResults;
-        private EventWaitHandle _requestDataReady;
-        private EventWaitHandle _responseDataReady;
-        private EventWaitHandle _requestResultsReady;
-        private EventWaitHandle _responseResultsReady;
+        private EventWaitHandle _profilerRequestsInformation;
+        private EventWaitHandle _informationReadyForProfiler;
+        private EventWaitHandle _informationReadByProfiler;
+        private EventWaitHandle _profilerHasResults;
+        private EventWaitHandle _resultsHaveBeenReceived;
         private byte[] _dataCommunication;
         private new ConcurrentQueue<byte[]> _messageQueue;
 
@@ -48,15 +54,16 @@ namespace OpenCover.Framework.Manager
             var environmentKeyRead = new AutoResetEvent(false);
             var handles = new List<WaitHandle> { processMgmt };
 
-            _requestDataReady = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendData_Event_" + key);
-            _responseDataReady = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
+            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendData_Event_" + key);
+            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
+            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
 
-            handles.Add(_requestDataReady);
+            handles.Add(_profilerRequestsInformation);
 
-            _requestResultsReady = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + key);
-            _responseResultsReady = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
+            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + key);
+            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
 
-            handles.Add(_requestResultsReady);
+            handles.Add(_profilerHasResults);
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
@@ -137,8 +144,8 @@ namespace OpenCover.Framework.Manager
                 switch (WaitHandle.WaitAny(handles.ToArray()))
                 {
                     case 1:
-                        _requestDataReady.Reset();
-                                            
+                        _profilerRequestsInformation.Reset();
+                   
                         _streamAccessorComms.Seek(0, SeekOrigin.Begin);
                         _streamAccessorComms.Read(_dataCommunication, 0, _messageHandler.ReadSize);
 
@@ -146,23 +153,16 @@ namespace OpenCover.Framework.Manager
                             (MSG_Type)BitConverter.ToInt32(_dataCommunication, 0), 
                             pinnedComms.AddrOfPinnedObject(), 
                             SendChunkAndWaitForConfirmation);
-                            
-                        _streamAccessorComms.Seek(0, SeekOrigin.Begin);
-                        _streamAccessorComms.Write(_dataCommunication, 0, writeSize);
 
-                        _responseDataReady.Set();
-                        _responseDataReady.Reset();
-
+                        SendChunkAndWaitForConfirmation(writeSize);
                         break;
-                    case 2:                     
-                        _requestResultsReady.Reset();
+                    case 2: 
+                        _profilerHasResults.Reset();
 
                         _streamAccessorResults.Seek(0, SeekOrigin.Begin);
                         _streamAccessorResults.Read(data, 0, maxMsgSize);
 
-                        _responseResultsReady.Set();
-                        _responseResultsReady.Reset();
-
+                        _resultsHaveBeenReceived.Set();
                         _messageQueue.Enqueue(data);
                         data = null;
                         break;
@@ -177,17 +177,15 @@ namespace OpenCover.Framework.Manager
 
             _messageQueue.Enqueue(data);
             _messageQueue.Enqueue(new byte[0]);
-
         }
 
         private void SendChunkAndWaitForConfirmation(int writeSize)
         {
             _streamAccessorComms.Seek(0, SeekOrigin.Begin);
             _streamAccessorComms.Write(_dataCommunication, 0, writeSize);
-            
-            _requestDataReady.Reset();
-            WaitHandle.SignalAndWait(_responseDataReady, _requestDataReady);
-            _responseDataReady.Reset();
+
+            WaitHandle.SignalAndWait(_informationReadyForProfiler, _informationReadByProfiler);
+            _informationReadByProfiler.Reset();
         }
     }
 }

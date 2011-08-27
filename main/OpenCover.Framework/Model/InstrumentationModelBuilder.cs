@@ -75,8 +75,9 @@ namespace OpenCover.Framework.Model
 
             foreach (var method in methods)
             {
-                method.MethodPoint = new InstrumentationPoint();
                 method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
+                method.MethodPoint = (method.SequencePoints!=null) ? method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0) : null;
+                method.MethodPoint = method.MethodPoint ?? new InstrumentationPoint();
                 method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }

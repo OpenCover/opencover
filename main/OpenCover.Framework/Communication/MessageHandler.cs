@@ -91,11 +91,11 @@ namespace OpenCover.Framework.Communication
                     {
                         var msgGBP = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
                         Service.BranchPoint[] origPoints;
-                        var responseCSP = new MSG_GetSequencePoints_Response();
+                        var responseCSP = new MSG_GetBranchPoints_Response();
                         _profilerCommunication.GetBranchPoints(msgGBP.modulePath, msgGBP.assemblyName,
                                                                  msgGBP.functionToken, out origPoints);
                         var num = origPoints == null ? 0 : origPoints.Length;
-
+           
                         var index = 0;
                         var chunk = Marshal.SizeOf(typeof (MSG_BranchPoint));
                         do

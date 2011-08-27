@@ -54,8 +54,8 @@ namespace OpenCover.Framework.Persistance
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
-                points.Add(method.MethodPoint);
                 points.AddRange(method.SequencePoints);
+                if (points.Count == 0) points.Add(method.MethodPoint);
                 sequencePoints = points.ToArray();
                 return true;
             }
@@ -69,6 +69,7 @@ namespace OpenCover.Framework.Persistance
             var method = GetMethod(modulePath, functionToken, out @class);
             if (method != null)
             {
+                System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.Name, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();
                 return true;
             }

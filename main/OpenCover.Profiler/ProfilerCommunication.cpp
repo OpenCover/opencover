@@ -24,11 +24,13 @@ void ProfilerCommunication::Initialise(TCHAR *key)
     m_mutexCommunication.Initialise((_T("Local\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     m_mutexResults.Initialise((_T("Local\\OpenCover_Profiler_Results_Mutex_") + m_key).c_str());
 
-    m_eventSendData.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
-    m_eventReceiveData.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
+    m_eventProfilerRequestsInformation.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
+    m_eventInformationReadyForProfiler.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
 
-    m_eventSendResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
-    m_eventReceiveResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
+    m_eventInformationReadByProfiler.Initialise((_T("Local\\OpenCover_Profiler_Communication_ChunkData_Event_") + m_key).c_str());
+
+    m_eventProfilerHasResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
+    m_eventResultsHaveBeenReceived.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
 
     m_memoryCommunication.OpenFileMapping((_T("Local\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
     m_memoryResults.OpenFileMapping((_T("Local\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
@@ -40,24 +42,30 @@ void ProfilerCommunication::Initialise(TCHAR *key)
 bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
-    m_eventReceiveData.Reset();
+    //m_eventInformationReadyForProfiler.Reset();
 
     m_pMSG->trackRequest.type = MSG_TrackAssembly; 
     wcscpy_s(m_pMSG->trackRequest.szModulePath, pModulePath);
     wcscpy_s(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
 
-    m_eventSendData.SignalAndWait(m_eventReceiveData);
+    m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler);
+    m_eventInformationReadyForProfiler.Reset();
     bool response =  m_pMSG->trackResponse.bResponse;
-    m_eventReceiveData.Reset();
+
+    m_eventInformationReadByProfiler.Set();
+
     return response;
 }
 
 bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath, 
     WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints)
 {
-     bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+    //m_eventInformationReadyForProfiler.Reset();
+
+    bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
      
-     GetBranchPoints(functionToken, pModulePath, pAssemblyName, brPoints);
+    GetBranchPoints(functionToken, pModulePath, pAssemblyName, brPoints);
 
     return ret;
 }
@@ -65,66 +73,64 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
 bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  
     WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
-    CScopedLock<CMutex> lock(m_mutexCommunication);
-    m_eventReceiveData.Reset();
-
     m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
     m_pMSG->getSequencePointsRequest.functionToken = functionToken;
     wcscpy_s(m_pMSG->getSequencePointsRequest.szModulePath, pModulePath);
     wcscpy_s(m_pMSG->getSequencePointsRequest.szAssemblyName, pAssemblyName);
 
-    m_eventSendData.SignalAndWait(m_eventReceiveData);
-    m_eventReceiveData.Reset();
+    m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler);
+    m_eventInformationReadyForProfiler.Reset();
 
     BOOL hasMore = FALSE;
     do
     {
+        hasMore = m_pMSG->getSequencePointsResponse.hasMore;
         for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
         {
             points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
         }
 
-        hasMore = m_pMSG->getSequencePointsResponse.hasMore;
         if (hasMore)
         {
-            m_eventSendData.SignalAndWait(m_eventReceiveData);
-            m_eventReceiveData.Reset();
+            m_eventInformationReadByProfiler.SignalAndWait(m_eventInformationReadyForProfiler);
+            m_eventInformationReadyForProfiler.Reset();
         }
     }while (hasMore);
-    
+
+    m_eventInformationReadByProfiler.Set();
+
     return (points.size() != 0);
 }
 
 bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, 
     WCHAR* pAssemblyName, std::vector<BranchPoint> &points)
 {
-    CScopedLock<CMutex> lock(m_mutexCommunication);
-    m_eventReceiveData.Reset();
+    m_pMSG->getBranchPointsRequest.type = MSG_GetBranchPoints;
+    m_pMSG->getBranchPointsRequest.functionToken = functionToken;
+    wcscpy_s(m_pMSG->getBranchPointsRequest.szModulePath, pModulePath);
+    wcscpy_s(m_pMSG->getBranchPointsRequest.szAssemblyName, pAssemblyName);
 
-    m_pMSG->getSequencePointsRequest.type = MSG_GetBranchPoints;
-    m_pMSG->getSequencePointsRequest.functionToken = functionToken;
-    wcscpy_s(m_pMSG->getSequencePointsRequest.szModulePath, pModulePath);
-    wcscpy_s(m_pMSG->getSequencePointsRequest.szAssemblyName, pAssemblyName);
-
-    m_eventSendData.SignalAndWait(m_eventReceiveData);
-    m_eventReceiveData.Reset();
+    m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler);
+    m_eventInformationReadyForProfiler.Reset();
 
     BOOL hasMore = FALSE;
     do
     {
+        hasMore = m_pMSG->getBranchPointsResponse.hasMore;
         for (int i=0; i < m_pMSG->getBranchPointsResponse.count;i++)
         {
             points.push_back(m_pMSG->getBranchPointsResponse.points[i]); 
         }
 
-        hasMore = m_pMSG->getBranchPointsResponse.hasMore;
         if (hasMore)
         {
-            m_eventSendData.SignalAndWait(m_eventReceiveData);
-            m_eventReceiveData.Reset();
+            m_eventInformationReadByProfiler.SignalAndWait(m_eventInformationReadyForProfiler);
+            m_eventInformationReadyForProfiler.Reset();
         }
     }while (hasMore);
-    
+
+    m_eventInformationReadByProfiler.Set();
+
     return (points.size() != 0);
 }
 
@@ -137,13 +143,13 @@ void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
         SendVisitPoints();
         m_pVisitPoints->count=0;
     }
+    
 }
 
 void ProfilerCommunication::SendVisitPoints()
 {
-    m_eventReceiveResults.Reset();
-    m_eventSendResults.SignalAndWait(m_eventReceiveResults, 5000);
-    m_eventReceiveResults.Reset();
+    if (m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, 5000) == WAIT_TIMEOUT) {ATLTRACE(_T("**** timeout ****"));};
+    m_eventResultsHaveBeenReceived.Reset();
     return;
 }
 

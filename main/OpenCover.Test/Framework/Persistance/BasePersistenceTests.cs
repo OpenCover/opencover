@@ -100,12 +100,11 @@ namespace OpenCover.Test.Framework.Persistance
         public void Can_GetSequencePoints_Of_MethodByToken()
         {
             // arrange
-            var methodPoint = new InstrumentationPoint();
             var target = new SequencePoint();
             InstrumentationPoint[] pts;
             var module = new Module() { FullName = "ModulePath", Classes = new[]
                 {
-                    new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MethodPoint = methodPoint, MetadataToken = 1001, 
+                    new Class() { FullName = "namespace.class", Methods = new[] { new Method() { MethodPoint = target, MetadataToken = 1001, 
                         SequencePoints = new[] { target } } } }
                 }};
 
@@ -116,8 +115,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.GetSequencePointsForFunction("ModulePath", 1001, out pts);
 
             // assert
-            Assert.AreEqual(methodPoint.UniqueSequencePoint, pts[0].UniqueSequencePoint);
-            Assert.AreEqual(target.UniqueSequencePoint, pts[1].UniqueSequencePoint);
+            Assert.AreEqual(target.UniqueSequencePoint, pts[0].UniqueSequencePoint);
         }
 
         [Test]
@@ -189,7 +187,6 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(3, SequencePoint.GetCount(pt2.UniqueSequencePoint));
         }
 
-
         [Test]
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
         {
@@ -206,8 +203,8 @@ namespace OpenCover.Test.Framework.Persistance
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
-            Assert.AreEqual(1000, points[1].VisitCount);
+            Assert.AreEqual(1, points.Count());
+            Assert.AreEqual(1000, points[0].VisitCount);
         }
 
         [Test]
@@ -224,7 +221,6 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count());
         }
-
 
         [Test]
         public void GetSequencePoints_GetsZeroPoints_When_FunctionNotKnown()
@@ -269,6 +265,5 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count());
         }
-
     }
 }

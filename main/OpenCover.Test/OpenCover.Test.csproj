@@ -169,6 +169,10 @@
       <Link>partcover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\..\build\pedigree.cmd">
+      <Link>pedigree.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\..\build\report_coverage.cmd">
       <Link>report_coverage.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

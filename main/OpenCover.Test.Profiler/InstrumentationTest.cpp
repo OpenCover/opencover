@@ -276,7 +276,7 @@ TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
     InstructionList instructions;
     instructions.push_back(new Instruction(CEE_NOP, 0));
 
-    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+    instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
     instrument.DumpIL();
 
@@ -371,7 +371,7 @@ TEST_F(InstrumentationTest, CanCalculateCorrectILMapSize)
     instructions.push_back(new Instruction(CEE_NOP, 0));
     instructions.push_back(new Instruction(CEE_NOP, 0));
 
-    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+    instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
     ASSERT_EQ(3, (int)instrument.GetILMapSize());
 }
@@ -389,7 +389,7 @@ TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
     instructions.push_back(new Instruction(CEE_NOP, 0));
     instructions.push_back(new Instruction(CEE_NOP, 0));
 
-    instrument.InsertSequenceInstructionsAtOriginalOffset(7, instructions);
+    instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
     COR_IL_MAP * map = new COR_IL_MAP[instrument.GetILMapSize()];
 
