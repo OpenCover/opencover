@@ -145,39 +145,45 @@
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\build\dogfood.cmd">
+    <None Include="..\cmdline\dogfood.cmd">
       <Link>dogfood.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\dogfood64.cmd">
+    <None Include="..\cmdline\dogfood64.cmd">
       <Link>dogfood64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\mstest.opencover.cmd">
+    <None Include="..\cmdline\dogfood_nunit.cmd">
+      <Link>dogfood_nunit.cmd</Link>
+    </None>
+    <None Include="..\cmdline\mstest.opencover.cmd">
       <Link>mstest.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\opencovertests.cmd">
+    <None Include="..\cmdline\OpenCover.Test.nunit">
+      <Link>OpenCover.Test.nunit</Link>
+    </None>
+    <None Include="..\cmdline\opencovertests.cmd">
       <Link>opencovertests.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\opencovertests64.cmd">
+    <None Include="..\cmdline\opencovertests64.cmd">
       <Link>opencovertests64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\partcover.cmd">
+    <None Include="..\cmdline\partcover.cmd">
       <Link>partcover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\pedigree.cmd">
+    <None Include="..\cmdline\pedigree.cmd">
       <Link>pedigree.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\report_coverage.cmd">
+    <None Include="..\cmdline\report_coverage.cmd">
       <Link>report_coverage.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="..\..\build\xunit.opencover.cmd">
+    <None Include="..\cmdline\xunit.opencover.cmd">
       <Link>xunit.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
