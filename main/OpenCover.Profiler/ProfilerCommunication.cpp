@@ -6,6 +6,8 @@
 #include "StdAfx.h"
 #include "ProfilerCommunication.h"
 
+#include <concrt.h>
+
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define MAX_MSG_SIZE 65536
 
@@ -37,12 +39,51 @@ void ProfilerCommunication::Initialise(TCHAR *key)
 
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
     m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
+
+    m_tasks.run([this]
+    {
+        ULONG id;
+        while(true)
+        {
+            while (!m_queue.try_pop(id)) 
+                Concurrency::Context::Yield();
+
+            if (id==0) 
+                return;
+            else
+            {
+                CScopedLock<CMutex> lock(m_mutexResults);  
+                do
+                {
+                    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
+                    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
+                    {
+                        SendVisitPoints();
+                        m_pVisitPoints->count=0;
+                    }
+                } while (m_queue.try_pop(id));
+                if (id==0) return;
+            }
+        }
+    });
+}
+
+void ProfilerCommunication::Stop()
+{
+    m_queue.push(0);
+    m_tasks.wait();
+}
+
+void ProfilerCommunication::SendVisitPoints()
+{
+    if (m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, 5000) == WAIT_TIMEOUT) {ATLTRACE(_T("**** timeout ****"));};
+    m_eventResultsHaveBeenReceived.Reset();
+    return;
 }
 
 bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
-    //m_eventInformationReadyForProfiler.Reset();
 
     m_pMSG->trackRequest.type = MSG_TrackAssembly; 
     wcscpy_s(m_pMSG->trackRequest.szModulePath, pModulePath);
@@ -61,7 +102,6 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
     WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
-    //m_eventInformationReadyForProfiler.Reset();
 
     bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
      
@@ -133,24 +173,4 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
 
     return (points.size() != 0);
 }
-
-void ProfilerCommunication::AddVisitPoint(ULONG uniqueId)
-{
-    CScopedLock<CMutex> lock(m_mutexResults);
-    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
-    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
-    {
-        SendVisitPoints();
-        m_pVisitPoints->count=0;
-    }
-    
-}
-
-void ProfilerCommunication::SendVisitPoints()
-{
-    if (m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, 5000) == WAIT_TIMEOUT) {ATLTRACE(_T("**** timeout ****"));};
-    m_eventResultsHaveBeenReceived.Reset();
-    return;
-}
-
 

@@ -67,6 +67,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
+    m_host.Stop();
     g_pProfiler = NULL;
     return S_OK; 
 }
