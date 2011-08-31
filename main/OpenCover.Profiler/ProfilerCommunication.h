@@ -37,6 +37,9 @@ private:
 private:
     tstring m_key;
 
+    template<class BR, class PR>
+    void RequestInformation(BR buildRequest, PR processResults);
+
 private:
     CMutex m_mutexCommunication;
     CSharedMemory m_memoryCommunication;
