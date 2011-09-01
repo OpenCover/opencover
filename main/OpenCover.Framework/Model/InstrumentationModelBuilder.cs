@@ -71,7 +71,8 @@ namespace OpenCover.Framework.Model
         {
             var methods = _symbolManager
                 .GetConstructorsForType(@class, files)
-                .Union(_symbolManager.GetMethodsForType(@class, files));
+                .Union(_symbolManager.GetMethodsForType(@class, files))
+                .ToArray();
 
             foreach (var method in methods)
             {

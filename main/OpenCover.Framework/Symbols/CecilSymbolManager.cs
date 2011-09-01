@@ -130,6 +130,8 @@ namespace OpenCover.Framework.Symbols
         {
             foreach (var typeDefinition in typeDefinitions)
             {
+                if (typeDefinition.IsEnum) continue;
+                if (typeDefinition.IsValueType) continue;    
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class() {FullName = typeDefinition.FullName};
                 var list = new List<string>();
