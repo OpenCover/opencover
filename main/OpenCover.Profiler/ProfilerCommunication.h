@@ -9,6 +9,8 @@
 #include "SharedMemory.h"
 #include "Messages.h"
 
+#include <ppl.h>
+#include <concurrent_queue.h>
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
@@ -20,20 +22,23 @@ public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
     void Initialise(TCHAR* key);
+    void Stop();
 
 public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
-    void AddVisitPoint(ULONG uniqueId);
+    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId); }
 
 private:
     void SendVisitPoints();
     bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
 
-
 private:
     tstring m_key;
+
+    template<class BR, class PR>
+    void RequestInformation(BR buildRequest, PR processResults);
 
 private:
     CMutex m_mutexCommunication;
@@ -49,6 +54,7 @@ private:
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
-
+    Concurrency::concurrent_queue<ULONG> m_queue;
+    Concurrency::task_group m_tasks;
 };
 

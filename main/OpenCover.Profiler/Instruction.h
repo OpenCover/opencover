@@ -10,9 +10,7 @@
 class Instruction;
 class Method;
 
-typedef std::vector<Instruction *> InstructionList;
-typedef InstructionList::iterator InstructionListIter;
-typedef InstructionList::const_iterator InstructionListConstIter;
+typedef std::vector<Instruction*> InstructionList;
 
 #define UNSAFE_BRANCH_OPERAND 0xDEADBABE
 

@@ -11,8 +11,6 @@ class ExceptionHandler;
 class Method;
 
 typedef std::vector<ExceptionHandler *> ExceptionHandlerList;
-typedef ExceptionHandlerList::iterator ExceptionHandlerListIter;
-typedef ExceptionHandlerList::const_iterator ExceptionHandlerListConstIter;
 
 
 /// <summary>A representation of a try/catch section handler</summary>

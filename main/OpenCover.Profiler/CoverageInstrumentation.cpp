@@ -16,13 +16,13 @@ void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, st
 {
 #ifdef DEBUG
     int i = 0;
-    for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
+    for (auto it = points.begin(); it != points.end(); it++)
     {    
         ATLTRACE(_T("SEQPT %04d IL_%04X"), i++, (*it).Offset);
     }
 #endif
 
-    for (std::vector<SequencePoint>::iterator it = points.begin(); it != points.end(); it++)
+    for (auto it = points.begin(); it != points.end(); it++)
     {    
         InstructionList instructions;
 
@@ -32,31 +32,19 @@ void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, st
     }
 }
 
-struct FindBranchPoint
-{
-    long offset;
-    long path;
-
-    FindBranchPoint(long offset, long path) : offset(offset), path(path) {}
-
-    bool operator()(BranchPoint& bp) {
-        return (bp.Offset == offset && bp.Path == path);
-    }
-};
-
 void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std::vector<BranchPoint> points)
 {
     if (points.size() == 0) return;
 
 #ifdef DEBUG
     int i = 0;
-    for (std::vector<BranchPoint>::iterator bit = points.begin(); bit != points.end(); bit++)
+    for (auto bit = points.begin(); bit != points.end(); bit++)
     {
         ATLTRACE(_T("BRPT %04d IL_%04X %d"), i++, (*bit).Offset, (*bit).Path);
     }
 #endif
 
-    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_isBranch && ((*it)->m_origOffset != -1))
         {
@@ -67,25 +55,23 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
                 ++it;
                 Instruction *pNext = *it;
 
-                FindBranchPoint fpb0(pCurrent->m_origOffset, 0);
+                int idx = 0;
 
                 InstructionList instructions;
 
                 CreateInstrumentationBlock(instructions, pvsig, pt, 
-                    (*std::find_if(points.begin(), points.end(), fpb0)).UniqueId);
+                    (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId);
 
                 Instruction *pJumpNext = new Instruction(CEE_BR);
                 pJumpNext->m_isBranch = true;
                 instructions.push_back(pJumpNext);
                 pJumpNext->m_branches.push_back(pNext);
-
-                int idx = 1;
-                for(InstructionListIter sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
+               
+                for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
                 {
-                    FindBranchPoint fpb(pCurrent->m_origOffset, idx++);
-
+                    idx++;
                     Instruction *pRecordJmp = CreateInstrumentationBlock(instructions, pvsig, pt, 
-                        (*std::find_if(points.begin(), points.end(), fpb)).UniqueId); 
+                        (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId); 
 
                     Instruction *pSwitchJump = new Instruction(CEE_BR);
                     pSwitchJump->m_isBranch = true;

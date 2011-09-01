@@ -97,21 +97,17 @@ namespace OpenCover.Framework.Manager
                     while (true)
                     {
                         byte[] data;
-                        if (_messageQueue.TryDequeue(out data))
-                        {
-                            if (data.Length == 0)
-                            {
-                                _messageHandler.Complete();
-                                queueMgmt.Set();
-                                return;
-                            }
-                            
-                            _persistance.SaveVisitData(data);
-                        }
-                        else
-                        {
+                        while (!_messageQueue.TryDequeue(out data))
                             Thread.Yield();
-                        } 
+
+                        if (data.Length == 0)
+                        {
+                            _messageHandler.Complete();
+                            queueMgmt.Set();
+                            return;
+                        }
+                            
+                        _persistance.SaveVisitData(data);
                     }
                 });
 

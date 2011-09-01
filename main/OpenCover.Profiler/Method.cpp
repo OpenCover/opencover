@@ -23,12 +23,12 @@ Method::Method(IMAGE_COR_ILMETHOD* pMethod)
 
 Method::~Method()
 {
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         delete *it;
     }
 
-    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+    for (auto it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
         delete *it;
     }
@@ -78,7 +78,7 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 
     SetBuffer(pCode);
 
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.op1 == REFPRE)
@@ -138,7 +138,7 @@ void Method::WriteSections()
         section.Kind |= CorILMethod_Sect_EHTable;
         section.DataSize = (m_exceptions.size() * 24) + 4;
         Write<IMAGE_COR_ILMETHOD_SECT_FAT>(section);
-        for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+        for (auto it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
         {
             Write<ULONG>((*it)->m_handlerType);
             Write<long>((*it)->m_tryStart->m_offset);
@@ -339,7 +339,7 @@ void Method::ReadSections()
 /// beforehand</remarks>
 Instruction * Method::GetInstructionAtOffset(long offset)
 {
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         if ((*it)->m_offset == offset)
         {
@@ -371,7 +371,7 @@ Instruction * Method::GetInstructionAtOffset(long offset)
 /// </example>
 Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally)
 {
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         if ((*it)->m_offset == offset)
         {
@@ -403,7 +403,7 @@ Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally)
 /// offsets of the instructions being referenced</remarks>
 void Method::ResolveBranches()
 {
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         (*it)->m_branches.clear();
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -509,7 +509,7 @@ void Method::DumpIL()
 /// the benefits dubious after all the new instrumentation has been added.</para></remarks>
 void Method::ConvertShortBranches()
 {
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if ((*it)->m_isBranch && details.operandSize == 1)
@@ -575,7 +575,7 @@ void Method::ConvertShortBranches()
 void Method::RecalculateOffsets()
 {
     int position = 0;
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         (*it)->m_offset = position;
@@ -587,7 +587,7 @@ void Method::RecalculateOffsets()
         }
     }
 
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if ((*it)->m_isBranch)
@@ -596,7 +596,7 @@ void Method::RecalculateOffsets()
             if((*it)->m_operation == CEE_SWITCH)
             {
                 long offset = ((*it)->m_offset + details.length + details.operandSize + (4*(long)(*it)->m_operand));                    
-                for (InstructionListIter bit = (*it)->m_branches.begin(); bit != (*it)->m_branches.end(); ++bit)
+                for (auto bit = (*it)->m_branches.begin(); bit != (*it)->m_branches.end(); ++bit)
                 {
                     (*it)->m_branchOffsets.push_back((*bit)->m_offset - offset);
                 }
@@ -645,7 +645,7 @@ long Method::GetMethodSize()
 void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructions)
 {
     long actualOffset = 0;
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_offset == offset)
         {
@@ -655,14 +655,14 @@ void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructio
         }
     } 
 
-    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == offset)
         {            
             Instruction orig = *(*it);
             for (unsigned int i=0;i<instructions.size();i++)
             {
-                InstructionListIter temp = it++;
+                auto temp = it++;
                 *(*temp) = *(*it);
             }
             *(*it) = orig;
@@ -683,7 +683,7 @@ void Method::InsertInstructionsAtOffset(long offset, InstructionList &instructio
 void Method::InsertInstructionsAtOriginalOffset(long origOffset, InstructionList &instructions)
 {
     long actualOffset = 0;
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)
         {
@@ -695,14 +695,14 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, InstructionList
 
     if (!DoesTryHandlerPointToOffset (actualOffset))
     {
-        for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+        for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
             if ((*it)->m_origOffset == origOffset)
             {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<instructions.size();i++)
                 {
-                    InstructionListIter temp = it++;
+                    auto temp = it++;
                     *(*temp) = *(*it);
                 }
                 *(*it) = orig;
@@ -720,7 +720,7 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, InstructionList
 /// <returns>An <c>Instruction</c> that exists at that location.</returns>
 bool Method::DoesTryHandlerPointToOffset(long offset)
 {
-    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+    for (auto it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
         if (((*it)->m_handlerType == COR_ILEXCEPTION_CLAUSE_NONE) 
             && ((*it)->m_handlerStart->m_offset == offset)) return true;
@@ -736,7 +736,7 @@ bool Method::DoesTryHandlerPointToOffset(long offset)
 ULONG Method::GetILMapSize()
 {
     ULONG mapSize = 0;
-    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset != -1) 
             ++mapSize;
@@ -755,7 +755,7 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
     _ASSERTE(GetILMapSize() == mapSize);
 
     mapSize = 0;
-    for (InstructionListIter it = m_instructions.begin(); it != m_instructions.end(); ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset != -1)
         {
