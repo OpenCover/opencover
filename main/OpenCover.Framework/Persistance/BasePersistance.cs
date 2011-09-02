@@ -8,7 +8,7 @@ namespace OpenCover.Framework.Persistance
     
     public abstract class BasePersistance : IPersistance
     {
-        private readonly ICommandLine _commandLine;
+        protected readonly ICommandLine _commandLine;
 
         public BasePersistance(ICommandLine commandLine)
         {

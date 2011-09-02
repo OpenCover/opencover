@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[]{"-bork"});
 
             // act
-            Assert.Throws<InvalidOperationException>(() => parser.ExtractAndValidateArguments());
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
 
             // assert
         }
@@ -71,7 +71,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[]{"-target"});
 
             // act
-            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+            var ex = Assert.Catch<Exception>(parser.ExtractAndValidateArguments);
             
             // assert
             Assert.IsNotNull(ex);
@@ -150,7 +150,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[]{"-type:method,boris" , RequiredArgs});
 
             // act
-            var ex = Assert.Catch<Exception>(() => parser.ExtractAndValidateArguments());
+            var ex = Assert.Catch<Exception>(parser.ExtractAndValidateArguments);
 
             // assert
             Assert.IsNotNull(ex);
@@ -193,6 +193,32 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.MergeByHash);
+        }
+
+        [Test]
+        public void HandlesShowUnvisitedArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-showunvisited", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.ShowUnvisited);
+        }
+
+        [Test]
+        public void HandlesReturnTargetCodeArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-returntargetcode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.ReturnTargetCode);
         }
 
     }

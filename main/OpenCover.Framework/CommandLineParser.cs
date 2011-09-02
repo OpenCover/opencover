@@ -36,6 +36,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-filter:[\"]<space seperated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("    [-mergebyhash]");
+            builder.AppendLine("    [-showunvisited]");
+            builder.AppendLine("    [-returntargetcode]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -79,6 +81,12 @@ namespace OpenCover.Framework
                         break;
                     case "mergebyhash":
                         MergeByHash = true;
+                        break;
+                    case "showunvisited":
+                        ShowUnvisited = true;
+                        break;
+                    case "returntargetcode":
+                        ReturnTargetCode = true;
                         break;
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
@@ -143,6 +151,16 @@ namespace OpenCover.Framework
         /// If specified then results to be merged by matching hash 
         /// </summary>
         public bool MergeByHash { get; private set; }
+
+        /// <summary>
+        /// Show the unvisited classes/methods at the end of the coverage run
+        /// </summary>
+        public bool ShowUnvisited { get; private set; }
+
+        /// <summary>
+        /// Show the unvisited classes/methods at the end of the coverage run
+        /// </summary>
+        public bool ReturnTargetCode { get; private set; }
 
         /// <summary>
         /// A list of filters
