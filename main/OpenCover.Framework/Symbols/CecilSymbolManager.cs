@@ -75,26 +75,7 @@ namespace OpenCover.Framework.Symbols
                             AssemblyResolver = resolver,
                         };
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
-                        if (_sourceAssembly.HasCustomAttributes)
-                        {
-                           
-                            // this attribute seems to force the runtime to hiccup with the OpenCover instrumentation
-                            var awkwardTypes = new List<Type>()
-                                                   {
-                                                       typeof (SecurityTransparentAttribute),
-                                                       typeof (AllowPartiallyTrustedCallersAttribute)
-                                                   };
 
-                            if (_sourceAssembly.CustomAttributes.Any(x => awkwardTypes.Any(y => x.AttributeType.FullName == y.FullName)))
-                            {
-                               
-                                var types = _sourceAssembly.CustomAttributes
-                                        .Where(x => awkwardTypes.Any(y => x.AttributeType.FullName == y.FullName))
-                                        .Select(x => x.AttributeType.Name);
-                                Console.WriteLine("Cannot instrument {0} as it has the {1} attribute(s)", _modulePath, string.Join(",", types));
-                                _sourceAssembly = null;
-                            }
-                        }
                         if (_sourceAssembly != null) 
                             _sourceAssembly.MainModule.ReadSymbols();
                     }
@@ -104,6 +85,8 @@ namespace OpenCover.Framework.Symbols
                         _sourceAssembly = null;
                     }
                 }
+                if (_sourceAssembly == null) 
+                    Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);
                 return _sourceAssembly;
             }
         }

@@ -55,6 +55,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	    // Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
     dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
     dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
+    if (m_isV4) dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST; 
 
     m_profilerInfo2->SetEventMask(dwMask);
 
