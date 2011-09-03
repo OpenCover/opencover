@@ -2,10 +2,8 @@
 using System.Linq;
 using Moq;
 using NUnit.Framework;
-using OpenCover.Framework;
-using OpenCover.Framework.Common;
 using OpenCover.Framework.Communication;
-using OpenCover.Framework.Manager;
+using OpenCover.Framework.Model;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
 
@@ -44,7 +42,7 @@ namespace OpenCover.Test.Framework.Communication
             Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, IntPtr.Zero, (x) => { });
 
             // assert
-            SequencePoint[] points;
+            InstrumentationPoint[] points;
             Container.GetMock<IProfilerCommunication>()
                 .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
@@ -58,7 +56,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetSequencePoints_Request());
 
-            var points = Enumerable.Repeat(new SequencePoint(), 2).ToArray();
+            var points = Enumerable.Repeat(new InstrumentationPoint(), 2).ToArray();
             Container.GetMock<IProfilerCommunication>()
                 .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
@@ -81,7 +79,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetSequencePoints_Request());
 
-            var points = Enumerable.Repeat(new SequencePoint(), 100).ToArray();
+            var points = Enumerable.Repeat(new InstrumentationPoint(), 100).ToArray();
 
             //var points = new[] { new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint() };
             Container.GetMock<IProfilerCommunication>()

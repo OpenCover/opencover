@@ -84,9 +84,9 @@ namespace OpenCover.Framework.Symbols
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
                     }
+                    if (_sourceAssembly == null)
+                        Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);
                 }
-                if (_sourceAssembly == null) 
-                    Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);
                 return _sourceAssembly;
             }
         }
@@ -293,7 +293,8 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetBranchPointsForToken(typeDefinition.NestedTypes, token, list);
+                if (typeDefinition.HasNestedTypes) 
+                    GetBranchPointsForToken(typeDefinition.NestedTypes, token, list);
             }
         }
 
@@ -310,7 +311,8 @@ namespace OpenCover.Framework.Symbols
                     return Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
                 }
                 if (typeDefinition.HasNestedTypes) ret = GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token);
-                if (ret != 0) return ret;
+                if (ret != 0) 
+                    return ret;
             }
             return 0;
         }

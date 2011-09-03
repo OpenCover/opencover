@@ -68,7 +68,6 @@
     <Compile Include="Bootstrapper.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
-    <Compile Include="Common\VisitType.cs" />
     <Compile Include="Communication\MarshalWapper.cs" />
     <Compile Include="Manager\ProfilerManager.cs" />
     <Compile Include="Communication\MessageHandler.cs" />
@@ -79,7 +78,6 @@
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationPoint.cs" />
-    <Compile Include="Model\VisitPoint.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />
     <Compile Include="Filter.cs" />

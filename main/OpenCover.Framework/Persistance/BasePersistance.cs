@@ -43,7 +43,57 @@ namespace OpenCover.Framework.Persistance
             return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
         }
 
-        public abstract void Commit();
+        public virtual void Commit()
+        {
+            PopulateInstrumentedPoints();
+        }
+
+        protected void PopulateInstrumentedPoints()
+        {
+            if (CoverageSession.Modules == null) return;
+           
+            foreach (var method in from module in CoverageSession.Modules
+                                   from @class in module.Classes ?? new Class[0]
+                                   from method in @class.Methods ?? new Method[0]
+                                   select method)
+            {
+                var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
+                foreach (var sequencePoint in from sequencePoint in sequencePoints
+                                          select sequencePoint)
+                {
+                    sequencePoint.VisitCount = InstrumentationPoint.GetCount(sequencePoint.UniqueSequencePoint);
+                }
+
+                var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+                foreach (var branchPoint in from branchPoint in branchPoints
+                                            select branchPoint)
+                {
+                    branchPoint.VisitCount = InstrumentationPoint.GetCount(branchPoint.UniqueSequencePoint);
+                }
+
+                if (method.MethodPoint != null)
+                {
+                    method.MethodPoint.VisitCount =
+                        InstrumentationPoint.GetCount(method.MethodPoint.UniqueSequencePoint);
+                    method.Visited = (method.MethodPoint.VisitCount > 0);
+                }
+
+                var numTotBrPoint = branchPoints.Count();
+                var numVisBrPoint = branchPoints.Where(pt => pt.VisitCount != 0).Count();
+                var numTotSeqPoint = sequencePoints.Count();
+                var numVisSeqPoint = sequencePoints.Where(pt => pt.VisitCount != 0).Count();
+
+                if (numTotSeqPoint > 0)
+                    method.SequenceCoverage = (numVisSeqPoint * 100) / numTotSeqPoint;
+
+                if (numTotBrPoint == 0)
+                {
+                    if (numVisSeqPoint > 0) method.BranchCoverage = 100;
+                }
+                else
+                    method.BranchCoverage = (numVisBrPoint * 100) / numTotBrPoint;
+            }
+        }
 
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {
@@ -80,9 +130,11 @@ namespace OpenCover.Framework.Persistance
         {
             @class = null;
             //c = null;
-            if (CoverageSession.Modules == null) return null;
+            if (CoverageSession.Modules == null) 
+                return null;
             var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
-            if (module == null) return null;
+            if (module == null) 
+                return null;
             foreach (var c in module.Classes)
             {
                 @class = c;

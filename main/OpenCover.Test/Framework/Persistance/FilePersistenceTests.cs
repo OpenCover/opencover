@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
-using OpenCover.Framework.Common;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using File = System.IO.File;
@@ -52,7 +48,6 @@ namespace OpenCover.Test.Framework.Persistance
 
             // assert
             Assert.IsTrue(File.Exists(_filePath));
-
         }
 
     }

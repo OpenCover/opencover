@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
+using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Service
 {
@@ -19,7 +20,7 @@ namespace OpenCover.Framework.Service
 
         public CoverageSession CoverageSession { get; set; }
 
-        public ProfilerCommunication(IFilter filter, 
+        public ProfilerCommunication(IFilter filter,
             IPersistance persistance,
             IInstrumentationModelBuilderFactory instrumentationModelBuilderFactory)
         {
@@ -40,51 +41,23 @@ namespace OpenCover.Framework.Service
 
         public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
         {
-            var brPoints = new BranchPoint[0];
+            BranchPoint[] points = null;
 
-            var ret = GetPoints(() =>
-                                    {
-                                        Model.BranchPoint[] points;
-                                        if (_persistance.GetBranchPointsForFunction(modulePath, functionToken, out points))
-                                        {
-                                            brPoints = points.Select(point => new BranchPoint()
-                                                                                  {
-                                                                                      Ordinal = point.Ordinal,
-                                                                                      Offset = point.Offset,
-                                                                                      Path = point.Path,
-                                                                                      UniqueId =
-                                                                                          point.UniqueSequencePoint
-                                                                                  }).ToArray();
-                                            return true;
-                                        }
-                                        return false;
-                                    }, modulePath, assemblyName, functionToken, out instrumentPoints);
+            var ret = GetPoints(() => _persistance.GetBranchPointsForFunction(modulePath, functionToken, out points),
+                    modulePath, assemblyName, functionToken, out instrumentPoints);
 
-            instrumentPoints = brPoints;
+            instrumentPoints = points;
             return ret;
         }
 
-        public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out SequencePoint[] instrumentPoints)
+        public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] instrumentPoints)
         {
-            var seqPoints = new SequencePoint[0];
+            InstrumentationPoint[] points = null;
 
-            var ret = GetPoints(() =>
-                                 {
-                                     Model.InstrumentationPoint[] points;
-                                     if (_persistance.GetSequencePointsForFunction(modulePath, functionToken, out points))
-                                     {
-                                         seqPoints = points.Select(point => new SequencePoint()
-                                         {
-                                             Ordinal = point.Ordinal,
-                                             Offset = point.Offset,
-                                             UniqueId = point.UniqueSequencePoint
-                                         }).ToArray();
-                                         return true;
-                                     }
-                                     return false;
-                                 }, modulePath, assemblyName, functionToken, out instrumentPoints);
+            var ret = GetPoints(() => _persistance.GetSequencePointsForFunction(modulePath, functionToken, out points),
+                                modulePath, assemblyName, functionToken, out instrumentPoints);
 
-            instrumentPoints = seqPoints;
+            instrumentPoints = points;
             return ret;
         }
 

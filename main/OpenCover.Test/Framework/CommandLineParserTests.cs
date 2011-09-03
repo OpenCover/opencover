@@ -1,7 +1,6 @@
 ﻿using System;
 using NUnit.Framework;
 using OpenCover.Framework;
-using OpenCover.Framework.Common;
 
 namespace OpenCover.Test.Framework
 {

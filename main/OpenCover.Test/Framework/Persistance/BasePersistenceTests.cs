@@ -17,11 +17,6 @@ namespace OpenCover.Test.Framework.Persistance
             : base(commandLine)
         {
         }
-
-        public override void Commit()
-        {
-            //throw new NotImplementedException();
-        }
     }
 
     [TestFixture]
@@ -265,5 +260,94 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count());
         }
+
+        [Test]
+        public void Commit_With_NoModules()
+        {
+            // arrange
+            Instance.CoverageSession.Modules = null;
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+        }
+
+
+        [Test]
+        public void Commit_With_NoClasses()
+        {
+            // arrange
+            Instance.CoverageSession.Modules = new [] {new Module(){Classes = null}};
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+        }
+
+        [Test]
+        public void Commit_With_NoMethods()
+        {
+            // arrange
+            Instance.CoverageSession.Modules = new[] { new Module() { Classes = new []{new Class(), } } };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+        }
+
+        [Test]
+        public void Commit_With_NoInstrumentedPoints()
+        {
+            // arrange
+            Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class(){Methods = new []{new Method(), }}, } } };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+        }
+
+        [Test]
+        public void Commit_With_WithMethodPointsOnly_GetsValue()
+        {
+            // arrange
+            var point = new InstrumentationPoint();
+            Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { MethodPoint = point }, } }, } } };
+
+            // act
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 25);
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(25, point.VisitCount);
+        }
+
+        [Test]
+        public void Commit_With_WithSequencePointsOnly()
+        {
+            // arrange
+            var point = new SequencePoint();
+            Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { SequencePoints = new [] { point }}}}}}};
+
+            // act
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 37);
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(37, point.VisitCount);
+
+        }
+
+        [Test]
+        public void Commit_With_WithBranchPointsOnly()
+        {
+            // arrange
+            var point = new BranchPoint();
+            Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { BranchPoints = new [] { point } } } } } } };
+
+            // act
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 42);
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(42, point.VisitCount);
+
+        }
+
     }
 }

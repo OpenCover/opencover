@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using OpenCover.Framework.Manager;
+using OpenCover.Framework.Model;
 using OpenCover.Framework.Service;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
@@ -53,7 +54,7 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_GetSequencePoints:
                     {
                         var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
-                        Service.SequencePoint[] origPoints;
+                        InstrumentationPoint[] origPoints;
                         var responseCSP = new MSG_GetSequencePoints_Response();
                         _profilerCommunication.GetSequencePoints(msgGSP.modulePath, msgGSP.assemblyName,
                                                                  msgGSP.functionToken, out origPoints);
@@ -71,7 +72,7 @@ namespace OpenCover.Framework.Communication
                             {
                                 var point = new MSG_SequencePoint();
                                 point.Offset = origPoints[index].Offset;
-                                point.UniqueId = origPoints[index].UniqueId;
+                                point.UniqueId = origPoints[index].UniqueSequencePoint;
 
                                 _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
                                 writeSize += chunk;
@@ -90,7 +91,7 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_GetBranchPoints:
                     {
                         var msgGBP = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
-                        Service.BranchPoint[] origPoints;
+                        BranchPoint[] origPoints;
                         var responseCSP = new MSG_GetBranchPoints_Response();
                         _profilerCommunication.GetBranchPoints(msgGBP.modulePath, msgGBP.assemblyName,
                                                                  msgGBP.functionToken, out origPoints);
@@ -108,7 +109,7 @@ namespace OpenCover.Framework.Communication
                             {
                                 var point = new MSG_BranchPoint();
                                 point.Offset = origPoints[index].Offset;
-                                point.UniqueId = origPoints[index].UniqueId;
+                                point.UniqueId = origPoints[index].UniqueSequencePoint;
                                 point.Path = origPoints[index].Path;
 
                                 _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);

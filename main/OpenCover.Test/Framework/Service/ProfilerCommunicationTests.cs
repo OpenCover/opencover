@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Moq;
+﻿using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
-using OpenCover.Framework.Common;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
-using BranchPoint = OpenCover.Framework.Model.BranchPoint;
-using ServiceSequencePoint = OpenCover.Framework.Service.SequencePoint;
-using ServiceBranchPoint = OpenCover.Framework.Service.BranchPoint;
 
 namespace OpenCover.Test.Framework.Service
 {
@@ -120,7 +112,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(true);
 
             // act
-            ServiceSequencePoint[] instrumentPoints;
+            InstrumentationPoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
@@ -141,7 +133,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(false);
            
             // act
-            ServiceSequencePoint[] instrumentPoints;
+            InstrumentationPoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
@@ -166,7 +158,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(false);
 
             // act
-            ServiceSequencePoint[] instrumentPoints;
+            InstrumentationPoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
@@ -192,7 +184,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(true);
 
             // act
-            ServiceSequencePoint[] instrumentPoints;
+            InstrumentationPoint[] instrumentPoints;
             var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
@@ -218,7 +210,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(true);
 
             // act
-            ServiceBranchPoint[] instrumentPoints;
+            BranchPoint[] instrumentPoints;
             var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
@@ -243,7 +235,7 @@ namespace OpenCover.Test.Framework.Service
                .Returns(true);
 
             // act
-            ServiceBranchPoint[] instrumentPoints;
+            BranchPoint[] instrumentPoints;
             var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert

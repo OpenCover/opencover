@@ -264,5 +264,37 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNull(val);    
         }
+
+        [Test]
+        public void GetComplexityForToken_HandlesUnknownTokens()
+        {
+            // arrange
+
+            // act
+            var complexity = _reader.GetCyclomaticComplexityForToken(0);
+
+            // assert
+            Assert.IsNotNull(complexity);
+            Assert.AreEqual(0, 0);
+        }
+
+        [Test]
+        public void GetComplexityForMethodToken_TwoBranch()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var complexity = _reader.GetCyclomaticComplexityForToken(methods.Where(x => x.Name.Contains("::HasTwoDecisions")).First().MetadataToken);
+
+            // assert
+            Assert.AreEqual(3, complexity);
+        }
     }
 }

@@ -5,7 +5,6 @@
 //
 using System;
 using System.Text;
-using OpenCover.Framework.Common;
 using System.Collections.Generic;
 using System.Linq;
 
