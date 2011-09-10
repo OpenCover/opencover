@@ -188,6 +188,10 @@
       <Link>report_coverage.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\silverlight.cmd">
+      <Link>silverlight.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\xunit.opencover.cmd">
       <Link>xunit.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

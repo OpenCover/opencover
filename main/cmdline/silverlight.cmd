@@ -1,0 +1,1 @@
+OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Internet Explorer\iexplore.exe" -targetargs:"http://localhost:4128/SampleSilverlightTestPage.aspx"
