@@ -20,7 +20,6 @@
 /main/OpenCover.Profiler/dlldata.c
 /tools/gtest-1.5.0
 /tools/Moq.4.0.10531.7
-/tools/NUnit-2.5.9.10348
 /tools/atlsvr.9.0.70425
 /main/opencover.sln.cache
 /build/Version/opencover.snk
@@ -43,3 +42,4 @@
 /tools/xunit-1.8
 /main/OpenCover.sln.docstates.suo
 /main/CodeAnalyst/OpenCover.caw
+/tools/NUnit-2.5.10.11092

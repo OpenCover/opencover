@@ -19,7 +19,7 @@
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/Moq.4.0.10531.7" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/NUnit-2.5.9.10348" />
+		<property name="target.folder" value="${tools.folder}/NUnit-2.5.10.11092" />
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
 		<call target="extract" />
