@@ -60,13 +60,10 @@ namespace OpenCover.Framework.Symbols
                     {
                         var resolver = new DefaultAssemblyResolver();
                         if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
-                        {
                             resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
-                            if (!string.IsNullOrEmpty(_commandLine.TargetDir))
-                            {
-                                resolver.AddSearchDirectory(_commandLine.TargetDir);
-                            }
-                        }
+                        if (!string.IsNullOrEmpty(_commandLine.TargetDir))
+                            resolver.AddSearchDirectory(_commandLine.TargetDir);
+                        resolver.AddSearchDirectory(Environment.CurrentDirectory);
 
                         var parameters = new ReaderParameters
                         {
@@ -74,7 +71,7 @@ namespace OpenCover.Framework.Symbols
                             ReadingMode = ReadingMode.Immediate,
                             AssemblyResolver = resolver,
                         };
-                        _sourceAssembly = AssemblyDefinition.ReadAssembly(_modulePath, parameters);
+                        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.GetFileName(_modulePath), parameters);
 
                         if (_sourceAssembly != null) 
                             _sourceAssembly.MainModule.ReadSymbols();

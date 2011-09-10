@@ -1,1 +1,1 @@
-..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console.exe OpenCover.Test.dll /noshadow
+..\..\..\tools\NUnit-2.5.10.11092\bin\net-2.0\nunit-console.exe OpenCover.Test.dll /noshadow
