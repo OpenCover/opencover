@@ -21,7 +21,7 @@ private:
 public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
-    void Initialise(TCHAR* key);
+    bool Initialise(TCHAR* key);
     void Stop();
 
 public:

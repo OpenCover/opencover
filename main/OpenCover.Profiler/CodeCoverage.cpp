@@ -48,7 +48,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     TCHAR key[1024];
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
     ATLTRACE(_T("key = %s"), key);
-    m_host.Initialise(key);
+    if (!m_host.Initialise(key))
+    {
+        ATLTRACE(_T("    ::Initialize Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
+        return E_FAIL;
+    }
 
     DWORD dwMask = 0;
     dwMask |= COR_PRF_MONITOR_MODULE_LOADS;			// Controls the ModuleLoad, ModuleUnload, and ModuleAttachedToAssembly callbacks.
@@ -68,7 +72,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
     ATLTRACE(_T("::Shutdown"));
-    m_host.Stop();
+    try {m_host.Stop();} catch(...){}
     g_pProfiler = NULL;
     return S_OK; 
 }
@@ -143,8 +147,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             //seqPoints.clear();
             //brPoints.clear();
 
-            instumentedMethod.AddSequenceCoverage(spvsig, (FPTR)spt, seqPoints);
-            instumentedMethod.AddBranchCoverage(spvsig, (FPTR)spt, brPoints);
+            //instumentedMethod.AddSequenceCoverage(spvsig, (FPTR)spt, seqPoints);
+            //instumentedMethod.AddBranchCoverage(spvsig, (FPTR)spt, brPoints);
 
             instumentedMethod.DumpIL();
 

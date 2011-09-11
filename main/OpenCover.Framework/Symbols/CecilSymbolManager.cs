@@ -56,30 +56,38 @@ namespace OpenCover.Framework.Symbols
             {
                 if (_sourceAssembly==null)
                 {
+                    var currentPath = Environment.CurrentDirectory;
                     try
                     {
                         var resolver = new DefaultAssemblyResolver();
                         if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
                             resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
-                        if (!string.IsNullOrEmpty(_commandLine.TargetDir))
-                            resolver.AddSearchDirectory(_commandLine.TargetDir);
                         resolver.AddSearchDirectory(Environment.CurrentDirectory);
-
+                        if (!string.IsNullOrEmpty(_commandLine.TargetDir) && Directory.Exists(_commandLine.TargetDir))
+                        {
+                            Environment.CurrentDirectory = _commandLine.TargetDir;
+                            resolver.AddSearchDirectory(_commandLine.TargetDir);
+                        }
                         var parameters = new ReaderParameters
                         {
                             SymbolReaderProvider = new PdbReaderProvider(),
-                            ReadingMode = ReadingMode.Immediate,
+                            ReadingMode = ReadingMode.Deferred,
+                            ReadSymbols = true,
                             AssemblyResolver = resolver,
                         };
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.GetFileName(_modulePath), parameters);
 
-                        if (_sourceAssembly != null) 
+                        if (_sourceAssembly != null)
                             _sourceAssembly.MainModule.ReadSymbols();
                     }
                     catch (Exception)
                     {
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
+                    }
+                    finally
+                    {
+                        Environment.CurrentDirectory = currentPath;
                     }
                     if (_sourceAssembly == null)
                         Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);

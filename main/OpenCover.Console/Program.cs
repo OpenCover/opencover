@@ -237,6 +237,7 @@ namespace OpenCover.Console
             if (!parser.NoDefaultFilters)
             {
                 filter.AddFilter("-[mscorlib]*");
+                filter.AddFilter("-[mscorlib.*]*");
                 filter.AddFilter("-[System]*");
                 filter.AddFilter("-[System.*]*");
                 filter.AddFilter("-[Microsoft.VisualBasic]*");

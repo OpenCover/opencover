@@ -15,6 +15,7 @@ public:
     void OpenFileMapping(const TCHAR *pName);  
     void* MapViewOfFile(DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow, SIZE_T dwNumberOfBytesToMap);
     static DWORD GetAllocationGranularity();
+    bool IsValid() {return m_hMemory!=NULL; }
 
 private:
     HANDLE m_hMemory;
