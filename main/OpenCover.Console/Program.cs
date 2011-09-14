@@ -25,15 +25,16 @@ namespace OpenCover.Console
         static int Main(string[] args)
         {
             var returnCode = 0;
+            var returnCodeOffset = 0;
             try
             {
                 CommandLineParser parser;
-                if (ParseCommandLine(args, out parser)) return returnCode;
-
+                if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+                returnCodeOffset = parser.ReturnCodeOffset;
                 var filter = BuildFilter(parser);
 
                 string outputFile;
-                if (GetFullOutputFile(parser, out outputFile)) return returnCode;
+                if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
                 var container = new Bootstrapper();
                 var persistance = new FilePersistance(parser);
@@ -88,6 +89,7 @@ namespace OpenCover.Console
                 System.Console.WriteLine();
                 System.Console.WriteLine("An exception occured: {0}", ex.Message);
                 System.Console.WriteLine("stack: {0}", ex.StackTrace);
+                returnCode = returnCodeOffset + 1;
             }
 
             return returnCode;
@@ -224,9 +226,9 @@ namespace OpenCover.Console
             {
                 System.Console.WriteLine(
                     "Output folder does not exist; please create it and make sure appropriate permissions are set.");
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
 
         private static Filter BuildFilter(CommandLineParser parser)
@@ -262,7 +264,7 @@ namespace OpenCover.Console
             catch (Exception)
             {
                 throw new InvalidOperationException(
-                    "An error occurred whilst parsing the command line; try /? for command line arguments.");
+                    "An error occurred whilst parsing the command line; try -? for command line arguments.");
             }
 
             try
@@ -277,17 +279,17 @@ namespace OpenCover.Console
 
                 if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
                 {
-                    System.Console.WriteLine("Target {0} cannot be found - have you specified your arguments correctly?");
-                    return true;
+                    System.Console.WriteLine("Target {0} cannot be found - have you specified your arguments correctly?", parser.Target);
+                    return false;
                 }
             }
             catch (Exception ex)
             {
                 System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
                 System.Console.WriteLine(parser.Usage());
-                return true;
+                return false;
             }
-            return false;
+            return true;
         }
     }
 }
