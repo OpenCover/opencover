@@ -55,4 +55,14 @@ namespace OpenCover.Test.Samples
             DoThing((x) => { Console.WriteLine(x.ToString()); });
         }
     }
+
+    public abstract class AbstractBase
+    {
+        public abstract string Name { get; }
+    }
+
+    public class Concrete : AbstractBase
+    {
+        public override string Name { get { return "Me!"; } }
+    }
 }

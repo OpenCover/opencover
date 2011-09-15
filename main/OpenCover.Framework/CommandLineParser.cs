@@ -64,11 +64,15 @@ namespace OpenCover.Framework
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Extract the arguments and validate them; also validate the supplied options when simple
+        /// </summary>
         public void ExtractAndValidateArguments()
         {
-            foreach (string key in ParsedArguments.Keys)
+            foreach (var key in ParsedArguments.Keys)
             {
-                switch(key.ToLowerInvariant())
+                var lower = key.ToLowerInvariant();
+                switch(lower)
                 {
                     case "register":
                         Register = true;

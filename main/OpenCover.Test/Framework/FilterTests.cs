@@ -259,7 +259,36 @@ namespace OpenCover.Test.Framework
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[XYZ]*Class"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"-[XYZ]*Unknown"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[*]*"},
+                                                                             Assembly = "",
+                                                                             Class = "Namespace.Class",
+                                                                             ExpectedResult = false
+                                                                         },
+                                                                     new InstrumentClassData()
+                                                                         {
+                                                                             Filters = new[] {"+[*]*"},
+                                                                             Assembly = "XYZ",
+                                                                             Class = "",
+                                                                             ExpectedResult = false
                                                                          }
+
                                                                  };
         #endregion
 

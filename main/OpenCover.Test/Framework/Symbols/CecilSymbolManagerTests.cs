@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Symbols;
+using OpenCover.Test.Samples;
 using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -75,7 +76,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
 
 
             // act
@@ -94,7 +95,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredMethodClass).FullName).First();
 
 
             // act
@@ -113,7 +114,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredMethodClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredMethodClass).FullName).First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -132,7 +133,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var ctors = _reader.GetConstructorsForType(type, new File[0]);
 
             // act
@@ -152,7 +153,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var ctors = _reader.GetConstructorsForType(type, new File[0]);
 
             // act
@@ -172,7 +173,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -195,7 +196,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -217,7 +218,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -287,7 +288,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == "OpenCover.Test.Samples.DeclaredConstructorClass").First();
+            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -295,6 +296,48 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.AreEqual(3, complexity);
+        }
+
+        [Test]
+        public void GetSequencePointsFor_AbstractPropertyGetter()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count());
+
+        }
+
+        [Test]
+        public void GetSequencePointsFor_OverridePropertyGetter()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == typeof(Concrete).FullName).First();
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(3, points.Count());
+
         }
     }
 }

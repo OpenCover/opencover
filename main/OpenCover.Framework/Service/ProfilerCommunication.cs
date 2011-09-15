@@ -18,8 +18,6 @@ namespace OpenCover.Framework.Service
         private readonly IPersistance _persistance;
         private readonly IInstrumentationModelBuilderFactory _instrumentationModelBuilderFactory;
 
-        public CoverageSession CoverageSession { get; set; }
-
         public ProfilerCommunication(IFilter filter,
             IPersistance persistance,
             IInstrumentationModelBuilderFactory instrumentationModelBuilderFactory)

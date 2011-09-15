@@ -151,6 +151,7 @@ namespace OpenCover.Framework.Symbols
                 {
                     foreach (var methodDefinition in typeDefinition.Methods)
                     {
+                        //if (methodDefinition.IsAbstract) continue;
                         if (methodDefinition.IsConstructor)
                         {
                             var method = new Method() { Name = methodDefinition.FullName, MetadataToken = methodDefinition.MetadataToken.ToInt32()};

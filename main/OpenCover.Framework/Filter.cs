@@ -109,10 +109,13 @@ namespace OpenCover.Framework
 
         public bool InstrumentClass(string assemblyName, string className)
         {
-            if (string.IsNullOrEmpty(assemblyName)) return false;
-            if (string.IsNullOrEmpty(className)) return false;
+            if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
+            {
+                return false;
+            }
 
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
+            if (ExclusionFilter
+                .Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
             {
                 return false;
             }
@@ -121,7 +124,6 @@ namespace OpenCover.Framework
                 .Where(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value != ".*")
                 .Any(keyValuePair => Regex.Match(className, keyValuePair.Value.WrapWithAnchors()).Success))
             {
-                Debug.WriteLine("Rejecting {0} {1}", assemblyName, className);
                 return false;
             }
 
@@ -132,7 +134,6 @@ namespace OpenCover.Framework
                 return true;
             }
 
-            Debug.WriteLine("Rejecting {0} {1}", assemblyName, className);
             return false;
         }
 
