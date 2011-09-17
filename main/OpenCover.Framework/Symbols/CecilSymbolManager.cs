@@ -111,7 +111,7 @@ namespace OpenCover.Framework.Symbols
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
-                if (typeDefinition.IsValueType) continue;    
+                if (typeDefinition.IsValueType) continue;  
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class() {FullName = typeDefinition.FullName};
                 var list = new List<string>();
@@ -132,36 +132,6 @@ namespace OpenCover.Framework.Symbols
                 @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
                 classes.Add(@class);
                 if (typeDefinition.HasNestedTypes) GetInstrumentableTypes(typeDefinition.NestedTypes, classes); 
-            }
-        }
-
-        public Method[] GetConstructorsForType(Class type, File[] files)
-        {
-            var methods = new List<Method>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetConstructorsForType(typeDefinitions, type, methods, files);
-            return methods.ToArray();
-        }
-
-        private static void GetConstructorsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files)
-        {
-            foreach (var typeDefinition in typeDefinitions)
-            {
-                if (typeDefinition.FullName == type.FullName)
-                {
-                    foreach (var methodDefinition in typeDefinition.Methods)
-                    {
-                        //if (methodDefinition.IsAbstract) continue;
-                        if (methodDefinition.IsConstructor)
-                        {
-                            var method = new Method() { Name = methodDefinition.FullName, MetadataToken = methodDefinition.MetadataToken.ToInt32()};
-                            var definition = methodDefinition;
-                            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition)).Select(x => new FileRef() { UniqueId = x.UniqueId }).FirstOrDefault();
-                            methods.Add(method);
-                        }
-                    }
-                }
-                if (typeDefinition.HasNestedTypes) GetConstructorsForType(typeDefinition.NestedTypes, type, methods, files); 
             }
         }
 
@@ -194,13 +164,20 @@ namespace OpenCover.Framework.Symbols
                 {
                     foreach (var methodDefinition in typeDefinition.Methods)
                     {
-                        if (!methodDefinition.IsConstructor)
-                        {
-                            var method = new Method() { Name = methodDefinition.FullName, MetadataToken = methodDefinition.MetadataToken.ToInt32() };
-                            var definition = methodDefinition;
-                            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition)).Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
-                            methods.Add(method);
-                        }
+                        if (methodDefinition.IsAbstract) continue;
+                        var method = new Method
+                                         {
+                                             Name = methodDefinition.FullName,
+                                             MetadataToken = methodDefinition.MetadataToken.ToInt32(),
+                                             IsConstructor = methodDefinition.IsConstructor,
+                                             IsStatic = methodDefinition.IsStatic,
+                                             IsGetter = methodDefinition.IsGetter,
+                                             IsSetter = methodDefinition.IsSetter
+                                         };
+                        var definition = methodDefinition;
+                        method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
+                            .Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
+                        methods.Add(method);
                     }
                 }
                 if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods, files);
@@ -226,7 +203,9 @@ namespace OpenCover.Framework.Symbols
         public int GetCyclomaticComplexityForToken(int token)
         {
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            return GetCyclomaticComplexityForToken(typeDefinitions, token);
+            var complexity = 0;
+            GetCyclomaticComplexityForToken(typeDefinitions, token, ref complexity);
+            return complexity;
         }
 
         private static void GetSequencePointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<SequencePoint> list)
@@ -258,7 +237,8 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
+                if (typeDefinition.HasNestedTypes) 
+                    GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
             }
         }
 
@@ -282,9 +262,7 @@ namespace OpenCover.Framework.Symbols
                         }
                         else
                         {
-                            var i = 0;
-                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i }); // used for the default
-                            for (i = 1; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
+                            for (var i = 0; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
                             {
                                 list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
                             }
@@ -296,9 +274,8 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private static int GetCyclomaticComplexityForToken(IEnumerable<TypeDefinition> typeDefinitions, int token)
+        private static void GetCyclomaticComplexityForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, ref int complexity)
         {
-            var ret = 0;
             foreach (var typeDefinition in typeDefinitions)
             {
                 foreach (var methodDefinition in
@@ -306,13 +283,11 @@ namespace OpenCover.Framework.Symbols
                     .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
                     .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
                 {
-                    return Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
+                    complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
                 }
-                if (typeDefinition.HasNestedTypes) ret = GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token);
-                if (ret != 0) 
-                    return ret;
+                if (typeDefinition.HasNestedTypes) 
+                    GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token, ref complexity);
             }
-            return 0;
         }
     }
 }

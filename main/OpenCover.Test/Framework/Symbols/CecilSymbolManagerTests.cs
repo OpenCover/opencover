@@ -68,25 +68,6 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void GetConstructorsForType_Returns_AllDeclared_ForType()
-        {
-            // arrange
-            _mockFilter
-                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(true);
-
-            var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
-
-
-            // act
-            var ctors = _reader.GetConstructorsForType(type, new File[0]);
-
-            // assert
-            Assert.IsNotNull(ctors);
-        }
-
-        [Test]
         public void GetMethodsForType_Returns_AllDeclared_ForType()
         {
             // arrange
@@ -122,46 +103,6 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
 
             Assert.IsNotNull(points);
-        }
-
-        [Test]
-        public void GetSequencePointsForConstructorToken()
-        {
-            // arrange
-            _mockFilter
-                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(true);
-
-            var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
-            var ctors = _reader.GetConstructorsForType(type, new File[0]);
-
-            // act
-            var points = _reader.GetSequencePointsForToken(ctors[0].MetadataToken);
-
-            // assert
-            Assert.IsNotNull(points);
-
-        }
-
-        [Test]
-        public void GetBranchPointsForConstructorToken_NoBranches()
-        {
-            // arrange
-            _mockFilter
-                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(true);
-
-            var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
-            var ctors = _reader.GetConstructorsForType(type, new File[0]);
-
-            // act
-            var points = _reader.GetBranchPointsForToken(ctors[0].MetadataToken);
-
-            // assert
-            Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
         }
 
         [Test]
@@ -299,7 +240,7 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void GetSequencePointsFor_AbstractPropertyGetter()
+        public void AbstractPropertyGetters_AreNotReturned()
         {
             // arrange
             _mockFilter
@@ -308,15 +249,48 @@ namespace OpenCover.Test.Framework.Symbols
 
             var types = _reader.GetInstrumentableTypes();
             var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
-            var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // assert
-            Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, methods.Count(x=>x.IsGetter));
+        }
 
+        [Test]
+        public void AbstractPropertySetters_AreNotReturned()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+
+            // act
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // assert
+            Assert.AreEqual(0, methods.Count(x => x.IsSetter));
+        }
+
+        [Test]
+        public void AbstractMethods_AreNotReturned()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+
+            // act
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // assert
+            Assert.AreEqual(0, methods.Count(x => !x.IsGetter && !x.IsSetter && !x.IsConstructor));
         }
 
         [Test]
@@ -332,11 +306,15 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetSequencePointsForToken(methods[0].MetadataToken);
+            var points = _reader.GetSequencePointsForToken(methods.First(x => x.IsGetter).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
+#if DEBUG
             Assert.AreEqual(3, points.Count());
+#else
+            Assert.AreEqual(1, points.Count());
+#endif
 
         }
     }

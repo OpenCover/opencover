@@ -33,5 +33,17 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("branchCoverage")]
         public int BranchCoverage { get; set; }
 
+        [XmlAttribute("isConstructor")]
+        public bool IsConstructor { get; set; }
+
+        [XmlAttribute("isStatic")]
+        public bool IsStatic { get; set; }
+
+        [XmlAttribute("isGetter")]
+        public bool IsGetter { get; set; }
+        
+        [XmlAttribute("isSetter")]
+        public bool IsSetter { get; set; }
+
     }
 }

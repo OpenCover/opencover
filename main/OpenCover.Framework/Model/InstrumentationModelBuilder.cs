@@ -69,10 +69,7 @@ namespace OpenCover.Framework.Model
 
         private void BuildClassModel(Class @class, File[] files)
         {
-            var methods = _symbolManager
-                .GetConstructorsForType(@class, files)
-                .Union(_symbolManager.GetMethodsForType(@class, files))
-                .ToArray();
+            var methods = _symbolManager.GetMethodsForType(@class, files);
 
             foreach (var method in methods)
             {

@@ -58,11 +58,20 @@ namespace OpenCover.Test.Samples
 
     public abstract class AbstractBase
     {
-        public abstract string Name { get; }
+        public abstract string Name { get; set; }
+        public abstract void Method();
     }
 
     public class Concrete : AbstractBase
     {
-        public override string Name { get { return "Me!"; } }
+        public override string Name
+        {
+            get { return "Me!"; }
+            set { }
+        }
+        public override void Method()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
