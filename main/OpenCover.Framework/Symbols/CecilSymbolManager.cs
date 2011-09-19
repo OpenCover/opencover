@@ -50,6 +50,29 @@ namespace OpenCover.Framework.Symbols
             _moduleName = moduleName;
         }
 
+        private string FindSymbolsFolder()
+        {
+            var fileName = Path.GetFileNameWithoutExtension(_modulePath);
+            var origFolder = Path.GetDirectoryName(_modulePath);
+            
+            return FindSymbolsFolder(fileName, origFolder) ?? FindSymbolsFolder(fileName, _commandLine.TargetDir) ?? FindSymbolsFolder(fileName, Environment.CurrentDirectory);
+        }
+
+        private static string FindSymbolsFolder(string fileName, string targetfolder)
+        {
+            if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
+            {
+                if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".pdb")))
+                {
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".exe")))
+                        return targetfolder;
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".dll")))
+                        return targetfolder;
+                }
+            }
+            return null;
+        }
+
         public AssemblyDefinition SourceAssembly
         {
             get
@@ -58,25 +81,20 @@ namespace OpenCover.Framework.Symbols
                 {
                     try
                     {
-                        var resolver = new DefaultAssemblyResolver();
-                        if (string.IsNullOrEmpty(Path.GetDirectoryName(_modulePath)) == false)
-                            resolver.AddSearchDirectory(Path.GetDirectoryName(_modulePath));
-                        if (!string.IsNullOrEmpty(_commandLine.TargetDir))
-                            resolver.AddSearchDirectory(_commandLine.TargetDir);
-                        resolver.AddSearchDirectory(Environment.CurrentDirectory);
+                        var folder = FindSymbolsFolder();
+                        folder = folder ?? Environment.CurrentDirectory;
 
                         var parameters = new ReaderParameters
                         {
                             SymbolReaderProvider = new PdbReaderProvider(),
                             ReadingMode = ReadingMode.Immediate,
-                            AssemblyResolver = resolver,
                         };
-                        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.GetFileName(_modulePath), parameters);
+                        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, Path.GetFileName(_modulePath)), parameters);
 
                         if (_sourceAssembly != null) 
                             _sourceAssembly.MainModule.ReadSymbols();
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
