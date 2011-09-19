@@ -55,36 +55,6 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
-        public void BuildModuleModel_Gets_ConstructorMethods_From_SymbolReader()
-        {
-            // arrange
-            var @class = new Class();
-            var @method = new Method();
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
-                .Returns(new[] { @class });
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetConstructorsForType(@class, It.IsAny<File[]>()))
-                .Returns(new [] {@method});
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetSequencePointsForToken(It.IsAny<int>()))
-                .Returns(new[] {new SequencePoint()});
-
-            Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
-                .Returns(true);
-
-            // act
-            var module = Instance.BuildModuleModel();
-
-            // assert
-            Assert.AreEqual(1, module.Classes[0].Methods.GetLength(0));
-            Assert.AreSame(@method, module.Classes[0].Methods[0]);
-        }
-
-        [Test]
         public void BuildModuleModel_Gets_DeclaredMethods_From_SymbolReader()
         {
             // arrange

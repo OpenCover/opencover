@@ -132,5 +132,29 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(string.Empty, parser.GetArgumentValue("arg2"));
 
         }
+
+        [Test]
+        public void GetArgumentValue_ReturnsEmpty_WhenArgumentUnknown()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "" });
+
+            // assert
+            Assert.AreEqual(String.Empty, parser.GetArgumentValue("xxxx"));
+        }
+
+        [Test]
+        public void Constructor_Handles_DudArgument()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[]{"-"});
+
+            // assert
+            
+        }
     }
 }

@@ -16,6 +16,10 @@ namespace OpenCover.Framework
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
     {
+        /// <summary>
+        /// Constructs the parser
+        /// </summary>
+        /// <param name="arguments">An array of command line arguments</param>
         public CommandLineParser(string[] arguments)
             : base(arguments)
         {
@@ -23,6 +27,10 @@ namespace OpenCover.Framework
             Filters = new List<string>();
         }
 
+        /// <summary>
+        /// Get the usage string 
+        /// </summary>
+        /// <returns>The usage string</returns>
         public string Usage()
         {
             var builder = new StringBuilder();
@@ -36,9 +44,12 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
-            builder.AppendLine("    [-returntargetcode]");
+            builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
+            builder.AppendLine("");
+            builder.AppendLine("For further information on the command line please visit the wiki");
+            builder.AppendLine("    https://github.com/sawilde/opencover/wiki/Usage");
             builder.AppendLine("");
             builder.AppendLine("Filters:");
             builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
@@ -53,11 +64,15 @@ namespace OpenCover.Framework
             return builder.ToString();
         }
 
+        /// <summary>
+        /// Extract the arguments and validate them; also validate the supplied options when simple
+        /// </summary>
         public void ExtractAndValidateArguments()
         {
-            foreach (string key in ParsedArguments.Keys)
+            foreach (var key in ParsedArguments.Keys)
             {
-                switch(key.ToLowerInvariant())
+                var lower = key.ToLowerInvariant();
+                switch(lower)
                 {
                     case "register":
                         Register = true;
@@ -86,6 +101,15 @@ namespace OpenCover.Framework
                         break;
                     case "returntargetcode":
                         ReturnTargetCode = true;
+                        var argument = GetArgumentValue("returntargetcode");
+                        if (argument != string.Empty)
+                        {
+                            int offset;
+                            if (int.TryParse(argument, out offset))
+                                ReturnCodeOffset = offset;
+                            else
+                                throw new InvalidOperationException("The return target code offset must be an integer");
+                        }
                         break;
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
@@ -165,6 +189,11 @@ namespace OpenCover.Framework
         /// A list of filters
         /// </summary>
         public List<string> Filters { get; private set; }
+
+        /// <summary>
+        /// The offset for the return code - this is to help avoid collisions between opencover return codes and the target
+        /// </summary>
+        public int ReturnCodeOffset { get; private set; }
     }
 
 }

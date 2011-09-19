@@ -218,6 +218,31 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.ReturnTargetCode);
+            Assert.AreEqual(0, parser.ReturnCodeOffset);
+        }
+
+        [Test]
+        public void HandlesReturnTargetCodeArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-returntargetcode:100", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.ReturnTargetCode);
+            Assert.AreEqual(100, parser.ReturnCodeOffset);
+        }
+
+        [Test]
+        public void InvalidReturnTargetCodeArgumentValue_ThrowsException()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-returntargetcode:wibble", RequiredArgs });
+
+            // act, assert
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
         }
 
     }
