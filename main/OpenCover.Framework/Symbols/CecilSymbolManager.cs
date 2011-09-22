@@ -52,22 +52,19 @@ namespace OpenCover.Framework.Symbols
 
         private string FindSymbolsFolder()
         {
-            var fileName = Path.GetFileNameWithoutExtension(_modulePath);
             var origFolder = Path.GetDirectoryName(_modulePath);
-            
-            return FindSymbolsFolder(fileName, origFolder) ?? FindSymbolsFolder(fileName, _commandLine.TargetDir) ?? FindSymbolsFolder(fileName, Environment.CurrentDirectory);
+
+            return FindSymbolsFolder(_modulePath, origFolder) ?? FindSymbolsFolder(_modulePath, _commandLine.TargetDir) ?? FindSymbolsFolder(_modulePath, Environment.CurrentDirectory);
         }
 
         private static string FindSymbolsFolder(string fileName, string targetfolder)
         {
             if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
             {
-                if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".pdb")))
+                if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")))
                 {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".exe")))
-                        return targetfolder;
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".dll")))
-                        return targetfolder;
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileName(fileName))))
+                        return targetfolder;   
                 }
             }
             return null;

@@ -18,6 +18,7 @@
 using namespace ATL;
 
 #define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
+#define COM_FAIL_RETURNHR(hr) if (!SUCCEEDED(hr)) return (hr)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
 #define MAGIC_NUMBER  0x9e3779b9
 
@@ -84,13 +85,25 @@ public:
 private:
     std::tr1::unordered_map<std::wstring, bool> m_allowModules;
     std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
-    BOOL m_isV4;
 
     std::tr1::unordered_map<std::pair<std::wstring, ULONG32>, bool> m_jitdMethods;
 
-private:
-    mdSignature GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID); 
+    COR_PRF_RUNTIME_TYPE m_runtimeType;
+    ASSEMBLYMETADATA m_runtimeVersion;
 
+private:
+    mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
+    HRESULT GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    std::tr1::unordered_map<std::wstring, mdToken> m_injectedVisitedMethodDefs;
+
+    HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+
+    HRESULT CreateCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, 
+        mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef& methodDef);
+    HRESULT CreateSafeCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, 
+        mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef criticalMethodDef, mdMethodDef& methodDef);
 public:
     static CCodeCoverage* g_pProfiler;
 
@@ -100,11 +113,11 @@ public:
         
     virtual HRESULT STDMETHODCALLTYPE Shutdown( void);
 
-    virtual HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly( 
+    virtual HRESULT STDMETHODCALLTYPE ModuleAttachedToAssembly( 
         /* [in] */ ModuleID moduleId,
         /* [in] */ AssemblyID assemblyId);
     
-    virtual HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted( 
+    virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock);
 

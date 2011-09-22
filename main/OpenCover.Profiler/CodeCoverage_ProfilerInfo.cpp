@@ -41,8 +41,8 @@ BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken,
     return TRUE;
 }
 
-/// <summary>Get the token for an unmamaged method having a single I4 parameter</summary>
-mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID)
+/// <summary>Get the token for a method having a single I4 parameter</summary>
+mdSignature CCodeCoverage::GetMethodSignatureToken_I4(ModuleID moduleID)
 {
     static COR_SIGNATURE unmanagedCallSignature[] = 
     {
@@ -59,3 +59,71 @@ mdSignature CCodeCoverage::GetUnmanagedMethodSignatureToken_I4(ModuleID moduleID
     COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
     return pmsig;
 }
+
+
+HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+{
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), S_OK);      
+    
+    CComPtr<IMetaDataAssemblyEmit> metaDataAssemblyEmit;
+    COM_FAIL_RETURN(metaDataEmit->QueryInterface(
+        IID_IMetaDataAssemblyEmit, (void**)&metaDataAssemblyEmit), S_OK);
+
+    if (m_profilerInfo3 != NULL) 
+    {
+        if (m_runtimeType == COR_PRF_DESKTOP_CLR)
+            return GetModuleRef4000(metaDataAssemblyEmit, moduleName, mscorlibRef);
+        if (m_runtimeType == COR_PRF_CORE_CLR)
+            return GetModuleRef2050(metaDataAssemblyEmit, moduleName, mscorlibRef);
+    }
+    else
+    {
+        return GetModuleRef2000(metaDataAssemblyEmit, moduleName, mscorlibRef);
+    }
+}
+
+HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+{
+    ASSEMBLYMETADATA assembly;
+    ZeroMemory(&assembly, sizeof(assembly));
+    assembly.usMajorVersion = 4;
+    assembly.usMinorVersion = 0;
+    assembly.usBuildNumber = 0; 
+    assembly.usRevisionNumber = 0;
+    BYTE publicKey[] = { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 };
+    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
+        &mscorlibRef), S_OK);
+}
+
+HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+{
+    ASSEMBLYMETADATA assembly;
+    ZeroMemory(&assembly, sizeof(assembly));
+    assembly.usMajorVersion = 2;
+    assembly.usMinorVersion = 0;
+    assembly.usBuildNumber = 0; 
+    assembly.usRevisionNumber = 0;
+    BYTE publicKey[] = { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 };
+    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
+        &mscorlibRef), S_OK);
+}
+
+HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+{
+    ASSEMBLYMETADATA assembly;
+    ZeroMemory(&assembly, sizeof(assembly));
+    assembly.usMajorVersion = 2;
+    assembly.usMinorVersion = 0;
+    assembly.usBuildNumber = 5; 
+    assembly.usRevisionNumber = 0;
+
+    BYTE publicKey[] = { 0x7C, 0xEC, 0x85, 0xD7, 0xBE, 0xA7, 0x79, 0x8E };
+    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
+        &mscorlibRef), S_OK);
+}
+

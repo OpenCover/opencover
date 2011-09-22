@@ -18,10 +18,10 @@ public:
     ~CoverageInstrumentation(void);
 
 public:
-    void AddBranchCoverage(mdSignature pvsig, FPTR pt, std::vector<BranchPoint> points);
-    void AddSequenceCoverage(mdSignature pvsig, FPTR pt, std::vector<SequencePoint> points);
+    void AddBranchCoverage(mdMethodDef methodDef, std::vector<BranchPoint> points);
+    void AddSequenceCoverage(mdMethodDef methodDef, std::vector<SequencePoint> points);
 
 private:
-    Instruction* CreateInstrumentationBlock(InstructionList &instructions, mdSignature pvsig, FPTR pt, ULONGLONG uniqueId);
+    Instruction* CreateInstrumentationBlock(InstructionList &instructions,mdMethodDef methodDef, ULONGLONG uniqueId);
 };
 
