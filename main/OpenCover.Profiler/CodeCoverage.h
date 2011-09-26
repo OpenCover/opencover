@@ -46,6 +46,8 @@ class ATL_NO_VTABLE CCodeCoverage :
 public:
     CCodeCoverage() 
     {
+        m_addedCriticalCuckoo = false;
+        m_addedSafeCuckoo = false;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -76,8 +78,9 @@ public:
     CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
 
     std::wstring GetModulePath(ModuleID moduleId);
+    std::wstring GetModulePath(ModuleID moduleId, AssemblyID *pAssemblyId);
     std::wstring GetAssemblyName(AssemblyID assemblyId);
-    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath);
+    BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath, AssemblyID *pAssemblyId);
 
 public:
     ProfilerCommunication m_host;
@@ -85,7 +88,6 @@ public:
 private:
     std::tr1::unordered_map<std::wstring, bool> m_allowModules;
     std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
-
     std::tr1::unordered_map<std::pair<std::wstring, ULONG32>, bool> m_jitdMethods;
 
     COR_PRF_RUNTIME_TYPE m_runtimeType;
@@ -94,16 +96,20 @@ private:
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
     HRESULT GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef);
-    std::tr1::unordered_map<std::wstring, mdToken> m_injectedVisitedMethodDefs;
 
     HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
     HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
     HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
 
-    HRESULT CreateCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, 
-        mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef& methodDef);
-    HRESULT CreateSafeCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, 
-        mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef criticalMethodDef, mdMethodDef& methodDef);
+private:
+    std::tr1::unordered_map<std::wstring, mdToken> m_injectedVisitedMethodDefs;
+    mdMethodDef m_cuckooSafeToken;
+    mdMethodDef m_cuckooCriticalToken;
+    bool m_addedSafeCuckoo;
+    bool m_addedCriticalCuckoo;
+    HRESULT AddCriticalCuckooBody(ModuleID moduleId);
+    HRESULT AddSafeCuckooBody(ModuleID moduleId);
+
 public:
     static CCodeCoverage* g_pProfiler;
 
@@ -117,6 +123,10 @@ public:
         /* [in] */ ModuleID moduleId,
         /* [in] */ AssemblyID assemblyId);
     
+     virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished( 
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ HRESULT hrStatus);
+
     virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock);

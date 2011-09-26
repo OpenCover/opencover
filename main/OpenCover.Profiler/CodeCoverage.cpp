@@ -11,6 +11,11 @@
 #include "CoverageInstrumentation.h"
 #include "dllmain.h"
 
+#define CUCKOO_SAFE_METHOD_NAME L"SafeVisited"
+#define CUCKOO_CRITICAL_METHOD_NAME L"VisitedCritical"
+#define CUCKOO_NEST_TYPE_NAME L"System.CannotUnloadAppDomainException"
+#define MSCORLIB_NAME L"mscorlib"
+
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
 
@@ -67,8 +72,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	    // Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
     dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
     dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
-    //if (m_runtimeVersion.usMajorVersion != 0 && m_runtimeType == COR_PRF_DESKTOP_CLR) 
-    //    dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST; 
+    dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Don't use NGen images
 
     m_profilerInfo2->SetEventMask(dwMask);
 
@@ -111,97 +115,66 @@ static COR_SIGNATURE ctorCallSignature[] =
     ELEMENT_TYPE_VOID
 };
 
-static COR_SIGNATURE cctorCallSignature[] = 
+HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished( 
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ HRESULT hrStatus) 
 {
-    IMAGE_CEE_CS_CALLCONV_DEFAULT,   
-    0x00,                                   
-    ELEMENT_TYPE_VOID
-};
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), S_OK);
+    if (metaDataEmit==NULL) return S_OK;
 
-HRESULT CCodeCoverage::CreateCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef& methodDef)
-{
-    COM_FAIL_RETURNHR(metaDataEmit->DefineMethod(typeDef, L"VisitedCritical",
-        mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
-        0, miIL | miManaged | miPreserveSig, &methodDef));
+    CComPtr<IMetaDataImport> metaDataImport;
+    COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataImport, (IUnknown**)&metaDataImport), S_OK);
+    if (metaDataImport==NULL) return S_OK;
 
-    // our profiler hook
-    BYTE data[] = {(0x01 << 2) | CorILMethod_TinyFormat, CEE_RET};
-    mdSignature pvsig = GetMethodSignatureToken_I4(moduleId);
-    void (__fastcall *pt)(ULONG) = &InstrumentPointVisit ;
-    //ATLTRACE(_T("====> %X"), pt);
-
-    Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
-    InstructionList instructions;
-    instructions.push_back(new Instruction(CEE_LDARG_0));
-    #if _WIN64
-    instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
-    #else
-    instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
-    #endif
-    instructions.push_back(new Instruction(CEE_CALLI, pvsig));
-
-    criticalMethod.InsertInstructionsAtOffset(0, instructions);
-    criticalMethod.DumpIL();
-
-    CComPtr<IMethodMalloc> methodMalloc;
-    COM_FAIL_RETURNHR(m_profilerInfo3->GetILFunctionBodyAllocator(moduleId, &methodMalloc));
-
-    void* pMethodBody = methodMalloc->Alloc(criticalMethod.GetMethodSize());
-    criticalMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
-
-    COM_FAIL_RETURNHR(m_profilerInfo3->SetILFunctionBody(moduleId, 
-        methodDef, (LPCBYTE)pMethodBody), S_OK);
-
-    if (m_profilerInfo3 != NULL) 
+    mdTypeDef systemObject = mdTokenNil;
+    if (S_OK == metaDataImport->FindTypeDefByName(L"System.Object", mdTokenNil, &systemObject))
     {
-        mdTypeDef criticalAttributeTypeDef;
-        COM_FAIL_RETURNHR(metaDataEmit->DefineTypeRefByName(mscorlibRef, 
-            L"System.Security.SecurityCriticalAttribute", &criticalAttributeTypeDef)); 
+        mdMethodDef systemObjectCtor;
+        COM_FAIL_RETURN(metaDataImport->FindMethod(systemObject, L".ctor", 
+            ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor), S_OK);
 
-        mdToken criticalAttributeCtor;
-        COM_FAIL_RETURNHR(metaDataEmit->DefineMemberRef(criticalAttributeTypeDef, 
-            L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &criticalAttributeCtor));
+        ULONG ulCodeRVA = 0;
+        COM_FAIL_RETURN(metaDataImport->GetMethodProps(systemObjectCtor, NULL, NULL, 
+            0, NULL, NULL, NULL, NULL, &ulCodeRVA, NULL), S_OK);
 
-        COM_FAIL_RETURNHR(metaDataEmit->DefineCustomAttribute(methodDef, criticalAttributeCtor, NULL, 0, NULL));
-    }
-    return S_OK;
-}
+        HRESULT hr;
+        mdCustomAttribute customAttr;
+        mdToken attributeCtor;
+        mdTypeDef attributeTypeDef;
+        mdTypeDef nestToken;
 
-HRESULT CCodeCoverage::CreateSafeCriticalMethod(IMetaDataEmit *metaDataEmit, ModuleID moduleId, 
-    mdModuleRef mscorlibRef, mdTypeDef typeDef, mdMethodDef criticalMethodDef, mdMethodDef& methodDef)
-{
-    COM_FAIL_RETURNHR(metaDataEmit->DefineMethod(typeDef, L"Visited",
-        mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
-        0, miIL | miManaged | miPreserveSig, &methodDef));
+        COM_FAIL_RETURN(metaDataImport->FindTypeDefByName(CUCKOO_NEST_TYPE_NAME, mdTokenNil, &nestToken), S_OK);
 
-    BYTE data[] = {(0x01 << 2) | CorILMethod_TinyFormat, CEE_RET};
-    Method visitedMethod((IMAGE_COR_ILMETHOD*)data);
-    InstructionList instructions;
-    instructions.push_back(new Instruction(CEE_LDARG_0));
-    instructions.push_back(new Instruction(CEE_CALL, criticalMethodDef));
-    visitedMethod.InsertInstructionsAtOffset(0, instructions);
-    visitedMethod.DumpIL();
+        // create a method that we will mark up with the SecurityCriticalAttribute
+        COM_FAIL_RETURN(metaDataEmit->DefineMethod(nestToken, CUCKOO_CRITICAL_METHOD_NAME,
+            mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
+            ulCodeRVA, miIL | miManaged | miPreserveSig | miNoInlining, &m_cuckooCriticalToken), S_OK);
 
-    CComPtr<IMethodMalloc> methodMalloc;
-    COM_FAIL_RETURNHR(m_profilerInfo3->GetILFunctionBodyAllocator(moduleId, &methodMalloc));
+        COM_FAIL_RETURN(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalAttribute",
+            NULL, &attributeTypeDef), S_OK); 
 
-    void* pMethodBody = methodMalloc->Alloc(visitedMethod.GetMethodSize());
-    visitedMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
+        COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
+            L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), S_OK);
 
-    COM_FAIL_RETURNHR(m_profilerInfo3->SetILFunctionBody(moduleId, methodDef, (LPCBYTE)pMethodBody));
+        hr = metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, NULL, 0, &customAttr);
+        ATLTRACE(_T("hr = 0x%X"), hr);
 
-    if (m_profilerInfo3 != NULL) 
-    {
-        // get attributes
-        mdTypeDef safeAttributeTypeDef;
-        COM_FAIL_RETURNHR(metaDataEmit->DefineTypeRefByName(mscorlibRef,
-            L"System.Security.SecuritySafeCriticalAttribute", &safeAttributeTypeDef)); 
-        
-        mdToken safeAttributeCtor;
-        COM_FAIL_RETURNHR(metaDataEmit->DefineMemberRef(safeAttributeTypeDef, 
-            L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &safeAttributeCtor));
+        // create a method that we will mark up with the SecuritySafeCriticalAttribute
+        COM_FAIL_RETURN(metaDataEmit->DefineMethod(nestToken, CUCKOO_SAFE_METHOD_NAME,
+            mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
+            ulCodeRVA, miIL | miManaged | miPreserveSig | miNoInlining, &m_cuckooSafeToken), S_OK);
 
-        COM_FAIL_RETURNHR(metaDataEmit->DefineCustomAttribute(methodDef, safeAttributeCtor, NULL, 0, NULL));
+        COM_FAIL_RETURN(metaDataImport->FindTypeDefByName(L"System.Security.SecuritySafeCriticalAttribute",
+            NULL, &attributeTypeDef), S_OK); 
+
+        COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
+            L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), S_OK);
+
+        hr = metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr);
+        ATLTRACE(_T("hr = 0x%X"), hr);
     }
 }
 
@@ -222,34 +195,90 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 
     if (m_allowModules[modulePath])
     {
+        // for modules we are going to instrument add our reference to the method marked 
+        // with the SecuritySafeCriticalAttribute
         CComPtr<IMetaDataEmit> metaDataEmit;
         COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(moduleId, 
             ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), S_OK);
-            
+        if (metaDataEmit == NULL) return S_OK;
+
         mdModuleRef mscorlibRef;
-        COM_FAIL_RETURN(GetModuleRef(moduleId, L"mscorlib", mscorlibRef), S_OK); 
+        COM_FAIL_RETURN(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef), S_OK); 
 
-        // define type
-        mdTypeDef systemObject;
-        COM_FAIL_RETURN(metaDataEmit->DefineTypeRefByName(mscorlibRef, 
-            L"System.Object", &systemObject), S_OK);
+        mdTypeDef nestToken;
+        COM_FAIL_RETURN(metaDataEmit->DefineTypeRefByName(mscorlibRef, CUCKOO_NEST_TYPE_NAME, &nestToken), S_OK);
 
-        mdToken implementsNone[] = { mdTokenNil };
-        mdTypeDef injectedType;
-        COM_FAIL_RETURN(metaDataEmit->DefineTypeDef(L"Injected", 
-            tdPublic | tdAutoClass | tdAnsiClass | tdAbstract | tdSealed | tdBeforeFieldInit, systemObject, NULL, &injectedType), S_OK);
+        mdMemberRef cuckooSafeToken;
+        COM_FAIL_RETURN(metaDataEmit->DefineMemberRef(nestToken, CUCKOO_SAFE_METHOD_NAME,  
+            visitedMethodCallSignature, sizeof(visitedMethodCallSignature), &cuckooSafeToken) , S_OK);
 
-        mdMethodDef injectedCriticalMethod;
-        COM_FAIL_RETURN(CreateCriticalMethod(metaDataEmit, moduleId, mscorlibRef, injectedType, injectedCriticalMethod), S_OK); 
-
-        mdMethodDef injectedVisitedMethod;
-        COM_FAIL_RETURN(CreateSafeCriticalMethod(metaDataEmit, moduleId, mscorlibRef, injectedType, 
-            injectedCriticalMethod, injectedVisitedMethod), S_OK); 
-
-        m_injectedVisitedMethodDefs[modulePath] = injectedVisitedMethod;
+        m_injectedVisitedMethodDefs[modulePath] = cuckooSafeToken;
     }
 
     return S_OK; 
+}
+
+/// <summary>This is the method marked with the SecurityCriticalAttribute</summary>
+/// <remarks>This method makes the call into the profiler</remarks>
+HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
+{
+    // our profiler hook
+    mdSignature pvsig = GetMethodSignatureToken_I4(moduleId);
+    void (__fastcall *pt)(ULONG) = &InstrumentPointVisit ;
+
+    BYTE data[] = {(0x01 << 2) | CorILMethod_TinyFormat, CEE_RET};
+    Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
+    InstructionList instructions;
+    instructions.push_back(new Instruction(CEE_LDARG_0));
+#if _WIN64
+    instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
+#else
+    instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
+#endif
+    instructions.push_back(new Instruction(CEE_CALLI, pvsig));
+
+    criticalMethod.InsertInstructionsAtOffset(0, instructions);
+    criticalMethod.DumpIL();
+
+    CComPtr<IMethodMalloc> methodMalloc;
+    COM_FAIL_RETURNHR(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc));
+
+    void* pMethodBody = methodMalloc->Alloc(criticalMethod.GetMethodSize());
+    criticalMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
+
+    COM_FAIL_RETURN(m_profilerInfo->SetILFunctionBody(moduleId, 
+        m_cuckooCriticalToken, (LPCBYTE)pMethodBody), S_OK);
+
+    m_addedCriticalCuckoo = true;
+
+    return S_OK;
+}
+
+/// <summary>This is the body of our method marked with the SecuritySafeCriticalAttribute</summary>
+/// <remarks>Calls the method that is marked with the SecurityCriticalAttribute</remarks>
+HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
+{
+    BYTE data[] = {(0x01 << 2) | CorILMethod_TinyFormat, CEE_RET};
+    Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
+    InstructionList instructions;
+    instructions.push_back(new Instruction(CEE_LDARG_0));
+    instructions.push_back(new Instruction(CEE_CALL, m_cuckooCriticalToken));
+
+    criticalMethod.InsertInstructionsAtOffset(0, instructions);
+    criticalMethod.DumpIL();
+
+    CComPtr<IMethodMalloc> methodMalloc;
+    COM_FAIL_RETURN(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc), S_OK);
+
+    void* pMethodBody = methodMalloc->Alloc(criticalMethod.GetMethodSize());
+    criticalMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
+
+    COM_FAIL_RETURN(m_profilerInfo->SetILFunctionBody(moduleId, 
+        m_cuckooSafeToken, (LPCBYTE)pMethodBody), S_OK);
+
+    m_addedSafeCuckoo = true;
+
+    return S_OK;
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -261,13 +290,28 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     std::wstring modulePath;
     mdToken functionToken;
     ModuleID moduleId;
+    AssemblyID assemblyId;
 
-    if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath))
+    if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
-        if (!m_allowModules[modulePath]) return S_OK;
+        // add the bodies for our cuckoo methods when required
+        if (!(m_addedCriticalCuckoo && m_addedSafeCuckoo))
+        {
+            if (MSCORLIB_NAME == GetAssemblyName(assemblyId))
+            {
+                if (m_cuckooCriticalToken == functionToken)
+                {
+                    COM_FAIL_RETURN(AddCriticalCuckooBody(moduleId), S_OK);
+                }
 
-        //void (__fastcall *pt)(ULONG) = &InstrumentPointVisit ;
-        //ATLTRACE(_T("====> %X"), pt);
+                if (m_cuckooSafeToken == functionToken)
+                {
+                    COM_FAIL_RETURN(AddSafeCuckooBody(moduleId), S_OK);
+                }
+            }
+        }
+
+        if (!m_allowModules[modulePath]) return S_OK;
 
         std::pair<std::wstring, ULONG32> key(modulePath, functionToken);
         if (m_jitdMethods[key]) return S_OK;
