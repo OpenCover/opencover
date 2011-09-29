@@ -295,7 +295,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
         // add the bodies for our cuckoo methods when required
-        if (!(m_addedCriticalCuckoo && m_addedSafeCuckoo))
+        if (!(m_addedCriticalCuckoo && m_addedSafeCuckoo) && m_watchForCuckoos)
         {
             if (MSCORLIB_NAME == GetAssemblyName(assemblyId))
             {
@@ -328,6 +328,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             (LPWSTR)m_allowModulesAssemblyMap[modulePath].c_str(), seqPoints, brPoints))
         {
             if (seqPoints.size()==0) return S_OK;
+            m_watchForCuckoos = true;
+
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
             m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize);

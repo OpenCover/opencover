@@ -48,6 +48,7 @@ public:
     {
         m_addedCriticalCuckoo = false;
         m_addedSafeCuckoo = false;
+        m_watchForCuckoos = false;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -109,6 +110,7 @@ private:
     bool m_addedCriticalCuckoo;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
+    bool m_watchForCuckoos;
 
 public:
     static CCodeCoverage* g_pProfiler;
