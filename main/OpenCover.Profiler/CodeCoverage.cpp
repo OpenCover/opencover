@@ -140,7 +140,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         COM_FAIL_RETURN(metaDataImport->GetMethodProps(systemObjectCtor, NULL, NULL, 
             0, NULL, NULL, NULL, NULL, &ulCodeRVA, NULL), S_OK);
 
-        HRESULT hr;
         mdCustomAttribute customAttr;
         mdToken attributeCtor;
         mdTypeDef attributeTypeDef;
@@ -156,11 +155,40 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         COM_FAIL_RETURN(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalAttribute",
             NULL, &attributeTypeDef), S_OK); 
 
-        COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
-            L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), S_OK);
+        if (m_runtimeType == COR_PRF_DESKTOP_CLR)
+        {
+            // for desktop we use the .ctor that takes a SecurityCriticalScope argument as the 
+            // default (no arguments) constructor fails with "0x801311C2 - known custom attribute value is bad" 
+            // when we try to attach it in .NET2 - .NET4 version doesn't care which one we use
+            mdTypeDef scopeToken;
+            COM_FAIL_RETURN(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalScope", mdTokenNil, &scopeToken), S_OK);
 
-        hr = metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, NULL, 0, &customAttr);
-        ATLTRACE(_T("hr = 0x%X"), hr);
+            ULONG sigLength=4;
+            COR_SIGNATURE ctorCallSignatureEnum[] = 
+            {
+                IMAGE_CEE_CS_CALLCONV_DEFAULT | IMAGE_CEE_CS_CALLCONV_HASTHIS,   
+                0x01,                                   
+                ELEMENT_TYPE_VOID,
+                ELEMENT_TYPE_VALUETYPE,
+                0x00,0x00, 0x00, 0x00 // make room for our compressed token - should always be 2 but...
+            };
+
+            sigLength += CorSigCompressToken(scopeToken, &ctorCallSignatureEnum[4]);
+
+            COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
+                L".ctor", ctorCallSignatureEnum, sigLength, &attributeCtor), S_OK);
+        
+            unsigned char blob[] = {0x01, 0x00, 0x01, 0x00, 0x00, 0x00}; // prolog U2 plus an enum of I4 (little-endian)
+            COM_FAIL_RETURN(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, blob, sizeof(blob), &customAttr), S_OK);
+        }
+        else
+        {
+            // silverlight only has one .ctor for this type
+            COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
+                L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), S_OK);
+        
+            COM_FAIL_RETURN(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, NULL, 0, &customAttr), S_OK);
+        }
 
         // create a method that we will mark up with the SecuritySafeCriticalAttribute
         COM_FAIL_RETURN(metaDataEmit->DefineMethod(nestToken, CUCKOO_SAFE_METHOD_NAME,
@@ -173,8 +201,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         COM_FAIL_RETURN(metaDataImport->FindMember(attributeTypeDef, 
             L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), S_OK);
 
-        hr = metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr);
-        ATLTRACE(_T("hr = 0x%X"), hr);
+        COM_FAIL_RETURN(metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr), S_OK);
+        
+        ATLTRACE(_T("Added methods to mscorlib"));
     }
 }
 

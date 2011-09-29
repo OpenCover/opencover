@@ -49,6 +49,7 @@ public:
         m_addedCriticalCuckoo = false;
         m_addedSafeCuckoo = false;
         m_watchForCuckoos = false;
+        m_runtimeType = COR_PRF_DESKTOP_CLR;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
