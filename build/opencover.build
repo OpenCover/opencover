@@ -39,7 +39,12 @@
     </target>
     
     <target name="build" description="Build all targets.">
-        <call target="build.opencover"/>
+        <property name="configuration" value="debug" />
+        <property name="platform" value="x64" />
+        <call target="build.opencover" />
+        <property name="configuration" value="debug" />
+        <property name="platform" value="x86" />
+        <call target="build.opencover" />
     </target>
 
     <target name="build-all-platforms" description="Build all flavours i.e. all configurations and all platforms">
