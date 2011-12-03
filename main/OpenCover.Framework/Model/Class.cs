@@ -20,5 +20,6 @@ namespace OpenCover.Framework.Model
         [XmlIgnore]
         public File[] Files { get; set; }
         public Method[] Methods { get; set; }
+        public bool Excluded { get; set; }
     }
 }

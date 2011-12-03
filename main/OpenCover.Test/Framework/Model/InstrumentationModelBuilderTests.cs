@@ -39,7 +39,7 @@ namespace OpenCover.Test.Framework.Model
             // arrange
             var @class = new Class();
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
+                .Setup(x => x.GetInstrumentableTypes(null))
                 .Returns(new[] {@class});
 
             Container.GetMock<IFilter>()
@@ -61,11 +61,11 @@ namespace OpenCover.Test.Framework.Model
             var @class = new Class();
             var @method = new Method();
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
+                .Setup(x => x.GetInstrumentableTypes(null))
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>(), null))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()
@@ -92,11 +92,11 @@ namespace OpenCover.Test.Framework.Model
             var @method = new Method(){MetadataToken = 101};
             var @seqPoint = new SequencePoint();
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
+                .Setup(x => x.GetInstrumentableTypes(null))
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>(), null))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()
@@ -122,11 +122,11 @@ namespace OpenCover.Test.Framework.Model
             var @class = new Class();
             var @method = new Method() { MetadataToken = 101 };
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
+                .Setup(x => x.GetInstrumentableTypes(null))
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>(), null))
                 .Returns(new[] { @method });
 
             Container.GetMock<ISymbolManager>()

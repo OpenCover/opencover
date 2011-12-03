@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
@@ -112,28 +113,36 @@ namespace OpenCover.Framework.Symbols
         public File[] GetFiles()
         {
             var list = new List<File>();
-            foreach (var instrumentableType in GetInstrumentableTypes())
+            foreach (var instrumentableType in GetInstrumentableTypes(null))
             {
                 list.AddRange(instrumentableType.Files);
             }
             return list.Distinct(new FileEqualityComparer()).Select(file => file).ToArray();
         }
 
-        public Class[] GetInstrumentableTypes()
+        public Class[] GetInstrumentableTypes(string[] excludeAttributes)
         {
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetInstrumentableTypes(typeDefinitions, classes);
+            GetInstrumentableTypes(typeDefinitions, classes, excludeAttributes);
             return classes.Where(c => _filter.InstrumentClass(_moduleName, c.FullName)).ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, string[] excludeAttributes)
         {
+            var excluded = new List<Lazy<Regex>>();
+            if (excludeAttributes!=null)
+            {
+                excluded.AddRange(excludeAttributes.Select(excludeAttribute => 
+                    new Lazy<Regex>(() => new Regex(excludeAttribute.ValidateAndEscape().WrapWithAnchors()))));
+            }
+
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
                 if (typeDefinition.IsValueType) continue;  
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
+                if (ExcludeByAttribute(typeDefinition, excluded)) continue;
                 var @class = new Class() {FullName = typeDefinition.FullName};
                 var list = new List<string>();
                 foreach (var methodDefinition in typeDefinition.Methods)
@@ -152,15 +161,24 @@ namespace OpenCover.Framework.Symbols
                 }
                 @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
                 classes.Add(@class);
-                if (typeDefinition.HasNestedTypes) GetInstrumentableTypes(typeDefinition.NestedTypes, classes); 
+                if (typeDefinition.HasNestedTypes) 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, excludeAttributes); 
             }
         }
 
-        public Method[] GetMethodsForType(Class type, File[] files)
+        private static bool ExcludeByAttribute(ICustomAttributeProvider fullName, ICollection<Lazy<Regex>> excludeAttributes)
+        {
+            if (excludeAttributes.Count == 0 || !fullName.HasCustomAttributes) return false;
+            return excludeAttributes.Any(excludeAttribute => 
+                fullName.CustomAttributes.Any(customAttribute => 
+                    excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success));
+        }
+
+        public Method[] GetMethodsForType(Class type, File[] files, string[] excludeAttributes)
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type, methods, files);
+            GetMethodsForType(typeDefinitions, type, methods, files, excludeAttributes);
             return methods.ToArray();
         }
 
@@ -177,8 +195,15 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
-        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files)
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files, string[] excludeAttributes)
         {
+            var excluded = new List<Lazy<Regex>>();
+            if (excludeAttributes != null)
+            {
+                excluded.AddRange(excludeAttributes.Select(excludeAttribute =>
+                    new Lazy<Regex>(() => new Regex(excludeAttribute.ValidateAndEscape().WrapWithAnchors()))));
+            }
+
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.FullName == type.FullName)
@@ -186,6 +211,7 @@ namespace OpenCover.Framework.Symbols
                     foreach (var methodDefinition in typeDefinition.Methods)
                     {
                         if (methodDefinition.IsAbstract) continue;
+                        if (ExcludeByAttribute(methodDefinition, excluded)) continue;
                         var method = new Method
                                          {
                                              Name = methodDefinition.FullName,
@@ -201,7 +227,8 @@ namespace OpenCover.Framework.Symbols
                         methods.Add(method);
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods, files);
+                if (typeDefinition.HasNestedTypes) 
+                    GetMethodsForType(typeDefinition.NestedTypes, type, methods, files, excludeAttributes);
             }
         }
 

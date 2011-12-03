@@ -44,7 +44,7 @@ namespace OpenCover.Framework.Model
                                  ModuleHash = hash
                              };
             module.Aliases.Add(_symbolManager.ModulePath);
-            module.Classes = _symbolManager.GetInstrumentableTypes();
+            module.Classes = _symbolManager.GetInstrumentableTypes(null);
             foreach (var @class in module.Classes)
             {
                 BuildClassModel(@class, module.Files);
@@ -69,7 +69,7 @@ namespace OpenCover.Framework.Model
 
         private void BuildClassModel(Class @class, File[] files)
         {
-            var methods = _symbolManager.GetMethodsForType(@class, files);
+            var methods = _symbolManager.GetMethodsForType(@class, files, null);
 
             foreach (var method in methods)
             {

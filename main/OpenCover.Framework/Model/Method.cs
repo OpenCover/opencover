@@ -44,6 +44,5 @@ namespace OpenCover.Framework.Model
         
         [XmlAttribute("isSetter")]
         public bool IsSetter { get; set; }
-
     }
 }

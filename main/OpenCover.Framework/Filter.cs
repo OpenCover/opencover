@@ -48,7 +48,15 @@ namespace OpenCover.Framework
     {
         internal static string WrapWithAnchors(this string data)
         {
-            return string.Format("^{0}$", data);
+            return String.Format("^{0}$", data);
+        }
+
+        internal static string ValidateAndEscape(this string match)
+        {
+            if (match.IndexOfAny(@"\[]".ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
+            match = match.Replace(@".", @"\.");
+            match = match.Replace(@"*", @".*");
+            return match;
         }
     }
 
@@ -144,8 +152,8 @@ namespace OpenCover.Framework
             FilterType filterType;
             GetAssemblyClassName(assemblyClassName, out filterType, out assemblyName, out className);
 
-            assemblyName = ValidateAndEscape(assemblyName);
-            className = ValidateAndEscape(className);
+            assemblyName = assemblyName.ValidateAndEscape();
+            className = className.ValidateAndEscape();
 
             if (filterType == FilterType.Inclusion) InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
 
@@ -171,14 +179,6 @@ namespace OpenCover.Framework
             {
                 throw new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
             }
-        }
-
-        private static string ValidateAndEscape(string match)
-        {
-            if (match.IndexOfAny(@"\[]".ToCharArray())>=0) throw new InvalidOperationException(string.Format("The string is invalid for an assembly/class name {0}", match));
-            match = match.Replace(@".", @"\.");
-            match = match.Replace(@"*", @".*");
-            return match;
         }
     }
 }

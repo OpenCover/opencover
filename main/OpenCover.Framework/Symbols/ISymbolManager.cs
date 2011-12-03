@@ -16,9 +16,9 @@ namespace OpenCover.Framework.Symbols
 
         File[] GetFiles();
 
-        Class[] GetInstrumentableTypes();
+        Class[] GetInstrumentableTypes(string[] exludeAttributes);
 
-        Method[] GetMethodsForType(Class type, File[] files);
+        Method[] GetMethodsForType(Class type, File[] files, string[] excludedAttributes);
 
         SequencePoint[] GetSequencePointsForToken(int token);
 
