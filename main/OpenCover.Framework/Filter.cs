@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Mono.Cecil;
 
 namespace OpenCover.Framework
 {
@@ -42,6 +43,19 @@ namespace OpenCover.Framework
         /// <param name="className">the name of the class under profile</param>
         /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
         bool InstrumentClass(string assemblyName, string className);
+
+        /// <summary>
+        /// Add attribute exclusion filters
+        /// </summary>
+        /// <param name="exlusionFilters">An array of filters that are used to wildcard match an attribute</param>
+        void AddAttributeExclusionFilters(string[] exlusionFilters);
+
+        /// <summary>
+        /// Is this entity excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
+        bool ExcludeByAttribute(ICustomAttributeProvider entity);
     }  
 
     internal static class FilterHelper
@@ -83,8 +97,9 @@ namespace OpenCover.Framework
     /// </summary>
     public class Filter : IFilter
     {
-        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set;}
-        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set;}
+        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set; }
+        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set; }
+        internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
 
         /// <summary>
         /// Standard constructor
@@ -93,6 +108,7 @@ namespace OpenCover.Framework
         {
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
+            ExcludedAttributes = new List<Lazy<Regex>>();
         }
         
         public bool UseAssembly(string assemblyName)
@@ -180,5 +196,35 @@ namespace OpenCover.Framework
                 throw new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
             }
         }
+
+        public void AddAttributeExclusionFilters(string[] exlusionFilters)
+        {
+            if (exlusionFilters == null) 
+                return;
+            foreach (var exlusionFilter in exlusionFilters.Where(x => x != null))
+            {
+                var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
+                ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
+            }
+        }
+
+        [ExcludeFromCoverage]
+        public bool ExcludeByAttribute(ICustomAttributeProvider entity)
+        {
+            if (ExcludedAttributes.Count == 0 || !entity.HasCustomAttributes) 
+                return false;
+            foreach (Lazy<Regex> excludeAttribute in ExcludedAttributes)
+            {
+                foreach (CustomAttribute customAttribute in entity.CustomAttributes)
+                {
+                    if (excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success) 
+                        return true;
+                }
+            }
+            return false;
+        }
+
+ 
+
     }
 }

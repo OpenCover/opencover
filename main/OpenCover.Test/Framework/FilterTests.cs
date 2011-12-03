@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mono.Cecil;
+using Mono.Collections.Generic;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 
@@ -168,7 +171,7 @@ namespace OpenCover.Test.Framework
             // result
             Assert.AreEqual(data.ExpectedResult, result, 
                 "Filter: '{0}' Assembly: {1} => Expected: {2}", 
-                string.Join(",", data.Filters, data.Assembly, data.ExpectedResult));
+                string.Join(",", data.Filters), data.Assembly, data.ExpectedResult);
         }
 
         #region Test Data for InstrumentClass tests
@@ -306,7 +309,47 @@ namespace OpenCover.Test.Framework
             // result
             Assert.AreEqual(data.ExpectedResult, result,
                "Filter: '{0}' Assembly: {1} Class: {2} => Expected: {3}", 
-               string.Join(",", data.Filters, data.Assembly, data.Class, data.ExpectedResult));
+               string.Join(",", data.Filters), data.Assembly, data.Class, data.ExpectedResult);
         }
+
+        [Test]
+        public void AddAttributeExclusionFilters_HandlesNull()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(null);
+
+            Assert.AreEqual(0, filter.ExcludedAttributes.Count);
+        }
+
+        [Test]
+        public void AddAttributeExclusionFilters_Handles_Null_Elements()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(new []{ null, "" });
+
+            Assert.AreEqual(1, filter.ExcludedAttributes.Count);
+        }
+
+        [Test]
+        public void AddAttributeExclusionFilters_Escapes_Elements_And_Matches()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(new[] { ".*" });
+
+            Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".*").Success);
+        }
+
+        [Test]
+        public void Entity_Is_Not_Excluded_If_No_Filters_Set()
+        {
+            var filter = new Filter();
+            var entity = new Mock<ICustomAttributeProvider>();
+
+            Assert.IsFalse(filter.ExcludeByAttribute(entity.Object));
+        }
+
     }
 }

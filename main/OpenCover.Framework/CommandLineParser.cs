@@ -25,6 +25,7 @@ namespace OpenCover.Framework
         {
             OutputFile = "results.xml";
             Filters = new List<string>();
+            AttributeExclusionFilters = new List<string>();
         }
 
         /// <summary>
@@ -45,6 +46,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
+            builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -113,6 +115,10 @@ namespace OpenCover.Framework
                         break;
                     case "filter":
                         Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
+                        break;
+                    case "excludebyattribute":
+                        AttributeExclusionFilters = GetArgumentValue("excludebyattribute")
+                            .Split(";".ToCharArray()).ToList();
                         break;
                     case "?":
                         PrintUsage = true;
@@ -194,6 +200,11 @@ namespace OpenCover.Framework
         /// The offset for the return code - this is to help avoid collisions between opencover return codes and the target
         /// </summary>
         public int ReturnCodeOffset { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public List<string> AttributeExclusionFilters { get; private set; } 
     }
 
 }

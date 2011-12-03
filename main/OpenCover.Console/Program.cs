@@ -231,7 +231,7 @@ namespace OpenCover.Console
             return true;
         }
 
-        private static Filter BuildFilter(CommandLineParser parser)
+        private static IFilter BuildFilter(CommandLineParser parser)
         {
             var filter = new Filter();
 
@@ -253,6 +253,9 @@ namespace OpenCover.Console
             {
                 parser.Filters.ForEach(filter.AddFilter);
             }
+
+            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
+
             return filter;
         }
 

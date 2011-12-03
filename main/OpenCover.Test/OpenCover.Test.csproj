@@ -154,6 +154,9 @@
       <Link>dogfood64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\dogfood_exattr.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\dogfood_nunit.cmd">
       <Link>dogfood_nunit.cmd</Link>
     </None>

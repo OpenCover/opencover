@@ -245,5 +245,34 @@ namespace OpenCover.Test.Framework
             Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
         }
 
+        [Test]
+        public void HandlesExcludeByAttributeArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyattribute:wibble", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.AttributeExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.AttributeExclusionFilters[0]);
+        }
+
+        [Test]
+        public void HandlesExcludeByAttributeArgument_WithMultipleValues()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyattribute:wibble;wobble;woop", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(3, parser.AttributeExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.AttributeExclusionFilters[0]);
+            Assert.AreEqual("wobble", parser.AttributeExclusionFilters[1]);
+            Assert.AreEqual("woop", parser.AttributeExclusionFilters[2]);
+        }
     }
 }
