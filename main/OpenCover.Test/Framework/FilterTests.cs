@@ -339,8 +339,9 @@ namespace OpenCover.Test.Framework
 
             filter.AddAttributeExclusionFilters(new[] { ".*" });
 
-            Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".*").Success);
+            Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".ABC").Success);
         }
+
 
         [Test]
         public void Entity_Is_Not_Excluded_If_No_Filters_Set()
@@ -349,6 +350,69 @@ namespace OpenCover.Test.Framework
             var entity = new Mock<ICustomAttributeProvider>();
 
             Assert.IsFalse(filter.ExcludeByAttribute(entity.Object));
+        }
+
+        public void AddFileExclusionFilters_HandlesNull()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(null);
+
+            Assert.AreEqual(0, filter.ExcludedFiles.Count);
+        }
+
+        [Test]
+        public void AddFileExclusionFilters_Handles_Null_Elements()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(new[] { null, "" });
+
+            Assert.AreEqual(1, filter.ExcludedFiles.Count);
+        }
+
+        [Test]
+        public void AddFileExclusionFilters_Escapes_Elements_And_Matches()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(new[] { ".*" });
+
+            Assert.IsTrue(filter.ExcludedFiles[0].Value.Match(".ABC").Success);
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_No_Filters_Set()
+        {
+            var filter = new Filter();
+
+            Assert.IsFalse(filter.ExcludeByFile("xyz.cs"));
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_No_File_Not_Supplied()
+        {
+            var filter = new Filter();
+
+            Assert.IsFalse(filter.ExcludeByFile(""));
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_Does_Not_Match_Filter()
+        {
+            var filter = new Filter();
+            filter.AddFileExclusionFilters(new[]{"XXX.*"});
+
+            Assert.IsFalse(filter.ExcludeByFile("YYY.cs"));
+        }
+
+        [Test]
+        public void File_Is_Excluded_If_Matches_Filter()
+        {
+            var filter = new Filter();
+            filter.AddFileExclusionFilters(new[] { "XXX.*" });
+
+            Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
         }
 
     }

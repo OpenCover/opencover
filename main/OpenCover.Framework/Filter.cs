@@ -47,8 +47,8 @@ namespace OpenCover.Framework
         /// <summary>
         /// Add attribute exclusion filters
         /// </summary>
-        /// <param name="exlusionFilters">An array of filters that are used to wildcard match an attribute</param>
-        void AddAttributeExclusionFilters(string[] exlusionFilters);
+        /// <param name="exclusionFilters">An array of filters that are used to wildcard match an attribute</param>
+        void AddAttributeExclusionFilters(string[] exclusionFilters);
 
         /// <summary>
         /// Is this entity excluded due to an attributeFilter
@@ -56,6 +56,19 @@ namespace OpenCover.Framework
         /// <param name="entity">The entity to test</param>
         /// <returns></returns>
         bool ExcludeByAttribute(ICustomAttributeProvider entity);
+
+        /// <summary>
+        /// Is this file excluded
+        /// </summary>
+        /// <param name="fileName">The name of the file to test</param>
+        /// <returns></returns>
+        bool ExcludeByFile(string fileName);
+
+        /// <summary>
+        /// Add file exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters"></param>
+        void AddFileExclusionFilters(string[] exclusionFilters);
     }  
 
     internal static class FilterHelper
@@ -100,6 +113,7 @@ namespace OpenCover.Framework
         internal IList<KeyValuePair<string, string>> InclusionFilter { get; set; }
         internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set; }
         internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
+        internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
 
         /// <summary>
         /// Standard constructor
@@ -109,6 +123,7 @@ namespace OpenCover.Framework
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
             ExcludedAttributes = new List<Lazy<Regex>>();
+            ExcludedFiles = new List<Lazy<Regex>>();
         }
         
         public bool UseAssembly(string assemblyName)
@@ -197,11 +212,11 @@ namespace OpenCover.Framework
             }
         }
 
-        public void AddAttributeExclusionFilters(string[] exlusionFilters)
+        public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            if (exlusionFilters == null) 
+            if (exclusionFilters == null) 
                 return;
-            foreach (var exlusionFilter in exlusionFilters.Where(x => x != null))
+            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
                 var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
                 ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
@@ -213,9 +228,9 @@ namespace OpenCover.Framework
         {
             if (ExcludedAttributes.Count == 0 || !entity.HasCustomAttributes) 
                 return false;
-            foreach (Lazy<Regex> excludeAttribute in ExcludedAttributes)
+            foreach (var excludeAttribute in ExcludedAttributes)
             {
-                foreach (CustomAttribute customAttribute in entity.CustomAttributes)
+                foreach (var customAttribute in entity.CustomAttributes)
                 {
                     if (excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success) 
                         return true;
@@ -224,7 +239,27 @@ namespace OpenCover.Framework
             return false;
         }
 
- 
+        public bool ExcludeByFile(string fileName)
+        {
+            if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
+                return false;
+            foreach (var excludeAttribute in ExcludedFiles)
+            {
+                if (excludeAttribute.Value.Match(fileName).Success)
+                    return true;
+            }
+            return false;
+        }
 
+        public void AddFileExclusionFilters(string[] exclusionFilters)
+        {
+            if (exclusionFilters == null)
+                return;
+            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
+            {
+                var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
+                ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
+            }
+        }
     }
 }

@@ -193,6 +193,7 @@ namespace OpenCover.Framework.Symbols
                     {
                         if (methodDefinition.IsAbstract) continue;
                         if (filter.ExcludeByAttribute(methodDefinition)) continue;
+                        if (filter.ExcludeByFile(GetFirstFile(methodDefinition))) continue;
                         var method = new Method
                                          {
                                              Name = methodDefinition.FullName,

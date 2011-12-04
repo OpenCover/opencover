@@ -358,5 +358,27 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.True(methods.Count() > 0);
             Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).Count() == 0);
         }
+
+        [Test]
+        public void Can_Exclude_A_Method_By_An_FileFilter()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof(Concrete).GetMethod("Method").MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByFile(It.Is<string>(y => !string.IsNullOrWhiteSpace(y) && y.EndsWith("Samples.cs"))))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(Concrete).FullName);
+            var methods = _reader.GetMethodsForType(target, new File[0]);
+
+            Assert.True(methods.Count() > 0);
+            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).Count() == 0);
+        }
+
     }
 }
