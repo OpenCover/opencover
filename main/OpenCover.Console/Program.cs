@@ -255,6 +255,7 @@ namespace OpenCover.Console
             }
 
             filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
+            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
 
             return filter;
         }

@@ -78,9 +78,10 @@ namespace OpenCover.Framework
             return String.Format("^{0}$", data);
         }
 
-        internal static string ValidateAndEscape(this string match)
+        internal static string ValidateAndEscape(this string match, string notAllowed = @"\[]")
         {
-            if (match.IndexOfAny(@"\[]".ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
+            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
+            match = match.Replace(@"\", @"\\");
             match = match.Replace(@".", @"\.");
             match = match.Replace(@"*", @".*");
             return match;
@@ -257,7 +258,7 @@ namespace OpenCover.Framework
                 return;
             foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
-                var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
+                var filter = exlusionFilter.ValidateAndEscape(@"[]").WrapWithAnchors();
                 ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }

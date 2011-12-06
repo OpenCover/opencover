@@ -274,5 +274,36 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual("wobble", parser.AttributeExclusionFilters[1]);
             Assert.AreEqual("woop", parser.AttributeExclusionFilters[2]);
         }
+
+        [Test]
+        public void HandlesExcludeByFileArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyfile:wibble", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.FileExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.FileExclusionFilters[0]);
+        }
+
+        [Test]
+        public void HandlesExcludeByFileArgument_WithMultipleValues()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyfile:wibble;wobble;woop", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(3, parser.FileExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.FileExclusionFilters[0]);
+            Assert.AreEqual("wobble", parser.FileExclusionFilters[1]);
+            Assert.AreEqual("woop", parser.FileExclusionFilters[2]);
+        }
+
     }
 }

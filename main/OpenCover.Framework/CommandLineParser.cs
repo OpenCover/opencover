@@ -26,6 +26,7 @@ namespace OpenCover.Framework
             OutputFile = "results.xml";
             Filters = new List<string>();
             AttributeExclusionFilters = new List<string>();
+            FileExclusionFilters = new List<string>();
         }
 
         /// <summary>
@@ -47,6 +48,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -118,6 +120,10 @@ namespace OpenCover.Framework
                         break;
                     case "excludebyattribute":
                         AttributeExclusionFilters = GetArgumentValue("excludebyattribute")
+                            .Split(";".ToCharArray()).ToList();
+                        break;
+                    case "excludebyfile":
+                        FileExclusionFilters = GetArgumentValue("excludebyfile")
                             .Split(";".ToCharArray()).ToList();
                         break;
                     case "?":
@@ -202,9 +208,14 @@ namespace OpenCover.Framework
         public int ReturnCodeOffset { get; private set; }
 
         /// <summary>
-        /// 
+        /// A list of attribute exclusion filters
         /// </summary>
-        public List<string> AttributeExclusionFilters { get; private set; } 
+        public List<string> AttributeExclusionFilters { get; private set; }
+    
+        /// <summary>
+        /// A list of file exclusion filters
+        /// </summary>
+        public List<string> FileExclusionFilters { get; private set; }
     }
 
 }
