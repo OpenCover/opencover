@@ -69,6 +69,38 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetInstrumentableTypes_Does_Not_Return_Structs_With_No_Instrumentable_Code()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var types = _reader.GetInstrumentableTypes();
+
+            // assert
+            Assert.NotNull(types);
+            Assert.IsNull(types.Where(x => x.FullName == typeof(NotCoveredStruct).FullName).FirstOrDefault());
+        }
+
+        [Test]
+        public void GetInstrumentableTypes_Does_Return_Structs_With_Instrumentable_Code()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var types = _reader.GetInstrumentableTypes();
+
+            // assert
+            Assert.NotNull(types);
+            Assert.IsNotNull(types.Where(x => x.FullName == typeof(CoveredStruct).FullName).FirstOrDefault());
+        }
+
+        [Test]
         public void GetMethodsForType_Returns_AllDeclared_ForType()
         {
             // arrange

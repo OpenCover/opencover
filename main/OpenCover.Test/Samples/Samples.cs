@@ -87,4 +87,18 @@ namespace OpenCover.Test.Samples
             throw new NotImplementedException();
         }
     }
+
+    public struct NotCoveredStruct
+    {
+        public int Number { get; set; }
+    }
+
+    public struct CoveredStruct
+    {
+        private int number;
+// ReSharper disable ConvertToAutoProperty
+        public int Number { get { return number; } set { number = value; } }
+// ReSharper restore ConvertToAutoProperty
+    }
+
 }

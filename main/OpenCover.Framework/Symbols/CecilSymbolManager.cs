@@ -135,7 +135,6 @@ namespace OpenCover.Framework.Symbols
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
-                if (typeDefinition.IsValueType) continue;  
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 if (filter.ExcludeByAttribute(typeDefinition)) continue;
                 var @class = new Class() {FullName = typeDefinition.FullName};
@@ -154,8 +153,13 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
-                @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
-                classes.Add(@class);
+
+                // only instrument types that are not structs and have instrumentable points
+                if (!typeDefinition.IsValueType || list.Count > 0)
+                {
+                    @class.Files = list.Distinct().Select(file => new File {FullPath = file}).ToArray();
+                    classes.Add(@class);
+                }
                 if (typeDefinition.HasNestedTypes) 
                     GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter); 
             }
