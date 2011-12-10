@@ -5,6 +5,7 @@ using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using File = OpenCover.Framework.Model.File;
@@ -367,7 +368,7 @@ namespace OpenCover.Test.Framework.Symbols
             var types = _reader.GetInstrumentableTypes();
 
             Assert.True(types.Count() > 0);
-            Assert.True(types.Where(x => x.FullName == typeof(Concrete).FullName).Count() == 0);
+            Assert.True(types.Where(x => x.FullName == typeof(Concrete).FullName).First().SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -388,7 +389,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0] );
 
             Assert.True(methods.Count() > 0);
-            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).Count() == 0);
+            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -409,7 +410,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0]);
 
             Assert.True(methods.Count() > 0);
-            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).Count() == 0);
+            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.File);
         }
 
     }

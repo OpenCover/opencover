@@ -136,8 +136,11 @@ namespace OpenCover.Framework.Symbols
             {
                 if (typeDefinition.IsEnum) continue;
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
-                if (filter.ExcludeByAttribute(typeDefinition)) continue;
-                var @class = new Class() {FullName = typeDefinition.FullName};
+                var @class = new Class() { FullName = typeDefinition.FullName };
+                if (filter.ExcludeByAttribute(typeDefinition))
+                {
+                    @class.SkippedDueTo = SkippedMethod.Attribute;
+                }
                 var list = new List<string>();
                 foreach (var methodDefinition in typeDefinition.Methods)
                 {
@@ -157,7 +160,7 @@ namespace OpenCover.Framework.Symbols
                 // only instrument types that are not structs and have instrumentable points
                 if (!typeDefinition.IsValueType || list.Count > 0)
                 {
-                    @class.Files = list.Distinct().Select(file => new File {FullPath = file}).ToArray();
+                    @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
                     classes.Add(@class);
                 }
                 if (typeDefinition.HasNestedTypes) 
@@ -196,8 +199,6 @@ namespace OpenCover.Framework.Symbols
                     foreach (var methodDefinition in typeDefinition.Methods)
                     {
                         if (methodDefinition.IsAbstract) continue;
-                        if (filter.ExcludeByAttribute(methodDefinition)) continue;
-                        if (filter.ExcludeByFile(GetFirstFile(methodDefinition))) continue;
                         var method = new Method
                                          {
                                              Name = methodDefinition.FullName,
@@ -207,6 +208,12 @@ namespace OpenCover.Framework.Symbols
                                              IsGetter = methodDefinition.IsGetter,
                                              IsSetter = methodDefinition.IsSetter
                                          };
+                        
+                        if (filter.ExcludeByAttribute(methodDefinition))
+                            method.SkippedDueTo = SkippedMethod.Attribute;
+                        else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
+                            method.SkippedDueTo = SkippedMethod.File;
+
                         var definition = methodDefinition;
                         method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
                             .Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();

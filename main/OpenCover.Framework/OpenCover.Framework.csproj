@@ -78,6 +78,7 @@
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationPoint.cs" />
+    <Compile Include="Model\SkippedMethod.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="ExcludeCoverageAttribute.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />

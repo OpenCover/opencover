@@ -69,14 +69,20 @@ namespace OpenCover.Framework.Model
 
         private void BuildClassModel(Class @class, File[] files)
         {
+            if (@class.ShouldSerializeSkippedDueTo()) return;
             var methods = _symbolManager.GetMethodsForType(@class, files);
 
             foreach (var method in methods)
             {
-                method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
-                method.MethodPoint = (method.SequencePoints!=null) ? method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0) : null;
-                method.MethodPoint = method.MethodPoint ?? new InstrumentationPoint();
-                method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
+                if (!method.ShouldSerializeSkippedDueTo())
+                {
+                    method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
+                    method.MethodPoint = (method.SequencePoints != null)
+                                             ? method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0)
+                                             : null;
+                    method.MethodPoint = method.MethodPoint ?? new InstrumentationPoint();
+                    method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
+                }
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
 
