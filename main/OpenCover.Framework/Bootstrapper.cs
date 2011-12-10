@@ -14,25 +14,45 @@ using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Framework.Symbols;
+using log4net;
 
 namespace OpenCover.Framework
 {
+    /// <summary>
+    /// Wraps up the Dependancy Injection framework
+    /// </summary>
     public class Bootstrapper
     {
+        private readonly ILog _logger;
         private readonly IUnityContainer _container;
 
-        public Bootstrapper()
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="logger">the log4net logger to be used for logging</param>
+        public Bootstrapper(ILog logger)
         {
+            _logger = logger;
             _container = new UnityContainer();
         }
 
+        /// <summary>
+        /// Access the unity container
+        /// </summary>
         public IUnityContainer Container
         {
             get { return _container; }
         }
 
+        /// <summary>
+        /// Initialise the bootstrapper
+        /// </summary>
+        /// <param name="filter">a series of filters</param>
+        /// <param name="commandLine">command line options needed by other components</param>
+        /// <param name="persistance">a persistence object</param>
         public void Initialise(IFilter filter, ICommandLine commandLine, IPersistance persistance)
         {
+            _container.RegisterInstance(_logger);
             _container.RegisterInstance(filter);
             _container.RegisterInstance(commandLine);
             _container.RegisterInstance(persistance);

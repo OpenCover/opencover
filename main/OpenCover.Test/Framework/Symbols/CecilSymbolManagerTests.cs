@@ -8,6 +8,7 @@ using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
+using log4net;
 using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -19,15 +20,17 @@ namespace OpenCover.Test.Framework.Symbols
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
         private Mock<IFilter> _mockFilter;
+        private Mock<ILog> _mockLogger;
 
         [SetUp]
         public void Setup()
         {
             _mockCommandLine = new Mock<ICommandLine>();
             _mockFilter = new Mock<IFilter>();
+            _mockLogger = new Mock<ILog>();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 

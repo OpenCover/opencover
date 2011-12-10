@@ -15,6 +15,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
+using log4net;
 using File = OpenCover.Framework.Model.File;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
@@ -25,14 +26,16 @@ namespace OpenCover.Framework.Symbols
         private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
+        private readonly ILog _logger;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger)
         {
             _commandLine = commandLine;
             _filter = filter;
+            _logger = logger;
         }
 
         public string ModulePath
@@ -104,7 +107,12 @@ namespace OpenCover.Framework.Symbols
                         Environment.CurrentDirectory = currentPath;
                     }
                     if (_sourceAssembly == null)
-                        Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);
+                    {
+                        if (_logger.IsDebugEnabled)
+                        {
+                            _logger.DebugFormat("Cannot instrument {0} as no PDB could be loaded", _modulePath);
+                        }
+                    }
                 }
                 return _sourceAssembly;
             }

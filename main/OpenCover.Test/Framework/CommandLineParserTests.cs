@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using OpenCover.Framework;
+using log4net.Core;
 
 namespace OpenCover.Test.Framework
 {
@@ -303,6 +304,29 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual("wibble", parser.FileExclusionFilters[0]);
             Assert.AreEqual("wobble", parser.FileExclusionFilters[1]);
             Assert.AreEqual("woop", parser.FileExclusionFilters[2]);
+        }
+        
+        [Test]
+        public void HandlesLogArgument_ValidValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] {"-log:info", RequiredArgs});
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(parser.LogLevel, Level.Info);
+        }
+
+        [Test]
+        public void HandlesLogArgument_WithInvalidValue_ThrowsException()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-log:wibble", RequiredArgs });
+
+            // act
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
         }
 
     }

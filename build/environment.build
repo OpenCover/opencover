@@ -27,6 +27,8 @@
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/xunit-1.8" />
 		<call target="extract" />
+		<property name="target.folder" value="${tools.folder}/log4net-1.2.11" />
+		<call target="extract" />
 		
 	</target>
 	

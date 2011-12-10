@@ -31,7 +31,9 @@
 						<File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" />
 						<File Id="SAMPLE64_CMD" Source="Assets\Sample64.cmd" Name="Sample64.cmd" />
 						<File Id="LICENCE_TXT" Source="..\..\License.md" Name="License.txt" />
-					</Component>
+            <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" />
+            <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
+          </Component>
 					<Directory Id="X86" Name="x86">
 						<Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
 							<File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">

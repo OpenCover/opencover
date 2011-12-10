@@ -6,6 +6,7 @@ using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
+using log4net;
 using File = System.IO.File;
 
 namespace OpenCover.Test.Framework.Persistance
@@ -17,13 +18,15 @@ namespace OpenCover.Test.Framework.Persistance
         private string _filePath;
         private TextWriter _textWriter;
         private Mock<ICommandLine> _mockCommandLine;
+        private Mock<ILog> _mockLogger;
 
         [SetUp]
         public void SetUp()
         {
             _mockCommandLine = new Mock<ICommandLine>();
+            _mockLogger = new Mock<ILog>();
             _filePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            _persistence = new FilePersistance(_mockCommandLine.Object);
+            _persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
             _persistence.Initialise(_filePath);
             _textWriter = Console.Out;
             var stringWriter = new StringWriter(new StringBuilder());

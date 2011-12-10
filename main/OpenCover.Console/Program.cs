@@ -12,6 +12,8 @@ using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
+using log4net;
+using log4net.Core;
 
 namespace OpenCover.Console
 {
@@ -26,22 +28,26 @@ namespace OpenCover.Console
         {
             var returnCode = 0;
             var returnCodeOffset = 0;
+            var logger = LogManager.GetLogger(typeof (Bootstrapper));
             try
             {
                 CommandLineParser parser;
                 if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+
+                LogManager.GetRepository().Threshold = parser.LogLevel;
+
                 returnCodeOffset = parser.ReturnCodeOffset;
                 var filter = BuildFilter(parser);
 
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
-                var container = new Bootstrapper();
-                var persistance = new FilePersistance(parser);
+                var container = new Bootstrapper(logger);
+                var persistance = new FilePersistance(parser, logger);
 
                 container.Initialise(filter, parser, persistance);
                 persistance.Initialise(outputFile);
-                bool registered = false;
+                var registered = false;
 
                 try
                 {
@@ -70,7 +76,7 @@ namespace OpenCover.Console
                                                    returnCode = process.ExitCode;
                                            });
 
-                    DisplayResults(persistance, parser);
+                    DisplayResults(persistance, parser, logger);
 
                 }
                 catch (Exception ex)
@@ -86,17 +92,22 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine();
-                System.Console.WriteLine("An exception occured: {0}", ex.Message);
-                System.Console.WriteLine("stack: {0}", ex.StackTrace);
+                if (logger.IsFatalEnabled)
+                {
+                    logger.FatalFormat("An exception occured: {0}", ex.Message);
+                    logger.FatalFormat("stack: {0}", ex.StackTrace);
+                }
+
                 returnCode = returnCodeOffset + 1;
             }
 
             return returnCode;
         }
 
-        private static void DisplayResults(IPersistance persistance, ICommandLine parser)
+        private static void DisplayResults(IPersistance persistance, ICommandLine parser, ILog logger)
         {
+            if (!logger.IsInfoEnabled) return;
+ 
             var CoverageSession = persistance.CoverageSession;
 
             var totalClasses = 0;
@@ -179,43 +190,44 @@ namespace OpenCover.Console
 
             if (totalClasses > 0)
             {
-                System.Console.WriteLine("Visited Classes {0} of {1} ({2})", visitedClasses,
+                
+                logger.InfoFormat("Visited Classes {0} of {1} ({2})", visitedClasses,
                                   totalClasses, (double)visitedClasses * 100.0 / (double)totalClasses);
-                System.Console.WriteLine("Visited Methods {0} of {1} ({2})", visitedMethods,
+                logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
                                   totalMethods, (double)visitedMethods * 100.0 / (double)totalMethods);
-                System.Console.WriteLine("Visited Points {0} of {1} ({2})", visitedSeqPoint,
+                logger.InfoFormat("Visited Points {0} of {1} ({2})", visitedSeqPoint,
                                   totalSeqPoint, (double)visitedSeqPoint * 100.0 / (double)totalSeqPoint);
-                System.Console.WriteLine("Visited Branches {0} of {1} ({2})", visitedBrPoint,
+                logger.InfoFormat("Visited Branches {0} of {1} ({2})", visitedBrPoint,
                                   totalBrPoint, (double)visitedBrPoint * 100.0 / (double)totalBrPoint);
 
-                System.Console.WriteLine("");
-                System.Console.WriteLine(
+                logger.InfoFormat("");
+                logger.InfoFormat(
                     "==== Alternative Results (includes all methods including those without corresponding source) ====");
-                System.Console.WriteLine("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
+                logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
                                   altTotalClasses, (double)altVisitedClasses * 100.0 / (double)altTotalClasses);
-                System.Console.WriteLine("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
+                logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
                                   altTotalMethods, (double)altVisitedMethods * 100.0 / (double)altTotalMethods);
 
                 if (parser.ShowUnvisited)
                 {
-                    System.Console.WriteLine("");
-                    System.Console.WriteLine("====Unvisited Classes====");
+                    logger.InfoFormat("");
+                    logger.InfoFormat("====Unvisited Classes====");
                     foreach (var unvisitedClass in unvisitedClasses)
                     {
-                        System.Console.WriteLine(unvisitedClass);
+                        logger.InfoFormat(unvisitedClass);
                     }
 
-                    System.Console.WriteLine("");
-                    System.Console.WriteLine("====Unvisited Methods====");
+                    logger.InfoFormat("");
+                    logger.InfoFormat("====Unvisited Methods====");
                     foreach (var unvisitedMethod in unvisitedMethods)
                     {
-                        System.Console.WriteLine(unvisitedMethod);
+                        logger.InfoFormat(unvisitedMethod);
                     }
                 }
             }
             else
             {
-                System.Console.WriteLine("No results - no assemblies that matched the supplied filter were instrumented (missing PDBs?)");
+                logger.InfoFormat("No results - no assemblies that matched the supplied filter were instrumented (missing PDBs?)");
             }
         }
 
@@ -224,8 +236,7 @@ namespace OpenCover.Console
             outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
             if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
             {
-                System.Console.WriteLine(
-                    "Output folder does not exist; please create it and make sure appropriate permissions are set.");
+                System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
                 return false;
             }
             return true;

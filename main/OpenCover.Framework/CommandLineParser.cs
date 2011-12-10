@@ -4,9 +4,11 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using log4net.Core;
 
 namespace OpenCover.Framework
 {
@@ -27,6 +29,7 @@ namespace OpenCover.Framework
             Filters = new List<string>();
             AttributeExclusionFilters = new List<string>();
             FileExclusionFilters = new List<string>();
+            LogLevel = Level.Info;
         }
 
         /// <summary>
@@ -49,6 +52,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -62,6 +66,9 @@ namespace OpenCover.Framework
             builder.AppendLine("    -nodefaultfilters option is supplied. If no other filters are supplied");
             builder.AppendLine("    via the -filter option then a default inclusive all filter +[*]* is");
             builder.AppendLine("    applied.");
+            builder.AppendLine("Logging:");
+            builder.AppendLine("    Logging is based on log4net logging levels and appenders - defaulting");
+            builder.AppendLine("    to a ColouredConsoleAppender and INFO log level.");
             builder.AppendLine("Notes:");
             builder.AppendLine("    Enclose arguments in quotes \"\" when spaces are required see -targetargs.");
 
@@ -125,6 +132,11 @@ namespace OpenCover.Framework
                     case "excludebyfile":
                         FileExclusionFilters = GetArgumentValue("excludebyfile")
                             .Split(";".ToCharArray()).ToList();
+                        break;
+                    case "log":
+                        var value = GetArgumentValue("log");
+                        LogLevel = (Level)typeof(Level).GetFields(BindingFlags.Static | BindingFlags.Public)
+                            .Where(x => string.Compare(x.Name, value, true) == 0).First().GetValue(typeof(Level));
                         break;
                     case "?":
                         PrintUsage = true;
@@ -216,6 +228,11 @@ namespace OpenCover.Framework
         /// A list of file exclusion filters
         /// </summary>
         public List<string> FileExclusionFilters { get; private set; }
+
+        /// <summary>
+        /// The logging level based on log4net.Core.Level
+        /// </summary>
+        public Level LogLevel { get; private set; }
     }
 
 }
