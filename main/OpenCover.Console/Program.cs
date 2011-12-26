@@ -5,9 +5,11 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
@@ -60,20 +62,15 @@ namespace OpenCover.Console
 
                     harness.RunProcess((environment) =>
                                            {
-                                               var startInfo =
-                                                   new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory,
-                                                                                     parser.Target));
-                                               environment(startInfo.EnvironmentVariables);
-
-                                               startInfo.Arguments = parser.TargetArgs;
-                                               startInfo.UseShellExecute = false;
-                                               startInfo.WorkingDirectory = parser.TargetDir;
-
-                                               var process = Process.Start(startInfo);
-                                               process.WaitForExit();
-
-                                               if (parser.ReturnTargetCode)
-                                                   returnCode = process.ExitCode;
+                                               returnCode = 0;
+                                               if (parser.Service)
+                                               {
+                                                   RunService(parser, environment, logger);
+                                               }
+                                               else
+                                               {
+                                                   returnCode = RunProcess(parser, environment);
+                                               }
                                            });
 
                     DisplayResults(persistance, parser, logger);
@@ -101,6 +98,50 @@ namespace OpenCover.Console
                 returnCode = returnCodeOffset + 1;
             }
 
+            return returnCode;
+        }
+
+        private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
+        {
+            var service = new ServiceController(parser.Target);
+            if (service.Status != ServiceControllerStatus.Stopped)
+            {
+                logger.ErrorFormat("The service '{0}' is already running. The profiler cannot attach to an already running service.", 
+                    parser.Target);
+                return;
+            }
+
+            // now to set the environment variables
+            var profilerEnvironment = new StringDictionary();
+            environment(profilerEnvironment);
+
+            // now start the service
+            service.Start();
+            logger.InfoFormat("Service starting '{0}'", parser.Target);
+            service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+            logger.InfoFormat("Service started '{0}'", parser.Target);
+
+            // and wait for it to stop
+            service.WaitForStatus(ServiceControllerStatus.Stopped);
+            logger.InfoFormat("Service stopped '{0}'", parser.Target);
+        }
+
+        private static int RunProcess(CommandLineParser parser, Action<StringDictionary> environment)
+        {
+            var returnCode = 0;
+            var startInfo =
+                new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+            environment(startInfo.EnvironmentVariables);
+
+            startInfo.Arguments = parser.TargetArgs;
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = parser.TargetDir;
+
+            var process = Process.Start(startInfo);
+            process.WaitForExit();
+
+            if (parser.ReturnTargetCode)
+                returnCode = process.ExitCode;
             return returnCode;
         }
 
@@ -293,9 +334,22 @@ namespace OpenCover.Console
                     return true;
                 }
 
-                if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
+                if (parser.Service)
                 {
-                    System.Console.WriteLine("Target {0} cannot be found - have you specified your arguments correctly?", parser.Target);
+                    try
+                    {
+                        var service = new ServiceController(parser.Target);
+                        var name = service.DisplayName;
+                    }
+                    catch (Exception)
+                    {
+                        System.Console.WriteLine("Service '{0}' cannot be found - have you specified your arguments correctly?", parser.Target);
+                        return false;
+                    }                    
+                }
+                else if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
+                {
+                    System.Console.WriteLine("Target '{0}' cannot be found - have you specified your arguments correctly?", parser.Target);
                     return false;
                 }
             }

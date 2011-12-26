@@ -53,6 +53,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]");
+            builder.AppendLine("    [-service]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -137,6 +138,9 @@ namespace OpenCover.Framework
                         var value = GetArgumentValue("log");
                         LogLevel = (Level)typeof(Level).GetFields(BindingFlags.Static | BindingFlags.Public)
                             .Where(x => string.Compare(x.Name, value, true) == 0).First().GetValue(typeof(Level));
+                        break;
+                    case "service":
+                        Service = true;
                         break;
                     case "?":
                         PrintUsage = true;
@@ -233,6 +237,12 @@ namespace OpenCover.Framework
         /// The logging level based on log4net.Core.Level
         /// </summary>
         public Level LogLevel { get; private set; }
+
+        /// <summary>
+        /// This switch means we should treat the mandatory target as a service
+        /// </summary>
+        public bool Service { get; private set; }
+
     }
 
 }

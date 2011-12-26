@@ -22,6 +22,9 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.Register);
             Assert.IsFalse(parser.UserRegistration);
             Assert.IsFalse(parser.NoDefaultFilters);
+            Assert.IsFalse(parser.Service);
+            Assert.IsFalse(parser.ShowUnvisited);
+            Assert.IsFalse(parser.MergeByHash);
         }
 
         [Test]
@@ -327,6 +330,19 @@ namespace OpenCover.Test.Framework
 
             // act
             Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+        }
+
+        [Test]
+        public void DetectsServiceArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-service", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.Service);
         }
 
     }
