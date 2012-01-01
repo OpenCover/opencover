@@ -54,21 +54,21 @@ namespace OpenCover.Framework.Manager
             var environmentKeyRead = new AutoResetEvent(false);
             var handles = new List<WaitHandle> { processMgmt };
 
-            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendData_Event_" + key);
-            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
-            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
+            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_SendData_Event_" + key);
+            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
+            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
 
             handles.Add(_profilerRequestsInformation);
 
-            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + key);
-            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @"Local\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
+            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_SendResults_Event_" + key);
+            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
 
             handles.Add(_profilerHasResults);
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (var mmfComms = MemoryMappedFile.CreateNew(@"Local\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
-            using (var mmfResults = MemoryMappedFile.CreateNew(@"Local\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
+            using (var mmfComms = MemoryMappedFile.CreateNew(@"Global\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
+            using (var mmfResults = MemoryMappedFile.CreateNew(@"Global\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
             using (_streamAccessorComms = mmfComms.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
             using (_streamAccessorResults = mmfResults.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
             {

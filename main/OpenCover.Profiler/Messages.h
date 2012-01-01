@@ -12,20 +12,20 @@
 #pragma pack(push)
 #pragma pack(1)
 
-typedef struct SequencePoint
+struct SequencePoint
 {
     ULONG UniqueId;
     long Offset;
 };
 
-typedef struct BranchPoint
+struct BranchPoint
 {
     ULONG UniqueId;
     long Offset;
     long Path; // for a branch 0 == false, 1 == true ; for a switch it is ...
 };
 
-typedef struct VisitPoint
+struct VisitPoint
 {
     ULONG UniqueId;
 };

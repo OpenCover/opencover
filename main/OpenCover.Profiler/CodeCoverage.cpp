@@ -58,9 +58,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         ATLTRACE(_T("Runtime %d"), m_runtimeType);
     }
 
+
     TCHAR key[1024];
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
     ATLTRACE(_T("key = %s"), key);
+
     if (!m_host.Initialise(key))
     {
         ATLTRACE(_T("    ::Initialize Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
@@ -205,6 +207,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         
         ATLTRACE(_T("Added methods to mscorlib"));
     }
+
+    return S_OK;
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::ModuleAttachedToAssembly</c></summary>

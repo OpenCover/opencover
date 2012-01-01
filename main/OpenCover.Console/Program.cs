@@ -115,11 +115,25 @@ namespace OpenCover.Console
             var profilerEnvironment = new StringDictionary();
             environment(profilerEnvironment);
 
-            // now start the service
-            service.Start();
-            logger.InfoFormat("Service starting '{0}'", parser.Target);
-            service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
-            logger.InfoFormat("Service started '{0}'", parser.Target);
+            var serviceEnvironment = new ServiceEnvironmentManagement();
+
+            try
+            {
+                serviceEnvironment.PrepareServiceEnvironment(parser.Target, 
+                    (from string key in profilerEnvironment.Keys select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+
+                // now start the service
+                service = new ServiceController(parser.Target);
+                service.Start();
+                logger.InfoFormat("Service starting '{0}'", parser.Target);
+                service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+                logger.InfoFormat("Service started '{0}'", parser.Target);
+            }
+            finally 
+            {
+                // once the serice has started set the environment variables back - just in case
+                serviceEnvironment.ResetServiceEnvironment();
+            }
 
             // and wait for it to stop
             service.WaitForStatus(ServiceControllerStatus.Stopped);

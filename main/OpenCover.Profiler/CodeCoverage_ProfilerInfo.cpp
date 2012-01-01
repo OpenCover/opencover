@@ -90,6 +90,8 @@ HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModul
     {
         return GetModuleRef2000(metaDataAssemblyEmit, moduleName, mscorlibRef);
     }
+
+    return S_OK;
 }
 
 HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
@@ -104,6 +106,8 @@ HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyE
     COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
         sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
         &mscorlibRef), S_OK);
+
+    return S_OK;
 }
 
 HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
@@ -118,6 +122,7 @@ HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyE
     COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
         sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
         &mscorlibRef), S_OK);
+    return S_OK;
 }
 
 HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
@@ -133,5 +138,7 @@ HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyE
     COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
         sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
         &mscorlibRef), S_OK);
+
+    return S_OK;
 }
 

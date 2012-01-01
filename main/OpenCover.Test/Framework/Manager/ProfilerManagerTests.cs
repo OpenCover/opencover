@@ -73,12 +73,12 @@ namespace OpenCover.Test.Framework.Manager
                 e(dict);
 
                 var standardMessageReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Local\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                    @"Global\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageReady.Set();
 
                 var standardMessageChunk = new EventWaitHandle(false, EventResetMode.ManualReset,
-                   @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                   @"Global\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageChunk.Set();
 
@@ -109,7 +109,7 @@ namespace OpenCover.Test.Framework.Manager
                 e(dict);
 
                 var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                    @"Global\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageDataReady.Set();
 

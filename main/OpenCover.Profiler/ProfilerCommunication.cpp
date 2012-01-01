@@ -23,27 +23,27 @@ bool ProfilerCommunication::Initialise(TCHAR *key)
 {
     m_key = key;
 
-    m_mutexCommunication.Initialise((_T("Local\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
+    m_mutexCommunication.Initialise((_T("Global\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     if (!m_mutexCommunication.IsValid()) return false;
-    m_mutexResults.Initialise((_T("Local\\OpenCover_Profiler_Results_Mutex_") + m_key).c_str());
+    m_mutexResults.Initialise((_T("Global\\OpenCover_Profiler_Results_Mutex_") + m_key).c_str());
     if (!m_mutexResults.IsValid()) return false;
 
-    m_eventProfilerRequestsInformation.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
+    m_eventProfilerRequestsInformation.Initialise((_T("Global\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
     if (!m_eventProfilerRequestsInformation.IsValid()) return false;
-    m_eventInformationReadyForProfiler.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
+    m_eventInformationReadyForProfiler.Initialise((_T("Global\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
     if (!m_eventInformationReadyForProfiler.IsValid()) return false;
 
-    m_eventInformationReadByProfiler.Initialise((_T("Local\\OpenCover_Profiler_Communication_ChunkData_Event_") + m_key).c_str());
+    m_eventInformationReadByProfiler.Initialise((_T("Global\\OpenCover_Profiler_Communication_ChunkData_Event_") + m_key).c_str());
     if (!m_eventInformationReadByProfiler.IsValid()) return false;
 
-    m_eventProfilerHasResults.Initialise((_T("Local\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
+    m_eventProfilerHasResults.Initialise((_T("Global\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
     if (!m_eventProfilerHasResults.IsValid()) return false;
-    m_eventResultsHaveBeenReceived.Initialise((_T("Local\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
+    m_eventResultsHaveBeenReceived.Initialise((_T("Global\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
     if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
 
-    m_memoryCommunication.OpenFileMapping((_T("Local\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
+    m_memoryCommunication.OpenFileMapping((_T("Global\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
     if (!m_memoryCommunication.IsValid()) return false;
-    m_memoryResults.OpenFileMapping((_T("Local\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
+    m_memoryResults.OpenFileMapping((_T("Global\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
     if (!m_memoryResults.IsValid()) return false;
 
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
@@ -161,7 +161,7 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
         }, 
         [=, &response]()->BOOL
         {
-            response =  m_pMSG->trackResponse.bResponse;
+            response =  m_pMSG->trackResponse.bResponse == TRUE;
             return FALSE;
         }
     );
