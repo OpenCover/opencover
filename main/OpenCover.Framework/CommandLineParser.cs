@@ -40,12 +40,12 @@ namespace OpenCover.Framework
         {
             var builder = new StringBuilder();
             builder.AppendLine("Usage:");
-            builder.AppendLine("    -target:<target application>");
-            builder.AppendLine("    [-targetdir:<target directory>]");
-            builder.AppendLine("    [-targetargs:[\"]<arguments for the target process>[\"]]");
+            builder.AppendLine("    [\"]-target:<target application>[\"]");
+            builder.AppendLine("    [[\"]-targetdir:<target directory>[\"]]");
+            builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
-            builder.AppendLine("    [-output:[\"]<path to file>[\"]]");
-            builder.AppendLine("    [-filter:[\"]<space seperated filters>[\"]]");
+            builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
+            builder.AppendLine("    [[\"]-filter:<space seperated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
