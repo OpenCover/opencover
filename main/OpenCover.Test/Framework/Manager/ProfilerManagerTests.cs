@@ -73,17 +73,17 @@ namespace OpenCover.Test.Framework.Manager
                 e(dict);
 
                 var standardMessageReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Global\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                    @"Local\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageReady.Set();
 
                 var standardMessageChunk = new EventWaitHandle(false, EventResetMode.ManualReset,
-                   @"Global\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                   @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageChunk.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
-            });
+            }, false);
 
             // assert
             Container.GetMock<IMessageHandler>()
@@ -96,7 +96,7 @@ namespace OpenCover.Test.Framework.Manager
             // arrange
 
             // act
-            Instance.RunProcess(e => e(new StringDictionary()));
+            Instance.RunProcess(e => e(new StringDictionary()), false);
 
             // assert
             Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
@@ -109,12 +109,12 @@ namespace OpenCover.Test.Framework.Manager
                 e(dict);
 
                 var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Global\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                    @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
 
                 standardMessageDataReady.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
-            });
+            }, false);
         }
     }
 }

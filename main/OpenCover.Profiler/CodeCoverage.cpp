@@ -63,7 +63,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
     ATLTRACE(_T("key = %s"), key);
 
-    if (!m_host.Initialise(key))
+    TCHAR ns[1024];
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_Namespace"), ns, 1024);
+    ATLTRACE(_T("ns = %s"), ns);
+
+    if (!m_host.Initialise(key, ns))
     {
         ATLTRACE(_T("    ::Initialize Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
         return E_FAIL;

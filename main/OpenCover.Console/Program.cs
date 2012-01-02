@@ -71,7 +71,7 @@ namespace OpenCover.Console
                                                {
                                                    returnCode = RunProcess(parser, environment);
                                                }
-                                           });
+                                           }, parser.Service);
 
                     DisplayResults(persistance, parser, logger);
 
@@ -138,6 +138,7 @@ namespace OpenCover.Console
             // and wait for it to stop
             service.WaitForStatus(ServiceControllerStatus.Stopped);
             logger.InfoFormat("Service stopped '{0}'", parser.Target);
+
         }
 
         private static int RunProcess(CommandLineParser parser, Action<StringDictionary> environment)

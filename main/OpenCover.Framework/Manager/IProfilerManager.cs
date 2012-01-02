@@ -10,6 +10,6 @@ namespace OpenCover.Framework.Manager
 {
     public interface IProfilerManager
     {
-        void RunProcess(Action<Action<StringDictionary>> process);
+        void RunProcess(Action<Action<StringDictionary>> process, bool isService);
     }
 }

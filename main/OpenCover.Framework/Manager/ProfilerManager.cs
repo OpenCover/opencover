@@ -46,7 +46,7 @@ namespace OpenCover.Framework.Manager
             _persistance = persistance;
         }
 
-        public void RunProcess(Action<Action<StringDictionary>> process)
+        public void RunProcess(Action<Action<StringDictionary>> process, bool isService)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
             var processMgmt = new AutoResetEvent(false);
@@ -54,21 +54,24 @@ namespace OpenCover.Framework.Manager
             var environmentKeyRead = new AutoResetEvent(false);
             var handles = new List<WaitHandle> { processMgmt };
 
-            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_SendData_Event_" + key);
-            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
-            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
+            string @namespace = isService ? "Global" : "Local";
+            //@namespace = "Local";
+
+            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_SendData_Event_" + key);
+            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
+            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
 
             handles.Add(_profilerRequestsInformation);
 
-            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_SendResults_Event_" + key);
-            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @"Global\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
+            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_SendResults_Event_" + key);
+            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
 
             handles.Add(_profilerHasResults);
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (var mmfComms = MemoryMappedFile.CreateNew(@"Global\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
-            using (var mmfResults = MemoryMappedFile.CreateNew(@"Global\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
+            using (var mmfComms = MemoryMappedFile.CreateNew(@namespace + @"\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
+            using (var mmfResults = MemoryMappedFile.CreateNew(@namespace + @"\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
             using (_streamAccessorComms = mmfComms.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
             using (_streamAccessorResults = mmfResults.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
             {
@@ -81,6 +84,7 @@ namespace OpenCover.Framework.Manager
                         {
                             if (dictionary == null) return;
                             dictionary[@"OpenCover_Profiler_Key"] = key;
+                            dictionary[@"OpenCover_Profiler_Namespace"] = @namespace;
                             dictionary["Cor_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
                             dictionary["Cor_Enable_Profiling"] = "1";
                             dictionary["CoreClr_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
