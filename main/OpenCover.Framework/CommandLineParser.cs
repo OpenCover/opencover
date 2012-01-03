@@ -45,14 +45,14 @@ namespace OpenCover.Framework
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
-            builder.AppendLine("    [[\"]-filter:<space seperated filters>[\"]]");
+            builder.AppendLine("    [[\"]-filter:<space separated filters>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]");
+            builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -62,9 +62,7 @@ namespace OpenCover.Framework
             builder.AppendLine("");
             builder.AppendLine("Filters:");
             builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
-            builder.AppendLine("    profiler coverage. Two default exclude filters are always applied to");
-            builder.AppendLine("    exclude the System.* and Microsoft.* assemblies unless the");
-            builder.AppendLine("    -nodefaultfilters option is supplied. If no other filters are supplied");
+            builder.AppendLine("    profiler coverage; see the Usage guide. If no other filters are supplied");
             builder.AppendLine("    via the -filter option then a default inclusive all filter +[*]* is");
             builder.AppendLine("    applied.");
             builder.AppendLine("Logging:");

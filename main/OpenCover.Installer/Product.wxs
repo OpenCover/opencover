@@ -34,6 +34,11 @@
             <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" />
             <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
           </Component>
+          <Directory Id="DOCS" Name="Documentation">
+            <Component Id="DocumentationComponent" Guid="07BF07A1-BCC5-40E9-953E-0C543F29D22A">
+              <File Id="USAGE_RTF" Source="..\OpenCover.Documentation\Usage.rtf" />
+            </Component>
+          </Directory>
 					<Directory Id="X86" Name="x86">
 						<Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
 							<File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">
@@ -88,6 +93,7 @@
 			<ComponentRef Id="X64Profiler" />
 			<ComponentRef Id="X86Samples" />
 			<ComponentRef Id="X64Samples" />
+			<ComponentRef Id="DocumentationComponent" />
 		</Feature>
 
 		<InstallExecuteSequence>
