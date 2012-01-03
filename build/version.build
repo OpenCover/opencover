@@ -14,7 +14,7 @@
 
 	<target name="get-version-number" >
 		<property name="version.file" value="${build.folder}\Version\build.number" />
-		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="02/23/2011" />
+		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="01/01/2012" />
 		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>
