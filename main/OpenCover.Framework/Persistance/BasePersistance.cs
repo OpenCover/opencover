@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Persistance
 {
-    
     public abstract class BasePersistance : IPersistance
     {
         protected readonly ICommandLine _commandLine;

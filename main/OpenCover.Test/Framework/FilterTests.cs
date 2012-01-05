@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mono.Cecil;
+using Mono.Collections.Generic;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 
@@ -168,7 +171,7 @@ namespace OpenCover.Test.Framework
             // result
             Assert.AreEqual(data.ExpectedResult, result, 
                 "Filter: '{0}' Assembly: {1} => Expected: {2}", 
-                string.Join(",", data.Filters, data.Assembly, data.ExpectedResult));
+                string.Join(",", data.Filters), data.Assembly, data.ExpectedResult);
         }
 
         #region Test Data for InstrumentClass tests
@@ -306,7 +309,111 @@ namespace OpenCover.Test.Framework
             // result
             Assert.AreEqual(data.ExpectedResult, result,
                "Filter: '{0}' Assembly: {1} Class: {2} => Expected: {3}", 
-               string.Join(",", data.Filters, data.Assembly, data.Class, data.ExpectedResult));
+               string.Join(",", data.Filters), data.Assembly, data.Class, data.ExpectedResult);
         }
+
+        [Test]
+        public void AddAttributeExclusionFilters_HandlesNull()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(null);
+
+            Assert.AreEqual(0, filter.ExcludedAttributes.Count);
+        }
+
+        [Test]
+        public void AddAttributeExclusionFilters_Handles_Null_Elements()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(new []{ null, "" });
+
+            Assert.AreEqual(1, filter.ExcludedAttributes.Count);
+        }
+
+        [Test]
+        public void AddAttributeExclusionFilters_Escapes_Elements_And_Matches()
+        {
+            var filter = new Filter();
+
+            filter.AddAttributeExclusionFilters(new[] { ".*" });
+
+            Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".ABC").Success);
+        }
+
+
+        [Test]
+        public void Entity_Is_Not_Excluded_If_No_Filters_Set()
+        {
+            var filter = new Filter();
+            var entity = new Mock<ICustomAttributeProvider>();
+
+            Assert.IsFalse(filter.ExcludeByAttribute(entity.Object));
+        }
+
+        public void AddFileExclusionFilters_HandlesNull()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(null);
+
+            Assert.AreEqual(0, filter.ExcludedFiles.Count);
+        }
+
+        [Test]
+        public void AddFileExclusionFilters_Handles_Null_Elements()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(new[] { null, "" });
+
+            Assert.AreEqual(1, filter.ExcludedFiles.Count);
+        }
+
+        [Test]
+        public void AddFileExclusionFilters_Escapes_Elements_And_Matches()
+        {
+            var filter = new Filter();
+
+            filter.AddFileExclusionFilters(new[] { ".*" });
+
+            Assert.IsTrue(filter.ExcludedFiles[0].Value.Match(".ABC").Success);
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_No_Filters_Set()
+        {
+            var filter = new Filter();
+
+            Assert.IsFalse(filter.ExcludeByFile("xyz.cs"));
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_No_File_Not_Supplied()
+        {
+            var filter = new Filter();
+
+            Assert.IsFalse(filter.ExcludeByFile(""));
+        }
+
+        [Test]
+        public void File_Is_Not_Excluded_If_Does_Not_Match_Filter()
+        {
+            var filter = new Filter();
+            filter.AddFileExclusionFilters(new[]{"XXX.*"});
+
+            Assert.IsFalse(filter.ExcludeByFile("YYY.cs"));
+        }
+
+        [Test]
+        public void File_Is_Excluded_If_Matches_Filter()
+        {
+            var filter = new Filter();
+            filter.AddFileExclusionFilters(new[] { "XXX.*" });
+
+            Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
+        }
+
     }
 }

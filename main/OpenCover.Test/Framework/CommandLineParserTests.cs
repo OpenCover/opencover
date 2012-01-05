@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using OpenCover.Framework;
+using log4net.Core;
 
 namespace OpenCover.Test.Framework
 {
@@ -21,6 +22,9 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.Register);
             Assert.IsFalse(parser.UserRegistration);
             Assert.IsFalse(parser.NoDefaultFilters);
+            Assert.IsFalse(parser.Service);
+            Assert.IsFalse(parser.ShowUnvisited);
+            Assert.IsFalse(parser.MergeByHash);
         }
 
         [Test]
@@ -243,6 +247,102 @@ namespace OpenCover.Test.Framework
 
             // act, assert
             Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+        }
+
+        [Test]
+        public void HandlesExcludeByAttributeArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyattribute:wibble", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.AttributeExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.AttributeExclusionFilters[0]);
+        }
+
+        [Test]
+        public void HandlesExcludeByAttributeArgument_WithMultipleValues()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyattribute:wibble;wobble;woop", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(3, parser.AttributeExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.AttributeExclusionFilters[0]);
+            Assert.AreEqual("wobble", parser.AttributeExclusionFilters[1]);
+            Assert.AreEqual("woop", parser.AttributeExclusionFilters[2]);
+        }
+
+        [Test]
+        public void HandlesExcludeByFileArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyfile:wibble", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.FileExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.FileExclusionFilters[0]);
+        }
+
+        [Test]
+        public void HandlesExcludeByFileArgument_WithMultipleValues()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-excludebyfile:wibble;wobble;woop", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(3, parser.FileExclusionFilters.Count);
+            Assert.AreEqual("wibble", parser.FileExclusionFilters[0]);
+            Assert.AreEqual("wobble", parser.FileExclusionFilters[1]);
+            Assert.AreEqual("woop", parser.FileExclusionFilters[2]);
+        }
+        
+        [Test]
+        public void HandlesLogArgument_ValidValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] {"-log:info", RequiredArgs});
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(parser.LogLevel, Level.Info);
+        }
+
+        [Test]
+        public void HandlesLogArgument_WithInvalidValue_ThrowsException()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-log:wibble", RequiredArgs });
+
+            // act
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+        }
+
+        [Test]
+        public void DetectsServiceArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-service", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.Service);
         }
 
     }

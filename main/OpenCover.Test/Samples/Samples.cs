@@ -62,6 +62,17 @@ namespace OpenCover.Test.Samples
         public abstract void Method();
     }
 
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ExcludeClassAttribute : Attribute
+    {   
+    }
+
+    [AttributeUsage(AttributeTargets.Method|AttributeTargets.Property)]
+    public class ExcludeMethodAttribute : Attribute
+    {
+    }
+
+    [ExcludeClassAttribute]
     public class Concrete : AbstractBase
     {
         public override string Name
@@ -69,9 +80,25 @@ namespace OpenCover.Test.Samples
             get { return "Me!"; }
             set { }
         }
+
+        [ExcludeMethodAttribute]
         public override void Method()
         {
             throw new NotImplementedException();
         }
     }
+
+    public struct NotCoveredStruct
+    {
+        public int Number { get; set; }
+    }
+
+    public struct CoveredStruct
+    {
+        private int number;
+// ReSharper disable ConvertToAutoProperty
+        public int Number { get { return number; } set { number = value; } }
+// ReSharper restore ConvertToAutoProperty
+    }
+
 }

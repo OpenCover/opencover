@@ -10,7 +10,7 @@
 			commandline="-arch x86 -out ${solution.folder}\bin\installer\temp\Product.wxi ${solution.folder}\OpenCover.Installer\Product.wxs" />
 
 		<exec program="${light.exe}" 
-			commandline="-b ${solution.folder}\OpenCover.Installer -ext WixUtilExtension.dll -out ${solution.folder}\bin\installer\opencover.msi ${solution.folder}\bin\installer\temp\Product.wxi" />
+			commandline="-b ${solution.folder}\OpenCover.Installer -ext WixUtilExtension -ext WixUIExtension -cultures:en-us -out ${solution.folder}\bin\installer\opencover.msi ${solution.folder}\bin\installer\temp\Product.wxi" />
 		
 	</target>
 	

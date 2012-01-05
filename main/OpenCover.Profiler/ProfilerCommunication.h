@@ -21,7 +21,7 @@ private:
 public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
-    void Initialise(TCHAR* key);
+    bool Initialise(TCHAR* key, TCHAR *ns);
     void Stop();
 
 public:
@@ -36,6 +36,7 @@ private:
 
 private:
     tstring m_key;
+    tstring m_namespace;
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults);

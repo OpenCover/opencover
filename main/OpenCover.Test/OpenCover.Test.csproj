@@ -53,6 +53,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ISymWrapper" />
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
@@ -154,6 +155,13 @@
       <Link>dogfood64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\dogfood_exattr.cmd">
+      <Link>dogfood_exattr.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\cmdline\dogfood_exfile.cmd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\dogfood_nunit.cmd">
       <Link>dogfood_nunit.cmd</Link>
     </None>
@@ -186,6 +194,10 @@
     </None>
     <None Include="..\cmdline\report_coverage.cmd">
       <Link>report_coverage.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\cmdline\silverlight.cmd">
+      <Link>silverlight.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\cmdline\xunit.opencover.cmd">

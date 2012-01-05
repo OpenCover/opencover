@@ -10,10 +10,12 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
+using log4net;
 using File = OpenCover.Framework.Model.File;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
@@ -24,14 +26,16 @@ namespace OpenCover.Framework.Symbols
         private const int stepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
+        private readonly ILog _logger;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger)
         {
             _commandLine = commandLine;
             _filter = filter;
+            _logger = logger;
         }
 
         public string ModulePath
@@ -52,22 +56,19 @@ namespace OpenCover.Framework.Symbols
 
         private string FindSymbolsFolder()
         {
-            var fileName = Path.GetFileNameWithoutExtension(_modulePath);
             var origFolder = Path.GetDirectoryName(_modulePath);
-            
-            return FindSymbolsFolder(fileName, origFolder) ?? FindSymbolsFolder(fileName, _commandLine.TargetDir) ?? FindSymbolsFolder(fileName, Environment.CurrentDirectory);
+
+            return FindSymbolsFolder(_modulePath, origFolder) ?? FindSymbolsFolder(_modulePath, _commandLine.TargetDir) ?? FindSymbolsFolder(_modulePath, Environment.CurrentDirectory);
         }
 
         private static string FindSymbolsFolder(string fileName, string targetfolder)
         {
             if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
             {
-                if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".pdb")))
+                if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")))
                 {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".exe")))
-                        return targetfolder;
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".dll")))
-                        return targetfolder;
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileName(fileName))))
+                        return targetfolder;   
                 }
             }
             return null;
@@ -79,6 +80,7 @@ namespace OpenCover.Framework.Symbols
             {
                 if (_sourceAssembly==null)
                 {
+                    var currentPath = Environment.CurrentDirectory;
                     try
                     {
                         var folder = FindSymbolsFolder();
@@ -87,11 +89,12 @@ namespace OpenCover.Framework.Symbols
                         var parameters = new ReaderParameters
                         {
                             SymbolReaderProvider = new PdbReaderProvider(),
-                            ReadingMode = ReadingMode.Immediate,
+                            ReadingMode = ReadingMode.Deferred,
+                            ReadSymbols = true,
                         };
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, Path.GetFileName(_modulePath)), parameters);
 
-                        if (_sourceAssembly != null) 
+                        if (_sourceAssembly != null)
                             _sourceAssembly.MainModule.ReadSymbols();
                     }
                     catch (Exception ex)
@@ -99,8 +102,17 @@ namespace OpenCover.Framework.Symbols
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
                     }
+                    finally
+                    {
+                        Environment.CurrentDirectory = currentPath;
+                    }
                     if (_sourceAssembly == null)
-                        Console.WriteLine("Cannot instrument {0} as no PDB could be loaded", _modulePath);
+                    {
+                        if (_logger.IsDebugEnabled)
+                        {
+                            _logger.DebugFormat("Cannot instrument {0} as no PDB could be loaded", _modulePath);
+                        }
+                    }
                 }
                 return _sourceAssembly;
             }
@@ -120,18 +132,23 @@ namespace OpenCover.Framework.Symbols
         {
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetInstrumentableTypes(typeDefinitions, classes);
+            GetInstrumentableTypes(typeDefinitions, classes, _filter);
             return classes.Where(c => _filter.InstrumentClass(_moduleName, c.FullName)).ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter)
         {
+           
+
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
-                if (typeDefinition.IsValueType) continue;  
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
-                var @class = new Class() {FullName = typeDefinition.FullName};
+                var @class = new Class() { FullName = typeDefinition.FullName };
+                if (filter.ExcludeByAttribute(typeDefinition))
+                {
+                    @class.SkippedDueTo = SkippedMethod.Attribute;
+                }
                 var list = new List<string>();
                 foreach (var methodDefinition in typeDefinition.Methods)
                 {
@@ -147,17 +164,24 @@ namespace OpenCover.Framework.Symbols
                         }
                     }
                 }
-                @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
-                classes.Add(@class);
-                if (typeDefinition.HasNestedTypes) GetInstrumentableTypes(typeDefinition.NestedTypes, classes); 
+
+                // only instrument types that are not structs and have instrumentable points
+                if (!typeDefinition.IsValueType || list.Count > 0)
+                {
+                    @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
+                    classes.Add(@class);
+                }
+                if (typeDefinition.HasNestedTypes) 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter); 
             }
         }
 
+       
         public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type, methods, files);
+            GetMethodsForType(typeDefinitions, type, methods, files, _filter);
             return methods.ToArray();
         }
 
@@ -174,7 +198,7 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
-        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files)
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files, IFilter filter)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
@@ -192,13 +216,20 @@ namespace OpenCover.Framework.Symbols
                                              IsGetter = methodDefinition.IsGetter,
                                              IsSetter = methodDefinition.IsSetter
                                          };
+                        
+                        if (filter.ExcludeByAttribute(methodDefinition))
+                            method.SkippedDueTo = SkippedMethod.Attribute;
+                        else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
+                            method.SkippedDueTo = SkippedMethod.File;
+
                         var definition = methodDefinition;
                         method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
                             .Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
                         methods.Add(method);
                     }
                 }
-                if (typeDefinition.HasNestedTypes) GetMethodsForType(typeDefinition.NestedTypes, type, methods, files);
+                if (typeDefinition.HasNestedTypes) 
+                    GetMethodsForType(typeDefinition.NestedTypes, type, methods, files, filter);
             }
         }
 

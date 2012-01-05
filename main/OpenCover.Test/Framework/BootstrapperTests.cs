@@ -9,6 +9,7 @@ using OpenCover.Framework;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Framework.Symbols;
+using log4net;
 
 namespace OpenCover.Test.Framework
 {
@@ -22,8 +23,9 @@ namespace OpenCover.Test.Framework
             var mockFilter = new Mock<IFilter>();
             var mockCommandLine = new Mock<ICommandLine>();
             var mockPersistance = new Mock<IPersistance>();
+            var mockLogger = new Mock<ILog>();
 
-            var bootstrapper = new Bootstrapper();
+            var bootstrapper = new Bootstrapper(mockLogger.Object);
             bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object);
 
             // act

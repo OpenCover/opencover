@@ -83,7 +83,7 @@ namespace OpenCover.Test.Framework.Manager
                 standardMessageChunk.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
-            });
+            }, false);
 
             // assert
             Container.GetMock<IMessageHandler>()
@@ -96,7 +96,7 @@ namespace OpenCover.Test.Framework.Manager
             // arrange
 
             // act
-            Instance.RunProcess(e => e(new StringDictionary()));
+            Instance.RunProcess(e => e(new StringDictionary()), false);
 
             // assert
             Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
@@ -114,7 +114,7 @@ namespace OpenCover.Test.Framework.Manager
                 standardMessageDataReady.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
-            });
+            }, false);
         }
     }
 }

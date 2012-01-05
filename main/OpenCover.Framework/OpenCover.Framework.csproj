@@ -46,6 +46,9 @@
     <Reference Include="Gendarme.Rules.Maintainability">
       <HintPath>..\..\tools\Gendarme.2.11\Signed\Gendarme.Rules.Maintainability.dll</HintPath>
     </Reference>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\..\tools\log4net-1.2.11\bin\net\4.0\release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.Unity, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\tools\EnterpriseLibrary\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
@@ -78,7 +81,9 @@
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationPoint.cs" />
+    <Compile Include="Model\SkippedMethod.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
+    <Compile Include="ExcludeCoverageAttribute.cs" />
     <Compile Include="Persistance\FilePersistance.cs" />
     <Compile Include="Filter.cs" />
     <Compile Include="ICommandLine.cs" />
@@ -101,7 +106,11 @@
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

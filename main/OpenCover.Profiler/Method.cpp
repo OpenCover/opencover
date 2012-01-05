@@ -8,7 +8,7 @@
 
 #ifdef DEBUG
 // uncommment to get debug builds to dump out instrumented functions (slow)
-//#define DUMP_IL 1
+#define DUMP_IL 1
 #endif
 
 Method::Method(IMAGE_COR_ILMETHOD* pMethod) 
@@ -432,7 +432,7 @@ void Method::DumpIL()
 {
 #ifdef DUMP_IL
     ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
-    for (InstructionListConstIter it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.operandSize == Null)
@@ -487,7 +487,7 @@ void Method::DumpIL()
     }
 
     int i = 0;
-    for (ExceptionHandlerListConstIter it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
+    for (auto it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
         ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"), 
             i++, (*it)->m_handlerType, 

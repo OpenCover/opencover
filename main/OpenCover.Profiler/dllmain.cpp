@@ -14,10 +14,10 @@ COpenCoverProfilerModule _AtlModule;
 extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 {
 #ifdef _MERGE_PROXYSTUB
-	if (!PrxDllMain(hInstance, dwReason, lpReserved))
-		return FALSE;
+    if (!PrxDllMain(hInstance, dwReason, lpReserved))
+        return FALSE;
 #endif
-	hInstance;
+    hInstance;
 
     switch(dwReason)
     {
@@ -35,5 +35,5 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
     };
 
     _AtlModule.m_hModule = hInstance;
-	return _AtlModule.DllMain(dwReason, lpReserved); 
+    return _AtlModule.DllMain(dwReason, lpReserved); 
 }

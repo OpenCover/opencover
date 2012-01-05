@@ -11,14 +11,17 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using OpenCover.Framework.Model;
+using log4net;
 
 namespace OpenCover.Framework.Persistance
 {
     public class FilePersistance : BasePersistance
     {
+        private readonly ILog _logger;
 
-        public FilePersistance(ICommandLine commandLine) : base(commandLine)
+        public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine)
         {
+            _logger = logger;
         }
 
         private string _fileName;
@@ -30,7 +33,11 @@ namespace OpenCover.Framework.Persistance
 
         public override void Commit()
         {
-            Console.WriteLine("Committing....");
+            if (_logger.IsInfoEnabled)
+            {
+                _logger.Info("Committing...");
+            }
+
             try
             {
                 base.Commit();

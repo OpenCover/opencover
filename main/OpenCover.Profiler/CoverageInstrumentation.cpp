@@ -12,7 +12,7 @@ CoverageInstrumentation::~CoverageInstrumentation(void)
 {
 }
 
-void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, std::vector<SequencePoint> points)
+void CoverageInstrumentation::AddSequenceCoverage(mdMethodDef methodDef, std::vector<SequencePoint> points)
 {
 #ifdef DEBUG
     int i = 0;
@@ -26,13 +26,13 @@ void CoverageInstrumentation::AddSequenceCoverage(mdSignature pvsig, FPTR pt, st
     {    
         InstructionList instructions;
 
-        CreateInstrumentationBlock(instructions, pvsig, pt, (*it).UniqueId);
+        CreateInstrumentationBlock(instructions, methodDef, (*it).UniqueId);
 
         InsertInstructionsAtOriginalOffset((*it).Offset, instructions);
     }
 }
 
-void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std::vector<BranchPoint> points)
+void CoverageInstrumentation::AddBranchCoverage(mdMethodDef methodDef, std::vector<BranchPoint> points)
 {
     if (points.size() == 0) return;
 
@@ -59,7 +59,7 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
 
                 InstructionList instructions;
 
-                CreateInstrumentationBlock(instructions, pvsig, pt, 
+                CreateInstrumentationBlock(instructions, methodDef, 
                     (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId);
 
                 Instruction *pJumpNext = new Instruction(CEE_BR);
@@ -70,7 +70,7 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
                 for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
                 {
                     idx++;
-                    Instruction *pRecordJmp = CreateInstrumentationBlock(instructions, pvsig, pt, 
+                    Instruction *pRecordJmp = CreateInstrumentationBlock(instructions, methodDef, 
                         (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId); 
 
                     Instruction *pSwitchJump = new Instruction(CEE_BR);
@@ -89,17 +89,12 @@ void CoverageInstrumentation::AddBranchCoverage(mdSignature pvsig, FPTR pt, std:
 }
 
 Instruction* CoverageInstrumentation::CreateInstrumentationBlock(InstructionList &instructions, 
-    mdSignature pvsig, FPTR pt, ULONGLONG uniqueId)
+    mdMethodDef methodDef, ULONGLONG uniqueId)
 {
     Instruction *firstInstruction = new Instruction(CEE_LDC_I4, uniqueId);
 
     instructions.push_back(firstInstruction);
-#if _WIN64
-    instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
-#else
-    instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
-#endif
-    instructions.push_back(new Instruction(CEE_CALLI, pvsig));
+    instructions.push_back(new Instruction(CEE_CALL, methodDef));
 
     return firstInstruction;
 }

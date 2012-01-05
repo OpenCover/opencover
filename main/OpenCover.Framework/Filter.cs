@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Mono.Cecil;
 
 namespace OpenCover.Framework
 {
@@ -42,13 +43,48 @@ namespace OpenCover.Framework
         /// <param name="className">the name of the class under profile</param>
         /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
         bool InstrumentClass(string assemblyName, string className);
+
+        /// <summary>
+        /// Add attribute exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters">An array of filters that are used to wildcard match an attribute</param>
+        void AddAttributeExclusionFilters(string[] exclusionFilters);
+
+        /// <summary>
+        /// Is this entity excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
+        bool ExcludeByAttribute(ICustomAttributeProvider entity);
+
+        /// <summary>
+        /// Is this file excluded
+        /// </summary>
+        /// <param name="fileName">The name of the file to test</param>
+        /// <returns></returns>
+        bool ExcludeByFile(string fileName);
+
+        /// <summary>
+        /// Add file exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters"></param>
+        void AddFileExclusionFilters(string[] exclusionFilters);
     }  
 
     internal static class FilterHelper
     {
         internal static string WrapWithAnchors(this string data)
         {
-            return string.Format("^{0}$", data);
+            return String.Format("^{0}$", data);
+        }
+
+        internal static string ValidateAndEscape(this string match, string notAllowed = @"\[]")
+        {
+            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
+            match = match.Replace(@"\", @"\\");
+            match = match.Replace(@".", @"\.");
+            match = match.Replace(@"*", @".*");
+            return match;
         }
     }
 
@@ -75,8 +111,10 @@ namespace OpenCover.Framework
     /// </summary>
     public class Filter : IFilter
     {
-        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set;}
-        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set;}
+        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set; }
+        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set; }
+        internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
+        internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
 
         /// <summary>
         /// Standard constructor
@@ -85,6 +123,8 @@ namespace OpenCover.Framework
         {
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
+            ExcludedAttributes = new List<Lazy<Regex>>();
+            ExcludedFiles = new List<Lazy<Regex>>();
         }
         
         public bool UseAssembly(string assemblyName)
@@ -144,8 +184,8 @@ namespace OpenCover.Framework
             FilterType filterType;
             GetAssemblyClassName(assemblyClassName, out filterType, out assemblyName, out className);
 
-            assemblyName = ValidateAndEscape(assemblyName);
-            className = ValidateAndEscape(className);
+            assemblyName = assemblyName.ValidateAndEscape();
+            className = className.ValidateAndEscape();
 
             if (filterType == FilterType.Inclusion) InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
 
@@ -173,12 +213,54 @@ namespace OpenCover.Framework
             }
         }
 
-        private static string ValidateAndEscape(string match)
+        public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            if (match.IndexOfAny(@"\[]".ToCharArray())>=0) throw new InvalidOperationException(string.Format("The string is invalid for an assembly/class name {0}", match));
-            match = match.Replace(@".", @"\.");
-            match = match.Replace(@"*", @".*");
-            return match;
+            if (exclusionFilters == null) 
+                return;
+            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
+            {
+                var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
+                ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
+            }
+        }
+
+        [ExcludeFromCoverage]
+        public bool ExcludeByAttribute(ICustomAttributeProvider entity)
+        {
+            if (ExcludedAttributes.Count == 0 || !entity.HasCustomAttributes) 
+                return false;
+            foreach (var excludeAttribute in ExcludedAttributes)
+            {
+                foreach (var customAttribute in entity.CustomAttributes)
+                {
+                    if (excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success) 
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ExcludeByFile(string fileName)
+        {
+            if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
+                return false;
+            foreach (var excludeAttribute in ExcludedFiles)
+            {
+                if (excludeAttribute.Value.Match(fileName).Success)
+                    return true;
+            }
+            return false;
+        }
+
+        public void AddFileExclusionFilters(string[] exclusionFilters)
+        {
+            if (exclusionFilters == null)
+                return;
+            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
+            {
+                var filter = exlusionFilter.ValidateAndEscape(@"[]").WrapWithAnchors();
+                ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
+            }
         }
     }
 }

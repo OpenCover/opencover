@@ -5,13 +5,17 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
+using log4net;
+using log4net.Core;
 
 namespace OpenCover.Console
 {
@@ -26,22 +30,26 @@ namespace OpenCover.Console
         {
             var returnCode = 0;
             var returnCodeOffset = 0;
+            var logger = LogManager.GetLogger(typeof (Bootstrapper));
             try
             {
                 CommandLineParser parser;
                 if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+
+                LogManager.GetRepository().Threshold = parser.LogLevel;
+
                 returnCodeOffset = parser.ReturnCodeOffset;
                 var filter = BuildFilter(parser);
 
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
-                var container = new Bootstrapper();
-                var persistance = new FilePersistance(parser);
+                var container = new Bootstrapper(logger);
+                var persistance = new FilePersistance(parser, logger);
 
                 container.Initialise(filter, parser, persistance);
                 persistance.Initialise(outputFile);
-                bool registered = false;
+                var registered = false;
 
                 try
                 {
@@ -54,23 +62,18 @@ namespace OpenCover.Console
 
                     harness.RunProcess((environment) =>
                                            {
-                                               var startInfo =
-                                                   new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory,
-                                                                                     parser.Target));
-                                               environment(startInfo.EnvironmentVariables);
+                                               returnCode = 0;
+                                               if (parser.Service)
+                                               {
+                                                   RunService(parser, environment, logger);
+                                               }
+                                               else
+                                               {
+                                                   returnCode = RunProcess(parser, environment);
+                                               }
+                                           }, parser.Service);
 
-                                               startInfo.Arguments = parser.TargetArgs;
-                                               startInfo.UseShellExecute = false;
-                                               startInfo.WorkingDirectory = parser.TargetDir;
-
-                                               var process = Process.Start(startInfo);
-                                               process.WaitForExit();
-
-                                               if (parser.ReturnTargetCode)
-                                                   returnCode = process.ExitCode;
-                                           });
-
-                    DisplayResults(persistance, parser);
+                    DisplayResults(persistance, parser, logger);
 
                 }
                 catch (Exception ex)
@@ -86,17 +89,81 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
-                System.Console.WriteLine();
-                System.Console.WriteLine("An exception occured: {0}", ex.Message);
-                System.Console.WriteLine("stack: {0}", ex.StackTrace);
+                if (logger.IsFatalEnabled)
+                {
+                    logger.FatalFormat("An exception occured: {0}", ex.Message);
+                    logger.FatalFormat("stack: {0}", ex.StackTrace);
+                }
+
                 returnCode = returnCodeOffset + 1;
             }
 
             return returnCode;
         }
 
-        private static void DisplayResults(IPersistance persistance, ICommandLine parser)
+        private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
+            var service = new ServiceController(parser.Target);
+            if (service.Status != ServiceControllerStatus.Stopped)
+            {
+                logger.ErrorFormat("The service '{0}' is already running. The profiler cannot attach to an already running service.", 
+                    parser.Target);
+                return;
+            }
+
+            // now to set the environment variables
+            var profilerEnvironment = new StringDictionary();
+            environment(profilerEnvironment);
+
+            var serviceEnvironment = new ServiceEnvironmentManagement();
+
+            try
+            {
+                serviceEnvironment.PrepareServiceEnvironment(parser.Target, 
+                    (from string key in profilerEnvironment.Keys select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+
+                // now start the service
+                service = new ServiceController(parser.Target);
+                service.Start();
+                logger.InfoFormat("Service starting '{0}'", parser.Target);
+                service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+                logger.InfoFormat("Service started '{0}'", parser.Target);
+            }
+            finally 
+            {
+                // once the serice has started set the environment variables back - just in case
+                serviceEnvironment.ResetServiceEnvironment();
+            }
+
+            // and wait for it to stop
+            service.WaitForStatus(ServiceControllerStatus.Stopped);
+            logger.InfoFormat("Service stopped '{0}'", parser.Target);
+
+        }
+
+        private static int RunProcess(CommandLineParser parser, Action<StringDictionary> environment)
+        {
+            var returnCode = 0;
+            var startInfo =
+                new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+            environment(startInfo.EnvironmentVariables);
+
+            startInfo.Arguments = parser.TargetArgs;
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = parser.TargetDir;
+
+            var process = Process.Start(startInfo);
+            process.WaitForExit();
+
+            if (parser.ReturnTargetCode)
+                returnCode = process.ExitCode;
+            return returnCode;
+        }
+
+        private static void DisplayResults(IPersistance persistance, ICommandLine parser, ILog logger)
+        {
+            if (!logger.IsInfoEnabled) return;
+ 
             var CoverageSession = persistance.CoverageSession;
 
             var totalClasses = 0;
@@ -179,43 +246,44 @@ namespace OpenCover.Console
 
             if (totalClasses > 0)
             {
-                System.Console.WriteLine("Visited Classes {0} of {1} ({2})", visitedClasses,
+                
+                logger.InfoFormat("Visited Classes {0} of {1} ({2})", visitedClasses,
                                   totalClasses, (double)visitedClasses * 100.0 / (double)totalClasses);
-                System.Console.WriteLine("Visited Methods {0} of {1} ({2})", visitedMethods,
+                logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
                                   totalMethods, (double)visitedMethods * 100.0 / (double)totalMethods);
-                System.Console.WriteLine("Visited Points {0} of {1} ({2})", visitedSeqPoint,
+                logger.InfoFormat("Visited Points {0} of {1} ({2})", visitedSeqPoint,
                                   totalSeqPoint, (double)visitedSeqPoint * 100.0 / (double)totalSeqPoint);
-                System.Console.WriteLine("Visited Branches {0} of {1} ({2})", visitedBrPoint,
+                logger.InfoFormat("Visited Branches {0} of {1} ({2})", visitedBrPoint,
                                   totalBrPoint, (double)visitedBrPoint * 100.0 / (double)totalBrPoint);
 
-                System.Console.WriteLine("");
-                System.Console.WriteLine(
+                logger.InfoFormat("");
+                logger.InfoFormat(
                     "==== Alternative Results (includes all methods including those without corresponding source) ====");
-                System.Console.WriteLine("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
+                logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
                                   altTotalClasses, (double)altVisitedClasses * 100.0 / (double)altTotalClasses);
-                System.Console.WriteLine("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
+                logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
                                   altTotalMethods, (double)altVisitedMethods * 100.0 / (double)altTotalMethods);
 
                 if (parser.ShowUnvisited)
                 {
-                    System.Console.WriteLine("");
-                    System.Console.WriteLine("====Unvisited Classes====");
+                    logger.InfoFormat("");
+                    logger.InfoFormat("====Unvisited Classes====");
                     foreach (var unvisitedClass in unvisitedClasses)
                     {
-                        System.Console.WriteLine(unvisitedClass);
+                        logger.InfoFormat(unvisitedClass);
                     }
 
-                    System.Console.WriteLine("");
-                    System.Console.WriteLine("====Unvisited Methods====");
+                    logger.InfoFormat("");
+                    logger.InfoFormat("====Unvisited Methods====");
                     foreach (var unvisitedMethod in unvisitedMethods)
                     {
-                        System.Console.WriteLine(unvisitedMethod);
+                        logger.InfoFormat(unvisitedMethod);
                     }
                 }
             }
             else
             {
-                System.Console.WriteLine("No results - no assemblies that matched the supplied filter were instrumented (missing PDBs?)");
+                logger.InfoFormat("No results - no assemblies that matched the supplied filter were instrumented (missing PDBs?)");
             }
         }
 
@@ -224,14 +292,13 @@ namespace OpenCover.Console
             outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
             if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
             {
-                System.Console.WriteLine(
-                    "Output folder does not exist; please create it and make sure appropriate permissions are set.");
+                System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
                 return false;
             }
             return true;
         }
 
-        private static Filter BuildFilter(CommandLineParser parser)
+        private static IFilter BuildFilter(CommandLineParser parser)
         {
             var filter = new Filter();
 
@@ -239,6 +306,7 @@ namespace OpenCover.Console
             if (!parser.NoDefaultFilters)
             {
                 filter.AddFilter("-[mscorlib]*");
+                filter.AddFilter("-[mscorlib.*]*");
                 filter.AddFilter("-[System]*");
                 filter.AddFilter("-[System.*]*");
                 filter.AddFilter("-[Microsoft.VisualBasic]*");
@@ -252,6 +320,10 @@ namespace OpenCover.Console
             {
                 parser.Filters.ForEach(filter.AddFilter);
             }
+
+            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
+            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
+
             return filter;
         }
 
@@ -277,9 +349,22 @@ namespace OpenCover.Console
                     return true;
                 }
 
-                if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
+                if (parser.Service)
                 {
-                    System.Console.WriteLine("Target {0} cannot be found - have you specified your arguments correctly?", parser.Target);
+                    try
+                    {
+                        var service = new ServiceController(parser.Target);
+                        var name = service.DisplayName;
+                    }
+                    catch (Exception)
+                    {
+                        System.Console.WriteLine("Service '{0}' cannot be found - have you specified your arguments correctly?", parser.Target);
+                        return false;
+                    }                    
+                }
+                else if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
+                {
+                    System.Console.WriteLine("Target '{0}' cannot be found - have you specified your arguments correctly?", parser.Target);
                     return false;
                 }
             }

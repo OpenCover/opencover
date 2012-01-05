@@ -10,6 +10,7 @@ class CMutex
 public:
     CMutex() : m_hMutex(NULL) {}
     ~CMutex() { if (m_hMutex!=NULL) { ::CloseHandle(m_hMutex); m_hMutex=NULL; } }
+    bool IsValid() {return m_hMutex!=NULL; }
 
 public:
     void Initialise(const TCHAR * pName) { m_hMutex = ::CreateMutex(NULL, false, pName); }
@@ -35,6 +36,7 @@ class CEvent
 public:
     CEvent () : m_hEvent(NULL) { }
     ~CEvent() { if (m_hEvent!= NULL) { ::CloseHandle(m_hEvent); m_hEvent = NULL; } }
+    bool IsValid() {return m_hEvent!=NULL; }
 
 public:
     void Initialise(const TCHAR * pName, BOOL bManualReset = TRUE) { m_hEvent = ::CreateEvent(NULL, bManualReset, FALSE, pName); }

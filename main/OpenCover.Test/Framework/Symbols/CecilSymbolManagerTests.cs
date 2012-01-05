@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
+using log4net;
 using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -17,15 +20,17 @@ namespace OpenCover.Test.Framework.Symbols
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
         private Mock<IFilter> _mockFilter;
+        private Mock<ILog> _mockLogger;
 
         [SetUp]
         public void Setup()
         {
             _mockCommandLine = new Mock<ICommandLine>();
             _mockFilter = new Mock<IFilter>();
+            _mockLogger = new Mock<ILog>();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 
@@ -65,6 +70,38 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.NotNull(types);
             Assert.AreNotEqual(0, types.GetLength(0));
+        }
+
+        [Test]
+        public void GetInstrumentableTypes_Does_Not_Return_Structs_With_No_Instrumentable_Code()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var types = _reader.GetInstrumentableTypes();
+
+            // assert
+            Assert.NotNull(types);
+            Assert.IsNull(types.Where(x => x.FullName == typeof(NotCoveredStruct).FullName).FirstOrDefault());
+        }
+
+        [Test]
+        public void GetInstrumentableTypes_Does_Return_Structs_With_Instrumentable_Code()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var types = _reader.GetInstrumentableTypes();
+
+            // assert
+            Assert.NotNull(types);
+            Assert.IsNotNull(types.Where(x => x.FullName == typeof(CoveredStruct).FullName).FirstOrDefault());
         }
 
         [Test]
@@ -317,5 +354,67 @@ namespace OpenCover.Test.Framework.Symbols
 #endif
 
         }
+
+        [Test]
+        public void Can_Exclude_A_Class_By_An_Attribute()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof (Concrete).MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+
+            Assert.True(types.Count() > 0);
+            Assert.True(types.Where(x => x.FullName == typeof(Concrete).FullName).First().SkippedDueTo == SkippedMethod.Attribute);
+        }
+
+        [Test]
+        public void Can_Exclude_A_Method_By_An_Attribute()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof(Concrete).GetMethod("Method").MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(Concrete).FullName);
+            var methods = _reader.GetMethodsForType(target, new File[0] );
+
+            Assert.True(methods.Count() > 0);
+            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.Attribute);
+        }
+
+        [Test]
+        public void Can_Exclude_A_Method_By_An_FileFilter()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof(Concrete).GetMethod("Method").MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByFile(It.Is<string>(y => !string.IsNullOrWhiteSpace(y) && y.EndsWith("Samples.cs"))))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(Concrete).FullName);
+            var methods = _reader.GetMethodsForType(target, new File[0]);
+
+            Assert.True(methods.Count() > 0);
+            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.File);
+        }
+
     }
 }
