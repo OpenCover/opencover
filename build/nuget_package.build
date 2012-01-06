@@ -5,7 +5,7 @@
 	<property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
 	<property name="out.folder" value="${solution.folder}\bin\nugetpackage" />
 
-	<target name="nuget-package" >
+	<target name="nuget-package" depends="get-version-number" >
 		<mkdir dir="${out.folder}" />
 		<exec program="${nuget.exe}" 
 			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${out.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />

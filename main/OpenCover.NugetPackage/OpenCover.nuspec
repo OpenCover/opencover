@@ -6,7 +6,7 @@
     <title>OpenCover - an open source code coverage tool for .NET</title>
     <authors>sawilde</authors>
     <owners />
-    <licenseUrl>https://github.com/sawilde/opencover/blob/master/License.rtf</licenseUrl>
+    <licenseUrl>https://github.com/sawilde/opencover/blob/master/License.md</licenseUrl>
     <iconUrl>https://github.com/sawilde/opencover/blob/master/main/Icons/128.png?raw=true</iconUrl>
     <projectUrl>https://github.com/sawilde/opencover</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
