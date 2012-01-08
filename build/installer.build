@@ -5,7 +5,7 @@
 	<property name="candle.exe" value="${wix.folder}/candle.exe" />
 	<property name="light.exe" value="${wix.folder}/light.exe" />
 
-	<target name="build-installer" >
+	<target name="build-installer" depends="get-version-number">
 		<exec program="${candle.exe}" 
 			commandline="-arch x86 -out ${solution.folder}\bin\installer\temp\Product.wxi ${solution.folder}\OpenCover.Installer\Product.wxs" />
 
