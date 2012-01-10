@@ -38,6 +38,15 @@ enum MSG_Type : int
     MSG_TrackAssembly = 1,
     MSG_GetSequencePoints = 2,
     MSG_GetBranchPoints = 3,
+    MSG_TrackMethod = 4,
+};
+
+enum MSG_IdType : ULONG
+{
+    IT_VisitPoint = 0x00000000,
+    IT_MethodEnter = 0x40000000,
+    IT_MethodLeave = 0x80000000,
+    IT_MethodTailcall = 0xC0000000,
 };
 
 #pragma pack(push)
@@ -91,15 +100,32 @@ typedef struct _MSG_SendVisitPoints_Request
     VisitPoint points[VP_BUFFER_SIZE];
 } MSG_SendVisitPoints_Request;
 
+typedef struct _MSG_TrackMethod_Request
+{
+    MSG_Type type;
+    int functionToken;
+    WCHAR szModulePath[512];
+    WCHAR szAssemblyName[512];
+} MSG_TrackMethod_Request;
+
+typedef struct _MSG_TrackMethod_Response
+{
+    BOOL bResponse;
+    ULONG UniqueId;
+} MSG_TrackMethod_Response;
+
 #pragma pack(pop)
 
 typedef union _MSG_Union
 {
     MSG_Type type;
-    MSG_TrackAssembly_Request trackRequest;
-    MSG_TrackAssembly_Response trackResponse;
+    MSG_TrackAssembly_Request trackAssemblyRequest;
+    MSG_TrackAssembly_Response trackAssemblyResponse;
     MSG_GetSequencePoints_Request getSequencePointsRequest;
     MSG_GetSequencePoints_Response getSequencePointsResponse;
     MSG_GetBranchPoints_Request getBranchPointsRequest;
     MSG_GetBranchPoints_Response getBranchPointsResponse;
+    MSG_TrackMethod_Request trackMethodRequest;
+    MSG_TrackMethod_Response trackMethodResponse;
 } MSG_Union;
+

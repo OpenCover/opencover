@@ -130,6 +130,7 @@ namespace OpenCover.Framework.Symbols
 
         public Class[] GetInstrumentableTypes()
         {
+            if (SourceAssembly == null) return new Class[0];
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
             GetInstrumentableTypes(typeDefinitions, classes, _filter);
@@ -138,8 +139,6 @@ namespace OpenCover.Framework.Symbols
 
         private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter)
         {
-           
-
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
@@ -337,6 +336,20 @@ namespace OpenCover.Framework.Symbols
                 if (typeDefinition.HasNestedTypes) 
                     GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token, ref complexity);
             }
+        }
+
+        public TrackedMethod[] GetTrackedMethods()
+        {
+            if (SourceAssembly==null) return null;
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            return (from typeDefinition in typeDefinitions
+                    from methodDefinition in typeDefinition.Methods
+                    from customAttribute in methodDefinition.CustomAttributes
+                    where customAttribute.AttributeType.FullName == "NUnit.Framework.TestAttribute"
+                    select new TrackedMethod()
+                               {
+                                   MetadataToken = methodDefinition.MetadataToken.ToInt32(), Name = methodDefinition.FullName
+                               }).ToArray();
         }
     }
 }

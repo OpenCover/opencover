@@ -30,11 +30,25 @@ namespace OpenCover.Framework.Service
         public bool TrackAssembly(string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
-            if (!_filter.UseAssembly(assemblyName)) return false;
+            var track = false;
+            Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            if (!builder.CanInstrument) return false;
-            _persistance.PersistModule(builder.BuildModuleModel());
-            return true;
+            if (_filter.UseAssembly(assemblyName))
+            {
+                if (builder.CanInstrument)
+                {
+                    module = builder.BuildModuleModel();
+                    track = true;
+                }
+            }
+
+            if (_filter.UseTestAssembly(modulePath))
+            {
+                module = builder.BuildModuleTestModel(module);
+            }
+            _persistance.PersistModule(module);
+
+            return track;
         }
 
         public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
@@ -74,6 +88,11 @@ namespace OpenCover.Framework.Service
         public void Stopping()
         {
             _persistance.Commit();
+        }
+
+        public bool TrackMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
+        {
+            return _persistance.GetTrackingMethod(modulePath, assemblyName,functionToken, out uniqueId);
         }
     }
 }

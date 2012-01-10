@@ -39,12 +39,17 @@ namespace OpenCover.Test.Framework.Service
         }
 
         [Test]
-        public void TrackAssembly_DoesntAdd_AssemblyToModel_If_FilterUseAssembly_Returns_False()
+        public void TrackAssembly_Adds_AssemblyToModel_If_FilterUseTestAssembly_Returns_True()
         {
             // arrange
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
-                .Returns(false);
+                .Setup(x => x.UseTestAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(mockModelBuilder.Object);
 
             // act
             var track = Instance.TrackAssembly("moduleName", "assemblyName");
@@ -52,7 +57,29 @@ namespace OpenCover.Test.Framework.Service
             // assert
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
-                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Once());
+        }
+
+        [Test]
+        public void TrackAssembly_DoesntAdd_AssemblyToModel_If_FilterUseAssembly_Returns_False()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(false);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(mockModelBuilder.Object);
+
+            // act
+            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+
+            // assert
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(null), Times.Once());
         }
 
         [Test]
@@ -78,7 +105,7 @@ namespace OpenCover.Test.Framework.Service
             // assembly
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
-                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+                .Verify(x => x.PersistModule(null), Times.Once());
 
         }
 
@@ -243,5 +270,41 @@ namespace OpenCover.Test.Framework.Service
             Assert.AreEqual(points.GetLength(0), instrumentPoints.GetLength(0));
             Container.GetMock<IPersistance>().Verify();
         }
+
+        [Test]
+        public void TrackMethod_True_WhenMethodIsTracked()
+        {
+            // arrange
+            uint trackid = 123;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetTrackingMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out trackid))
+                .Returns(true);
+
+            // act
+            uint uniqueId = 0;
+            var result = Instance.TrackMethod("", "", 0, out uniqueId);
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(trackid, uniqueId);
+        }
+
+        [Test]
+        public void TrackMethod_False_When_MethodNotTracked()
+        {
+            // arrange
+            uint trackid = 0;
+            Container.GetMock<IPersistance>()
+                .Setup(x => x.GetTrackingMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out trackid))
+                .Returns(false);
+
+            // act
+            uint uniqueId = 0;
+            var result = Instance.TrackMethod("", "", 0, out uniqueId);
+
+            // assert
+            Assert.IsFalse(result);
+        }
+
     }
 }

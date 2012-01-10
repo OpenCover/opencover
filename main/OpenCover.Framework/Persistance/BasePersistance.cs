@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Persistance
@@ -9,17 +10,26 @@ namespace OpenCover.Framework.Persistance
     public abstract class BasePersistance : IPersistance
     {
         protected readonly ICommandLine _commandLine;
+        private uint _trackedMethodId;
 
         public BasePersistance(ICommandLine commandLine)
         {
             _commandLine = commandLine;
             CoverageSession = new CoverageSession();
+            _trackedMethodId = 0;
         }
 
         public CoverageSession CoverageSession { get; private set; }
 
         public void PersistModule(Module module)
         {
+            if (module == null) return;
+            if ((module.TrackedMethods == null) && (module.Classes == null))
+            {
+                return;
+            }
+
+            module.Classes = module.Classes ?? new Class[0];
             if (_commandLine.MergeByHash)
             {
                 var modules = CoverageSession.Modules ?? new Module[0];
@@ -39,7 +49,6 @@ namespace OpenCover.Framework.Persistance
 
         public bool IsTracking(string modulePath)
         {
-            if (CoverageSession.Modules == null) return false;
             return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
         }
 
@@ -58,30 +67,17 @@ namespace OpenCover.Framework.Persistance
                                    select method)
             {
                 var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
-                foreach (var sequencePoint in from sequencePoint in sequencePoints
-                                          select sequencePoint)
-                {
-                    sequencePoint.VisitCount = InstrumentationPoint.GetCount(sequencePoint.UniqueSequencePoint);
-                }
-
                 var branchPoints = method.BranchPoints ?? new BranchPoint[0];
-                foreach (var branchPoint in from branchPoint in branchPoints
-                                            select branchPoint)
-                {
-                    branchPoint.VisitCount = InstrumentationPoint.GetCount(branchPoint.UniqueSequencePoint);
-                }
 
                 if (method.MethodPoint != null)
                 {
-                    method.MethodPoint.VisitCount =
-                        InstrumentationPoint.GetCount(method.MethodPoint.UniqueSequencePoint);
                     method.Visited = (method.MethodPoint.VisitCount > 0);
                 }
 
                 var numTotBrPoint = branchPoints.Count();
-                var numVisBrPoint = branchPoints.Where(pt => pt.VisitCount != 0).Count();
+                var numVisBrPoint = branchPoints.Count(pt => pt.VisitCount != 0);
                 var numTotSeqPoint = sequencePoints.Count();
-                var numVisSeqPoint = sequencePoints.Where(pt => pt.VisitCount != 0).Count();
+                var numVisSeqPoint = sequencePoints.Count(pt => pt.VisitCount != 0);
 
                 if (numTotSeqPoint > 0)
                     method.SequenceCoverage = (numVisSeqPoint * 100) / numTotSeqPoint;
@@ -104,8 +100,9 @@ namespace OpenCover.Framework.Persistance
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
+                if (!(method.MethodPoint is SequencePoint))
+                    points.Add(method.MethodPoint);
                 points.AddRange(method.SequencePoints);
-                if (points.Count == 0) points.Add(method.MethodPoint);
                 sequencePoints = points.ToArray();
                 return true;
             }
@@ -130,10 +127,8 @@ namespace OpenCover.Framework.Persistance
         {
             @class = null;
             //c = null;
-            if (CoverageSession.Modules == null) 
-                return null;
             var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
-            if (module == null) 
+            if (module == null)
                 return null;
             foreach (var c in module.Classes)
             {
@@ -159,8 +154,33 @@ namespace OpenCover.Framework.Persistance
             var nCount = BitConverter.ToUInt32(data, 0);
             for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
-                InstrumentationPoint.AddCount(BitConverter.ToUInt32(data, idx));   
+                var spid = BitConverter.ToUInt32(data, idx);
+                if (spid < (uint)MSG_IdType.IT_MethodEnter) 
+                    InstrumentationPoint.AddCount(spid, _trackedMethodId);
+                else
+                {
+                    var tmId = spid & (uint)MSG_IdType.IT_Mask;
+                    _trackedMethodId = (spid & (uint)MSG_IdType.IT_MethodEnter) != 0 ? tmId : 0;
+                }
             }
+        }
+
+        public bool GetTrackingMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
+        {
+            uniqueId = 0;
+            foreach (var module in CoverageSession.Modules
+                .Where(x => x.TrackedMethods != null)
+                .Where(x => x.Aliases.Contains(modulePath)))
+            {
+                foreach (var trackedMethod in module.TrackedMethods
+                    .Where(trackedMethod => trackedMethod.MetadataToken == functionToken))
+                {
+                    uniqueId = trackedMethod.UniqueId;
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

@@ -23,7 +23,6 @@ namespace OpenCover.Framework
         /// </summary>
         /// <param name="assemblyClassName">A filter is of the format (+ or -)[assemblyName]className, wildcards are allowed. <br/>
         /// i.e. -[mscorlib], -[System.*]*, +[App.*]*, +[*]*
-        /// 
         /// </param>
         void AddFilter(string assemblyClassName);
 
@@ -31,10 +30,22 @@ namespace OpenCover.Framework
         /// Decides whether an assembly should be included in the instrumentation
         /// </summary>
         /// <param name="assemblyName">the name of the assembly under profile</param>
-        /// <returns>the name of the class under profile</returns>
         /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
         /// as it is the class that is being filtered within these unless the class filter is *</remarks>
         bool UseAssembly(string assemblyName);
+
+        /// <summary>
+        /// Decides whether an assembly should be analysed for test methods
+        /// </summary>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <returns>true - if the assembly matches the test assembly filter</returns>
+        bool UseTestAssembly(string assemblyName);
+
+        /// <summary>
+        /// Add file exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters"></param>
+        void AddFileExclusionFilters(string[] exclusionFilters);
 
         /// <summary>
         /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
@@ -65,10 +76,10 @@ namespace OpenCover.Framework
         bool ExcludeByFile(string fileName);
 
         /// <summary>
-        /// Add file exclusion filters
+        /// Add test file filters
         /// </summary>
-        /// <param name="exclusionFilters"></param>
-        void AddFileExclusionFilters(string[] exclusionFilters);
+        /// <param name="testFilters"></param>
+        void AddTestFileFilters(string[] testFilters);
     }  
 
     internal static class FilterHelper
@@ -115,6 +126,7 @@ namespace OpenCover.Framework
         internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set; }
         internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
         internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
+        internal IList<Lazy<Regex>> TestFiles { get; set; }
 
         /// <summary>
         /// Standard constructor
@@ -125,6 +137,7 @@ namespace OpenCover.Framework
             ExclusionFilter = new List<KeyValuePair<string, string>>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
+            TestFiles = new List<Lazy<Regex>>();
         }
         
         public bool UseAssembly(string assemblyName)
@@ -187,9 +200,11 @@ namespace OpenCover.Framework
             assemblyName = assemblyName.ValidateAndEscape();
             className = className.ValidateAndEscape();
 
-            if (filterType == FilterType.Inclusion) InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
+            if (filterType == FilterType.Inclusion) 
+                InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
 
-            if (filterType == FilterType.Exclusion) ExclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
+            if (filterType == FilterType.Exclusion) 
+                ExclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, out FilterType filterType, out string assemblyName, out string className)
@@ -244,9 +259,9 @@ namespace OpenCover.Framework
         {
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
                 return false;
-            foreach (var excludeAttribute in ExcludedFiles)
+            foreach (var excludeFile in ExcludedFiles)
             {
-                if (excludeAttribute.Value.Match(fileName).Success)
+                if (excludeFile.Value.Match(fileName).Success)
                     return true;
             }
             return false;
@@ -262,5 +277,29 @@ namespace OpenCover.Framework
                 ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }
+
+        public bool UseTestAssembly(string assemblyName)
+        {
+            if (TestFiles.Count == 0 || string.IsNullOrWhiteSpace(assemblyName))
+                return false;
+            foreach (var file in TestFiles)
+            {
+                if (file.Value.Match(assemblyName).Success)
+                    return true;
+            }
+            return false;
+        }
+
+        public void AddTestFileFilters(string[] testFilters)
+        {
+            if (testFilters == null)
+                return;
+            foreach (var testFilter in testFilters.Where(x => x != null))
+            {
+                var filter = testFilter.ValidateAndEscape(@"[]").WrapWithAnchors();
+                TestFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
+            }
+        }
+
     }
 }

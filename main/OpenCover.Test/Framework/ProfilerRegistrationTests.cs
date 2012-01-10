@@ -12,6 +12,6 @@ namespace OpenCover.Test.Framework
     public class ProfilerRegistrationTests
     {
        // Can we test this? Having trouble thinking of a test 
-       // that would work under nunit (which shadow copies files)
+       // that would work under nunit (which can shadow copy files)
     }
 }

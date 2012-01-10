@@ -27,7 +27,11 @@ public:
 public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
-    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId); }
+    bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
+    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_VisitPoint); }
+    inline void AddTestEnterPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodEnter); }
+    inline void AddTestLeavePoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodLeave); }
+    inline void AddTestTailcallPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodTailcall); }
 
 private:
     void SendVisitPoints();

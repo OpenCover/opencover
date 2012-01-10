@@ -15,22 +15,31 @@ namespace OpenCover.Framework.Model
     internal class InstrumentationModelBuilder : IInstrumentationModelBuilder
     {
         private readonly ISymbolManager _symbolManager;
-        private readonly IFilter _filter;
 
         /// <summary>
         /// Standard constructor
         /// </summary>
         /// <param name="symbolManager">the symbol manager that will provide the data</param>
-        /// <param name="filter">A filter to decide whether to include or exclude an assembly or its classes</param>
-        public InstrumentationModelBuilder(ISymbolManager symbolManager, IFilter filter)
+        public InstrumentationModelBuilder(ISymbolManager symbolManager)
         {
             _symbolManager = symbolManager;
-            _filter = filter;
         }
 
         public Module BuildModuleModel()
         {
-            if (!_filter.UseAssembly(_symbolManager.ModuleName)) return null;
+            var module = CreateModule();
+            module.Files = _symbolManager.GetFiles();
+            module.Classes = _symbolManager.GetInstrumentableTypes();
+            foreach (var @class in module.Classes)
+            {
+                BuildClassModel(@class, module.Files);
+            }
+
+            return module;
+        }
+
+        private Module CreateModule()
+        {
             var hash = string.Empty;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
@@ -40,16 +49,16 @@ namespace OpenCover.Framework.Model
                              {
                                  ModuleName = _symbolManager.ModuleName,
                                  FullName = _symbolManager.ModulePath,
-                                 Files = _symbolManager.GetFiles(),
                                  ModuleHash = hash
                              };
             module.Aliases.Add(_symbolManager.ModulePath);
-            module.Classes = _symbolManager.GetInstrumentableTypes();
-            foreach (var @class in module.Classes)
-            {
-                BuildClassModel(@class, module.Files);
-            }
+            return module;
+        }
 
+        public Module BuildModuleTestModel(Module module)
+        {
+            module = module ?? CreateModule();
+            module.TrackedMethods = _symbolManager.GetTrackedMethods();
             return module;
         }
 
@@ -69,7 +78,8 @@ namespace OpenCover.Framework.Model
 
         private void BuildClassModel(Class @class, File[] files)
         {
-            if (@class.ShouldSerializeSkippedDueTo()) return;
+            if (@class.ShouldSerializeSkippedDueTo()) 
+                return;
             var methods = _symbolManager.GetMethodsForType(@class, files);
 
             foreach (var method in methods)

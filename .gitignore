@@ -30,7 +30,7 @@
 /samples/**/bin/**/*
 /samples/**/obj/**/*
 /samples/OpenCover.Samples.suo
-/main/OpenCover.6.0.ReSharper.user
+/main/*.user
 /main/_ReSharper.OpenCover
 /main/OpenCover.Profiler/RDa01252
 /main/OpenCover.Profiler/RCa01252

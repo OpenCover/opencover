@@ -51,6 +51,11 @@ namespace OpenCover.Framework.Model
         public Class[] Classes { get; set; }
 
         /// <summary>
+        /// Methods that are being tracked i.e. test methods
+        /// </summary>
+        public TrackedMethod[] TrackedMethods { get; set; }
+
+        /// <summary>
         /// A hash of the file used to group them together (especially when running against mstest)
         /// </summary>
         [XmlAttribute("hash")]

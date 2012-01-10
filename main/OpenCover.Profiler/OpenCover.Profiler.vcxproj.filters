@@ -64,6 +64,12 @@
     <ClCompile Include="CoverageInstrumentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NativeCallback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeCoverage_Callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -118,6 +124,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CoverageInstrumentation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeCallback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

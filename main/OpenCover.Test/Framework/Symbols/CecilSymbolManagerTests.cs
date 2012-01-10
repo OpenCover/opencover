@@ -370,8 +370,8 @@ namespace OpenCover.Test.Framework.Symbols
 
             var types = _reader.GetInstrumentableTypes();
 
-            Assert.True(types.Count() > 0);
-            Assert.True(types.Where(x => x.FullName == typeof(Concrete).FullName).First().SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(types.Any());
+            Assert.True(types.First(x => x.FullName == typeof(Concrete).FullName).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]

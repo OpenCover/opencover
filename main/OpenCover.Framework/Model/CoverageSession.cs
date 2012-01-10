@@ -16,6 +16,13 @@ namespace OpenCover.Framework.Model
     public class CoverageSession
     {
         /// <summary>
+        /// initialise a coverage session
+        /// </summary>
+        public CoverageSession()
+        {
+            Modules = new Module[0];
+        }
+        /// <summary>
         /// A unique session identifier
         /// </summary>
         public string SessionId { get; set; }

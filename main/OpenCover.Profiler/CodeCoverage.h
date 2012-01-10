@@ -88,6 +88,28 @@ public:
     ProfilerCommunication m_host;
 
 private:
+    static UINT_PTR _stdcall FunctionMapper2(FunctionID functionId, void* clientData, BOOL* pbHookFunction);
+    static UINT_PTR _stdcall FunctionMapper(FunctionID functionId, BOOL* pbHookFunction);
+
+public:
+    void FunctionEnter2(
+    /*[in]*/FunctionID                          funcID, 
+    /*[in]*/UINT_PTR                            clientData, 
+    /*[in]*/COR_PRF_FRAME_INFO                  func, 
+    /*[in]*/COR_PRF_FUNCTION_ARGUMENT_INFO      *argumentInfo);
+
+    void FunctionLeave2(
+    /*[in]*/FunctionID                          funcID, 
+    /*[in]*/UINT_PTR                            clientData, 
+    /*[in]*/COR_PRF_FRAME_INFO                  func, 
+    /*[in]*/COR_PRF_FUNCTION_ARGUMENT_RANGE     *retvalRange);
+
+    void FunctionTailcall2(
+    /*[in]*/FunctionID                          funcID, 
+    /*[in]*/UINT_PTR                            clientData, 
+    /*[in]*/COR_PRF_FRAME_INFO                  func);
+
+private:
     std::tr1::unordered_map<std::wstring, bool> m_allowModules;
     std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
     std::tr1::unordered_map<std::pair<std::wstring, ULONG32>, bool> m_jitdMethods;

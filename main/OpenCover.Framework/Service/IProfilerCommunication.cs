@@ -33,5 +33,8 @@ namespace OpenCover.Framework.Service
         bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] branchPoints);
 
         void Stopping();
+
+        bool TrackMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId);
+
     }
 }
