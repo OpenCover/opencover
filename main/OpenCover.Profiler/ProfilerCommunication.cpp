@@ -61,24 +61,22 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         ULONG id;
         while(true)
         {
-            while (!m_queue.try_pop(id)) 
-                Concurrency::Context::Yield();
-
-            if (id==0) return;
-            else
+            if (m_queue.try_pop(id))
             {
-                CScopedLock<CMutex> lock(m_mutexResults);  
-                do
+              if (id == 0) return;
+              CScopedLock<CMutex> lock(m_mutexResults);  
+              do
+              {
+                m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
+                if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
                 {
-                    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
-                    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
-                    {
-                        SendVisitPoints();
-                        m_pVisitPoints->count=0;
-                    }
-                } while (m_queue.try_pop(id));
-                if (id==0) return;
+                    SendVisitPoints();
+                    m_pVisitPoints->count = 0;
+                }
+              } while (m_queue.try_pop(id));
             }
+
+            Concurrency::Context::Yield();
         }
     });
 
