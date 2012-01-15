@@ -55,7 +55,13 @@ private:
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
+
+private:
+    static DWORD WINAPI QueueProcessingThread(LPVOID lpParam);
+    void ProcessResults();
+    ATL::CComAutoCriticalSection m_critResults;
     Concurrency::concurrent_queue<ULONG> m_queue;
-    Concurrency::task_group m_tasks;
+    HANDLE m_hQueueThread;
+
 };
 
