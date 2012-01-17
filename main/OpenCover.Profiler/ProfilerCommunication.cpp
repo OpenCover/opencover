@@ -56,37 +56,55 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
     m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-    m_tasks.run([=]
-    {
-        ULONG id;
-        while(true)
-        {
-            if (m_queue.try_pop(id))
-            {
-              if (id == 0) return;
-              CScopedLock<CMutex> lock(m_mutexResults);  
-              do
-              {
-                m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
-                if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
-                {
-                    SendVisitPoints();
-                    m_pVisitPoints->count = 0;
-                }
-              } while (m_queue.try_pop(id));
-            }
-
-            Concurrency::Context::Yield();
-        }
-    });
+    m_hQueueThread = ::CreateThread( NULL, 0, QueueProcessingThread, this, 0, NULL);
 
     return true;
 }
 
+DWORD WINAPI ProfilerCommunication::QueueProcessingThread(LPVOID lpParam ) 
+{
+    ProfilerCommunication * pComm = (ProfilerCommunication*)lpParam; 
+    pComm->ProcessResults();
+    return 0;
+}
+
+void ProfilerCommunication::ProcessResults()
+{
+    ULONG id;
+    while(true)
+    {
+        if (m_queue.try_pop(id))
+        {
+            if (id == 0) return;
+            CScopedLock<CMutex> lock(m_mutexResults);  
+            do
+            {
+            m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
+            if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
+            {
+                SendVisitPoints();
+                m_pVisitPoints->count = 0;
+            }
+            } while (m_queue.try_pop(id));
+        }
+
+        Concurrency::Context::Yield();
+    }
+}
+
 void ProfilerCommunication::Stop()
 {
-    m_queue.push(0);
-    m_tasks.wait();
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    if (m_hQueueThread==NULL) return;
+    HANDLE threadHandle = m_hQueueThread;
+    m_hQueueThread = NULL;
+    for (auto i=0;i<100;i++) 
+        m_queue.push(0);
+    if (WAIT_TIMEOUT == ::WaitForSingleObject(threadHandle, 2000))
+    {
+        ::TerminateThread(threadHandle, 0);
+    }
+    ::CloseHandle(threadHandle);
 }
 
 void ProfilerCommunication::SendVisitPoints()
