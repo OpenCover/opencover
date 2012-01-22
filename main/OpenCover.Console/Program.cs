@@ -190,12 +190,12 @@ namespace OpenCover.Console
             {
                 foreach (var @class in
                     from module in CoverageSession.Modules.Where(x=>x.Classes != null)
-                    from @class in module.Classes
+                    from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
                     if (@class.Methods == null) continue;
 
-                    if ((@class.Methods.Any(x => x.SequencePoints.Any(y => y.VisitCount > 0))))
+                    if ((@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
                     {
                         visitedClasses += 1;
                         totalClasses += 1;
@@ -216,7 +216,7 @@ namespace OpenCover.Console
                         altTotalClasses += 1;
                     }
 
-                    foreach (var method in @class.Methods)
+                    foreach (var method in @class.Methods.Where(x=> !x.ShouldSerializeSkippedDueTo()))
                     {
                         if ((method.SequencePoints.Any(x => x.VisitCount > 0)))
                         {

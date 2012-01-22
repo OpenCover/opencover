@@ -85,7 +85,7 @@ namespace OpenCover.Framework.Model
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
 
-            @class.Methods = methods.Where(method => method.SequencePoints != null).ToArray();
+            @class.Methods = methods;
         }
     }
 }

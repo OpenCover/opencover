@@ -116,35 +116,6 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
-        public void BuildModule_IgnoresMethods_With_NoSequencePoints()
-        {
-            // arrange
-            var @class = new Class();
-            var @method = new Method() { MetadataToken = 101 };
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
-                .Returns(new[] { @class });
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
-                .Returns(new[] { @method });
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetSequencePointsForToken(101))
-                .Returns(default(SequencePoint[]));
-
-            Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
-                .Returns(true);
-
-            // act
-            var module = Instance.BuildModuleModel(true);
-
-            // assert
-            Assert.AreEqual(0, module.Classes[0].Methods.GetLength(0));
-        }
-
-        [Test]
         public void CanInstrument_If_AssemblyFound()
         {
             // arrange 

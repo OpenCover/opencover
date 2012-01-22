@@ -100,7 +100,7 @@ namespace OpenCover.Framework.Persistance
             sequencePoints = new InstrumentationPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method !=null)
+            if (method !=null && method.SequencePoints != null)
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
@@ -118,7 +118,7 @@ namespace OpenCover.Framework.Persistance
             branchPoints = new BranchPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method != null)
+            if (method != null && method.BranchPoints != null)
             {
                 System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.Name, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();
