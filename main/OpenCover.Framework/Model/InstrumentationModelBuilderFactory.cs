@@ -25,7 +25,7 @@ namespace OpenCover.Framework.Model
         {
             var manager = new CecilSymbolManager(_commandLine, _filter, _logger);
             manager.Initialise(modulePath, moduleName);
-            return new InstrumentationModelBuilder(manager, _filter);
+            return new InstrumentationModelBuilder(manager);
         }
     }
 }

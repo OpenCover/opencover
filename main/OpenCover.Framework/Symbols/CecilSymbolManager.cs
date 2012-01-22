@@ -132,34 +132,40 @@ namespace OpenCover.Framework.Symbols
         {
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetInstrumentableTypes(typeDefinitions, classes, _filter);
-            return classes.Where(c => _filter.InstrumentClass(_moduleName, c.FullName)).ToArray();
+            GetInstrumentableTypes(typeDefinitions, classes, _filter, _moduleName);
+            return classes.ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string moduleName)
         {
-           
-
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class() { FullName = typeDefinition.FullName };
-                if (filter.ExcludeByAttribute(typeDefinition))
+                if (!filter.InstrumentClass(moduleName, @class.FullName))
+                {
+                    @class.SkippedDueTo = SkippedMethod.Filter;
+                }
+                else if (filter.ExcludeByAttribute(typeDefinition))
                 {
                     @class.SkippedDueTo = SkippedMethod.Attribute;
                 }
+
                 var list = new List<string>();
-                foreach (var methodDefinition in typeDefinition.Methods)
+                if (!@class.ShouldSerializeSkippedDueTo())
                 {
-                    if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
+                    foreach (var methodDefinition in typeDefinition.Methods)
                     {
-                        foreach (var instruction in methodDefinition.Body.Instructions)
+                        if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
                         {
-                            if (instruction.SequencePoint != null)
+                            foreach (var instruction in methodDefinition.Body.Instructions)
                             {
-                                list.Add(instruction.SequencePoint.Document.Url);
-                                break;
+                                if (instruction.SequencePoint != null)
+                                {
+                                    list.Add(instruction.SequencePoint.Document.Url);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -172,7 +178,7 @@ namespace OpenCover.Framework.Symbols
                     classes.Add(@class);
                 }
                 if (typeDefinition.HasNestedTypes) 
-                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter); 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, moduleName); 
             }
         }
 

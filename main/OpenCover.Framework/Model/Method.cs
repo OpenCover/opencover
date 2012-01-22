@@ -11,7 +11,7 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// An entity that can be instrumented
     /// </summary>
-    public class Method
+    public class Method : SkippedEntity
     {
         /// <summary>
         /// The MetadataToken used to identify this entity within the assembly
@@ -94,21 +94,5 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("isSetter")]
         public bool IsSetter { get; set; }
 
-        private SkippedMethod? skippedDueTo;
-
-        /// <summary>
-        /// If this method has been skipped then this value will describe why
-        /// </summary>
-        [XmlAttribute("skippedDueTo")]
-        public SkippedMethod SkippedDueTo
-        {
-            get { return skippedDueTo.GetValueOrDefault(); }
-            set { skippedDueTo = value; }
-        }
-
-        /// <summary>
-        /// If this method has been skipped then this value will allow the data to be serialized
-        /// </summary>
-        public bool ShouldSerializeSkippedDueTo() { return skippedDueTo.HasValue; }
     }
 }

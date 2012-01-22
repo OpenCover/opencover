@@ -15,22 +15,19 @@ namespace OpenCover.Framework.Model
     internal class InstrumentationModelBuilder : IInstrumentationModelBuilder
     {
         private readonly ISymbolManager _symbolManager;
-        private readonly IFilter _filter;
 
         /// <summary>
         /// Standard constructor
         /// </summary>
         /// <param name="symbolManager">the symbol manager that will provide the data</param>
         /// <param name="filter">A filter to decide whether to include or exclude an assembly or its classes</param>
-        public InstrumentationModelBuilder(ISymbolManager symbolManager, IFilter filter)
+        public InstrumentationModelBuilder(ISymbolManager symbolManager)
         {
             _symbolManager = symbolManager;
-            _filter = filter;
         }
 
-        public Module BuildModuleModel()
+        public Module BuildModuleModel(bool full)
         {
-            if (!_filter.UseAssembly(_symbolManager.ModuleName)) return null;
             var hash = string.Empty;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
@@ -40,16 +37,18 @@ namespace OpenCover.Framework.Model
                              {
                                  ModuleName = _symbolManager.ModuleName,
                                  FullName = _symbolManager.ModulePath,
-                                 Files = _symbolManager.GetFiles(),
                                  ModuleHash = hash
                              };
-            module.Aliases.Add(_symbolManager.ModulePath);
-            module.Classes = _symbolManager.GetInstrumentableTypes();
-            foreach (var @class in module.Classes)
+            if (full)
             {
-                BuildClassModel(@class, module.Files);
+                module.Files = _symbolManager.GetFiles();
+                module.Aliases.Add(_symbolManager.ModulePath);
+                module.Classes = _symbolManager.GetInstrumentableTypes();
+                foreach (var @class in module.Classes)
+                {
+                    BuildClassModel(@class, module.Files);
+                }
             }
-
             return module;
         }
 

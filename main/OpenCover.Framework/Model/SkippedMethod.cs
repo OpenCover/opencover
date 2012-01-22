@@ -13,6 +13,16 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Entity was skipped due to a matching exclusion file filter
         /// </summary>
-        File
+        File,
+
+        /// <summary>
+        /// Entity was skipped due to a matching exclusion module/class filter 
+        /// </summary>
+        Filter,
+
+        /// <summary>
+        /// Entity was skipped due to a missing PDB
+        /// </summary>
+        MissingPdb,
     }
 }

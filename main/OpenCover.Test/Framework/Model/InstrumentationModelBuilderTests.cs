@@ -26,7 +26,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(false);
 
             // assert
             Assert.IsNotNull(module);
@@ -47,7 +47,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes.GetLength(0));
@@ -77,7 +77,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes[0].Methods.GetLength(0));
@@ -108,7 +108,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes[0].Methods[0].SequencePoints.GetLength(0));
@@ -138,7 +138,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(0, module.Classes[0].Methods.GetLength(0));
@@ -174,7 +174,7 @@ namespace OpenCover.Test.Framework.Model
                .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(false);
 
             // assert
             Assert.IsNotNullOrEmpty(module.ModuleHash);

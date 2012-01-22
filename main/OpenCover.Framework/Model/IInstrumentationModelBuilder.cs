@@ -7,7 +7,7 @@ namespace OpenCover.Framework.Model
 {
     public interface IInstrumentationModelBuilder
     {
-        Module BuildModuleModel();
+        Module BuildModuleModel(bool full);
         bool CanInstrument { get; }
     }
 }

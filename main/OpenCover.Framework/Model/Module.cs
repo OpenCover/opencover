@@ -14,7 +14,7 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// The details of a module
     /// </summary>
-    public class Module
+    public class Module : SkippedEntity
     {
         /// <summary>
         /// simple constructor

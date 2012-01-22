@@ -15,6 +15,11 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public class CoverageSession
     {
+        public CoverageSession()
+        {
+            Modules = new Module[0];
+        }
+
         /// <summary>
         /// A unique session identifier
         /// </summary>

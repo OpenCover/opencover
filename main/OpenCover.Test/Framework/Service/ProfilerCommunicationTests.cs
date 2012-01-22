@@ -39,12 +39,21 @@ namespace OpenCover.Test.Framework.Service
         }
 
         [Test]
-        public void TrackAssembly_DoesntAdd_AssemblyToModel_If_FilterUseAssembly_Returns_False()
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_FilterUseAssembly_Returns_False()
         {
             // arrange
             Container.GetMock<IFilter>()
                 .Setup(x => x.UseAssembly(It.IsAny<string>()))
                 .Returns(false);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+               .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
 
             // act
             var track = Instance.TrackAssembly("moduleName", "assemblyName");
@@ -52,11 +61,11 @@ namespace OpenCover.Test.Framework.Service
             // assert
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
-                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.Filter)), Times.Once());
         }
 
         [Test]
-        public void TrackAssembly_DoesntAdd_AssemblyToModel_If_CanInstrument_Returns_False()
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_CanInstrument_Returns_False()
         {
             // arrange
             Container.GetMock<IFilter>()
@@ -65,8 +74,12 @@ namespace OpenCover.Test.Framework.Service
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
-               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
-               .Returns(mockModelBuilder.Object);
+                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
 
             mockModelBuilder
                 .SetupGet(x => x.CanInstrument)
@@ -78,7 +91,7 @@ namespace OpenCover.Test.Framework.Service
             // assembly
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
-                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Never());
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.MissingPdb)), Times.Once());
 
         }
 

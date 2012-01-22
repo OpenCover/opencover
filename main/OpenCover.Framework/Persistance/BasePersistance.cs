@@ -23,9 +23,9 @@ namespace OpenCover.Framework.Persistance
             if (_commandLine.MergeByHash)
             {
                 var modules = CoverageSession.Modules ?? new Module[0];
-                if (modules.Any(x => x.ModuleHash == module.ModuleHash))
+                var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
+                if (existingModule!=null)
                 {
-                    var existingModule = modules.First(x => x.ModuleHash == module.ModuleHash);
                     if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         existingModule.Aliases.Add(module.FullName); 
@@ -39,8 +39,8 @@ namespace OpenCover.Framework.Persistance
 
         public bool IsTracking(string modulePath)
         {
-            if (CoverageSession.Modules == null) return false;
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
+                    !x.ShouldSerializeSkippedDueTo());
         }
 
         public virtual void Commit()
@@ -104,8 +104,9 @@ namespace OpenCover.Framework.Persistance
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
+                if (!(method.MethodPoint is SequencePoint)) 
+                    points.Add(method.MethodPoint);
                 points.AddRange(method.SequencePoints);
-                if (points.Count == 0) points.Add(method.MethodPoint);
                 sequencePoints = points.ToArray();
                 return true;
             }

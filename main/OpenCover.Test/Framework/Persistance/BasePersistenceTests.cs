@@ -27,7 +27,6 @@ namespace OpenCover.Test.Framework.Persistance
         public void Can_Add_Module_To_Session()
         {
             //arrange
-            Assert.IsNull(Instance.CoverageSession.Modules);
 
             // act 
             Instance.PersistModule(new Module());
@@ -40,7 +39,6 @@ namespace OpenCover.Test.Framework.Persistance
         public void Can_Add_SeveralModules_To_Session()
         {
             //arrange
-            Assert.IsNull(Instance.CoverageSession.Modules);
 
             // act 
             var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
@@ -61,8 +59,6 @@ namespace OpenCover.Test.Framework.Persistance
             Container.GetMock<ICommandLine>()
                 .SetupGet(x => x.MergeByHash)
                 .Returns(true);
-
-            Assert.IsNull(Instance.CoverageSession.Modules);
 
             // act 
             var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
@@ -89,6 +85,21 @@ namespace OpenCover.Test.Framework.Persistance
 
             // assert
             Assert.IsTrue(tracking);
+        }
+
+        [Test]
+        public void IsTracking_Fase_IfModuleSkipped()
+        {
+            // arrange
+            var module = new Module() { FullName = "ModulePath", SkippedDueTo = SkippedMethod.Filter };
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            var tracking = Instance.IsTracking("ModulePath");
+
+            // assert
+            Assert.IsFalse(tracking);
         }
 
         [Test]
@@ -186,8 +197,8 @@ namespace OpenCover.Test.Framework.Persistance
         public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
         {
             // arrange
-            var methodPoint = new InstrumentationPoint();
-            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
+            var seqPoint = new SequencePoint() {VisitCount = 1000};
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, MethodPoint = seqPoint, SequencePoints = new[] { seqPoint } } } } } };
 
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);

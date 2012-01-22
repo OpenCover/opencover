@@ -189,22 +189,24 @@ namespace OpenCover.Console
             if (CoverageSession.Modules != null)
             {
                 foreach (var @class in
-                    from module in CoverageSession.Modules
+                    from module in CoverageSession.Modules.Where(x=>x.Classes != null)
                     from @class in module.Classes
                     select @class)
                 {
-                    if ((@class.Methods.Where(x => x.SequencePoints.Where(y => y.VisitCount > 0).Any()).Any()))
+                    if (@class.Methods == null) continue;
+
+                    if ((@class.Methods.Any(x => x.SequencePoints.Any(y => y.VisitCount > 0))))
                     {
                         visitedClasses += 1;
                         totalClasses += 1;
                     }
-                    else if ((@class.Methods.Where(x => x.FileRef != null).Any()))
+                    else if ((@class.Methods.Any(x => x.FileRef != null)))
                     {
                         totalClasses += 1;
                         unvisitedClasses.Add(@class.FullName);
                     }
 
-                    if (@class.Methods.Where(x => x.Visited).Any())
+                    if (@class.Methods.Any(x => x.Visited))
                     {
                         altVisitedClasses += 1;
                         altTotalClasses += 1;
@@ -214,11 +216,9 @@ namespace OpenCover.Console
                         altTotalClasses += 1;
                     }
 
-                    if (@class.Methods == null) continue;
-
                     foreach (var method in @class.Methods)
                     {
-                        if ((method.SequencePoints.Where(x => x.VisitCount > 0).Any()))
+                        if ((method.SequencePoints.Any(x => x.VisitCount > 0)))
                         {
                             visitedMethods += 1;
                             totalMethods += 1;
@@ -236,10 +236,10 @@ namespace OpenCover.Console
                         }
 
                         totalSeqPoint += method.SequencePoints.Count();
-                        visitedSeqPoint += method.SequencePoints.Where(pt => pt.VisitCount != 0).Count();
+                        visitedSeqPoint += method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
                         totalBrPoint += method.BranchPoints.Count();
-                        visitedBrPoint += method.BranchPoints.Where(pt => pt.VisitCount != 0).Count();
+                        visitedBrPoint += method.BranchPoints.Count(pt => pt.VisitCount != 0);
                     }
                 }
             }
