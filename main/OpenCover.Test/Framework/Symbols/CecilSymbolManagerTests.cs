@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using Mono.Cecil;
+using System.Reflection;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -10,6 +10,7 @@ using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
 using File = OpenCover.Framework.Model.File;
+using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 
 namespace OpenCover.Test.Framework.Symbols
 {
@@ -370,8 +371,64 @@ namespace OpenCover.Test.Framework.Symbols
 
             var types = _reader.GetInstrumentableTypes();
 
-            Assert.True(types.Count() > 0);
-            Assert.True(types.Where(x => x.FullName == typeof(Concrete).FullName).First().SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(types.Any());
+            Assert.True(types.First(x => x.FullName == typeof(Concrete).FullName).SkippedDueTo == SkippedMethod.Attribute);
+        }
+
+        [Test]
+        public void Can_Exclude_A_Class_By_An_Filter()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns<string, string>((assemblyName, className) => className != typeof(Concrete).FullName);
+
+            var types = _reader.GetInstrumentableTypes();
+
+            Assert.True(types.Any());
+            Assert.True(types.First(x => x.FullName == typeof(Concrete).FullName).SkippedDueTo == SkippedMethod.Filter);
+        }
+
+        [Test]
+        public void Can_Exclude_A_Property_By_An_Attribute()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof(Concrete).GetMethod("get_Name").MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(Concrete).FullName);
+            var methods = _reader.GetMethodsForType(target, new File[0]);
+
+            Assert.True(methods.Any());
+            Assert.True(methods.First(y => y.Name.EndsWith("::get_Name()")).SkippedDueTo == SkippedMethod.Attribute);
+        }
+
+        [Test]
+        public void Can_Exclude_A_Ctor_By_An_Attribute()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var token = typeof(Concrete).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null).MetadataToken;
+            _mockFilter
+                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(Concrete).FullName);
+            var methods = _reader.GetMethodsForType(target, new File[0]);
+
+            Assert.True(methods.Any());
+            Assert.True(methods.First(y => y.Name.EndsWith("::.ctor()")).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]

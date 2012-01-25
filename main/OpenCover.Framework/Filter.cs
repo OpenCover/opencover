@@ -227,7 +227,9 @@ namespace OpenCover.Framework
         [ExcludeFromCoverage]
         public bool ExcludeByAttribute(ICustomAttributeProvider entity)
         {
-            if (ExcludedAttributes.Count == 0 || !entity.HasCustomAttributes) 
+            if (ExcludedAttributes.Count == 0) 
+                return false;
+            if (!entity.HasCustomAttributes)
                 return false;
             foreach (var excludeAttribute in ExcludedAttributes)
             {
