@@ -55,6 +55,32 @@ For further details take a look at LICENSE.txt.
 
 CHANGELOG
 
+1.2.5.0
+
+    * New: Excluded ignored classes from OpenCoverParser
+
+1.2.4.0
+
+    * Fix: Issue #9065: Rounding of coverage quota down to the last
+           significant figure
+    * Fix: Issue #9041: Merging reports doesn't work when the same
+           module is used from different paths
+
+1.2.3.0
+
+    * Fix: Issue #8992: Improved HTML Summary (collapsing of classes)
+
+1.2.2.0
+
+    * Fix: Issue #8931: Improved layout of Html reports
+    * Fix: Issue #8958: Coverage for types with no sequence points
+    * Fix: Issue #8936: Additional statistics for assemblies
+
+1.2.1.0
+
+    * Fix: Issue #8653: NCover - OutOfMemoryException on a seqpoint with
+           a magic line
+    * Fix: Improved layout of Latex reports
 
 1.2.0.0
 
