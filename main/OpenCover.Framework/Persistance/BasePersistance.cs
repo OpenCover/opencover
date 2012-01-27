@@ -24,18 +24,13 @@ namespace OpenCover.Framework.Persistance
         public void PersistModule(Module module)
         {
             if (module == null) return;
-            if ((module.TrackedMethods == null) && (module.Classes == null))
-            {
-                return;
-            }
-
             module.Classes = module.Classes ?? new Class[0];
             if (_commandLine.MergeByHash)
             {
                 var modules = CoverageSession.Modules ?? new Module[0];
-                if (modules.Any(x => x.ModuleHash == module.ModuleHash))
+                var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
+                if (existingModule!=null)
                 {
-                    var existingModule = modules.First(x => x.ModuleHash == module.ModuleHash);
                     if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         existingModule.Aliases.Add(module.FullName); 
@@ -49,7 +44,8 @@ namespace OpenCover.Framework.Persistance
 
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
+                    !x.ShouldSerializeSkippedDueTo());
         }
 
         public virtual void Commit()
@@ -96,7 +92,7 @@ namespace OpenCover.Framework.Persistance
             sequencePoints = new InstrumentationPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method !=null)
+            if (method !=null && method.SequencePoints != null)
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
@@ -114,7 +110,7 @@ namespace OpenCover.Framework.Persistance
             branchPoints = new BranchPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method != null)
+            if (method != null && method.BranchPoints != null)
             {
                 System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.Name, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();

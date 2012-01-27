@@ -42,7 +42,6 @@ namespace OpenCover.Test.Framework.Persistance
             //arrange
 
             // act 
-            Instance.PersistModule(new Module() { });
             Instance.PersistModule(null);
 
             // assert
@@ -99,6 +98,21 @@ namespace OpenCover.Test.Framework.Persistance
 
             // assert
             Assert.IsTrue(tracking);
+        }
+
+        [Test]
+        public void IsTracking_Fase_IfModuleSkipped()
+        {
+            // arrange
+            var module = new Module() { FullName = "ModulePath", SkippedDueTo = SkippedMethod.Filter };
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            var tracking = Instance.IsTracking("ModulePath");
+
+            // assert
+            Assert.IsFalse(tracking);
         }
 
         [Test]

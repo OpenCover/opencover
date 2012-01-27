@@ -26,13 +26,33 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(false);
 
             // assert
             Assert.IsNotNull(module);
             Assert.AreEqual("ModulePath", module.FullName);
+            Assert.AreEqual("ModulePath", module.Aliases[0]);
         }
 
+        [Test]
+        public void BuildModuleModel_Gets_ModuleName_From_SymbolReader()
+        {
+            // arrange
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.ModuleName)
+                .Returns("ModuleName");
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(false);
+
+            // assert
+            Assert.IsNotNull(module);
+            Assert.AreEqual("ModuleName", module.ModuleName);
+        }
         [Test]
         public void BuildModuleModel_GetsClasses_From_SymbolReader()
         {
@@ -47,7 +67,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes.GetLength(0));
@@ -70,7 +90,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes.GetLength(0));
@@ -101,7 +121,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes[0].Methods.GetLength(0));
@@ -132,40 +152,11 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.AreEqual(1, module.Classes[0].Methods[0].SequencePoints.GetLength(0));
             Assert.AreSame(@seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
-        }
-
-        [Test]
-        public void BuildModule_IgnoresMethods_With_NoSequencePoints()
-        {
-            // arrange
-            var @class = new Class();
-            var @method = new Method() { MetadataToken = 101 };
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetInstrumentableTypes())
-                .Returns(new[] { @class });
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
-                .Returns(new[] { @method });
-
-            Container.GetMock<ISymbolManager>()
-                .Setup(x => x.GetSequencePointsForToken(101))
-                .Returns(default(SequencePoint[]));
-
-            Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
-                .Returns(true);
-
-            // act
-            var module = Instance.BuildModuleModel();
-
-            // assert
-            Assert.AreEqual(0, module.Classes[0].Methods.GetLength(0));
         }
 
         [Test]
@@ -198,7 +189,7 @@ namespace OpenCover.Test.Framework.Model
                .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel();
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.IsNotNullOrEmpty(module.ModuleHash);
@@ -214,7 +205,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new TrackedMethod[0]);
 
             // act
-            var module = Instance.BuildModuleTestModel(null);
+            var module = Instance.BuildModuleTestModel(null, true);
 
             // assert
             Assert.NotNull(module);
@@ -233,7 +224,7 @@ namespace OpenCover.Test.Framework.Model
 
             // act
             var origModule = new Module();
-            var module = Instance.BuildModuleTestModel(origModule);
+            var module = Instance.BuildModuleTestModel(origModule, true);
 
             // assert
             Assert.NotNull(module);

@@ -133,32 +133,40 @@ namespace OpenCover.Framework.Symbols
             if (SourceAssembly == null) return new Class[0];
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetInstrumentableTypes(typeDefinitions, classes, _filter);
-            return classes.Where(c => _filter.InstrumentClass(_moduleName, c.FullName)).ToArray();
+            GetInstrumentableTypes(typeDefinitions, classes, _filter, _moduleName);
+            return classes.ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string moduleName)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class() { FullName = typeDefinition.FullName };
-                if (filter.ExcludeByAttribute(typeDefinition))
+                if (!filter.InstrumentClass(moduleName, @class.FullName))
+                {
+                    @class.SkippedDueTo = SkippedMethod.Filter;
+                }
+                else if (filter.ExcludeByAttribute(typeDefinition))
                 {
                     @class.SkippedDueTo = SkippedMethod.Attribute;
                 }
+
                 var list = new List<string>();
-                foreach (var methodDefinition in typeDefinition.Methods)
+                if (!@class.ShouldSerializeSkippedDueTo())
                 {
-                    if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
+                    foreach (var methodDefinition in typeDefinition.Methods)
                     {
-                        foreach (var instruction in methodDefinition.Body.Instructions)
+                        if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
                         {
-                            if (instruction.SequencePoint != null)
+                            foreach (var instruction in methodDefinition.Body.Instructions)
                             {
-                                list.Add(instruction.SequencePoint.Document.Url);
-                                break;
+                                if (instruction.SequencePoint != null)
+                                {
+                                    list.Add(instruction.SequencePoint.Document.Url);
+                                    break;
+                                }
                             }
                         }
                     }
@@ -171,7 +179,7 @@ namespace OpenCover.Framework.Symbols
                     classes.Add(@class);
                 }
                 if (typeDefinition.HasNestedTypes) 
-                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter); 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, moduleName); 
             }
         }
 
@@ -180,7 +188,7 @@ namespace OpenCover.Framework.Symbols
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type, methods, files, _filter);
+            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter);
             return methods.ToArray();
         }
 
@@ -197,39 +205,72 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
-        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, Class type, List<Method> methods, File[] files, IFilter filter)
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, string fullName, List<Method> methods, File[] files, IFilter filter)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
-                if (typeDefinition.FullName == type.FullName)
+                if (typeDefinition.FullName == fullName)
                 {
-                    foreach (var methodDefinition in typeDefinition.Methods)
-                    {
-                        if (methodDefinition.IsAbstract) continue;
-                        var method = new Method
-                                         {
-                                             Name = methodDefinition.FullName,
-                                             MetadataToken = methodDefinition.MetadataToken.ToInt32(),
-                                             IsConstructor = methodDefinition.IsConstructor,
-                                             IsStatic = methodDefinition.IsStatic,
-                                             IsGetter = methodDefinition.IsGetter,
-                                             IsSetter = methodDefinition.IsSetter
-                                         };
-                        
-                        if (filter.ExcludeByAttribute(methodDefinition))
-                            method.SkippedDueTo = SkippedMethod.Attribute;
-                        else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
-                            method.SkippedDueTo = SkippedMethod.File;
-
-                        var definition = methodDefinition;
-                        method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
-                            .Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
-                        methods.Add(method);
-                    }
+                    BuildPropertyMethods(methods, files, filter, typeDefinition);
+                    BuildMethods(methods, files, filter, typeDefinition);
                 }
                 if (typeDefinition.HasNestedTypes) 
-                    GetMethodsForType(typeDefinition.NestedTypes, type, methods, files, filter);
+                    GetMethodsForType(typeDefinition.NestedTypes, fullName, methods, files, filter);
             }
+        }
+
+        private static void BuildMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition)
+        {
+            foreach (var methodDefinition in typeDefinition.Methods)
+            {
+                if (methodDefinition.IsAbstract) continue;
+                if (methodDefinition.IsGetter) continue;
+                if (methodDefinition.IsSetter) continue;
+
+                var method = BuildMethod(files, filter, methodDefinition, false);
+                methods.Add(method);
+            }
+        }
+
+        private static void BuildPropertyMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition)
+        {
+            foreach (var propertyDefinition in typeDefinition.Properties)
+            {
+                var skipped = filter.ExcludeByAttribute(propertyDefinition);
+                
+                if (propertyDefinition.GetMethod != null && !propertyDefinition.GetMethod.IsAbstract)
+                {
+                    var method = BuildMethod(files, filter, propertyDefinition.GetMethod, skipped);
+                    methods.Add(method);
+                }
+
+                if (propertyDefinition.SetMethod != null && !propertyDefinition.SetMethod.IsAbstract)
+                {
+                    var method = BuildMethod(files, filter, propertyDefinition.SetMethod, skipped);
+                    methods.Add(method);
+                }
+            }
+        }
+
+        private static Method BuildMethod(IEnumerable<File> files, IFilter filter, MethodDefinition methodDefinition, bool alreadySkippedDueToAttr)
+        {
+            var method = new Method();
+            method.Name = methodDefinition.FullName;
+            method.IsConstructor = methodDefinition.IsConstructor;
+            method.IsStatic = methodDefinition.IsStatic;
+            method.IsGetter = methodDefinition.IsGetter;
+            method.IsSetter = methodDefinition.IsSetter;
+            method.MetadataToken = methodDefinition.MetadataToken.ToInt32();
+
+            if (alreadySkippedDueToAttr || filter.ExcludeByAttribute(methodDefinition))
+                method.SkippedDueTo = SkippedMethod.Attribute;
+            else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
+                method.SkippedDueTo = SkippedMethod.File;
+
+            var definition = methodDefinition;
+            method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
+                .Select(x => new FileRef() {UniqueId = x.UniqueId}).FirstOrDefault();
+            return method;
         }
 
         public SequencePoint[] GetSequencePointsForToken(int token)

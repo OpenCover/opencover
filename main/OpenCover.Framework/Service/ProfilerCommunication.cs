@@ -30,25 +30,27 @@ namespace OpenCover.Framework.Service
         public bool TrackAssembly(string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
-            var track = false;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            if (_filter.UseAssembly(assemblyName))
+            if (!_filter.UseAssembly(assemblyName))
             {
-                if (builder.CanInstrument)
-                {
-                    module = builder.BuildModuleModel();
-                    track = true;
-                }
+                module = builder.BuildModuleModel(false);
+                module.SkippedDueTo = SkippedMethod.Filter;
+            }
+            else if (!builder.CanInstrument)
+            {
+                module = builder.BuildModuleModel(false);
+                module.SkippedDueTo = SkippedMethod.MissingPdb;
             }
 
+            module = module ?? builder.BuildModuleModel(true);
+            
             if (_filter.UseTestAssembly(modulePath))
             {
-                module = builder.BuildModuleTestModel(module);
+                module = builder.BuildModuleTestModel(module, false);
             }
             _persistance.PersistModule(module);
-
-            return track;
+            return !module.ShouldSerializeSkippedDueTo();
         }
 
         public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)

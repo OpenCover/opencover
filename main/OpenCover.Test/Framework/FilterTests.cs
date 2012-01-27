@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Mono.Cecil;
@@ -454,6 +455,40 @@ namespace OpenCover.Test.Framework
             filter.AddFileExclusionFilters(new[] { "XXX.*" });
 
             Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_Methods()
+        {
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof (Samples.Concrete).FullName);
+
+            var filter = new Filter();
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
+
+            foreach (var methodDefinition in type.Methods)
+            {
+                if (methodDefinition.IsSetter || methodDefinition.IsGetter) continue;
+                Assert.True(filter.ExcludeByAttribute(methodDefinition));                
+            }
+
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_Properties()
+        {
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Concrete).FullName);
+
+            var filter = new Filter();
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
+
+            foreach (var propertyDefinition in type.Properties)
+            {
+                Assert.True(filter.ExcludeByAttribute(propertyDefinition));
+            }
         }
 
     }

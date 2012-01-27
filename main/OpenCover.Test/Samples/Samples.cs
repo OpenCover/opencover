@@ -67,7 +67,7 @@ namespace OpenCover.Test.Samples
     {   
     }
 
-    [AttributeUsage(AttributeTargets.Method|AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Method|AttributeTargets.Property|AttributeTargets.Constructor)]
     public class ExcludeMethodAttribute : Attribute
     {
     }
@@ -75,6 +75,13 @@ namespace OpenCover.Test.Samples
     [ExcludeClassAttribute]
     public class Concrete : AbstractBase
     {
+        [ExcludeMethodAttribute]
+        public Concrete()
+        {
+            
+        }
+
+        [ExcludeMethodAttribute]
         public override string Name
         {
             get { return "Me!"; }

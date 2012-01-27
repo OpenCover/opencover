@@ -24,7 +24,6 @@ namespace OpenCover.Test.Framework.Model
             // assert
             Assert.IsNotNull(model);
             Assert.IsTrue(model.CanInstrument);
-            model.BuildModuleModel();
         }
 
     }

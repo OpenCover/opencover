@@ -25,20 +25,13 @@ namespace OpenCover.Framework.Model
             _symbolManager = symbolManager;
         }
 
-        public Module BuildModuleModel()
+        public Module BuildModuleModel(bool full)
         {
-            var module = CreateModule();
-            module.Files = _symbolManager.GetFiles();
-            module.Classes = _symbolManager.GetInstrumentableTypes();
-            foreach (var @class in module.Classes)
-            {
-                BuildClassModel(@class, module.Files);
-            }
-
+            var module = CreateModule(full);
             return module;
         }
 
-        private Module CreateModule()
+        private Module CreateModule(bool full)
         {
             var hash = string.Empty;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
@@ -52,12 +45,22 @@ namespace OpenCover.Framework.Model
                                  ModuleHash = hash
                              };
             module.Aliases.Add(_symbolManager.ModulePath);
+            
+            if (full)
+            {
+                module.Files = _symbolManager.GetFiles();
+                module.Classes = _symbolManager.GetInstrumentableTypes();
+                foreach (var @class in module.Classes)
+                {
+                    BuildClassModel(@class, module.Files);
+                }
+            }
             return module;
         }
 
-        public Module BuildModuleTestModel(Module module)
+        public Module BuildModuleTestModel(Module module, bool full)
         {
-            module = module ?? CreateModule();
+            module = module ?? CreateModule(full);
             module.TrackedMethods = _symbolManager.GetTrackedMethods();
             return module;
         }
@@ -96,7 +99,7 @@ namespace OpenCover.Framework.Model
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
 
-            @class.Methods = methods.Where(method => method.SequencePoints != null).ToArray();
+            @class.Methods = methods;
         }
     }
 }
