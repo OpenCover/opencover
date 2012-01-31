@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Microsoft.Practices.Unity;
@@ -13,6 +14,7 @@ using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
+using OpenCover.Framework.Strategy;
 using OpenCover.Framework.Symbols;
 using log4net;
 
@@ -61,6 +63,8 @@ namespace OpenCover.Framework
             _container.RegisterType<IProfilerManager, ProfilerManager>();
             _container.RegisterType<IMessageHandler, MessageHandler>();
             _container.RegisterType<IMarshalWrapper, MarshalWrapper>();
+            _container.RegisterType<ITrackedMethodStrategy, TrackNUnitTestMethods>(typeof(TrackNUnitTestMethods).FullName);
+            _container.RegisterType<ITrackedMethodStrategy, TrackMSTestTestMethods>(typeof(TrackMSTestTestMethods).FullName);
         }
 
     }

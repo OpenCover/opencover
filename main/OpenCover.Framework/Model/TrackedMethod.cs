@@ -52,5 +52,11 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("name")]
         public string Name { get; set; }
 
+        /// <summary>
+        /// The reason/plugin why the method is being tracked
+        /// </summary>
+        [XmlAttribute("strategy")]
+        public string Strategy { get; set; }
+
     }
 }

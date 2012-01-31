@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Xml.Serialization;
 using OpenCover.Framework.Communication;
@@ -168,11 +169,13 @@ namespace OpenCover.Framework.Persistance
                 .Where(x => x.TrackedMethods != null)
                 .Where(x => x.Aliases.Contains(modulePath)))
             {
-                foreach (var trackedMethod in module.TrackedMethods
-                    .Where(trackedMethod => trackedMethod.MetadataToken == functionToken))
+                foreach (var trackedMethod in module.TrackedMethods)
                 {
-                    uniqueId = trackedMethod.UniqueId;
-                    return true;
+                    if (trackedMethod.MetadataToken == functionToken)
+                    {
+                        uniqueId = trackedMethod.UniqueId;
+                        return true;
+                    }
                 }
             }
 

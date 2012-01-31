@@ -6,6 +6,7 @@ using Microsoft.Practices.Unity;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Framework.Symbols;
@@ -30,6 +31,26 @@ namespace OpenCover.Test.Framework
 
             // act
             var instance = bootstrapper.Container.Resolve(typeof(IProfilerCommunication), null);
+
+            // assert
+            Assert.IsNotNull(instance);
+
+        }
+
+        [Test]
+        public void CanCreateInstrumentationModelBuilderFactory()
+        {
+            // arrange 
+            var mockFilter = new Mock<IFilter>();
+            var mockCommandLine = new Mock<ICommandLine>();
+            var mockPersistance = new Mock<IPersistance>();
+            var mockLogger = new Mock<ILog>();
+
+            var bootstrapper = new Bootstrapper(mockLogger.Object);
+            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object);
+
+            // act
+            var instance = bootstrapper.Container.Resolve(typeof(IInstrumentationModelBuilderFactory), null);
 
             // assert
             Assert.IsNotNull(instance);

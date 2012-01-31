@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework.Symbols
             _mockLogger = new Mock<ILog>();
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 
@@ -86,7 +86,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.NotNull(types);
-            Assert.IsNull(types.Where(x => x.FullName == typeof(NotCoveredStruct).FullName).FirstOrDefault());
+            Assert.IsNull(types.FirstOrDefault(x => x.FullName == typeof(NotCoveredStruct).FullName));
         }
 
         [Test]
@@ -102,7 +102,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.NotNull(types);
-            Assert.IsNotNull(types.Where(x => x.FullName == typeof(CoveredStruct).FullName).FirstOrDefault());
+            Assert.IsNotNull(types.FirstOrDefault(x => x.FullName == typeof(CoveredStruct).FullName));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredMethodClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredMethodClass).FullName);
 
 
             // act
@@ -133,7 +133,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredMethodClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredMethodClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -152,11 +152,11 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasSingleDecision")).First().MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSingleDecision")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -175,11 +175,11 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasTwoDecisions")).First().MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasTwoDecisions")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -197,11 +197,11 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.Where(x => x.Name.Contains("::HasSwitch")).First().MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitch")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
