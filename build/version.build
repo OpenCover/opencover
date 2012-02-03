@@ -4,10 +4,15 @@
 	<target name="netfx.tools" >
 		<fail message="Please install 'Microsoft Windows SDK for Windows 7 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
 	</target>
-
+    
 	<target name="create-snk" depends="netfx.tools">
+		<property name="source.opencover.snk.file" value="${build.folder}\..\..\..\keys\opencover.snk" />
 		<property name="opencover.snk.file" value="${build.folder}\Version\opencover.snk" />
 		<property name="opencover.public.snk.file" value="${build.folder}\Version\opencover.public.snk" />
+
+        <copy file="${source.opencover.snk.file}" todir="${build.folder}\Version" 
+          if="${file::exists(source.opencover.snk.file) and not file::exists(opencover.snk.file)}" />
+
 		<exec program="${netfx.tools.folder}\sn.exe" commandline='-k "${opencover.snk.file}"' unless="${file::exists(opencover.snk.file)}"/>
 		<exec program="${netfx.tools.folder}\sn.exe" commandline='-p "${opencover.snk.file}" "${opencover.public.snk.file}"' unless="${file::exists(opencover.public.snk.file)}"/>
 	</target>
