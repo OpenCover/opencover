@@ -347,7 +347,13 @@ namespace OpenCover.Console
                 if (parser.PrintUsage)
                 {
                     System.Console.WriteLine(parser.Usage());
-                    return true;
+                    return false;
+                }
+
+                if (!string.IsNullOrWhiteSpace(parser.TargetDir) && !Directory.Exists(parser.TargetDir))
+                {
+                    System.Console.WriteLine("TargetDir '{0}' cannot be found - have you specified your arguments correctly?", parser.TargetDir);
+                    return false;
                 }
 
                 if (parser.Service)
