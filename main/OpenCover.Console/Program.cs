@@ -346,7 +346,7 @@ namespace OpenCover.Console
                 if (parser.PrintUsage)
                 {
                     System.Console.WriteLine(parser.Usage());
-                    return true;
+                    return false;
                 }
 
                 if (parser.Service)
