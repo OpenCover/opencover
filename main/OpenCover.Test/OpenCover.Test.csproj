@@ -153,6 +153,9 @@
       <Link>dogfood.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\DogFood.proj">
+      <Link>DogFood.proj</Link>
+    </None>
     <None Include="..\cmdline\dogfood64.cmd">
       <Link>dogfood64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -167,6 +170,9 @@
     </None>
     <None Include="..\cmdline\dogfood_exfile.cmd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\cmdline\dogfood_msbuild.cmd">
+      <Link>dogfood_msbuild.cmd</Link>
     </None>
     <None Include="..\cmdline\dogfood_nunit.cmd">
       <Link>dogfood_nunit.cmd</Link>

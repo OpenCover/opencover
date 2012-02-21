@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <OpenCoverMSBuildTasksPath Condition="'$(OpenCoverMSBuildTasksPath)' == ''">$(MSBuildExtensionsPath32)\OpenCover</OpenCoverMSBuildTasksPath>
-    <OpenCoverMSBuildTasksLib>$(OpenCoverMSBuildTasksPath)\Isogeo.MSBuild.dll</OpenCoverMSBuildTasksLib>
+    <OpenCoverMSBuildTasksLib>$(OpenCoverMSBuildTasksPath)\OpenCover.MSBuild.dll</OpenCoverMSBuildTasksLib>
   </PropertyGroup>
 
   <UsingTask AssemblyFile="$(OpenCoverMSBuildTasksLib)" TaskName="OpenCover.MSBuild.OpenCover" />
