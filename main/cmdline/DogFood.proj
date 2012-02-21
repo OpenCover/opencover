@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="All">
+
+  <!-- The following is needed for dev tests only -->
+  <PropertyGroup>
+    <OpenCoverMSBuildTasksPath>.</OpenCoverMSBuildTasksPath>
+  </PropertyGroup>
+  <Import Project="OpenCover.targets" />
+  <!--
+  This how you would use OpenCover in real life
+  <Import Project="$(MSBuildExtensionsPath32)\OpenCover\OpenCover.targets" />
+  -->
+
+  <ItemGroup>
+    <NUnitConsole Include="..\..\..\tools\NUnit-2.5.10.11092\bin\net-2.0\nunit-console-x86.exe" />
+    <NUnitConsole Include="..\..\..\tools\NUnit-2.5.10.11092\bin\net-2.0\nunit-console.exe" />
+  </ItemGroup>
+
+  <Target Name="All"
+    DependsOnTargets="Default;CoverByTest;ExcludeByAttribute;ExcludeByFile"
+  />
+
+  <Target Name="Default">
+    <OpenCover
+      Target="%(NUnitConsole.Identity)"
+      TargetArgs="OpenCover.Test.dll /noshadow"
+      Filter="+[Open*]*;-[OpenCover.T*]*"
+      Output="opencovertests.xml"
+    />
+  </Target>
+
+  <Target Name="CoverByTest">
+    <OpenCover
+      Target="%(NUnitConsole.Identity)"
+      TargetArgs="OpenCover.Test.dll /noshadow"
+      Filter="+[Open*]*;-[OpenCover.T*]*"
+      CoverByTest="*.Test.dll"
+      Output="opencovertests.xml"
+    />
+  </Target>
+
+  <Target Name="ExcludeByAttribute">
+    <OpenCover
+      Target="%(NUnitConsole.Identity)"
+      TargetArgs="OpenCover.Test.dll /noshadow"
+      Filter="+[Open*]*;-[Open*]*Boot*;-[OpenCover.T*]*"
+      ExcludeByAttribute="*.ExcludeFromCoverageAttribute"
+      Output="opencovertests.xml"
+    />
+  </Target>
+
+  <Target Name="ExcludeByFile">
+    <OpenCover
+      Target="%(NUnitConsole.Identity)"
+      TargetArgs="OpenCover.Test.dll /noshadow"
+      Filter="+[Open*]*;-[OpenCover.T*]*"
+      ExcludeByFile="*\ProfilerRegistration.*"
+      Output="opencovertests.xml"
+    />
+  </Target>
+
+</Project>
