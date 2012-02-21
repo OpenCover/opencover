@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" >
+  <?include ..\..\build\Version\Version.wxi ?>
 
-  <Product Id="*" Name="OpenCover" Language="1033" Version="!(bind.FileVersion.OPENCOVER_FRAMEWORK_DLL)"
+  <Product Id="*" Name="OpenCover" Language="1033" Version="$(var.Version)"
 			Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
 
     <Package InstallerVersion="200" Compressed="yes" />
 
     <Upgrade Id="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
       <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND" Minimum="1.0.0.0" IncludeMinimum="yes"
-                            Maximum="!(bind.FileVersion.OPENCOVER_FRAMEWORK_DLL)" IncludeMaximum="no" />
+                            Maximum="$(var.Version)" IncludeMaximum="no" />
 
-      <UpgradeVersion OnlyDetect="yes" Property="NEWERFOUND" Minimum="!(bind.FileVersion.OPENCOVER_FRAMEWORK_DLL)"
+      <UpgradeVersion OnlyDetect="yes" Property="NEWERFOUND" Minimum="$(var.Version)"
                             IncludeMinimum="yes" />
     </Upgrade>
 
@@ -18,7 +19,7 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLLOCATION" Name="OpenCover">
+        <Directory Id="APPLICATIONFOLDER" Name="[ApplicationFolderName]">
           <Component Id="ProductComponent" Guid="0188067F-C925-404A-AE01-3E0A10EF4DBB">
             <File Id="OPENCOVER_CONSOLE_EXE" Source="..\bin\Release\OpenCover.Console.exe" KeyPath="yes" />
             <File Id="OPENCOVER_CONSOLE_EXE_CONFIG" Source="..\bin\Release\OpenCover.Console.exe.config" />
@@ -80,7 +81,21 @@
             </Directory>
           </Directory>
         </Directory>
+        <Directory Id="MSBUILDEXTENSIONSDIRECTORY" Name="MSBuild">
+          <Directory Id="MSBUILDSALAMANCADIRECTORY" Name="OpenCover">
+            <Component Id="MSBuildFiles" Guid="F635F447-4F1A-4D2F-AB00-877C5786E50F">
+              <File Id="OPENCOVER_MSBUILD_DLL" Source="..\bin\Release\OpenCover.MSBuild.dll" KeyPath="yes" />
+              <File Id="OPENCOVER_TARGETS" Source="..\bin\Release\OpenCover.targets" />
+            </Component>
+          </Directory>
+        </Directory>
       </Directory>
+      <Component Id="RegistryEntries" Guid="343C3329-85F1-400A-85E3-8AEB7FBACF2B">
+        <RegistryKey Root="HKMU" Key="Software\SWilde\OpenCover" Action="createAndRemoveOnUninstall">
+          <RegistryValue Type="string" Name="Path" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
+          <RegistryValue Type="string" Name="Version" Value="$(var.Version)" />
+        </RegistryKey>
+      </Component>
     </Directory>
 
     <Icon Id="icon.ico" SourceFile="..\icons\icon.ico"/>
@@ -93,15 +108,18 @@
       <ComponentRef Id="X86Samples" />
       <ComponentRef Id="X64Samples" />
       <ComponentRef Id="DocumentationComponent" />
+      <ComponentRef Id="MSBuildFiles" />
+      <ComponentRef Id="RegistryEntries" />
     </Feature>
 
     <InstallExecuteSequence>
       <RemoveExistingProducts Before="InstallInitialize" />
     </InstallExecuteSequence>
 
-	<WixVariable Id="WixUILicenseRtf" Value="..\..\License.rtf" />
-    <Property Id="WIXUI_INSTALLDIR">INSTALLLOCATION</Property>
-    <UIRef Id="WixUI_InstallDir" />
+    <WixVariable Id="WixUILicenseRtf" Value="..\..\License.rtf" />
+    <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+    <Property Id="ApplicationFolderName" Value="OpenCover" />
+    <UIRef Id="WixUI_Advanced" />
     <UIRef Id="WixUI_ErrorProgressText" />
 
   </Product>
