@@ -123,6 +123,8 @@
     <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
+    <Compile Include="Framework\Strategy\TrackMSTestTestMethodsTests.cs" />
+    <Compile Include="Framework\Strategy\TrackNUnitTestMethodsTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />
     <Compile Include="Integration\SimpleExceptionTests.cs" />
@@ -153,6 +155,10 @@
     </None>
     <None Include="..\cmdline\dogfood64.cmd">
       <Link>dogfood64.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\cmdline\dogfood_coverbytest.cmd">
+      <Link>dogfood_coverbytest.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\cmdline\dogfood_exattr.cmd">

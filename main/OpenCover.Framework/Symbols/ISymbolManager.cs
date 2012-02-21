@@ -27,5 +27,7 @@ namespace OpenCover.Framework.Symbols
         int GetCyclomaticComplexityForToken(int token);
 
         AssemblyDefinition SourceAssembly { get; }
+
+        TrackedMethod[] GetTrackedMethods();
     }
 }

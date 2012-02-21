@@ -24,15 +24,28 @@ namespace OpenCover.Test.Framework.Persistance
         UnityAutoMockContainerBase<IPersistance, BasePersistanceStub>
     {
         [Test]
-        public void Can_Add_Module_To_Session()
+        public void Can_Add_Valid_Module_To_Session()
         {
             //arrange
 
             // act 
-            Instance.PersistModule(new Module());
+            Instance.PersistModule(new Module() { Classes = new Class[0] });
+            Instance.PersistModule(new Module() { TrackedMethods = new TrackedMethod[0] });
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(2, Instance.CoverageSession.Modules.Count());
+        }
+
+        [Test]
+        public void CanNot_Add_Invalid_Module_To_Session()
+        {
+            //arrange
+
+            // act 
+            Instance.PersistModule(null);
+
+            // assert
+            Assert.AreEqual(0, Instance.CoverageSession.Modules.Count());
         }
 
         [Test]
@@ -41,9 +54,9 @@ namespace OpenCover.Test.Framework.Persistance
             //arrange
 
             // act 
-            var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
+            var module1 = new Module() { ModuleHash = "123", FullName = "Path1", Classes = new Class[0]};
             module1.Aliases.Add("Path1");
-            var module2 = new Module() { ModuleHash = "123", FullName = "Path2" };
+            var module2 = new Module() { ModuleHash = "123", FullName = "Path2", Classes = new Class[0]};
             module2.Aliases.Add("Path2");
             Instance.PersistModule(module1);
             Instance.PersistModule(module2);
@@ -61,9 +74,9 @@ namespace OpenCover.Test.Framework.Persistance
                 .Returns(true);
 
             // act 
-            var module1 = new Module() { ModuleHash = "123", FullName = "Path1" };
+            var module1 = new Module() { ModuleHash = "123", FullName = "Path1", Classes = new Class[0]};
             module1.Aliases.Add("Path1");
-            var module2 = new Module() { ModuleHash = "123", FullName = "Path2" };
+            var module2 = new Module() { ModuleHash = "123", FullName = "Path2", Classes = new Class[0]};
             module2.Aliases.Add("Path2");
             Instance.PersistModule(module1);
             Instance.PersistModule(module2);
@@ -76,7 +89,7 @@ namespace OpenCover.Test.Framework.Persistance
         public void IsTracking_True_IfModuleKnown()
         {
             // arrange
-            var module = new Module() {FullName = "ModulePath"};
+            var module = new Module() {FullName = "ModulePath", Classes = new Class[0]};
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);
 
@@ -179,26 +192,54 @@ namespace OpenCover.Test.Framework.Persistance
             var pt2 = new SequencePoint();
 
             var data = new List<byte>();
-            data.AddRange(BitConverter.GetBytes((UInt32)4));
-            data.AddRange(BitConverter.GetBytes(pt1.UniqueSequencePoint));
-            data.AddRange(BitConverter.GetBytes(pt2.UniqueSequencePoint));
-            data.AddRange(BitConverter.GetBytes(pt2.UniqueSequencePoint));
-            data.AddRange(BitConverter.GetBytes(pt2.UniqueSequencePoint));
+
+            var points = new[] { pt1.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint };
+            data.AddRange(BitConverter.GetBytes((UInt32)points.Count()));
+            foreach (var point in points)
+                data.AddRange(BitConverter.GetBytes(point));
 
             // act
             Instance.SaveVisitData(data.ToArray());
 
             // assert
-            Assert.AreEqual(1, SequencePoint.GetCount(pt1.UniqueSequencePoint));
-            Assert.AreEqual(3, SequencePoint.GetCount(pt2.UniqueSequencePoint));
+            Assert.AreEqual(1, InstrumentationPoint.GetCount(pt1.UniqueSequencePoint));
+            Assert.AreEqual(3, InstrumentationPoint.GetCount(pt2.UniqueSequencePoint));
         }
 
         [Test]
-        public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown()
+        public void SaveVisitPoints_Aggregates_Visits_ForTrackedMethods()
+        {
+            // arrange
+            var pt1 = new SequencePoint();
+            var pt2 = new SequencePoint();
+
+            var data = new List<byte>();
+            var points = new[] { 
+                1 | (uint)MSG_IdType.IT_MethodEnter, pt1.UniqueSequencePoint, pt2.UniqueSequencePoint, 1 | (uint)MSG_IdType.IT_MethodLeave, 
+                2 | (uint)MSG_IdType.IT_MethodEnter, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint, 2 | (uint)MSG_IdType.IT_MethodLeave };
+            data.AddRange(BitConverter.GetBytes((UInt32)points.Count()));
+            foreach (var point in points)
+                data.AddRange(BitConverter.GetBytes(point));
+
+            // act
+            Instance.SaveVisitData(data.ToArray());
+
+            // assert
+            Assert.AreEqual(1, InstrumentationPoint.GetCount(pt1.UniqueSequencePoint));
+            Assert.AreEqual(3, InstrumentationPoint.GetCount(pt2.UniqueSequencePoint));
+            Assert.AreEqual(1, pt1.TrackedMethodRefs.Count());
+            Assert.AreEqual(1, pt1.TrackedMethodRefs[0].VisitCount);
+            Assert.AreEqual(2, pt2.TrackedMethodRefs.Count());
+            Assert.AreEqual(1, pt2.TrackedMethodRefs[0].VisitCount);
+            Assert.AreEqual(2, pt2.TrackedMethodRefs[1].VisitCount);
+        }
+
+        [Test]
+        public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown_FirstPointIsSequence()
         {
             // arrange
             var seqPoint = new SequencePoint() {VisitCount = 1000};
-            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MetadataToken = 1, MethodPoint = seqPoint, SequencePoints = new[] { seqPoint } } } } } };
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MethodPoint = seqPoint, MetadataToken = 1, SequencePoints = new[] { seqPoint } } } } } };
 
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);
@@ -211,6 +252,27 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsNotNull(points);
             Assert.AreEqual(1, points.Count());
             Assert.AreEqual(1000, points[0].VisitCount);
+        }
+
+        [Test]
+        public void GetSequencePoints_GetsPoints_When_ModuleAndFunctionKnown_FirstPointIsNotSequence()
+        {
+            // arrange
+            var methodPoint = new InstrumentationPoint() {VisitCount = 2000};
+            var module = new Module() { FullName = "ModulePath", Classes = new[] { new Class() { Methods = new[] { new Method() { MethodPoint = methodPoint, MetadataToken = 1, SequencePoints = new[] { new SequencePoint() { VisitCount = 1000 } } } } } } };
+
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            InstrumentationPoint[] points;
+            Instance.GetSequencePointsForFunction("ModulePath", 1, out points);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2000, points[0].VisitCount);
+            Assert.AreEqual(1000, points[1].VisitCount);
         }
 
         [Test]
@@ -321,7 +383,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { MethodPoint = point }, } }, } } };
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 25);
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 25);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
@@ -336,7 +398,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { SequencePoints = new [] { point }}}}}}};
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 37);
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 37);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
@@ -352,7 +414,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { BranchPoints = new [] { point } } } } } } };
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 42);
+            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 42);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
@@ -360,5 +422,54 @@ namespace OpenCover.Test.Framework.Persistance
 
         }
 
+        [Test]
+        public void GetTrackingMethod_ReturnsFase_For_UnTrackedMethod()
+        {
+            // arrange
+            var module = new Module()
+                             {
+                                 TrackedMethods =
+                                     new[]
+                                         {
+                                             new TrackedMethod()
+                                                 {MetadataToken = 1234, Name = "MethodName", UniqueId = 5678}
+                                         }
+                             };
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            uint trackedId = 0;
+            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 2222, out trackedId);
+
+            // assert
+            Assert.IsFalse(result);
+            Assert.AreEqual(0, trackedId);
+        }
+
+        [Test]
+        public void GetTrackingMethod_RetrievesId_For_TrackedMethod()
+        {
+            // arrange
+            var module = new Module()
+            {
+                TrackedMethods =
+                    new[]
+                                         {
+                                             new TrackedMethod()
+                                                 {MetadataToken = 1234, Name = "MethodName", UniqueId = 5678}
+                                         }
+            };
+            module.Aliases.Add("ModulePath");
+            Instance.PersistModule(module);
+
+            // act
+            uint trackedId = 0;
+            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 1234, out trackedId);
+
+            // assert
+            Assert.IsTrue(result);
+            Assert.AreEqual(5678, trackedId);
+        }
     }
 }

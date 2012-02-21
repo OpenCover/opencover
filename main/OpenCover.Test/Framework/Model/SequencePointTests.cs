@@ -22,10 +22,12 @@ namespace OpenCover.Test.Framework.Model
             }
 
             // assert
-            Assert.DoesNotThrow(() => SequencePoint.AddCount(10000, 100));
+            Assert.DoesNotThrow(() => SequencePoint.AddCount(10000, 0, 100));
 
             Assert.AreEqual(100, SequencePoint.GetCount(10000));
 
         }
+
+        // TODO: Add tests around Instrumentation point
     }
 }

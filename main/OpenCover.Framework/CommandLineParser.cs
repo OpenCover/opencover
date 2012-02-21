@@ -29,6 +29,7 @@ namespace OpenCover.Framework
             Filters = new List<string>();
             AttributeExclusionFilters = new List<string>();
             FileExclusionFilters = new List<string>();
+            TestFilters = new List<string>();
             LogLevel = Level.Info;
         }
 
@@ -52,6 +53,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service]");
             builder.AppendLine("or");
@@ -132,10 +134,14 @@ namespace OpenCover.Framework
                         FileExclusionFilters = GetArgumentValue("excludebyfile")
                             .Split(";".ToCharArray()).ToList();
                         break;
+                    case "coverbytest":
+                        TestFilters = GetArgumentValue("coverbytest")
+                            .Split(";".ToCharArray()).ToList();
+                        break;
                     case "log":
                         var value = GetArgumentValue("log");
                         LogLevel = (Level)typeof(Level).GetFields(BindingFlags.Static | BindingFlags.Public)
-                            .Where(x => string.Compare(x.Name, value, true) == 0).First().GetValue(typeof(Level));
+                            .First(x => string.Compare(x.Name, value, true) == 0).GetValue(typeof(Level));
                         break;
                     case "service":
                         Service = true;
@@ -230,6 +236,11 @@ namespace OpenCover.Framework
         /// A list of file exclusion filters
         /// </summary>
         public List<string> FileExclusionFilters { get; private set; }
+
+        /// <summary>
+        /// A list of test file filters
+        /// </summary>
+        public List<string> TestFilters { get; private set; }
 
         /// <summary>
         /// The logging level based on log4net.Core.Level

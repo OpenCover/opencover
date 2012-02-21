@@ -31,6 +31,24 @@ namespace OpenCover.Test.Framework.Communication
         }
 
         [Test]
+        public void Handles_MSG_TrackMethod()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackMethod_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackMethod_Request());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, IntPtr.Zero, (x) => { });
+
+            // assert
+            uint uniqueId;
+            Container.GetMock<IProfilerCommunication>()
+                .Verify(x => x.TrackMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out uniqueId), Times.Once());
+
+        }
+
+        [Test]
         public void Handles_MSG_GetSequencePoints()
         {
             // arrange 

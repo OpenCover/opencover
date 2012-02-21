@@ -207,8 +207,8 @@ namespace OpenCover.MSBuild
         private bool _ToolStarted;
 
         private static Regex _OutputRegex=new Regex(@"^\[\d{5}\] \[\d{5}\] ", RegexOptions.Compiled | RegexOptions.Multiline);
-        private const string _OpenCoverRegKey=@"SOFTWARE\SWilde\OpenCover\";
-        private const string _OpenCoverRegKeyWow6432=@"SOFTWARE\Wow6432Node\SWilde\OpenCover\";
+        private const string _OpenCoverRegKey=@"SOFTWARE\OpenCover\";
+        private const string _OpenCoverRegKeyWow6432=@"SOFTWARE\Wow6432Node\OpenCover\";
         private const string _OpenCoverRegValue="Path";
     }
 }

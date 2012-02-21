@@ -178,13 +178,37 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
     RequestInformation(
         [=]()
         {
-            m_pMSG->trackRequest.type = MSG_TrackAssembly; 
-            wcscpy_s(m_pMSG->trackRequest.szModulePath, pModulePath);
-            wcscpy_s(m_pMSG->trackRequest.szAssemblyName, pAssemblyName);
+            m_pMSG->trackAssemblyRequest.type = MSG_TrackAssembly; 
+            wcscpy_s(m_pMSG->trackAssemblyRequest.szModulePath, pModulePath);
+            wcscpy_s(m_pMSG->trackAssemblyRequest.szAssemblyName, pAssemblyName);
         }, 
         [=, &response]()->BOOL
         {
-            response =  m_pMSG->trackResponse.bResponse == TRUE;
+            response =  m_pMSG->trackAssemblyResponse.bResponse == TRUE;
+            return FALSE;
+        }
+    );
+
+    return response;
+}
+
+bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId)
+{
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+
+    bool response = false;
+    RequestInformation(
+        [=]()
+        {
+            m_pMSG->trackMethodRequest.type = MSG_TrackMethod; 
+            m_pMSG->trackMethodRequest.functionToken = functionToken;
+            wcscpy_s(m_pMSG->trackMethodRequest.szModulePath, pModulePath);
+            wcscpy_s(m_pMSG->trackMethodRequest.szAssemblyName, pAssemblyName);
+        }, 
+        [=, &response, &uniqueId]()->BOOL
+        {
+            response =  m_pMSG->trackMethodResponse.bResponse == TRUE;
+            uniqueId = m_pMSG->trackMethodResponse.UniqueId;
             return FALSE;
         }
     );

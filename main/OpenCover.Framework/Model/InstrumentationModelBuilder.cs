@@ -20,13 +20,18 @@ namespace OpenCover.Framework.Model
         /// Standard constructor
         /// </summary>
         /// <param name="symbolManager">the symbol manager that will provide the data</param>
-        /// <param name="filter">A filter to decide whether to include or exclude an assembly or its classes</param>
         public InstrumentationModelBuilder(ISymbolManager symbolManager)
         {
             _symbolManager = symbolManager;
         }
 
         public Module BuildModuleModel(bool full)
+        {
+            var module = CreateModule(full);
+            return module;
+        }
+
+        private Module CreateModule(bool full)
         {
             var hash = string.Empty;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
@@ -39,16 +44,24 @@ namespace OpenCover.Framework.Model
                                  FullName = _symbolManager.ModulePath,
                                  ModuleHash = hash
                              };
+            module.Aliases.Add(_symbolManager.ModulePath);
+            
             if (full)
             {
                 module.Files = _symbolManager.GetFiles();
-                module.Aliases.Add(_symbolManager.ModulePath);
                 module.Classes = _symbolManager.GetInstrumentableTypes();
                 foreach (var @class in module.Classes)
                 {
                     BuildClassModel(@class, module.Files);
                 }
             }
+            return module;
+        }
+
+        public Module BuildModuleTestModel(Module module, bool full)
+        {
+            module = module ?? CreateModule(full);
+            module.TrackedMethods = _symbolManager.GetTrackedMethods();
             return module;
         }
 
@@ -68,7 +81,8 @@ namespace OpenCover.Framework.Model
 
         private void BuildClassModel(Class @class, File[] files)
         {
-            if (@class.ShouldSerializeSkippedDueTo()) return;
+            if (@class.ShouldSerializeSkippedDueTo()) 
+                return;
             var methods = _symbolManager.GetMethodsForType(@class, files);
 
             foreach (var method in methods)

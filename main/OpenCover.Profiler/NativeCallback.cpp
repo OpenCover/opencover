@@ -2,9 +2,6 @@
 #include "NativeCallback.h"
 #include "CodeCoverage.h"
 
-// I've stubbed these here as I may need them and 
-// I can never remember the assembler involved
-
 // http://msdn.microsoft.com/en-us/library/aa964981.aspx
 void __stdcall FunctionEnter2Global(
     /*[in]*/FunctionID                          funcID, 
@@ -12,6 +9,7 @@ void __stdcall FunctionEnter2Global(
     /*[in]*/COR_PRF_FRAME_INFO                  func, 
     /*[in]*/COR_PRF_FUNCTION_ARGUMENT_INFO      *argumentInfo)
 {
+    CCodeCoverage::g_pProfiler->FunctionEnter2(funcID, clientData, func, argumentInfo);
 }
 
 // http://msdn.microsoft.com/en-us/library/aa964942.aspx
@@ -21,6 +19,7 @@ void __stdcall FunctionLeave2Global(
     /*[in]*/COR_PRF_FRAME_INFO                  func, 
     /*[in]*/COR_PRF_FUNCTION_ARGUMENT_RANGE     *retvalRange)
 {
+    CCodeCoverage::g_pProfiler->FunctionLeave2(funcID, clientData, func, retvalRange);
 }
 
 // http://msdn.microsoft.com/en-us/library/aa964754.aspx
@@ -29,6 +28,7 @@ void __stdcall FunctionTailcall2Global(
     /*[in]*/UINT_PTR                            clientData, 
     /*[in]*/COR_PRF_FRAME_INFO                  func)
 {
+    CCodeCoverage::g_pProfiler->FunctionTailcall2(funcID, clientData, func);
 }
 
 #if defined(_WIN64)

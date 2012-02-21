@@ -343,7 +343,6 @@ namespace OpenCover.Test.Framework
             Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".ABC").Success);
         }
 
-
         [Test]
         public void Entity_Is_Not_Excluded_If_No_Filters_Set()
         {
@@ -381,6 +380,47 @@ namespace OpenCover.Test.Framework
             filter.AddFileExclusionFilters(new[] { ".*" });
 
             Assert.IsTrue(filter.ExcludedFiles[0].Value.Match(".ABC").Success);
+        }
+
+        [Test]
+        public void AddTestFileFilters_HandlesNull()
+        {
+            var filter = new Filter();
+
+            filter.AddTestFileFilters(null);
+
+            Assert.AreEqual(0, filter.TestFiles.Count);
+        }
+
+        [Test]
+        public void AssemblyIsIncludedForTestMethodGatheringWhenFilterMatches()
+        {
+            var filter = new Filter();
+
+            filter.AddTestFileFilters(new []{"A*"});
+
+            Assert.IsTrue(filter.UseTestAssembly("ABC.dll"));
+            Assert.IsFalse(filter.UseTestAssembly("XYZ.dll"));
+        }
+
+        [Test]
+        public void AddTestFileFilters_Handles_Null_Elements()
+        {
+            var filter = new Filter();
+
+            filter.AddTestFileFilters(new[] { null, "" });
+
+            Assert.AreEqual(1, filter.TestFiles.Count);
+        }
+
+        [Test]
+        public void AddTestFileFilters_Escapes_Elements_And_Matches()
+        {
+            var filter = new Filter();
+
+            filter.AddTestFileFilters(new[] { ".*" });
+
+            Assert.IsTrue(filter.TestFiles[0].Value.Match(".ABC").Success);
         }
 
         [Test]

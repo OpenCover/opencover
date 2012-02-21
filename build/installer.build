@@ -5,12 +5,15 @@
 	<property name="candle.exe" value="${wix.folder}/candle.exe" />
 	<property name="light.exe" value="${wix.folder}/light.exe" />
 
-	<target name="build-installer" >
-		<exec program="${candle.exe}" 
+	<target name="build-installer" depends="get-version-number">
+    <exec program="${candle.exe}"
 			commandline="-arch x86 -out ${solution.folder}\bin\installer\temp\Product.wxi ${solution.folder}\OpenCover.Installer\Product.wxs" />
 
-		<exec program="${light.exe}" 
-			commandline="-b ${solution.folder}\OpenCover.Installer -ext WixUtilExtension -ext WixUIExtension -cultures:en-us -out ${solution.folder}\bin\installer\opencover.msi ${solution.folder}\bin\installer\temp\Product.wxi" />
+    <exec program="${candle.exe}"
+      commandline="-arch x86 -out ${solution.folder}\bin\installer\temp\Components.wxi ${solution.folder}\OpenCover.Installer\Components.wxs" />
+
+    <exec program="${light.exe}" 
+			commandline="-b ${solution.folder}\OpenCover.Installer -ext WixUtilExtension -ext WixUIExtension -cultures:en-us -out ${solution.folder}\bin\installer\opencover.msi ${solution.folder}\bin\installer\temp\Product.wxi ${solution.folder}\bin\installer\temp\Components.wxi" />
 		
 	</target>
 	

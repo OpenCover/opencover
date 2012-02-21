@@ -30,23 +30,27 @@ namespace OpenCover.Framework.Service
         public bool TrackAssembly(string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
+            Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
             if (!_filter.UseAssembly(assemblyName))
             {
-                var module = builder.BuildModuleModel(false);
+                module = builder.BuildModuleModel(false);
                 module.SkippedDueTo = SkippedMethod.Filter;
-                _persistance.PersistModule(module);
-                return false;
             }
-            if (!builder.CanInstrument)
+            else if (!builder.CanInstrument)
             {
-                var module = builder.BuildModuleModel(false);
+                module = builder.BuildModuleModel(false);
                 module.SkippedDueTo = SkippedMethod.MissingPdb;
-                _persistance.PersistModule(module);
-                return false;
             }
-            _persistance.PersistModule(builder.BuildModuleModel(true));
-            return true;
+
+            module = module ?? builder.BuildModuleModel(true);
+            
+            if (_filter.UseTestAssembly(modulePath))
+            {
+                module = builder.BuildModuleTestModel(module, false);
+            }
+            _persistance.PersistModule(module);
+            return !module.ShouldSerializeSkippedDueTo();
         }
 
         public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
@@ -86,6 +90,11 @@ namespace OpenCover.Framework.Service
         public void Stopping()
         {
             _persistance.Commit();
+        }
+
+        public bool TrackMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
+        {
+            return _persistance.GetTrackingMethod(modulePath, assemblyName,functionToken, out uniqueId);
         }
     }
 }

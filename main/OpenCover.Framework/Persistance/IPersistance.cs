@@ -67,5 +67,15 @@ namespace OpenCover.Framework.Persistance
         /// </summary>
         /// <param name="data"></param>
         void SaveVisitData(byte[] data);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="assemblyName"></param>
+        /// <param name="functionToken"></param>
+        /// <param name="uniqueId"></param>
+        /// <returns></returns>
+        bool GetTrackingMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId);
     }
 }

@@ -3,7 +3,7 @@
   <?include ..\..\build\Version\Version.wxi ?>
 
   <Product Id="*" Name="OpenCover" Language="1033" Version="$(var.Version)"
-			Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
+      Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6" >
 
     <Package InstallerVersion="200" Compressed="yes" />
 
@@ -19,97 +19,41 @@
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="APPLICATIONFOLDER" Name="[ApplicationFolderName]">
-          <Component Id="ProductComponent" Guid="0188067F-C925-404A-AE01-3E0A10EF4DBB">
-            <File Id="OPENCOVER_CONSOLE_EXE" Source="..\bin\Release\OpenCover.Console.exe" KeyPath="yes" />
-            <File Id="OPENCOVER_CONSOLE_EXE_CONFIG" Source="..\bin\Release\OpenCover.Console.exe.config" />
-            <File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" />
-            <File Id="MICROSOFT_PRACTICES_UNITY_DLL" Source="..\bin\Release\Microsoft.Practices.Unity.dll" />
-            <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" />
-            <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
-            <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" />
-            <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
-            <File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" />
-            <File Id="SAMPLE64_CMD" Source="Assets\Sample64.cmd" Name="Sample64.cmd" />
-            <File Id="LICENCE_TXT" Source="..\..\License.rtf" Name="License.rtf" />
-            <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" />
-            <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
-          </Component>
-          <Directory Id="DOCS" Name="Documentation">
-            <Component Id="DocumentationComponent" Guid="07BF07A1-BCC5-40E9-953E-0C543F29D22A">
-              <File Id="USAGE_RTF" Source="..\OpenCover.Documentation\Usage.rtf" />
-            </Component>
-          </Directory>
-          <Directory Id="X86" Name="x86">
-            <Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
-              <File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">
-                <TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib"
-										Language="0" MajorVersion="1" MinorVersion="0">
-                  <Class Id="{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}" Context="InprocServer32"
-											Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
-                  </Class>
-                </TypeLib>
-              </File>
-            </Component>
-          </Directory>
-          <Directory Id="X64" Name="x64">
-            <Component Id="X64Profiler" Guid="F52FC3F3-FACB-4EFE-8248-210C73BD1C36" >
-              <File Id="OPENCOVER_PROFILER_DLL_X64" Source="..\bin\Release\x64\OpenCover.Profiler.dll" KeyPath="yes" >
-                <!--
-				<TypeLib Id="{9F34E05F-9627-4477-A016-0D56DEF7A38E}" Description="OpenCoverProfilerLib" 
-						Language="0" MajorVersion="1" MinorVersion="0">
-					<Class Id="{A7A1EDD8-D9A9-4D51-85EA-514A8C4A9100}" Context="InprocServer32" 
-							Description="OpenCover CodeCoverage Class" ThreadingModel="both" Version="1.0">
-					</Class>
-				</TypeLib>
-				-->
-              </File>
-            </Component>
-          </Directory>
+        <Directory Id="APPLICATIONFOLDER" Name="[ApplicationFolderName]" ShortName="OpnCover">
+          <Directory Id="DOCS" Name="Docs" />
+          <Directory Id="X86" Name="x86" />
+          <Directory Id="X64" Name="x64" />
           <Directory Id="SAMPLES" Name="Samples">
-            <Directory Id="SAMPLES_X86" Name="x86">
-              <Component Id="X86Samples" Guid="A3CD8F55-CC98-4CAC-9839-1C7790151364">
-                <File Id="OPENCOVER_SIMPLE_TARGET_EXE_X86" Source="..\bin\Release\x86\OpenCover.Simple.Target.exe"/>
-                <File Id="OPENCOVER_SIMPLE_TARGET_PDB_X86" Source="..\bin\Release\x86\OpenCover.Simple.Target.pdb"/>
-              </Component>
-            </Directory>
-            <Directory Id="SAMPLES_X64" Name="x64">
-              <Component Id="X64Samples" Guid="08B660A3-0CE9-41CC-BC16-E70C1EE9C1E5">
-                <File Id="OPENCOVER_SIMPLE_TARGET_EXE_X64" Source="..\bin\Release\x64\OpenCover.Simple.Target.exe"/>
-                <File Id="OPENCOVER_SIMPLE_TARGET_PDB_X64" Source="..\bin\Release\x64\OpenCover.Simple.Target.pdb"/>
-              </Component>
-            </Directory>
+            <Directory Id="SAMPLES_X86" Name="x86" />
+            <Directory Id="SAMPLES_X64" Name="x64" />
           </Directory>
         </Directory>
         <Directory Id="MSBUILDEXTENSIONSDIRECTORY" Name="MSBuild">
-          <Directory Id="MSBUILDSALAMANCADIRECTORY" Name="OpenCover">
-            <Component Id="MSBuildFiles" Guid="F635F447-4F1A-4D2F-AB00-877C5786E50F">
-              <File Id="OPENCOVER_MSBUILD_DLL" Source="..\bin\Release\OpenCover.MSBuild.dll" KeyPath="yes" />
-              <File Id="OPENCOVER_TARGETS" Source="..\bin\Release\OpenCover.targets" />
-            </Component>
-          </Directory>
+          <Directory Id="MSBUILDOPENCOVERDIRECTORY" Name="OpenCover" />
         </Directory>
       </Directory>
-      <Component Id="RegistryEntries" Guid="343C3329-85F1-400A-85E3-8AEB7FBACF2B">
-        <RegistryKey Root="HKMU" Key="Software\SWilde\OpenCover" Action="createAndRemoveOnUninstall">
-          <RegistryValue Type="string" Name="Path" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
-          <RegistryValue Type="string" Name="Version" Value="$(var.Version)" />
-        </RegistryKey>
-      </Component>
     </Directory>
 
-    <Icon Id="icon.ico" SourceFile="..\icons\icon.ico"/>
-    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
-
-    <Feature Id="ProductFeature" Title="OpenCover" Level="1">
-      <ComponentRef Id="ProductComponent" />
+    <Feature Id="ProductFeature" Title="OpenCover" Level="1" Description="The OpenCover code-coverage tool and supporting binaries. NOTE: This is the main application, to not install this would be pointless.">
+      <ComponentRef Id="MainProduct" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />
-      <ComponentRef Id="X86Samples" />
-      <ComponentRef Id="X64Samples" />
-      <ComponentRef Id="DocumentationComponent" />
       <ComponentRef Id="MSBuildFiles" />
       <ComponentRef Id="RegistryEntries" />
+      <ComponentRef Id="Licence" />
+      <Feature Id="SamplesFeature" Title="Samples" Level="1" Description="Install 32-bit and 64-bit samples. NOTE: Useful for testing the installation.">
+        <ComponentRef Id="X86Samples" />
+        <ComponentRef Id="X64Samples" />
+        <ComponentRef Id="SampleCmds" />
+      </Feature>
+      <Feature Id="DocumentationFeature" Title="Documentation" Level="1" Description="Install the documentation for OpenCover. NOTE: If you are new to OpenCover you may find this information useful.">
+        <ComponentRef Id="Documentation" />
+      </Feature>
+      <Feature Id="SymbolsFeature" Title="Debug Symbols" Level="100" Description="The Debug Symbols, useful if you are having issues and need to report a bug, with a stack trace, but not necessary for normal operation.">
+        <ComponentRef Id="MainProductSymbols" />
+        <ComponentRef Id="X64ProfilerSymbols" />
+        <ComponentRef Id="X86ProfilerSymbols" />
+      </Feature>
     </Feature>
 
     <InstallExecuteSequence>
@@ -117,8 +61,12 @@
     </InstallExecuteSequence>
 
     <WixVariable Id="WixUILicenseRtf" Value="..\..\License.rtf" />
-    <Property Id="WixAppFolder" Value="WixPerMachineFolder" />
+    <Icon Id="icon.ico" SourceFile="..\icons\icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
     <Property Id="ApplicationFolderName" Value="OpenCover" />
+    <Property Id="WixAppFolder" Value="WixPerUserFolder" />
+
     <UIRef Id="WixUI_Advanced" />
     <UIRef Id="WixUI_ErrorProgressText" />
 

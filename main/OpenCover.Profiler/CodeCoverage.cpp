@@ -79,10 +79,21 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
     dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
     dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Don't use NGen images
+    dwMask |= COR_PRF_MONITOR_ENTERLEAVE;           // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
 
     m_profilerInfo2->SetEventMask(dwMask);
 
+    if(m_profilerInfo3 != NULL)
+        m_profilerInfo3->SetFunctionIDMapper2(FunctionMapper2, this);
+    else
+        m_profilerInfo2->SetFunctionIDMapper(FunctionMapper);
+
     g_pProfiler = this;
+
+    m_profilerInfo2->SetEnterLeaveFunctionHooks2(
+        _FunctionEnter2, 
+        _FunctionLeave2, 
+        _FunctionTailcall2);
 
     return S_OK; 
 }

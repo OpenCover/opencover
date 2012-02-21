@@ -125,6 +125,19 @@ namespace OpenCover.Framework.Communication
                         } while (responseCSP.more);
                     }
                     break;
+
+                case MSG_Type.MSG_TrackMethod:
+                    {
+                        var msgTM = _marshalWrapper.PtrToStructure<MSG_TrackMethod_Request>(pinnedMemory);
+                        var responseTM = new MSG_TrackMethod_Response();
+                        uint uniqueId;
+                        responseTM.track = _profilerCommunication.TrackMethod(msgTM.modulePath, 
+                            msgTM.assemblyName, msgTM.functionToken, out uniqueId);
+                        responseTM.UniqueId = uniqueId;
+                        _marshalWrapper.StructureToPtr(responseTM, pinnedMemory, false);
+                        writeSize = Marshal.SizeOf(typeof(MSG_TrackMethod_Response));
+                    }
+                    break;
             }
             return writeSize;                
         }
@@ -140,6 +153,7 @@ namespace OpenCover.Framework.Communication
                         Marshal.SizeOf(typeof(MSG_TrackAssembly_Request)), 
                         Marshal.SizeOf(typeof(MSG_GetSequencePoints_Request)),
                         Marshal.SizeOf(typeof(MSG_GetBranchPoints_Request)),
+                        Marshal.SizeOf(typeof(MSG_TrackMethod_Request)), 
                     }).Max();
                 }
                 return _readSize;

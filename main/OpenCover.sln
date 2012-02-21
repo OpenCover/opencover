@@ -8,6 +8,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
 	ProjectSection(SolutionItems) = preProject
 		..\build\environment.build = ..\build\environment.build
+		..\build\installer.build = ..\build\installer.build
 		..\build\opencover.build = ..\build\opencover.build
 		..\build\version.build = ..\build\version.build
 	EndProjectSection
@@ -30,6 +31,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{1E02E180-E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Installer", "Installer", "{299202E9-EDCF-4386-8795-C20DCDCE0122}"
 	ProjectSection(SolutionItems) = preProject
+		OpenCover.Installer\Components.wxs = OpenCover.Installer\Components.wxs
 		OpenCover.Installer\Product.wxs = OpenCover.Installer\Product.wxs
 		OpenCover.Installer\Assets\sample.cmd = OpenCover.Installer\Assets\sample.cmd
 		OpenCover.Installer\Assets\sample64.cmd = OpenCover.Installer\Assets\sample64.cmd

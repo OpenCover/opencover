@@ -31,8 +31,28 @@ namespace OpenCover.Test.Framework.Model
             // assert
             Assert.IsNotNull(module);
             Assert.AreEqual("ModulePath", module.FullName);
+            Assert.AreEqual("ModulePath", module.Aliases[0]);
         }
 
+        [Test]
+        public void BuildModuleModel_Gets_ModuleName_From_SymbolReader()
+        {
+            // arrange
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.ModuleName)
+                .Returns("ModuleName");
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(false);
+
+            // assert
+            Assert.IsNotNull(module);
+            Assert.AreEqual("ModuleName", module.ModuleName);
+        }
         [Test]
         public void BuildModuleModel_GetsClasses_From_SymbolReader()
         {
@@ -52,6 +72,30 @@ namespace OpenCover.Test.Framework.Model
             // assert
             Assert.AreEqual(1, module.Classes.GetLength(0));
             Assert.AreSame(@class, module.Classes[0]);
+            Container.GetMock<ISymbolManager>()
+                .Verify(x => x.GetMethodsForType(It.IsAny<Class>(), It.IsAny<File[]>()), Times.Once());
+        }
+
+        [Test]
+        public void BuildModuleModel_DoesNotGetMethods_For_SkippedClasses()
+        {
+            // arrange
+            var @class = new Class(){SkippedDueTo = SkippedMethod.File};
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.AreEqual(1, module.Classes.GetLength(0));
+            Container.GetMock<ISymbolManager>()
+                .Verify(x => x.GetMethodsForType(It.IsAny<Class>(), It.IsAny<File[]>()), Times.Never());
         }
 
         [Test]
@@ -145,11 +189,50 @@ namespace OpenCover.Test.Framework.Model
                .Returns(true);
 
             // act
-            var module = Instance.BuildModuleModel(false);
+            var module = Instance.BuildModuleModel(true);
 
             // assert
             Assert.IsNotNullOrEmpty(module.ModuleHash);
 
         }
+
+        [Test]
+        public void BuildModuleTestModel_GetsTrackedMethods_From_SymbolReader()
+        {
+            // arrange
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetTrackedMethods())
+                .Returns(new TrackedMethod[0]);
+
+            // act
+            var module = Instance.BuildModuleTestModel(null, true);
+
+            // assert
+            Assert.NotNull(module);
+            Assert.AreEqual(0, module.TrackedMethods.GetLength(0));
+            Container.GetMock<ISymbolManager>().Verify(x=>x.GetTrackedMethods(), Times.Once());
+
+        }
+
+        [Test]
+        public void BuildModuleTestModel_GetsTrackedMethods_From_SymbolReader_UpdatesSuppliedModel()
+        {
+            // arrange
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetTrackedMethods())
+                .Returns(new TrackedMethod[0]);
+
+            // act
+            var origModule = new Module();
+            var module = Instance.BuildModuleTestModel(origModule, true);
+
+            // assert
+            Assert.NotNull(module);
+            Assert.AreSame(origModule, module);
+            Assert.AreEqual(0, module.TrackedMethods.GetLength(0));
+            Container.GetMock<ISymbolManager>().Verify(x => x.GetTrackedMethods(), Times.Once());
+
+        }
+
     }
 }

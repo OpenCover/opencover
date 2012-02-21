@@ -15,6 +15,7 @@ using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Strategy;
 using log4net;
 using File = OpenCover.Framework.Model.File;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
@@ -27,15 +28,17 @@ namespace OpenCover.Framework.Symbols
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
         private readonly ILog _logger;
+        private readonly ITrackedMethodStrategy[] _trackedMethodStrategies;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategy[] trackedMethodStrategies)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
+            _trackedMethodStrategies = trackedMethodStrategies;
         }
 
         public string ModulePath
@@ -130,6 +133,7 @@ namespace OpenCover.Framework.Symbols
 
         public Class[] GetInstrumentableTypes()
         {
+            if (SourceAssembly == null) return new Class[0];
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
             GetInstrumentableTypes(typeDefinitions, classes, _filter, _moduleName);
@@ -376,6 +380,18 @@ namespace OpenCover.Framework.Symbols
                 if (typeDefinition.HasNestedTypes) 
                     GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token, ref complexity);
             }
+        }
+
+        public TrackedMethod[] GetTrackedMethods()
+        {
+            if (SourceAssembly==null) return null;
+            var trackedmethods = new List<TrackedMethod>();
+            foreach (var trackedMethodStrategy in _trackedMethodStrategies)
+            {
+                IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+                trackedmethods.AddRange(trackedMethodStrategy.GetTrackedMethods(typeDefinitions));
+            }
+            return trackedmethods.ToArray();
         }
     }
 }
