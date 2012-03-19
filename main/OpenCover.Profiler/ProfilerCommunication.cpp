@@ -75,16 +75,16 @@ void ProfilerCommunication::ProcessResults()
     {
         if (m_queue.try_pop(id))
         {
-            if (id == 0) return;
             CScopedLock<CMutex> lock(m_mutexResults);  
             do
             {
-            m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
-            if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
-            {
-                SendVisitPoints();
-                m_pVisitPoints->count = 0;
-            }
+                if (id == 0) return;
+                m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
+                if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
+                {
+                    SendVisitPoints();
+                    m_pVisitPoints->count = 0;
+                }
             } while (m_queue.try_pop(id));
         }
 
