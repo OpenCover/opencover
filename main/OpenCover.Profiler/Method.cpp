@@ -282,7 +282,8 @@ void Method::ReadSections()
                     pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
-                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY);
+                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
+                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -319,7 +320,8 @@ void Method::ReadSections()
                     pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
-                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY);
+                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
+                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -369,7 +371,7 @@ Instruction * Method::GetInstructionAtOffset(long offset)
 ///            }
 ///     }
 /// </example>
-Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally)
+Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally, bool isFault)
 {
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
@@ -379,7 +381,7 @@ Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally)
         }
     }
 
-    if (isFinally)
+    if (isFinally || isFault)
     {
         Instruction *pLast = m_instructions.back();
         OperationDetails &details = Operations::m_mapNameOperationDetails[pLast->m_operation];

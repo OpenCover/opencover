@@ -47,7 +47,7 @@ private:
     void ConvertShortBranches();
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
-    Instruction * GetInstructionAtOffset(long offset, bool isFinally);
+    Instruction * GetInstructionAtOffset(long offset, bool isFinally, bool isFault);
     void ReadSections();
     void WriteSections();
     bool DoesTryHandlerPointToOffset(long offset);
