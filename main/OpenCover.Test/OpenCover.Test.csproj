@@ -149,6 +149,10 @@
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\cmdline\chow-down.cmd">
+      <Link>chow-down.cmd</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\dogfood.cmd">
       <Link>dogfood.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
