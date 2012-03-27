@@ -24,6 +24,15 @@ using System.Text;
 
 namespace OpenCover.Console
 {
+    class ServiceEnvironmentManagementEx : ServiceEnvironmentManagement
+    {
+        public static bool IsServiceDisabled(string serviceName)
+        {
+            var entry = GetServiceKey(serviceName);
+            return (int)entry.GetValue("Start") == 4;
+        }
+    }
+
     class ServiceEnvironmentManagement
     {
         private string _serviceAccountSid;
@@ -262,7 +271,7 @@ namespace OpenCover.Console
                 key.DeleteValue("Environment");
         }
 
-        private Microsoft.Win32.RegistryKey GetServiceKey(string serviceName)
+        protected static Microsoft.Win32.RegistryKey GetServiceKey(string serviceName)
         {
             Microsoft.Win32.RegistryKey localMachine = Microsoft.Win32.Registry.LocalMachine;
             Microsoft.Win32.RegistryKey key = localMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\" + serviceName, true);

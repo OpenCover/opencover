@@ -103,7 +103,15 @@ namespace OpenCover.Console
 
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
+            if (ServiceEnvironmentManagementEx.IsServiceDisabled(parser.Target))
+            {
+                logger.ErrorFormat("The service '{0}' is disabled. Please enable the service.",
+                    parser.Target);
+                return;
+            }
+
             var service = new ServiceController(parser.Target);
+
             if (service.Status != ServiceControllerStatus.Stopped)
             {
                 logger.ErrorFormat("The service '{0}' is already running. The profiler cannot attach to an already running service.", 
