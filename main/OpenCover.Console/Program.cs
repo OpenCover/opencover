@@ -291,7 +291,9 @@ namespace OpenCover.Console
             }
             else
             {
-                logger.InfoFormat("No results - no assemblies that matched the supplied filter were instrumented (missing PDBs?)");
+                logger.InfoFormat("No results - no assemblies that matched the supplied filter were instrumented");
+                logger.InfoFormat("    this could be due to missing PDBs for the assemblies that match the filter");
+                logger.InfoFormat("    please review the output file and refer to the Usage guide (Usage.rtf)");
             }
         }
 
