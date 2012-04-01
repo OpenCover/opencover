@@ -32,6 +32,9 @@
           <Directory Id="MSBUILDOPENCOVERDIRECTORY" Name="OpenCover" />
         </Directory>
       </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="OpenCover"/>
+      </Directory>
     </Directory>
 
     <Feature Id="ProductFeature" Title="OpenCover" Level="1" Description="The OpenCover code-coverage tool and supporting binaries. NOTE: This is the main application, to not install this would be pointless.">
@@ -41,6 +44,7 @@
       <ComponentRef Id="MSBuildFiles" />
       <ComponentRef Id="RegistryEntries" />
       <ComponentRef Id="Licence" />
+      <ComponentRef Id="PromptShortcut" />
       <Feature Id="SamplesFeature" Title="Samples" Level="1" Description="Install 32-bit and 64-bit samples. NOTE: Useful for testing the installation.">
         <ComponentRef Id="X86Samples" />
         <ComponentRef Id="X64Samples" />
@@ -48,6 +52,7 @@
       </Feature>
       <Feature Id="DocumentationFeature" Title="Documentation" Level="1" Description="Install the documentation for OpenCover. NOTE: If you are new to OpenCover you may find this information useful.">
         <ComponentRef Id="Documentation" />
+        <ComponentRef Id="DocumentationShortcut"/>
       </Feature>
       <Feature Id="SymbolsFeature" Title="Debug Symbols" Level="100" Description="The Debug Symbols, useful if you are having issues and need to report a bug, with a stack trace, but not necessary for normal operation.">
         <ComponentRef Id="MainProductSymbols" />

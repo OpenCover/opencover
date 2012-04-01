@@ -100,6 +100,27 @@
         <File Id="OPENCOVER_TARGETS" Source="..\bin\Release\OpenCover.targets" />
       </Component>
     </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="DocumentationShortcut" Guid="CDC99934-3AEF-4BEE-BA54-4E5850F21A9F">
+        <Shortcut Id="DocumentStartMenuShortcut"
+             Name="OpenCover Usage Guide"
+           Description="OpenCover Usage Guide"
+            Target="[DOCS]Usage.rtf"
+                  WorkingDirectory="DOCS"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\OpenCover\Installer" Name="documentation" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+      <Component Id="PromptShortcut" Guid="010D14EA-B89A-4DFF-9DC2-AFFF34783743">
+        <Shortcut Id="PromptStartMenuShortcut"
+             Name="OpenCover Prompt"
+           Description="OpenCover Prompt"
+            Target="[SystemFolder]cmd.exe"
+                  WorkingDirectory="APPLICATIONFOLDER"/>
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\Microsoft\OpenCover\Installer" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+    
   </Fragment>
 
 </Wix>
