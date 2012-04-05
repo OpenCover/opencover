@@ -57,7 +57,7 @@ namespace OpenCover.Test.Framework.Manager
             Assert.AreEqual("1", dict[@"Cor_Enable_Profiling"]);
         }
 
-        [Test]
+        [Test, RequiresMTA]
         public void Manager_Handles_StandardMessageEvent()
         {
             // arrange

@@ -3,7 +3,7 @@
 
     <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
     <property name="platform" value="x86" unless="${property::exists('platform')}" />
-    <property name="nunit.path" value="${tools.folder}/NUnit-2.5.10.11092/bin/net-2.0"/>
+    <property name="nunit.path" value="${tools.folder}/NUnit-2.6.0.12051/bin"/>
     <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
     <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
     <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
@@ -77,7 +77,8 @@
 	<target name="copy-teamcity-nunit-plugin" >
 	    <!-- from http://legeronline.blogspot.com/2009/05/team-city-addin-for-nunit.html -->
 	    <mkdir dir="${nunit.path}\addins" />
-		<copy file="${teamcity.dotnet.nunitaddin}-2.5.10.dll" todir="${nunit.path}\addins" />
+        <property name="teamcity-nunit-add-in" value="{teamcity.dotnet.nunitaddin}-2.6.0.dll" />
+        <copy file="${teamcity-nunit-add-in}" todir="${nunit.path}\addins" if="${file::exists(teamcity-nunit-add-in)}" />
 	</target>
 	
     <target name="test" description="Run unit tests" depends="build" >
