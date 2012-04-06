@@ -20,20 +20,6 @@ using namespace ATL;
 #define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
 #define COM_FAIL_RETURNHR(hr) if (!SUCCEEDED(hr)) return (hr)
 #define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
-#define MAGIC_NUMBER  0x9e3779b9
-
-template<>
-struct std::hash<std::pair<std::wstring, ULONG32> > {
-private:
-   const std::hash<std::wstring> _hash;
-   const std::hash<ULONG32> _hash2;
-public:
-   std::hash<std::pair<std::wstring, ULONG32>>() {}
-   size_t operator()(const std::pair<std::wstring, ULONG32> &p) const {
-      size_t seed = _hash(p.first);
-      return _hash2(p.second) + MAGIC_NUMBER + (seed<<6) + (seed>>2);
-   }
-};
 
 // CCodeCoverage
 
@@ -46,9 +32,6 @@ class ATL_NO_VTABLE CCodeCoverage :
 public:
     CCodeCoverage() 
     {
-        m_addedCriticalCuckoo = false;
-        m_addedSafeCuckoo = false;
-        m_watchForCuckoos = false;
         m_runtimeType = COR_PRF_DESKTOP_CLR;
     }
 
@@ -112,7 +95,6 @@ public:
 private:
     std::tr1::unordered_map<std::wstring, bool> m_allowModules;
     std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
-    std::tr1::unordered_map<std::pair<std::wstring, ULONG32>, bool> m_jitdMethods;
 
     COR_PRF_RUNTIME_TYPE m_runtimeType;
     ASSEMBLYMETADATA m_runtimeVersion;
@@ -129,11 +111,8 @@ private:
     std::tr1::unordered_map<std::wstring, mdToken> m_injectedVisitedMethodDefs;
     mdMethodDef m_cuckooSafeToken;
     mdMethodDef m_cuckooCriticalToken;
-    bool m_addedSafeCuckoo;
-    bool m_addedCriticalCuckoo;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
-    bool m_watchForCuckoos;
 
 public:
     static CCodeCoverage* g_pProfiler;
