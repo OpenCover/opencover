@@ -16,7 +16,7 @@ std::wstring CCodeCoverage::GetModulePath(ModuleID moduleId)
 {
     ULONG dwNameSize = 512;
     WCHAR szModulePath[512] = {};
-    COM_FAIL_RETURN(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModulePath, NULL), std::wstring());
+    COM_FAIL(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModulePath, NULL), std::wstring());
     return std::wstring(szModulePath);
 }
 
@@ -24,7 +24,7 @@ std::wstring CCodeCoverage::GetModulePath(ModuleID moduleId, AssemblyID *pAssemb
 {
     ULONG dwNameSize = 512;
     WCHAR szModulePath[512] = {};
-    COM_FAIL_RETURN(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModulePath, pAssemblyID), std::wstring());
+    COM_FAIL(m_profilerInfo->GetModuleInfo(moduleId, NULL, dwNameSize, &dwNameSize, szModulePath, pAssemblyID), std::wstring());
     return std::wstring(szModulePath);
 }
 
@@ -35,7 +35,7 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
 {
     ULONG dwNameSize = 512; 
     WCHAR szAssemblyName[512] = {};
-    COM_FAIL_RETURN(m_profilerInfo->GetAssemblyInfo(assemblyId, dwNameSize, &dwNameSize, szAssemblyName, NULL, NULL), std::wstring());
+    COM_FAIL(m_profilerInfo->GetAssemblyInfo(assemblyId, dwNameSize, &dwNameSize, szAssemblyName, NULL, NULL), std::wstring());
     return std::wstring(szAssemblyName);
 }
 
@@ -44,7 +44,7 @@ std::wstring CCodeCoverage::GetAssemblyName(AssemblyID assemblyId)
 /// </summary>
 BOOL CCodeCoverage::GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath, AssemblyID *pAssemblyId)
 {
-    COM_FAIL_RETURN(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
+    COM_FAIL(m_profilerInfo2->GetFunctionInfo2(funcId, NULL, NULL, &moduleId, &functionToken, 0, NULL, NULL), FALSE);
     modulePath = GetModulePath(moduleId, pAssemblyId);
     return TRUE;
 }
@@ -61,10 +61,10 @@ mdSignature CCodeCoverage::GetMethodSignatureToken_I4(ModuleID moduleID)
     };
 
     CComPtr<IMetaDataEmit> metaDataEmit;
-    COM_FAIL_RETURN(m_profilerInfo2->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit), 0);
+    COM_FAIL(m_profilerInfo2->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**) &metaDataEmit), 0);
 
     mdSignature pmsig ;
-    COM_FAIL_RETURN(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
+    COM_FAIL(metaDataEmit->GetTokenFromSig(unmanagedCallSignature, sizeof(unmanagedCallSignature), &pmsig), 0);
     return pmsig;
 }
 
@@ -72,12 +72,14 @@ mdSignature CCodeCoverage::GetMethodSignatureToken_I4(ModuleID moduleID)
 HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     CComPtr<IMetaDataEmit> metaDataEmit;
-    COM_FAIL_RETURN(m_profilerInfo->GetModuleMetaData(moduleId, 
-        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), S_OK);      
+    COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
+        _T("GetModuleRef => GetModuleMetaData(0x%x)"));      
     
     CComPtr<IMetaDataAssemblyEmit> metaDataAssemblyEmit;
-    COM_FAIL_RETURN(metaDataEmit->QueryInterface(
-        IID_IMetaDataAssemblyEmit, (void**)&metaDataAssemblyEmit), S_OK);
+    COM_FAIL_RETURNMSG(metaDataEmit->QueryInterface(
+        IID_IMetaDataAssemblyEmit, (void**)&metaDataAssemblyEmit), 
+        _T("GetModuleRef => QueryInterface(0x%x)"));
 
     if (m_profilerInfo3 != NULL) 
     {
@@ -103,9 +105,9 @@ HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyE
     assembly.usBuildNumber = 0; 
     assembly.usRevisionNumber = 0;
     BYTE publicKey[] = { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 };
-    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+    COM_FAIL_RETURNMSG(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
         sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
-        &mscorlibRef), S_OK);
+        &mscorlibRef), _T("GetModuleRef4000 => DefineAssemblyRef(0x%x)"));
 
     return S_OK;
 }
@@ -119,9 +121,10 @@ HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyE
     assembly.usBuildNumber = 0; 
     assembly.usRevisionNumber = 0;
     BYTE publicKey[] = { 0xB7, 0x7A, 0x5C, 0x56, 0x19, 0x34, 0xE0, 0x89 };
-    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
-        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
-        &mscorlibRef), S_OK);
+    COM_FAIL_RETURNMSG(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, &mscorlibRef), 
+        _T("GetModuleRef2000 => DefineAssemblyRef(0x%x)"));
+
     return S_OK;
 }
 
@@ -135,9 +138,9 @@ HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyE
     assembly.usRevisionNumber = 0;
 
     BYTE publicKey[] = { 0x7C, 0xEC, 0x85, 0xD7, 0xBE, 0xA7, 0x79, 0x8E };
-    COM_FAIL_RETURN(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
-        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, 
-        &mscorlibRef), S_OK);
+    COM_FAIL_RETURNMSG(metaDataAssemblyEmit->DefineAssemblyRef(publicKey, 
+        sizeof(publicKey), moduleName, &assembly, NULL, 0, 0, &mscorlibRef), 
+        _T("GetModuleRef2050 => DefineAssemblyRef(0x%x)"));
 
     return S_OK;
 }

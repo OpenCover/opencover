@@ -3,6 +3,11 @@
 
 #include <algorithm>
 
+#ifdef DEBUG
+// uncommment to get debug builds to dump out instrumented functions (slow)
+#define DUMP_PT 1
+#endif
+
 CoverageInstrumentation::CoverageInstrumentation(IMAGE_COR_ILMETHOD* pMethod) : Method(pMethod)
 {
 }
@@ -14,7 +19,7 @@ CoverageInstrumentation::~CoverageInstrumentation(void)
 
 void CoverageInstrumentation::AddSequenceCoverage(mdMethodDef methodDef, std::vector<SequencePoint> points)
 {
-#ifdef DEBUG
+#ifdef DUMP_PT
     int i = 0;
     for (auto it = points.begin(); it != points.end(); it++)
     {    
@@ -36,7 +41,7 @@ void CoverageInstrumentation::AddBranchCoverage(mdMethodDef methodDef, std::vect
 {
     if (points.size() == 0) return;
 
-#ifdef DEBUG
+#ifdef DUMP_PT
     int i = 0;
     for (auto bit = points.begin(); bit != points.end(); bit++)
     {

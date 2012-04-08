@@ -17,9 +17,11 @@
 
 using namespace ATL;
 
-#define COM_FAIL_RETURN(hr, ret) if (!SUCCEEDED(hr)) return (ret)
-#define COM_FAIL_RETURNHR(hr) if (!SUCCEEDED(hr)) return (hr)
-#define COM_FAIL(hr) if (!SUCCEEDED(hr)) return
+#define COM_FAIL_RETURNMSG(hr, msg) if (!SUCCEEDED(hr)) { ATLTRACE(msg, hr); return (hr); }
+
+#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { ATLTRACE(msg, hr); return; }
+
+#define COM_FAIL(hr, ret) if (!SUCCEEDED(hr)) { return (ret); }
 
 // CCodeCoverage
 
