@@ -28,13 +28,16 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     
     OLECHAR szGuid[40]={0};
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
-    ::OutputDebugStringW(szGuid);
+    RELTRACE(L"    ::Initialize (%s)", szGuid);
+    //::OutputDebugStringW(szGuid);
 
     WCHAR szModuleName[MAX_PATH];
     GetModuleFileNameW(_AtlModule.m_hModule, szModuleName, MAX_PATH);
-    ::OutputDebugStringW(szModuleName);
+    RELTRACE(L"    ::Initialize (%s)", szModuleName);
+    //::OutputDebugStringW(szModuleName);
 
-    if (g_pProfiler!=NULL) ATLTRACE(_T("Another instance of the profiler is running under this process..."));
+    if (g_pProfiler!=NULL) 
+        RELTRACE(_T("Another instance of the profiler is running under this process..."));
 
     m_profilerInfo = pICorProfilerInfoUnk;
     if (m_profilerInfo != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo OK)"));
@@ -55,21 +58,21 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
             &m_runtimeVersion.usBuildNumber, 
             &m_runtimeVersion.usRevisionNumber, 0, NULL, NULL); 
 
-        ATLTRACE(_T("Runtime %d"), m_runtimeType);
+        ATLTRACE(_T("    ::Initialize (Runtime %d)"), m_runtimeType);
     }
 
 
     TCHAR key[1024];
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
-    ATLTRACE(_T("key = %s"), key);
+    RELTRACE(_T("    ::Initialize (key = %s)"), key);
 
     TCHAR ns[1024];
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Namespace"), ns, 1024);
-    ATLTRACE(_T("ns = %s"), ns);
+    ATLTRACE(_T("    ::Initialize (ns = %s)"), ns);
 
     if (!m_host.Initialise(key, ns))
     {
-        ATLTRACE(_T("    ::Initialize Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
+        RELTRACE(_T("    ::Initialize => Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
         return E_FAIL;
     }
 
@@ -101,6 +104,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         _FunctionEnter2, _FunctionLeave2, _FunctionTailcall2), 
         _T("    ::Initialize => SetEnterLeaveFunctionHooks2(0x%x)"));
 
+    RELTRACE(_T("::Initialize - Done!"));
+    
     return S_OK; 
 }
 
@@ -158,6 +163,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
     mdTypeDef systemObject = mdTokenNil;
     if (S_OK == metaDataImport->FindTypeDefByName(L"System.Object", mdTokenNil, &systemObject))
     {
+        RELTRACE(_T("::ModuleLoadFinished => Adding methods to mscorlib..."));
         mdMethodDef systemObjectCtor;
         COM_FAIL_RETURNMSG(metaDataImport->FindMethod(systemObject, L".ctor", 
             ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor), _T("    ::ModuleLoadFinished => FindMethod(0x%x)"));
@@ -240,7 +246,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         COM_FAIL_RETURNMSG(metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr), 
             _T("    ::ModuleLoadFinished => DefineCustomAttribute(0x%x)"));
         
-        ATLTRACE(_T("::ModuleLoadFinished => Added methods to mscorlib"));
+        RELTRACE(_T("::ModuleLoadFinished => Added methods to mscorlib"));
     }
 
     return S_OK;

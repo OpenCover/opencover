@@ -13,13 +13,16 @@
 #include "ProfilerCommunication.h"
 #include "ProfileBase.h"
 
+
 #include <unordered_map>
+
+#include "ReleaseTrace.h"
 
 using namespace ATL;
 
-#define COM_FAIL_RETURNMSG(hr, msg) if (!SUCCEEDED(hr)) { ATLTRACE(msg, hr); return (hr); }
+#define COM_FAIL_RETURNMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
 
-#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { ATLTRACE(msg, hr); return; }
+#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
 
 #define COM_FAIL(hr, ret) if (!SUCCEEDED(hr)) { return (ret); }
 

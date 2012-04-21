@@ -311,6 +311,7 @@
     <ClInclude Include="OpenCoverProfiler_i.h" />
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ProfilerCommunication.h" />
+    <ClInclude Include="ReleaseTrace.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ExceptionHandler.h" />
     <ClInclude Include="SharedMemory.h" />
