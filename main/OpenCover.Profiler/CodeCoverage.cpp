@@ -267,34 +267,36 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     m_allowModules[modulePath] = m_host.TrackAssembly((LPWSTR)modulePath.c_str(), (LPWSTR)assemblyName.c_str());
     m_allowModulesAssemblyMap[modulePath] = assemblyName;
 
-    if (m_allowModules[modulePath])
-    {
-        // for modules we are going to instrument add our reference to the method marked 
-        // with the SecuritySafeCriticalAttribute
-        CComPtr<IMetaDataEmit> metaDataEmit;
-        COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
-            ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
-            _T("    ::ModuleAttachedToAssembly => GetModuleMetaData(0x%x)"));
-        if (metaDataEmit == NULL) return S_OK;
-
-        mdModuleRef mscorlibRef;
-        COM_FAIL_RETURNMSG(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef), 
-            _T("    ::ModuleAttachedToAssembly => GetModuleRef(0x%x)")); 
-
-        mdTypeDef nestToken;
-        COM_FAIL_RETURNMSG(metaDataEmit->DefineTypeRefByName(mscorlibRef, CUCKOO_NEST_TYPE_NAME, &nestToken), 
-            _T("    ::ModuleAttachedToAssembly => DefineTypeRefByName(0x%x)"));
-
-        mdMemberRef cuckooSafeToken;
-        COM_FAIL_RETURNMSG(metaDataEmit->DefineMemberRef(nestToken, CUCKOO_SAFE_METHOD_NAME,  
-            visitedMethodCallSignature, sizeof(visitedMethodCallSignature), &cuckooSafeToken) , 
-            _T("    ::ModuleAttachedToAssembly => DefineMemberRef(0x%x)"));
-
-        m_injectedVisitedMethodDefs[modulePath] = cuckooSafeToken;
-    }
-
     return S_OK; 
 }
+
+mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
+{
+    ATLTRACE(_T("Registering %s(%d)"), CUCKOO_SAFE_METHOD_NAME, moduleId);
+
+    // for modules we are going to instrument add our reference to the method marked 
+    // with the SecuritySafeCriticalAttribute
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
+        _T("    ::ModuleAttachedToAssembly => GetModuleMetaData(0x%x)"));
+
+    mdModuleRef mscorlibRef;
+    COM_FAIL_RETURNMSG(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef), 
+        _T("    ::ModuleAttachedToAssembly => GetModuleRef(0x%x)")); 
+
+    mdTypeDef nestToken;
+    COM_FAIL_RETURNMSG(metaDataEmit->DefineTypeRefByName(mscorlibRef, CUCKOO_NEST_TYPE_NAME, &nestToken), 
+        _T("    ::ModuleAttachedToAssembly => DefineTypeRefByName(0x%x)"));
+
+    mdMemberRef cuckooSafeToken;
+    COM_FAIL_RETURNMSG(metaDataEmit->DefineMemberRef(nestToken, CUCKOO_SAFE_METHOD_NAME,  
+        visitedMethodCallSignature, sizeof(visitedMethodCallSignature), &cuckooSafeToken) , 
+        _T("    ::ModuleAttachedToAssembly => DefineMemberRef(0x%x)"));
+
+    return cuckooSafeToken;
+}
+
 
 /// <summary>This is the method marked with the SecurityCriticalAttribute</summary>
 /// <remarks>This method makes the call into the profiler</remarks>
@@ -403,7 +405,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         std::vector<SequencePoint> seqPoints;
         std::vector<BranchPoint> brPoints;
 
-        mdMethodDef injectedVisitedMethod = m_injectedVisitedMethodDefs[modulePath];
+        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
         
         if (m_host.GetPoints(functionToken, (LPWSTR)modulePath.c_str(), 
             (LPWSTR)m_allowModulesAssemblyMap[modulePath].c_str(), seqPoints, brPoints))

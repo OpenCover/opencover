@@ -113,11 +113,11 @@ private:
     HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
 
 private:
-    std::tr1::unordered_map<std::wstring, mdToken> m_injectedVisitedMethodDefs;
     mdMethodDef m_cuckooSafeToken;
     mdMethodDef m_cuckooCriticalToken;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
+    mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId);
 
 public:
     static CCodeCoverage* g_pProfiler;
