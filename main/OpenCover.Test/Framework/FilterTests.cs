@@ -39,6 +39,13 @@ namespace OpenCover.Test.Framework
                                                                       },
                                                                   new AssemblyClassData()
                                                                       {
+                                                                          AssemblyClass = "+[My App]Namespace",
+                                                                          AssemblyResult = "My App",
+                                                                          ClassResult = "Namespace",
+                                                                          FilterTypeResult = FilterType.Inclusion, 
+                                                                      },
+                                                                  new AssemblyClassData()
+                                                                      {
                                                                           AssemblyClass = "+[System]",
                                                                           AssemblyResult = "System",
                                                                           ClassResult = "",

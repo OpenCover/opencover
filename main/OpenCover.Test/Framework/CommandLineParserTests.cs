@@ -176,13 +176,44 @@ namespace OpenCover.Test.Framework
         public void HandlesFilterArgument()
         {
             // arrange  
-            var parser = new CommandLineParser(new[]{"-filter:XYZ ABC", RequiredArgs});
+            var parser = new CommandLineParser(new[]{"-filter:+[XYZ]ABC -[XYZ]ABC*", RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
 
             // assert
             Assert.AreEqual(2, parser.Filters.Count);
+            Assert.AreEqual("+[XYZ]ABC", parser.Filters[0]);
+            Assert.AreEqual("-[XYZ]ABC*", parser.Filters[1]);
+        }
+
+        [Test]
+        public void HandlesFilterArgumentsWithSpacesInNamespace()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-filter:+[XY Z]ABC -[XY Z*]ABC", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.Filters.Count);
+            Assert.AreEqual("+[XY Z]ABC", parser.Filters[0]);
+            Assert.AreEqual("-[XY Z*]ABC", parser.Filters[1]);
+        }
+
+        [Test]
+        public void HandlesFilterArgumentsWithEmptyArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-filter:  ", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(0, parser.Filters.Count);
+           
         }
 
         [Test]

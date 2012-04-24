@@ -4,10 +4,12 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using log4net.Core;
 
 namespace OpenCover.Framework
@@ -124,7 +126,7 @@ namespace OpenCover.Framework
                         }
                         break;
                     case "filter":
-                        Filters = GetArgumentValue("filter").Split(" ".ToCharArray()).ToList();
+                        Filters = ExtractFilters(GetArgumentValue("filter"));
                         break;
                     case "excludebyattribute":
                         AttributeExclusionFilters = GetArgumentValue("excludebyattribute")
@@ -141,7 +143,7 @@ namespace OpenCover.Framework
                     case "log":
                         var value = GetArgumentValue("log");
                         LogLevel = (Level)typeof(Level).GetFields(BindingFlags.Static | BindingFlags.Public)
-                            .First(x => string.Compare(x.Name, value, true) == 0).GetValue(typeof(Level));
+                            .First(x => string.Compare(x.Name, value, true, CultureInfo.InvariantCulture) == 0).GetValue(typeof(Level));
                         break;
                     case "service":
                         Service = true;
@@ -160,6 +162,15 @@ namespace OpenCover.Framework
             {
                 throw new InvalidOperationException("The target argument is required");
             }
+        }
+
+        private static List<string> ExtractFilters(string rawFilters)
+        {
+            const string strRegex = @"([+-][\[].*?[\]].+?\s)|([+-][\[].*?[\]].*)";
+            const RegexOptions myRegexOptions = RegexOptions.None;
+            var myRegex = new Regex(strRegex, myRegexOptions);
+            
+            return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
         }
 
         /// <summary>
