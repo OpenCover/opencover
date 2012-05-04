@@ -392,5 +392,18 @@ namespace OpenCover.Test.Framework
             Assert.IsTrue(parser.Service);
         }
 
+        [Test]
+        public void DetectsOldStyleArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-oldstyle", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.OldStyleInstrumentation);
+        }
+
     }
 }

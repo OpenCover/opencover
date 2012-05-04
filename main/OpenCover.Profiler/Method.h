@@ -38,7 +38,7 @@ public:
         m_header.MaxStack += extraStackSize;
     }
 
-protected:
+public:
     void RecalculateOffsets();
 
 private:
@@ -62,6 +62,7 @@ public:
 protected:
 #endif
     ExceptionHandlerList m_exceptions;
+public:
     InstructionList m_instructions;
 };
 

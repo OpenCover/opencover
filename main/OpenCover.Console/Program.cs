@@ -156,6 +156,9 @@ namespace OpenCover.Console
                 new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
             environment(startInfo.EnvironmentVariables);
 
+            if (parser.OldStyleInstrumentation)
+                startInfo.EnvironmentVariables[@"OpenCover_Profiler_Instrumentation"] = "oldSchool";
+
             startInfo.Arguments = parser.TargetArgs;
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = parser.TargetDir;

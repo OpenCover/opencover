@@ -58,6 +58,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service]");
+            builder.AppendLine("    [-oldStyle]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("");
@@ -147,6 +148,9 @@ namespace OpenCover.Framework
                         break;
                     case "service":
                         Service = true;
+                        break;
+                    case "oldstyle":
+                        OldStyleInstrumentation = true;
                         break;
                     case "?":
                         PrintUsage = true;
@@ -263,6 +267,11 @@ namespace OpenCover.Framework
         /// </summary>
         public bool Service { get; private set; }
 
+        /// <summary>
+        /// Use the old style of instrumentation that even though not APTCA friendly will
+        /// work when - ngen install /Profile "mscorlib" - has been used
+        /// </summary>
+        public bool OldStyleInstrumentation { get; private set; }
     }
 
 }

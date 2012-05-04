@@ -182,6 +182,10 @@
     <None Include="..\cmdline\dogfood_nunit.cmd">
       <Link>dogfood_nunit.cmd</Link>
     </None>
+    <None Include="..\cmdline\dogfood_oldschool.cmd">
+      <Link>dogfood_oldschool.cmd</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\dogfood_shadow.cmd">
       <Link>dogfood_shadow.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

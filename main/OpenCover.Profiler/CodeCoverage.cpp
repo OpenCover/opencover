@@ -8,7 +8,6 @@
 #include "stdafx.h"
 #include "CodeCoverage.h"
 #include "NativeCallback.h"
-#include "CoverageInstrumentation.h"
 #include "dllmain.h"
 
 #define CUCKOO_SAFE_METHOD_NAME L"SafeVisited"
@@ -28,12 +27,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     
     OLECHAR szGuid[40]={0};
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
-    RELTRACE(L"    ::Initialize (%s)", szGuid);
+    RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
     //::OutputDebugStringW(szGuid);
 
     WCHAR szModuleName[MAX_PATH];
     GetModuleFileNameW(_AtlModule.m_hModule, szModuleName, MAX_PATH);
-    RELTRACE(L"    ::Initialize (%s)", szModuleName);
+    RELTRACE(L"    ::Initialize(...) => PATH = %s", szModuleName);
     //::OutputDebugStringW(szModuleName);
 
     if (g_pProfiler!=NULL) 
@@ -62,13 +61,19 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     }
 
 
-    TCHAR key[1024];
+    TCHAR key[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
-    RELTRACE(_T("    ::Initialize (key = %s)"), key);
+    RELTRACE(_T("    ::Initialize(...) => key = %s"), key);
 
-    TCHAR ns[1024];
+    TCHAR ns[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Namespace"), ns, 1024);
-    ATLTRACE(_T("    ::Initialize (ns = %s)"), ns);
+    ATLTRACE(_T("    ::Initialize(...) => ns = %s"), ns);
+
+    TCHAR instrumentation[1024] = {0};
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_Instrumentation"), instrumentation, 1024);
+    ATLTRACE(_T("    ::Initialize(...) => instrumentation = %s"), instrumentation);
+
+    m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
     if (!m_host.Initialise(key, ns))
     {
@@ -84,25 +89,28 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Don't use NGen images
     dwMask |= COR_PRF_MONITOR_ENTERLEAVE;           // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
 
-    COM_FAIL_RETURNMSG(m_profilerInfo2->SetEventMask(dwMask), 
-        _T("    ::Initialize => SetEventMask(0x%x)"));
+    if (!m_useOldStyle)
+       dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
+
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask), 
+        _T("    ::Initialize(...) => SetEventMask => 0x%X"));
 
     if(m_profilerInfo3 != NULL)
     {
-        COM_FAIL_RETURNMSG(m_profilerInfo3->SetFunctionIDMapper2(FunctionMapper2, this), 
-            _T("    ::Initialize => SetFunctionIDMapper2(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo3->SetFunctionIDMapper2(FunctionMapper2, this), 
+            _T("    ::Initialize(...) => SetFunctionIDMapper2 => 0x%X"));
     }
     else
     {
-        COM_FAIL_RETURNMSG(m_profilerInfo2->SetFunctionIDMapper(FunctionMapper), 
-            _T("    ::Initialize => SetFunctionIDMapper(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetFunctionIDMapper(FunctionMapper), 
+            _T("    ::Initialize(...) => SetFunctionIDMapper => 0x%X"));
     }
 
     g_pProfiler = this;
 
-    COM_FAIL_RETURNMSG(m_profilerInfo2->SetEnterLeaveFunctionHooks2(
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEnterLeaveFunctionHooks2(
         _FunctionEnter2, _FunctionLeave2, _FunctionTailcall2), 
-        _T("    ::Initialize => SetEnterLeaveFunctionHooks2(0x%x)"));
+        _T("    ::Initialize(...) => SetEnterLeaveFunctionHooks2 => 0x%X"));
 
     RELTRACE(_T("::Initialize - Done!"));
     
@@ -151,43 +159,47 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         /* [in] */ HRESULT hrStatus) 
 {
     CComPtr<IMetaDataEmit> metaDataEmit;
-    COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
-        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), _T("    ::ModuleLoadFinished => GetModuleMetaData(0x%x)"));
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
+        _T("    ::ModuleLoadFinished(...) => GetModuleMetaData => 0x%X"));
     if (metaDataEmit==NULL) return S_OK;
 
     CComPtr<IMetaDataImport> metaDataImport;
-    COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
-        ofRead | ofWrite, IID_IMetaDataImport, (IUnknown**)&metaDataImport), _T("    ::ModuleLoadFinished => GetModuleMetaData(0x%x)"));
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
+        ofRead | ofWrite, IID_IMetaDataImport, (IUnknown**)&metaDataImport), 
+        _T("    ::ModuleLoadFinished(...) => GetModuleMetaData => 0x%X"));
     if (metaDataImport==NULL) return S_OK;
 
     mdTypeDef systemObject = mdTokenNil;
     if (S_OK == metaDataImport->FindTypeDefByName(L"System.Object", mdTokenNil, &systemObject))
     {
-        RELTRACE(_T("::ModuleLoadFinished => Adding methods to mscorlib..."));
+        RELTRACE(_T("::ModuleLoadFinished(...) => Adding methods to mscorlib..."));
         mdMethodDef systemObjectCtor;
-        COM_FAIL_RETURNMSG(metaDataImport->FindMethod(systemObject, L".ctor", 
-            ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor), _T("    ::ModuleLoadFinished => FindMethod(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMethod(systemObject, L".ctor", 
+            ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor), 
+            _T("    ::ModuleLoadFinished(...) => FindMethod => 0x%X)"));
 
         ULONG ulCodeRVA = 0;
-        COM_FAIL_RETURNMSG(metaDataImport->GetMethodProps(systemObjectCtor, NULL, NULL, 
-            0, NULL, NULL, NULL, NULL, &ulCodeRVA, NULL), _T("    ::ModuleLoadFinished => GetMethodProps(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->GetMethodProps(systemObjectCtor, NULL, NULL, 
+            0, NULL, NULL, NULL, NULL, &ulCodeRVA, NULL), 
+            _T("    ::ModuleLoadFinished(...) => GetMethodProps => 0x%X"));
 
         mdCustomAttribute customAttr;
         mdToken attributeCtor;
         mdTypeDef attributeTypeDef;
         mdTypeDef nestToken;
 
-        COM_FAIL_RETURNMSG(metaDataImport->FindTypeDefByName(CUCKOO_NEST_TYPE_NAME, mdTokenNil, &nestToken), 
-            _T("    ::ModuleLoadFinished => FindTypeDefByName(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindTypeDefByName(CUCKOO_NEST_TYPE_NAME, mdTokenNil, &nestToken), 
+            _T("    ::ModuleLoadFinished(...) => FindTypeDefByName => 0x%X"));
 
         // create a method that we will mark up with the SecurityCriticalAttribute
-        COM_FAIL_RETURNMSG(metaDataEmit->DefineMethod(nestToken, CUCKOO_CRITICAL_METHOD_NAME,
+        COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineMethod(nestToken, CUCKOO_CRITICAL_METHOD_NAME,
             mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
             ulCodeRVA, miIL | miManaged | miPreserveSig | miNoInlining, &m_cuckooCriticalToken), 
-            _T("    ::ModuleLoadFinished => DefineMethod(0x%x)"));
+            _T("    ::ModuleLoadFinished(...) => DefineMethod => 0x%X"));
 
-        COM_FAIL_RETURNMSG(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalAttribute",
-            NULL, &attributeTypeDef), _T("    :ModuleLoadFinished => FindTypeDefByName(0x%x)")); 
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalAttribute",
+            NULL, &attributeTypeDef), _T("    :ModuleLoadFinished(...) => FindTypeDefByName => 0x%X")); 
 
         if (m_runtimeType == COR_PRF_DESKTOP_CLR)
         {
@@ -195,8 +207,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
             // default (no arguments) constructor fails with "0x801311C2 - known custom attribute value is bad" 
             // when we try to attach it in .NET2 - .NET4 version doesn't care which one we use
             mdTypeDef scopeToken;
-            COM_FAIL_RETURNMSG(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalScope", mdTokenNil, &scopeToken), 
-                _T("    ::ModuleLoadFinished => FindTypeDefByName(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindTypeDefByName(L"System.Security.SecurityCriticalScope", mdTokenNil, &scopeToken), 
+                _T("    ::ModuleLoadFinished(...) => FindTypeDefByName => 0x%X"));
 
             ULONG sigLength=4;
             COR_SIGNATURE ctorCallSignatureEnum[] = 
@@ -210,43 +222,43 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
 
             sigLength += CorSigCompressToken(scopeToken, &ctorCallSignatureEnum[4]);
 
-            COM_FAIL_RETURNMSG(metaDataImport->FindMember(attributeTypeDef, 
+            COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMember(attributeTypeDef, 
                 L".ctor", ctorCallSignatureEnum, sigLength, &attributeCtor), 
-                _T("    ::ModuleLoadFinished => FindMember(0x%x)"));
+                _T("    ::ModuleLoadFinished(...) => FindMember => 0x%X"));
         
             unsigned char blob[] = {0x01, 0x00, 0x01, 0x00, 0x00, 0x00}; // prolog U2 plus an enum of I4 (little-endian)
-            COM_FAIL_RETURNMSG(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, blob, sizeof(blob), &customAttr), 
-                _T("    ::ModuleLoadFinished => DefineCustomAttribute(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, blob, sizeof(blob), &customAttr), 
+                _T("    ::ModuleLoadFinished(...) => DefineCustomAttribute => 0x%X"));
         }
         else
         {
             // silverlight only has one .ctor for this type
-            COM_FAIL_RETURNMSG(metaDataImport->FindMember(attributeTypeDef, 
+            COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMember(attributeTypeDef, 
                 L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), 
-                _T("    ::ModuleLoadFinished => FindMember(0x%x)"));
+                _T("    ::ModuleLoadFinished(...) => FindMember => 0x%X"));
         
-            COM_FAIL_RETURNMSG(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, NULL, 0, &customAttr), 
-                _T("    ::ModuleLoadFinished => DefineCustomAttribute(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineCustomAttribute(m_cuckooCriticalToken, attributeCtor, NULL, 0, &customAttr), 
+                _T("    ::ModuleLoadFinished(...) => DefineCustomAttribute => 0x%X"));
         }
 
         // create a method that we will mark up with the SecuritySafeCriticalAttribute
-        COM_FAIL_RETURNMSG(metaDataEmit->DefineMethod(nestToken, CUCKOO_SAFE_METHOD_NAME,
+        COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineMethod(nestToken, CUCKOO_SAFE_METHOD_NAME,
             mdPublic | mdStatic | mdHideBySig, visitedMethodCallSignature, sizeof(visitedMethodCallSignature), 
             ulCodeRVA, miIL | miManaged | miPreserveSig | miNoInlining, &m_cuckooSafeToken), 
-            _T("    ::ModuleLoadFinished => DefineMethod(0x%x)"));
+            _T("    ::ModuleLoadFinished(...) => DefineMethod => 0x%X"));
 
-        COM_FAIL_RETURNMSG(metaDataImport->FindTypeDefByName(L"System.Security.SecuritySafeCriticalAttribute",
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindTypeDefByName(L"System.Security.SecuritySafeCriticalAttribute",
             NULL, &attributeTypeDef), 
-            _T("    ::ModuleLoadFinished => FindTypeDefByName(0x%x)")); 
+            _T("    ::ModuleLoadFinished(...) => FindTypeDefByName => 0x%X")); 
 
-        COM_FAIL_RETURNMSG(metaDataImport->FindMember(attributeTypeDef, 
+        COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMember(attributeTypeDef, 
             L".ctor", ctorCallSignature, sizeof(ctorCallSignature), &attributeCtor), 
-            _T("    ::ModuleLoadFinished => FindMember(0x%x)"));
+            _T("    ::ModuleLoadFinished(...) => FindMember => 0x%X"));
 
-        COM_FAIL_RETURNMSG(metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr), 
-            _T("    ::ModuleLoadFinished => DefineCustomAttribute(0x%x)"));
+        COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr), 
+            _T("    ::ModuleLoadFinished(...) => DefineCustomAttribute => 0x%X"));
         
-        RELTRACE(_T("::ModuleLoadFinished => Added methods to mscorlib"));
+        RELTRACE(_T("::ModuleLoadFinished(...) => Added methods to mscorlib"));
     }
 
     return S_OK;
@@ -261,7 +273,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 {
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
-    ATLTRACE(_T("::ModuleAttachedToAssembly(%X => %s, %X => %s)"), 
+    ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
         moduleId, W2CT(modulePath.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));
     m_allowModules[modulePath] = m_host.TrackAssembly((LPWSTR)modulePath.c_str(), (LPWSTR)assemblyName.c_str());
@@ -272,27 +284,27 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 
 mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
 {
-    ATLTRACE(_T("Registering %s(%d)"), CUCKOO_SAFE_METHOD_NAME, moduleId);
+    ATLTRACE(_T("::RegisterSafeCuckooMethod(%X) => %s"), moduleId, CUCKOO_SAFE_METHOD_NAME);
 
     // for modules we are going to instrument add our reference to the method marked 
     // with the SecuritySafeCriticalAttribute
     CComPtr<IMetaDataEmit> metaDataEmit;
-    COM_FAIL_RETURNMSG(m_profilerInfo->GetModuleMetaData(moduleId, 
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
         ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
-        _T("    ::ModuleAttachedToAssembly => GetModuleMetaData(0x%x)"));
+        _T("    ::RegisterSafeCuckooMethod(...) => GetModuleMetaData => 0x%X"));
 
     mdModuleRef mscorlibRef;
-    COM_FAIL_RETURNMSG(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef), 
-        _T("    ::ModuleAttachedToAssembly => GetModuleRef(0x%x)")); 
+    COM_FAIL_MSG_RETURN_ERROR(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef), 
+        _T("    ::RegisterSafeCuckooMethod(...) => GetModuleRef => 0x%X")); 
 
     mdTypeDef nestToken;
-    COM_FAIL_RETURNMSG(metaDataEmit->DefineTypeRefByName(mscorlibRef, CUCKOO_NEST_TYPE_NAME, &nestToken), 
-        _T("    ::ModuleAttachedToAssembly => DefineTypeRefByName(0x%x)"));
+    COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineTypeRefByName(mscorlibRef, CUCKOO_NEST_TYPE_NAME, &nestToken), 
+        _T("    ::RegisterSafeCuckooMethod(...) => DefineTypeRefByName => 0x%X"));
 
     mdMemberRef cuckooSafeToken;
-    COM_FAIL_RETURNMSG(metaDataEmit->DefineMemberRef(nestToken, CUCKOO_SAFE_METHOD_NAME,  
+    COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineMemberRef(nestToken, CUCKOO_SAFE_METHOD_NAME,  
         visitedMethodCallSignature, sizeof(visitedMethodCallSignature), &cuckooSafeToken) , 
-        _T("    ::ModuleAttachedToAssembly => DefineMemberRef(0x%x)"));
+        _T("    ::RegisterSafeCuckooMethod(...) => DefineMemberRef => 0x%X"));
 
     return cuckooSafeToken;
 }
@@ -323,15 +335,15 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
     criticalMethod.DumpIL();
 
     CComPtr<IMethodMalloc> methodMalloc;
-    COM_FAIL_RETURNMSG(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc), 
-        _T("    ::AddCriticalCuckooBody => Failed GetILFunctionBodyAllocator(0x%x)"));
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc), 
+        _T("    ::AddCriticalCuckooBody(...) => GetILFunctionBodyAllocator => 0x%X"));
 
     void* pMethodBody = methodMalloc->Alloc(criticalMethod.GetMethodSize());
     criticalMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
 
-    COM_FAIL_RETURNMSG(m_profilerInfo->SetILFunctionBody(moduleId, 
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->SetILFunctionBody(moduleId, 
         m_cuckooCriticalToken, (LPCBYTE)pMethodBody), 
-        _T("    ::AddCriticalCuckooBody => SetILFunctionBody(0x%x)"));
+        _T("    ::AddCriticalCuckooBody(...) => SetILFunctionBody => 0x%X"));
 
     ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical - Done!"));
 
@@ -354,15 +366,15 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
     criticalMethod.DumpIL();
 
     CComPtr<IMethodMalloc> methodMalloc;
-    COM_FAIL_RETURNMSG(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc), 
-        _T("    ::AddSafeCuckooBody => SetILFunctionBody(0x%x)"));
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc), 
+        _T("    ::AddSafeCuckooBody(...) => GetILFunctionBodyAllocator => 0x%X"));
 
     void* pMethodBody = methodMalloc->Alloc(criticalMethod.GetMethodSize());
     criticalMethod.WriteMethod((IMAGE_COR_ILMETHOD*)pMethodBody);
 
-    COM_FAIL_RETURNMSG(m_profilerInfo->SetILFunctionBody(moduleId, 
+    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->SetILFunctionBody(moduleId, 
         m_cuckooSafeToken, (LPCBYTE)pMethodBody), 
-        _T("    ::AddSafeCuckooBody => SetILFunctionBody(0x%x)"));
+        _T("    ::AddSafeCuckooBody(...) => SetILFunctionBody => 0x%X"));
 
     ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited - Done!"));
 
@@ -387,25 +399,23 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         {
             if (m_cuckooCriticalToken == functionToken)
             {
-                COM_FAIL_RETURNMSG(AddCriticalCuckooBody(moduleId), 
-                    _T("    ::JITCompilationStarted => AddCriticalCuckooBody(0x%x)"));
+                COM_FAIL_MSG_RETURN_ERROR(AddCriticalCuckooBody(moduleId), 
+                    _T("    ::JITCompilationStarted(...) => AddCriticalCuckooBody => 0x%X"));
             }
 
             if (m_cuckooSafeToken == functionToken)
             {
-                COM_FAIL_RETURNMSG(AddSafeCuckooBody(moduleId), 
-                    _T("    ::JITCompilationStarted => AddSafeCuckooBody(0x%x)"));
+                COM_FAIL_MSG_RETURN_ERROR(AddSafeCuckooBody(moduleId), 
+                    _T("    ::JITCompilationStarted(...) => AddSafeCuckooBody => 0x%X"));
             }
         }
 
         if (!m_allowModules[modulePath]) return S_OK;
 
-        ATLTRACE(_T("::JITCompilationStarted(%X, %d, (%X)%s)"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
-        
+        ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
+
         std::vector<SequencePoint> seqPoints;
         std::vector<BranchPoint> brPoints;
-
-        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
         
         if (m_host.GetPoints(functionToken, (LPWSTR)modulePath.c_str(), 
             (LPWSTR)m_allowModulesAssemblyMap[modulePath].c_str(), seqPoints, brPoints))
@@ -414,36 +424,35 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
             LPCBYTE pMethodHeader = NULL;
             ULONG iMethodSize = 0;
-            COM_FAIL_RETURNMSG(m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize),
-                _T("    ::JITCompilationStarted => GetILFunctionBody(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize),
+                _T("    ::JITCompilationStarted(...) => GetILFunctionBody => 0x%X"));
 
             IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
             
-            CoverageInstrumentation instumentedMethod(pMethod);
+            Method instumentedMethod(pMethod);
             instumentedMethod.IncrementStackSize(2);
 
-            ATLTRACE(_T("::JITCompilationStarted => Instrumenting..."));
+            ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting..."));
             //seqPoints.clear();
             //brPoints.clear();
 
-            instumentedMethod.AddSequenceCoverage(injectedVisitedMethod, seqPoints);
-            instumentedMethod.AddBranchCoverage(injectedVisitedMethod, brPoints);
-            
+            InstrumentMethod(moduleId, instumentedMethod, seqPoints, brPoints);
+
             instumentedMethod.DumpIL();
 
             CComPtr<IMethodMalloc> methodMalloc;
-            COM_FAIL_RETURNMSG(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
-                _T("    ::JITCompilationStarted => GetILFunctionBodyAllocator(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
+                _T("    ::JITCompilationStarted(...) => GetILFunctionBodyAllocator=> 0x%X"));
             IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
             instumentedMethod.WriteMethod(pNewMethod);
-            COM_FAIL_RETURNMSG(m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod), 
-                _T("    ::JITCompilationStarted => SetILFunctionBody(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod), 
+                _T("    ::JITCompilationStarted(...) => SetILFunctionBody => 0x%X"));
 
             ULONG mapSize = instumentedMethod.GetILMapSize();
             COR_IL_MAP * pMap = (COR_IL_MAP *)CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP));
             instumentedMethod.PopulateILMap(mapSize, pMap);
-            COM_FAIL_RETURNMSG(m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap), 
-                _T("    ::JITCompilationStarted => SetILInstrumentedCodeMap(0x%x)"));
+            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap), 
+                _T("    ::JITCompilationStarted(...) => SetILInstrumentedCodeMap => 0x%X"));
 
             // only do this for .NET4 and above as there are issues with earlier runtimes (Access Violations)
             if (m_runtimeVersion.usMajorVersion >= 4)
@@ -453,4 +462,34 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
     
     return S_OK; 
 }
-        
+
+void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints)
+{
+    if (m_useOldStyle)
+    {
+        mdSignature pvsig = GetMethodSignatureToken_I4(moduleId);
+        void (__fastcall *pt)(ULONG) = &InstrumentPointVisit ;
+        CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
+        }, method, seqPoints);
+  
+        CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
+        }, method, brPoints);
+    }
+    else
+    {
+        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
+        CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
+        }, method, seqPoints);
+  
+        CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
+        }, method, brPoints);
+    }
+}

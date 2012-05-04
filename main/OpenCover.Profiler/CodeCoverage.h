@@ -20,11 +20,13 @@
 
 using namespace ATL;
 
-#define COM_FAIL_RETURNMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
+#define COM_FAIL_MSG_RETURN_ERROR(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
 
-#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
+//#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
 
-#define COM_FAIL(hr, ret) if (!SUCCEEDED(hr)) { return (ret); }
+#define COM_FAIL_MSG_RETURN_OTHER(hr, ret, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (ret); }
+
+#include "CoverageInstrumentation.h"
 
 // CCodeCoverage
 
@@ -38,6 +40,7 @@ public:
     CCodeCoverage() 
     {
         m_runtimeType = COR_PRF_DESKTOP_CLR;
+        m_useOldStyle = false;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -104,6 +107,8 @@ private:
     COR_PRF_RUNTIME_TYPE m_runtimeType;
     ASSEMBLYMETADATA m_runtimeVersion;
 
+    bool m_useOldStyle;
+
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
     HRESULT GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef);
@@ -118,6 +123,7 @@ private:
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
     mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId);
+    void InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
 
 public:
     static CCodeCoverage* g_pProfiler;
@@ -139,7 +145,6 @@ public:
     virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock);
-
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(CodeCoverage), CCodeCoverage)
