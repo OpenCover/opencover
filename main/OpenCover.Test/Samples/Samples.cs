@@ -95,6 +95,18 @@ namespace OpenCover.Test.Samples
         }
     }
 
+    public class Issue99
+    {
+        [ExcludeMethodAttribute]
+        public Func<bool> PropertyReturningFunc
+        {
+            get
+            {
+                return (() => false);
+            }
+        }
+    }
+
     public struct NotCoveredStruct
     {
         public int Number { get; set; }

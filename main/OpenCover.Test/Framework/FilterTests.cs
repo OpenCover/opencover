@@ -498,5 +498,22 @@ namespace OpenCover.Test.Framework
             }
         }
 
+        [Test]
+        public void Can_Identify_Excluded_Anonymous_Issue99()
+        {
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Issue99).Assembly.Location);
+
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Issue99).FullName);
+
+            var filter = new Filter();
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
+
+            foreach (var methodDefinition in type.Methods)
+            {
+                if (methodDefinition.IsSetter || methodDefinition.IsGetter || methodDefinition.IsConstructor) continue;
+                Assert.True(filter.ExcludeByAttribute(methodDefinition));
+            }
+        }
+
     }
 }
