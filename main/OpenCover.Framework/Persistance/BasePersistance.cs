@@ -5,17 +5,24 @@ using System.Linq;
 using System.Xml.Serialization;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
+using log4net;
+using log4net.Core;
 
 namespace OpenCover.Framework.Persistance
 {
+    /// <summary>
+    /// A basic layer that aggregates the data
+    /// </summary>
     public abstract class BasePersistance : IPersistance
     {
         protected readonly ICommandLine _commandLine;
+        private readonly ILog _logger;
         private uint _trackedMethodId;
 
-        public BasePersistance(ICommandLine commandLine)
+        protected BasePersistance(ICommandLine commandLine, ILog logger)
         {
             _commandLine = commandLine;
+            _logger = logger;
             CoverageSession = new CoverageSession();
             _trackedMethodId = 0;
         }
@@ -152,8 +159,14 @@ namespace OpenCover.Framework.Persistance
             for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
                 var spid = BitConverter.ToUInt32(data, idx);
-                if (spid < (uint)MSG_IdType.IT_MethodEnter) 
-                    InstrumentationPoint.AddCount(spid, _trackedMethodId);
+                if (spid < (uint)MSG_IdType.IT_MethodEnter)
+                {
+                    if (!InstrumentationPoint.AddVisitCount(spid, _trackedMethodId))
+                    {
+                        _logger.DebugFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
+                            spid, _trackedMethodId, InstrumentationPoint.Count);
+                    }
+                }
                 else
                 {
                     var tmId = spid & (uint)MSG_IdType.IT_Mask;

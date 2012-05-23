@@ -20,10 +20,17 @@ namespace OpenCover.Framework.Model
         }
 
         /// <summary>
+        /// Return the number of visit points
+        /// </summary>
+        public static int Count {
+            get { return _instrumentPoints.Count; }
+        }
+
+        /// <summary>
         /// Get the number of recorded visit points for this identifier
         /// </summary>
         /// <param name="spid">the sequence point identifier - NOTE 0 is not used</param>
-        public static int GetCount(uint spid)
+        public static int GetVisitCount(uint spid)
         {
             return _instrumentPoints[(int) spid].VisitCount;
         }
@@ -34,24 +41,29 @@ namespace OpenCover.Framework.Model
         /// <param name="spid">the sequence point identifier - NOTE 0 is not used</param>
         /// <param name="trackedMethodId">the id of a tracked method - Note 0 means no method currently tracking</param>
         /// <param name="sum">the number of visit points to add</param>
-        public static void AddCount(uint spid, uint trackedMethodId, int sum = 1)
+        public static bool AddVisitCount(uint spid, uint trackedMethodId, int sum = 1)
         {
-            var point = _instrumentPoints[(int) spid];
-            point.VisitCount += sum;
-            if (trackedMethodId != 0)
+            if (spid != 0 && spid < _instrumentPoints.Count)
             {
-                point._tracked = point._tracked ?? new List<TrackedMethodRef>();
-                var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
-                if (tracked == null)
+                var point = _instrumentPoints[(int) spid];
+                point.VisitCount += sum;
+                if (trackedMethodId != 0)
                 {
-                    tracked = new TrackedMethodRef(){UniqueId = trackedMethodId, VisitCount = sum};
-                    point._tracked.Add(tracked);
+                    point._tracked = point._tracked ?? new List<TrackedMethodRef>();
+                    var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
+                    if (tracked == null)
+                    {
+                        tracked = new TrackedMethodRef() {UniqueId = trackedMethodId, VisitCount = sum};
+                        point._tracked.Add(tracked);
+                    }
+                    else
+                    {
+                        tracked.VisitCount += sum;
+                    }
                 }
-                else
-                {
-                    tracked.VisitCount += sum;
-                }
+                return true;
             }
+            return false;
         }
 
         private List<TrackedMethodRef> _tracked;

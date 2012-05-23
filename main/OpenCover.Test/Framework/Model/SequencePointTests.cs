@@ -22,12 +22,27 @@ namespace OpenCover.Test.Framework.Model
             }
 
             // assert
-            Assert.DoesNotThrow(() => SequencePoint.AddCount(10000, 0, 100));
+            Assert.IsTrue(InstrumentationPoint.AddVisitCount(10000, 0, 100));
 
-            Assert.AreEqual(100, SequencePoint.GetCount(10000));
+            Assert.AreEqual(100, InstrumentationPoint.GetVisitCount(10000));
 
         }
 
         // TODO: Add tests around Instrumentation point
+        [Test]
+        public void When_AccessingInstrumentationPoints_OutsideAllowedRange()
+        {
+            // arrange
+
+            // act
+            for (int i = 0; i < 10; i++)
+            {
+                new SequencePoint();
+            }
+
+            // assert
+            Assert.IsFalse(InstrumentationPoint.AddVisitCount(0, 0, 100));
+            Assert.IsFalse(InstrumentationPoint.AddVisitCount(1000000, 0, 100));
+        }
     }
 }

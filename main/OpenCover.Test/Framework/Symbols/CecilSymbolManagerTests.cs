@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Strategy;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
@@ -22,13 +25,14 @@ namespace OpenCover.Test.Framework.Symbols
         private Mock<ICommandLine> _mockCommandLine;
         private Mock<IFilter> _mockFilter;
         private Mock<ILog> _mockLogger;
-
+        
         [SetUp]
         public void Setup()
         {
             _mockCommandLine = new Mock<ICommandLine>();
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
+            
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
@@ -448,8 +452,8 @@ namespace OpenCover.Test.Framework.Symbols
             var target = types.First(x => x.FullName == typeof(Concrete).FullName);
             var methods = _reader.GetMethodsForType(target, new File[0] );
 
-            Assert.True(methods.Count() > 0);
-            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(methods.Any());
+            Assert.True(methods.First(y => y.Name.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -469,8 +473,87 @@ namespace OpenCover.Test.Framework.Symbols
             var target = types.First(x => x.FullName == typeof(Concrete).FullName);
             var methods = _reader.GetMethodsForType(target, new File[0]);
 
-            Assert.True(methods.Count() > 0);
-            Assert.True(methods.Where(y => y.Name.EndsWith("::Method()")).First().SkippedDueTo == SkippedMethod.File);
+            Assert.True(methods.Any());
+            Assert.True(methods.First(y => y.Name.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.File);
+        }
+
+        [Test]
+        public void GetTrackedMethods_NoTrackedMethods_When_NoStrategies()
+        {
+            // arrange
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new ITrackedMethodStrategy[0]);
+            _reader.Initialise(_location, "OpenCover.Test");
+
+            // act
+            var methods = _reader.GetTrackedMethods();
+
+            // assert
+            Assert.IsFalse(methods.Any());
+        }
+
+        [Test]
+        public void GetTrackedMethods_NoTrackedMethods_When_StrategiesFindNothing()
+        {
+            // arrange
+            var strategy = new Mock<ITrackedMethodStrategy>();
+
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new [] { strategy.Object });
+            _reader.Initialise(_location, "OpenCover.Test");
+
+            // act
+            var methods = _reader.GetTrackedMethods();
+
+            // assert
+            Assert.IsFalse(methods.Any());
+        }
+
+        [Test]
+        public void GetTrackedMethods_TrackedMethods_When_StrategiesMatch()
+        {
+            // arrange
+            var strategy = new Mock<ITrackedMethodStrategy>();
+
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new[] { strategy.Object });
+            _reader.Initialise(_location, "OpenCover.Test");
+
+            strategy.Setup(x => x.GetTrackedMethods(It.IsAny<IEnumerable<TypeDefinition>>()))
+                .Returns(new[] { new TrackedMethod() });
+
+            // act
+            var methods = _reader.GetTrackedMethods();
+
+            // assert
+            Assert.AreEqual(1, methods.Count());
+        }
+
+        [Test]
+        public void GetTrackedMethods_NoTrackedMethods_When_NoPDB()
+        {
+            // arrange
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader.Initialise(string.Empty, "OpenCover.Test");
+
+            // act
+            var methods = _reader.GetTrackedMethods();
+
+            // assert
+            Assert.IsNull(methods);
+        }
+
+        [Test]
+        public void SourceAssembly_DisplaysMessage_When_NoPDB()
+        {
+            // arrange
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader.Initialise(string.Empty, "OpenCover.Test");
+            _mockLogger.SetupGet(x => x.IsDebugEnabled).Returns(true);
+
+            // act
+            var source = _reader.SourceAssembly;
+
+            // assert
+            Assert.IsNull(source);
+            _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
         }
 
     }

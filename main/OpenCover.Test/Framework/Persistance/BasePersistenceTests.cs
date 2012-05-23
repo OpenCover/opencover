@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Test.MoqFramework;
+using log4net;
 
 namespace OpenCover.Test.Framework.Persistance
 {
     public class BasePersistanceStub : BasePersistance
     {
-        public BasePersistanceStub(ICommandLine commandLine)
-            : base(commandLine)
+        public BasePersistanceStub(ICommandLine commandLine, ILog logger)
+            : base(commandLine, logger)
         {
         }
     }
@@ -202,9 +204,42 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.SaveVisitData(data.ToArray());
 
             // assert
-            Assert.AreEqual(1, InstrumentationPoint.GetCount(pt1.UniqueSequencePoint));
-            Assert.AreEqual(3, InstrumentationPoint.GetCount(pt2.UniqueSequencePoint));
+            Assert.AreEqual(1, InstrumentationPoint.GetVisitCount(pt1.UniqueSequencePoint));
+            Assert.AreEqual(3, InstrumentationPoint.GetVisitCount(pt2.UniqueSequencePoint));
         }
+
+        [Test]
+        public void SaveVisitPoints_Warns_WhenPointID_IsOutOfRange_Low()
+        {
+            // arrange
+            var data = new List<byte>();
+            data.AddRange(BitConverter.GetBytes((UInt32)1));
+            data.AddRange(BitConverter.GetBytes((UInt32)0));
+            
+            // act
+            Instance.SaveVisitData(data.ToArray());
+
+            //assert
+            Container.GetMock<ILog>().Verify(x => x.DebugFormat(It.IsAny<string>(), 
+                It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()), Times.Once());
+        }
+
+        [Test]
+        public void SaveVisitPoints_Warns_WhenPointID_IsOutOfRange_High()
+        {
+            // arrange
+            var data = new List<byte>();
+            data.AddRange(BitConverter.GetBytes((UInt32)1));
+            data.AddRange(BitConverter.GetBytes((UInt32)1000000));
+            
+            // act
+            Instance.SaveVisitData(data.ToArray());
+
+            //assert
+            Container.GetMock<ILog>().Verify(x => x.DebugFormat(It.IsAny<string>(), 
+                It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()), Times.Once());
+        }
+
 
         [Test]
         public void SaveVisitPoints_Aggregates_Visits_ForTrackedMethods()
@@ -225,8 +260,8 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.SaveVisitData(data.ToArray());
 
             // assert
-            Assert.AreEqual(1, InstrumentationPoint.GetCount(pt1.UniqueSequencePoint));
-            Assert.AreEqual(3, InstrumentationPoint.GetCount(pt2.UniqueSequencePoint));
+            Assert.AreEqual(1, InstrumentationPoint.GetVisitCount(pt1.UniqueSequencePoint));
+            Assert.AreEqual(3, InstrumentationPoint.GetVisitCount(pt2.UniqueSequencePoint));
             Assert.AreEqual(1, pt1.TrackedMethodRefs.Count());
             Assert.AreEqual(1, pt1.TrackedMethodRefs[0].VisitCount);
             Assert.AreEqual(2, pt2.TrackedMethodRefs.Count());
@@ -383,7 +418,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { MethodPoint = point }, } }, } } };
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 25);
+            InstrumentationPoint.AddVisitCount(point.UniqueSequencePoint, 0, 25);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
@@ -398,7 +433,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { SequencePoints = new [] { point }}}}}}};
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 37);
+            InstrumentationPoint.AddVisitCount(point.UniqueSequencePoint, 0, 37);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
@@ -414,7 +449,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.CoverageSession.Modules = new[] { new Module() { Classes = new[] { new Class() { Methods = new[] { new Method() { BranchPoints = new [] { point } } } } } } };
 
             // act
-            InstrumentationPoint.AddCount(point.UniqueSequencePoint, 0, 42);
+            InstrumentationPoint.AddVisitCount(point.UniqueSequencePoint, 0, 42);
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert

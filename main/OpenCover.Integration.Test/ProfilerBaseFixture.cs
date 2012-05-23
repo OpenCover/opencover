@@ -15,7 +15,7 @@ namespace OpenCover.Integration.Test
 {
     internal class BasePersistanceStub : BasePersistance
     {
-        public BasePersistanceStub(ICommandLine commandLine) : base(commandLine)
+        public BasePersistanceStub(ICommandLine commandLine, ILog logger) : base(commandLine, logger)
         {
         }
 
@@ -48,7 +48,7 @@ namespace OpenCover.Integration.Test
             _commandLine = new Mock<ICommandLine>();
             _logger = new Mock<ILog>();
 
-            var filePersistance = new BasePersistanceStub(_commandLine.Object);
+            var filePersistance = new BasePersistanceStub(_commandLine.Object, _logger.Object);
             _persistance = filePersistance;
         }
 

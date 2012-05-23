@@ -19,7 +19,7 @@ namespace OpenCover.Framework.Persistance
     {
         private readonly ILog _logger;
 
-        public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine)
+        public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine, logger)
         {
             _logger = logger;
         }
