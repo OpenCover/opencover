@@ -60,6 +60,10 @@
                 <include name="OpenCover.Simple.Target.exe" />
                 <include name="OpenCover.Simple.Target.pdb" />
             </fileset>
+            <fileset basedir="${solution.folder}\bin\Release" prefix="MSBuild">
+                <include name="OpenCover.MSBuild.dll" />
+                <include name="OpenCover.targets" />
+            </fileset>
         </zip>
         
     </target>

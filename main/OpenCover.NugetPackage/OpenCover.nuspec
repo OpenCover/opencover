@@ -30,5 +30,7 @@
     <file src="main\bin\Release\log4net.config"/>
     <file src="main\bin\Release\log4net.dll"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="doc"/>
+    <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
+    <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
   </files>
 </package>
