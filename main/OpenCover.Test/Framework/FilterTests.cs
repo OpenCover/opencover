@@ -354,7 +354,7 @@ namespace OpenCover.Test.Framework
         public void Entity_Is_Not_Excluded_If_No_Filters_Set()
         {
             var filter = new Filter();
-            var entity = new Mock<ICustomAttributeProvider>();
+            var entity = new Mock<IMemberDefinition>();
 
             Assert.IsFalse(filter.ExcludeByAttribute(entity.Object));
         }
@@ -501,17 +501,34 @@ namespace OpenCover.Test.Framework
         [Test]
         public void Can_Identify_Excluded_Anonymous_Issue99()
         {
-            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Issue99).Assembly.Location);
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Anonymous).Assembly.Location);
 
-            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Issue99).FullName);
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Anonymous).FullName);
 
             var filter = new Filter();
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
-            foreach (var methodDefinition in type.Methods)
+            foreach (var methodDefinition in type.Methods.Where(x=>x.Name.Contains("EXCLUDE")))
             {
                 if (methodDefinition.IsSetter || methodDefinition.IsGetter || methodDefinition.IsConstructor) continue;
-                Assert.True(filter.ExcludeByAttribute(methodDefinition));
+                Assert.True(filter.ExcludeByAttribute(methodDefinition), "failed to execlude {0}", methodDefinition.Name);
+            }
+        }
+
+        [Test]
+        public void Can_Identify_Included_Anonymous_Issue99()
+        {
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Anonymous).Assembly.Location);
+
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Anonymous).FullName);
+
+            var filter = new Filter();
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
+
+            foreach (var methodDefinition in type.Methods.Where(x => x.Name.Contains("INCLUDE")))
+            {
+                if (methodDefinition.IsSetter || methodDefinition.IsGetter || methodDefinition.IsConstructor) continue;
+                Assert.False(filter.ExcludeByAttribute(methodDefinition), "failed to include {0}", methodDefinition.Name);
             }
         }
 

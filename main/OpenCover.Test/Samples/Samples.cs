@@ -95,15 +95,44 @@ namespace OpenCover.Test.Samples
         }
     }
 
-    public class Issue99
+    public class Anonymous
     {
+        private Func<bool> x;
+
         [ExcludeMethodAttribute]
-        public Func<bool> PropertyReturningFunc
+        public Func<bool> PropertyReturningFunc_EXCLUDE
         {
             get
             {
                 return (() => false);
             }
+            set
+            {
+                x = () => true;
+            }
+        }
+
+        [ExcludeMethodAttribute]
+        public Func<bool> MethodReturningFunc_EXCLUDE()
+        {
+            return (() => false);
+        }
+
+        public Func<bool> PropertyReturningFunc_INCLUDE
+        {
+            get
+            {
+                return (() => false);
+            }
+            set
+            {
+                x = () => true;
+            }
+        }
+
+        public Func<bool> MethodReturningFunc_INCLUDE()
+        {
+            return (() => false);
         }
     }
 

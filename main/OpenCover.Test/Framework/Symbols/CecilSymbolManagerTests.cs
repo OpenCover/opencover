@@ -370,7 +370,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             var token = typeof (Concrete).MetadataToken;
             _mockFilter
-                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Setup(x => x.ExcludeByAttribute(It.Is<IMemberDefinition>(y => y.MetadataToken.ToInt32() == token)))
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
@@ -403,7 +403,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             var token = typeof(Concrete).GetMethod("get_Name").MetadataToken;
             _mockFilter
-                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Setup(x => x.ExcludeByAttribute(It.Is<IMemberDefinition>(y => y.MetadataToken.ToInt32() == token)))
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
@@ -424,7 +424,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             var token = typeof(Concrete).GetConstructor(BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null).MetadataToken;
             _mockFilter
-                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Setup(x => x.ExcludeByAttribute(It.Is<IMemberDefinition>(y => y.MetadataToken.ToInt32() == token)))
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
@@ -445,7 +445,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             var token = typeof(Concrete).GetMethod("Method").MetadataToken;
             _mockFilter
-                .Setup(x => x.ExcludeByAttribute(It.Is<ICustomAttributeProvider>(y => y.MetadataToken.ToInt32() == token)))
+                .Setup(x => x.ExcludeByAttribute(It.Is<IMemberDefinition>(y => y.MetadataToken.ToInt32() == token)))
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
