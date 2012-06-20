@@ -63,9 +63,10 @@ private:
 private:
     static DWORD WINAPI QueueProcessingThread(LPVOID lpParam);
     void ProcessResults();
+    bool ProcessQueue();
+
     ATL::CComAutoCriticalSection m_critResults;
     Concurrency::concurrent_queue<ULONG> m_queue;
-    HANDLE m_hQueueThread;
-
+    bool m_bProcessResults;
 };
 
