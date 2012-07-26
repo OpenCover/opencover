@@ -51,37 +51,42 @@ namespace OpenCover.MSBuild
         /// <returns>The full path to the OpenCover tool.</returns>
         protected override string GenerateFullPathToTool()
         {
-            if (File.Exists(ToolExe))
-                return Path.GetFullPath(ToolExe);
+            string path=ToolPath;
+            string exe=Path.GetFileName(ToolExe);
 
-            RegistryKey key=null;
+            if (string.IsNullOrEmpty(path)) {
+                if (File.Exists(exe))
+                    return Path.GetFullPath(exe);
 
-            string[] keyNames=new string[] { _OpenCoverRegKey, _OpenCoverRegKeyWow6432 };
-            foreach (string kn in keyNames)
-            {
-                key=Registry.CurrentUser.OpenSubKey(kn);
-                if (key!=null)
-                    break;
+                RegistryKey key=null;
 
-                key=Registry.LocalMachine.OpenSubKey(kn);
-                if (key!=null)
-                    break;
+                string[] keyNames=new string[] { _OpenCoverRegKey, _OpenCoverRegKeyWow6432 };
+                foreach (string kn in keyNames)
+                {
+                    key=Registry.CurrentUser.OpenSubKey(kn);
+                    if (key!=null)
+                        break;
+
+                    key=Registry.LocalMachine.OpenSubKey(kn);
+                    if (key!=null)
+                        break;
+                }
+
+                if (key==null)
+                {
+                    Log.LogError("Could not find OpenCover installation registry key. Please install OpenCover or repair installation.");
+                    return null;
+                }
+
+                path=(string)key.GetValue(_OpenCoverRegValue);
+                if (string.IsNullOrEmpty(path))
+                {
+                    Log.LogError("Could not find OpenCover installation path. Please repair OpenCover installation.");
+                    return null;
+                }
             }
 
-            if (key==null)
-            {
-                Log.LogError("Could not find OpenCover installation registry key. Please install OpenCover or repair installation.");
-                return null;
-            }
-
-            string rd=(string)key.GetValue(_OpenCoverRegValue);
-            if (string.IsNullOrEmpty(rd))
-            {
-                Log.LogError("Could not find OpenCover installation path. Please repair OpenCover installation.");
-                return null;
-            }
-
-            return Path.Combine(rd, ToolExe);
+            return Path.GetFullPath(Path.Combine(path, exe));
         }
 
         /// <summary>
