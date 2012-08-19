@@ -68,5 +68,7 @@ private:
     ATL::CComAutoCriticalSection m_critResults;
     Concurrency::concurrent_queue<ULONG> m_queue;
     bool m_bProcessResults;
+
+    HANDLE m_mainThread;
 };
 

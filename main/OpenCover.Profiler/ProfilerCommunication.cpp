@@ -5,8 +5,11 @@
 //
 #include "StdAfx.h"
 #include "ProfilerCommunication.h"
+#include "ReleaseTrace.h"
 
 #include <concrt.h>
+
+#include <TlHelp32.h>
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define MAX_MSG_SIZE 65536
@@ -17,6 +20,27 @@ ProfilerCommunication::ProfilerCommunication()
 
 ProfilerCommunication::~ProfilerCommunication()
 {
+}
+
+DWORD GetMainThreadId () {
+    const std::tr1::shared_ptr<void> hThreadSnapshot(
+        CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
+    if (hThreadSnapshot.get() == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    THREADENTRY32 tEntry;
+    tEntry.dwSize = sizeof(THREADENTRY32);
+    DWORD result = 0;
+    DWORD currentPID = GetCurrentProcessId();
+    for (BOOL success = Thread32First(hThreadSnapshot.get(), &tEntry);
+        !result && success && GetLastError() != ERROR_NO_MORE_FILES;
+        success = Thread32Next(hThreadSnapshot.get(), &tEntry))
+    {
+        if (tEntry.th32OwnerProcessID == currentPID) {
+            result = tEntry.th32ThreadID;
+        }
+    }
+    return result;
 }
 
 bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
@@ -56,6 +80,9 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
     m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
+    DWORD mainThreadId = GetMainThreadId();
+    m_mainThread = OpenThread(THREAD_QUERY_INFORMATION , FALSE, mainThreadId);
+
     ::CreateThread( NULL, 0, QueueProcessingThread, this, 0, NULL);
 
     return true;
@@ -71,9 +98,24 @@ DWORD WINAPI ProfilerCommunication::QueueProcessingThread(LPVOID lpParam )
 void ProfilerCommunication::ProcessResults()
 {
     m_bProcessResults = true;
+    int mainThreadTestCounter = 0;
     while(m_bProcessResults && ProcessQueue())
     {
         Concurrency::Context::Yield();
+        if (mainThreadTestCounter++ == 10000) 
+        {
+            DWORD exitCode = 0;
+            if (GetExitCodeThread(m_mainThread, &exitCode)) 
+            {
+                mainThreadTestCounter = 0;
+                if (exitCode != STILL_ACTIVE)
+                {
+                    RELTRACE(_T("Main thread has already exited - time to go bye bye"));
+                    m_bProcessResults = false;
+                    ProcessQueue();
+                }
+            }
+        }
     }
 }
 
