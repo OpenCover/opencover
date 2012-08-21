@@ -6,6 +6,7 @@ using Microsoft.Practices.Unity;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
@@ -25,9 +26,10 @@ namespace OpenCover.Test.Framework
             var mockCommandLine = new Mock<ICommandLine>();
             var mockPersistance = new Mock<IPersistance>();
             var mockLogger = new Mock<ILog>();
+            var mockManager = new Mock<IMemoryManager>();
 
             var bootstrapper = new Bootstrapper(mockLogger.Object);
-            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object);
+            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object, mockManager.Object);
 
             // act
             var instance = bootstrapper.Container.Resolve(typeof(IProfilerCommunication), null);
@@ -45,9 +47,10 @@ namespace OpenCover.Test.Framework
             var mockCommandLine = new Mock<ICommandLine>();
             var mockPersistance = new Mock<IPersistance>();
             var mockLogger = new Mock<ILog>();
+            var mockManager = new Mock<IMemoryManager>();
 
             var bootstrapper = new Bootstrapper(mockLogger.Object);
-            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object);
+            bootstrapper.Initialise(mockFilter.Object, mockCommandLine.Object, mockPersistance.Object, mockManager.Object);
 
             // act
             var instance = bootstrapper.Container.Resolve(typeof(IInstrumentationModelBuilderFactory), null);

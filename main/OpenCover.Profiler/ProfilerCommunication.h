@@ -28,10 +28,12 @@ public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
     bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
-    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_VisitPoint); }
-    inline void AddTestEnterPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodEnter); }
-    inline void AddTestLeavePoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodLeave); }
-    inline void AddTestTailcallPoint(ULONG uniqueId) { if (uniqueId!=0) m_queue.push(uniqueId | IT_MethodTailcall); }
+    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
+    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_VisitPoint); }
+    inline void AddTestEnterPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodEnter); }
+    inline void AddTestLeavePoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodLeave); }
+    inline void AddTestTailcallPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodTailcall); }
+    void AddVisitPointToBuffer(ULONG uniqueId);
 
 private:
     void SendVisitPoints();
@@ -50,25 +52,17 @@ private:
     CSharedMemory m_memoryCommunication;
     CEvent m_eventProfilerRequestsInformation;
     CEvent m_eventInformationReadyForProfiler;
-    MSG_Union *m_pMSG;
     CEvent m_eventInformationReadByProfiler;
+    MSG_Union *m_pMSG;
 
 private:
-    CMutex m_mutexResults;
     CSharedMemory m_memoryResults;
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
 
 private:
-    static DWORD WINAPI QueueProcessingThread(LPVOID lpParam);
-    void ProcessResults();
-    bool ProcessQueue();
-
     ATL::CComAutoCriticalSection m_critResults;
-    Concurrency::concurrent_queue<ULONG> m_queue;
-    bool m_bProcessResults;
 
-    HANDLE m_mainThread;
 };
 

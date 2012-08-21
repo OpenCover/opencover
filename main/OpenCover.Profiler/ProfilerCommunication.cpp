@@ -11,6 +11,8 @@
 
 #include <TlHelp32.h>
 
+#include <sstream>
+
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define MAX_MSG_SIZE 65536
 
@@ -22,27 +24,6 @@ ProfilerCommunication::~ProfilerCommunication()
 {
 }
 
-DWORD GetMainThreadId () {
-    const std::tr1::shared_ptr<void> hThreadSnapshot(
-        CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0), CloseHandle);
-    if (hThreadSnapshot.get() == INVALID_HANDLE_VALUE) {
-        return 0;
-    }
-    THREADENTRY32 tEntry;
-    tEntry.dwSize = sizeof(THREADENTRY32);
-    DWORD result = 0;
-    DWORD currentPID = GetCurrentProcessId();
-    for (BOOL success = Thread32First(hThreadSnapshot.get(), &tEntry);
-        !result && success && GetLastError() != ERROR_NO_MORE_FILES;
-        success = Thread32Next(hThreadSnapshot.get(), &tEntry))
-    {
-        if (tEntry.th32OwnerProcessID == currentPID) {
-            result = tEntry.th32ThreadID;
-        }
-    }
-    return result;
-}
-
 bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 {
     m_key = key;
@@ -50,101 +31,70 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
     m_mutexCommunication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     if (!m_mutexCommunication.IsValid()) return false;
-    m_mutexResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_Mutex_") + m_key).c_str());
-    if (!m_mutexResults.IsValid()) return false;
     
     ATLTRACE(_T("Initialised mutexes"));
 
     m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
     if (!m_eventProfilerRequestsInformation.IsValid()) return false;
-    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
-    if (!m_eventInformationReadyForProfiler.IsValid()) return false;
 
     m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + m_key).c_str());
     if (!m_eventInformationReadByProfiler.IsValid()) return false;
 
-    m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + m_key).c_str());
-    if (!m_eventProfilerHasResults.IsValid()) return false;
-    m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + m_key).c_str());
-    if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
-
-    ATLTRACE(_T("Initialised events"));
+    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
+    if (!m_eventInformationReadyForProfiler.IsValid()) return false;
 
     m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
     if (!m_memoryCommunication.IsValid()) return false;
-    m_memoryResults.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + m_key).c_str());
-    if (!m_memoryResults.IsValid()) return false;
 
-    ATLTRACE(_T("Initialised memory maps"));
+    ATLTRACE(_T("Initialised communication interface"));
 
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
-    m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-    DWORD mainThreadId = GetMainThreadId();
-    m_mainThread = OpenThread(THREAD_QUERY_INFORMATION , FALSE, mainThreadId);
+    ULONG bufferId =  0;
+    if (AllocateBuffer(MAX_MSG_SIZE, bufferId))
+    {
+        std::wstring memoryKey;
+        std::wstringstream stream ;
+        stream << bufferId;
+        stream >> memoryKey;
 
-    ::CreateThread( NULL, 0, QueueProcessingThread, this, 0, NULL);
+        memoryKey = m_key + memoryKey;
+
+        //ATLTRACE(_T("Allocated buffer %ld => %s"), bufferId, memoryKey.c_str());
+        
+        m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
+        if (!m_eventProfilerHasResults.IsValid()) return false;
+
+        m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + memoryKey).c_str());
+        if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
+
+        m_memoryResults.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey).c_str());
+        if (!m_memoryResults.IsValid()) return false;
+
+        m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
+
+        m_pVisitPoints->count = 0;
+
+        ATLTRACE(_T("Initialised results interface"));
+    }
 
     return true;
 }
 
-DWORD WINAPI ProfilerCommunication::QueueProcessingThread(LPVOID lpParam ) 
+void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId)
 {
-    ProfilerCommunication * pComm = (ProfilerCommunication*)lpParam; 
-    pComm->ProcessResults();
-    return 0;
-}
-
-void ProfilerCommunication::ProcessResults()
-{
-    m_bProcessResults = true;
-    int mainThreadTestCounter = 0;
-    while(m_bProcessResults && ProcessQueue())
+    //ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    if (uniqueId == 0) return;
+    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
+    if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
-        Concurrency::Context::Yield();
-        if (mainThreadTestCounter++ == 10000) 
-        {
-            DWORD exitCode = 0;
-            if (GetExitCodeThread(m_mainThread, &exitCode)) 
-            {
-                mainThreadTestCounter = 0;
-                if (exitCode != STILL_ACTIVE)
-                {
-                    RELTRACE(_T("Main thread has already exited - time to go bye bye"));
-                    m_bProcessResults = false;
-                    ProcessQueue();
-                }
-            }
-        }
+        SendVisitPoints();
+        m_pVisitPoints->count = 0;
     }
-}
-
-bool ProfilerCommunication::ProcessQueue()
-{
-    CScopedLock<CMutex> lock(m_mutexResults);  
-    ULONG id;
-    if (m_queue.try_pop(id))
-    {
-        do
-        {
-            if (id == 0) return false;
-            m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = id;
-            if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
-            {
-                SendVisitPoints();
-                m_pVisitPoints->count = 0;
-            }
-        } while (m_queue.try_pop(id));
-    }
-    return true;
 }
 
 void ProfilerCommunication::Stop()
 {
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
-    if (!m_bProcessResults) return;
-    m_bProcessResults = false;
-    ProcessQueue();
 }
 
 void ProfilerCommunication::SendVisitPoints()
@@ -248,7 +198,29 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
         [=, &response, &uniqueId]()->BOOL
         {
             response =  m_pMSG->trackMethodResponse.bResponse == TRUE;
-            uniqueId = m_pMSG->trackMethodResponse.UniqueId;
+            uniqueId = m_pMSG->trackMethodResponse.ulUniqueId;
+            return FALSE;
+        }
+    );
+
+    return response;
+}
+
+bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
+{
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+
+    bool response = false;
+    RequestInformation(
+        [=]()
+        {
+            m_pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
+            m_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
+        }, 
+        [=, &response, &bufferId]()->BOOL
+        {
+            response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
+            bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
             return FALSE;
         }
     );

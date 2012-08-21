@@ -18,6 +18,23 @@ namespace OpenCover.Test.Framework.Manager
     public class ProfilerManagerTests :
         UnityAutoMockContainerBase<IProfilerManager, ProfilerManager>
     {
+        private IMemoryManager manager;
+
+        [SetUp]
+        public void Setup()
+        {
+            manager = new MemoryManager();
+            manager.Initialise("Local", "ABC");
+            manager.AllocateMemoryBuffer(65536, 0);
+            Container.RegisterInstance(manager);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            manager.Dispose();
+        }
+
         [Test]
         public void Manager_Adds_Key_EnvironmentVariable()
         {
@@ -25,7 +42,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            RunProcess(dict);
+            RunProcess(dict, () => { });
 
             // assert
             Assert.NotNull(dict[@"OpenCover_Profiler_Key"]);
@@ -38,7 +55,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            RunProcess(dict);
+            RunProcess(dict, () => { });
 
             // assert
             Assert.AreEqual("{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}".ToUpper(), dict[@"Cor_Profiler"].ToUpper());
@@ -51,7 +68,7 @@ namespace OpenCover.Test.Framework.Manager
             var dict = new StringDictionary();
 
             // act
-            RunProcess(dict);
+            RunProcess(dict, () => { });
 
             // assert
             Assert.AreEqual("1", dict[@"Cor_Enable_Profiling"]);
@@ -94,26 +111,30 @@ namespace OpenCover.Test.Framework.Manager
         public void Manager_SendsResults_ForProcessing()
         {
             // arrange
+            var dict = new StringDictionary();
 
             // act
-            Instance.RunProcess(e => e(new StringDictionary()), false);
+            RunProcess(dict, () => { });
 
             // assert
-            Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
+            Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Exactly(2));
         }
 
-        private void RunProcess(StringDictionary dict)
+        private void RunProcess(StringDictionary dict, Action doExtra)
         {
             Instance.RunProcess(e =>
             {
                 e(dict);
 
                 var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Local\OpenCover_Profiler_Communication_SendResults_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                    @"Local\OpenCover_Profiler_Communication_SendResults_Event_ABC0");
 
                 standardMessageDataReady.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
+
+                doExtra();
+
             }, false);
         }
     }

@@ -44,47 +44,49 @@ namespace OpenCover.Console
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
-                var container = new Bootstrapper(logger);
-                var persistance = new FilePersistance(parser, logger);
-
-                container.Initialise(filter, parser, persistance);
-                persistance.Initialise(outputFile);
-                var registered = false;
-
-                try
+                using (var memoryManager = new MemoryManager())
                 {
-                    if (parser.Register)
+                    var container = new Bootstrapper(logger);
+                    var persistance = new FilePersistance(parser, logger);
+                    container.Initialise(filter, parser, persistance, memoryManager);
+                    persistance.Initialise(outputFile);
+                    var registered = false;
+
+                    try
                     {
-                        ProfilerRegistration.Register(parser.UserRegistration);
-                        registered = true;
+                        if (parser.Register)
+                        {
+                            ProfilerRegistration.Register(parser.UserRegistration);
+                            registered = true;
+                        }
+                        var harness = (IProfilerManager) container.Container.Resolve(typeof (IProfilerManager), null);
+
+                        harness.RunProcess((environment) =>
+                                               {
+                                                   returnCode = 0;
+                                                   if (parser.Service)
+                                                   {
+                                                       RunService(parser, environment, logger);
+                                                   }
+                                                   else
+                                                   {
+                                                       returnCode = RunProcess(parser, environment);
+                                                   }
+                                               }, parser.Service);
+
+                        DisplayResults(persistance, parser, logger);
+
                     }
-                    var harness = (IProfilerManager)container.Container.Resolve(typeof(IProfilerManager), null);
-
-                    harness.RunProcess((environment) =>
-                                           {
-                                               returnCode = 0;
-                                               if (parser.Service)
-                                               {
-                                                   RunService(parser, environment, logger);
-                                               }
-                                               else
-                                               {
-                                                   returnCode = RunProcess(parser, environment);
-                                               }
-                                           }, parser.Service);
-
-                    DisplayResults(persistance, parser, logger);
-
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
-                    throw;
-                }
-                finally
-                {
-                    if (parser.Register && registered)
-                        ProfilerRegistration.Unregister(parser.UserRegistration);
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
+                        throw;
+                    }
+                    finally
+                    {
+                        if (parser.Register && registered)
+                            ProfilerRegistration.Unregister(parser.UserRegistration);
+                    }
                 }
             }
             catch (Exception ex)

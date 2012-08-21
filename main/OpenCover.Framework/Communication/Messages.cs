@@ -13,6 +13,7 @@ namespace OpenCover.Framework.Communication
         MSG_GetSequencePoints = 2,
         MSG_GetBranchPoints = 3,
         MSG_TrackMethod = 4,
+        MSG_AllocateMemoryBuffer = 5,
     }
 
     public enum MSG_IdType : uint
@@ -56,8 +57,8 @@ namespace OpenCover.Framework.Communication
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MSG_SequencePoint
     {
-        public uint UniqueId;
-        public int Offset;
+        public uint uniqueId;
+        public int offset;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -83,9 +84,9 @@ namespace OpenCover.Framework.Communication
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MSG_BranchPoint
     {
-        public uint UniqueId;
-        public int Offset;
-        public int Path;
+        public uint uniqueId;
+        public int offset;
+        public int path;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -113,6 +114,22 @@ namespace OpenCover.Framework.Communication
     {
         [MarshalAs(UnmanagedType.Bool)]
         public bool track;
-        public uint UniqueId;
+        public uint uniqueId;
     }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+    public struct MSG_AllocateBuffer_Request
+    {
+        public MSG_Type type;
+        public int bufferSize;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_AllocateBuffer_Response
+    {
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool allocated;
+        public uint bufferId;
+    }
+
 }

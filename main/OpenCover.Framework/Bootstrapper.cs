@@ -52,15 +52,16 @@ namespace OpenCover.Framework
         /// <param name="filter">a series of filters</param>
         /// <param name="commandLine">command line options needed by other components</param>
         /// <param name="persistance">a persistence object</param>
-        public void Initialise(IFilter filter, ICommandLine commandLine, IPersistance persistance)
+        public void Initialise(IFilter filter, ICommandLine commandLine, IPersistance persistance, IMemoryManager memoryManager)
         {
             _container.RegisterInstance(_logger);
             _container.RegisterInstance(filter);
             _container.RegisterInstance(commandLine);
             _container.RegisterInstance(persistance);
-            _container.RegisterType<IProfilerCommunication, ProfilerCommunication>();
+            _container.RegisterInstance(memoryManager);
             _container.RegisterType<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>();
             _container.RegisterType<IProfilerManager, ProfilerManager>();
+            _container.RegisterType<IProfilerCommunication, ProfilerCommunication>();
             _container.RegisterType<IMessageHandler, MessageHandler>();
             _container.RegisterType<IMarshalWrapper, MarshalWrapper>();
             _container.RegisterType<ITrackedMethodStrategy, TrackNUnitTestMethods>(typeof(TrackNUnitTestMethods).FullName);

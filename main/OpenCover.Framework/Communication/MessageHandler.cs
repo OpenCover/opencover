@@ -18,7 +18,6 @@ namespace OpenCover.Framework.Communication
     {
         int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, Action<int> chunkReady);
         int ReadSize { get; }
-
         void Complete();
     }
 
@@ -29,11 +28,13 @@ namespace OpenCover.Framework.Communication
 
         private readonly IProfilerCommunication _profilerCommunication;
         private readonly IMarshalWrapper _marshalWrapper;
+        private readonly IMemoryManager _memoryManager;
 
-        public MessageHandler(IProfilerCommunication profilerCommunication, IMarshalWrapper marshalWrapper)
+        public MessageHandler(IProfilerCommunication profilerCommunication, IMarshalWrapper marshalWrapper, IMemoryManager memoryManager)
         {
             _profilerCommunication = profilerCommunication;
             _marshalWrapper = marshalWrapper;
+            _memoryManager = memoryManager;
         }
 
         public int StandardMessage(MSG_Type msgType, IntPtr pinnedMemory, Action<int> chunkReady)
@@ -71,8 +72,8 @@ namespace OpenCover.Framework.Communication
                             for (var i = 0; i < responseCSP.count; i++)
                             {
                                 var point = new MSG_SequencePoint();
-                                point.Offset = origPoints[index].Offset;
-                                point.UniqueId = origPoints[index].UniqueSequencePoint;
+                                point.offset = origPoints[index].Offset;
+                                point.uniqueId = origPoints[index].UniqueSequencePoint;
 
                                 _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
                                 writeSize += chunk;
@@ -108,9 +109,9 @@ namespace OpenCover.Framework.Communication
                             for (var i = 0; i < responseCSP.count; i++)
                             {
                                 var point = new MSG_BranchPoint();
-                                point.Offset = origPoints[index].Offset;
-                                point.UniqueId = origPoints[index].UniqueSequencePoint;
-                                point.Path = origPoints[index].Path;
+                                point.offset = origPoints[index].Offset;
+                                point.uniqueId = origPoints[index].UniqueSequencePoint;
+                                point.path = origPoints[index].Path;
 
                                 _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
                                 writeSize += chunk;
@@ -133,9 +134,19 @@ namespace OpenCover.Framework.Communication
                         uint uniqueId;
                         responseTM.track = _profilerCommunication.TrackMethod(msgTM.modulePath, 
                             msgTM.assemblyName, msgTM.functionToken, out uniqueId);
-                        responseTM.UniqueId = uniqueId;
+                        responseTM.uniqueId = uniqueId;
                         _marshalWrapper.StructureToPtr(responseTM, pinnedMemory, false);
                         writeSize = Marshal.SizeOf(typeof(MSG_TrackMethod_Response));
+                    }
+                    break;
+
+                case MSG_Type.MSG_AllocateMemoryBuffer:
+                    {
+                        var msgAB = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
+                        _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, _bufferId);
+                        var responseAB = new MSG_AllocateBuffer_Response {allocated = true, bufferId = _bufferId++};
+                        _marshalWrapper.StructureToPtr(responseAB, pinnedMemory, false);
+                        writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
                     }
                     break;
             }
@@ -143,6 +154,8 @@ namespace OpenCover.Framework.Communication
         }
 
         private int _readSize;
+        private uint _bufferId = 0;
+
         public int ReadSize
         {
             get
@@ -151,9 +164,15 @@ namespace OpenCover.Framework.Communication
                 {
                     _readSize = (new[] { 
                         Marshal.SizeOf(typeof(MSG_TrackAssembly_Request)), 
+                        Marshal.SizeOf(typeof(MSG_TrackAssembly_Response)), 
                         Marshal.SizeOf(typeof(MSG_GetSequencePoints_Request)),
+                        Marshal.SizeOf(typeof(MSG_GetSequencePoints_Response)),
                         Marshal.SizeOf(typeof(MSG_GetBranchPoints_Request)),
+                        Marshal.SizeOf(typeof(MSG_GetBranchPoints_Response)),
                         Marshal.SizeOf(typeof(MSG_TrackMethod_Request)), 
+                        Marshal.SizeOf(typeof(MSG_TrackMethod_Response)), 
+                        Marshal.SizeOf(typeof(MSG_AllocateBuffer_Request)), 
+                        Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response)), 
                     }).Max();
                 }
                 return _readSize;
@@ -165,5 +184,4 @@ namespace OpenCover.Framework.Communication
             _profilerCommunication.Stopping();
         }
     }
-
 }

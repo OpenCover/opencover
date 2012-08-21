@@ -39,6 +39,7 @@ enum MSG_Type : int
     MSG_GetSequencePoints = 2,
     MSG_GetBranchPoints = 3,
     MSG_TrackMethod = 4,
+    MSG_AllocateMemoryBuffer = 5,
 };
 
 enum MSG_IdType : ULONG
@@ -111,8 +112,20 @@ typedef struct _MSG_TrackMethod_Request
 typedef struct _MSG_TrackMethod_Response
 {
     BOOL bResponse;
-    ULONG UniqueId;
+    ULONG ulUniqueId;
 } MSG_TrackMethod_Response;
+
+typedef struct _MSG_AllocateBuffer_Request
+{
+    MSG_Type type;
+    LONG lBufferSize;
+} MSG_AllocateBuffer_Request;
+
+typedef struct _MSG_AllocateBuffer_Response
+{
+    BOOL bResponse;
+    ULONG ulBufferId;
+} MSG_AllocateBuffer_Response;
 
 #pragma pack(pop)
 
@@ -127,5 +140,7 @@ typedef union _MSG_Union
     MSG_GetBranchPoints_Response getBranchPointsResponse;
     MSG_TrackMethod_Request trackMethodRequest;
     MSG_TrackMethod_Response trackMethodResponse;
+    MSG_AllocateBuffer_Request allocateBufferRequest;
+    MSG_AllocateBuffer_Response allocateBufferResponse;
 } MSG_Union;
 

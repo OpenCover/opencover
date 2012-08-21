@@ -30,20 +30,19 @@ namespace OpenCover.Framework.Manager
 
         private readonly IMessageHandler _messageHandler;
         private readonly IPersistance _persistance;
+        private readonly IMemoryManager _memoryManager;
         private MemoryMappedViewStream _streamAccessorComms;
-        private MemoryMappedViewStream _streamAccessorResults;
         private EventWaitHandle _profilerRequestsInformation;
         private EventWaitHandle _informationReadyForProfiler;
         private EventWaitHandle _informationReadByProfiler;
-        private EventWaitHandle _profilerHasResults;
-        private EventWaitHandle _resultsHaveBeenReceived;
         private byte[] _dataCommunication;
-        private new ConcurrentQueue<byte[]> _messageQueue;
+        private ConcurrentQueue<byte[]> _messageQueue;
 
-        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance)
+        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance, IMemoryManager memoryManager)
         {
             _messageHandler = messageHandler;
             _persistance = persistance;
+            _memoryManager = memoryManager;
         }
 
         public void RunProcess(Action<Action<StringDictionary>> process, bool isService)
@@ -55,27 +54,23 @@ namespace OpenCover.Framework.Manager
             var handles = new List<WaitHandle> { processMgmt };
 
             string @namespace = isService ? "Global" : "Local";
-            //@namespace = "Local";
 
-            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_SendData_Event_" + key);
-            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
-            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
+            _memoryManager.Initialise(@namespace, key);
+
+            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, 
+                @namespace + @"\OpenCover_Profiler_Communication_SendData_Event_" + key);
+            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, 
+                @namespace + @"\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
+            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, 
+                @namespace + @"\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
 
             handles.Add(_profilerRequestsInformation);
-
-            _profilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_SendResults_Event_" + key);
-            _resultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, @namespace + @"\OpenCover_Profiler_Communication_ReceiveResults_Event_" + key);
-
-            handles.Add(_profilerHasResults);
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
             using (var mmfComms = MemoryMappedFile.CreateNew(@namespace + @"\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
-            using (var mmfResults = MemoryMappedFile.CreateNew(@namespace + @"\OpenCover_Profiler_Results_MemoryMapFile_" + key, maxMsgSize))
             using (_streamAccessorComms = mmfComms.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
-            using (_streamAccessorResults = mmfResults.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
             {
-                _streamAccessorResults.Write(BitConverter.GetBytes(0), 0, 4);
                 ThreadPool.QueueUserWorkItem((state) =>
                 {
                     try
@@ -138,13 +133,18 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(List<WaitHandle> handles, GCHandle pinnedComms)
         {
-            byte[] data = null;
             var continueWait = true;
             do
             {
-                if (data == null) data = new byte[maxMsgSize];
-                switch (WaitHandle.WaitAny(handles.ToArray()))
+                var @events = new List<WaitHandle>(handles);
+                @events.AddRange(_memoryManager.GetHandles());
+
+                var @case = WaitHandle.WaitAny(@events.ToArray());
+                switch (@case)
                 {
+                    case 0:
+                        continueWait = false;
+                        break;
                     case 1:
                         _profilerRequestsInformation.Reset();
                    
@@ -158,26 +158,28 @@ namespace OpenCover.Framework.Manager
 
                         SendChunkAndWaitForConfirmation(writeSize);
                         break;
-                    case 2: 
-                        _profilerHasResults.Reset();
-
-                        _streamAccessorResults.Seek(0, SeekOrigin.Begin);
-                        _streamAccessorResults.Read(data, 0, maxMsgSize);
-
-                        _resultsHaveBeenReceived.Set();
-                        _messageQueue.Enqueue(data);
-                        data = null;
-                        break;
                     default:
-                        continueWait = false;
+                        var block = _memoryManager.GetBlocks[@case - 2];
+                        var data = new byte[block.BufferSize];
+                        block.ProfilerHasResults.Reset();
+
+                        block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                        block.StreamAccessorResults.Read(data, 0, block.BufferSize);
+
+                        block.ResultsHaveBeenReceived.Set();
+                        _messageQueue.Enqueue(data);
                         break;
                 }
             } while (continueWait);
 
-            _streamAccessorResults.Seek(0, SeekOrigin.Begin);
-            _streamAccessorResults.Read(data, 0, maxMsgSize);
+            foreach (var block in _memoryManager.GetBlocks)
+            {
+                var data = new byte[block.BufferSize];
+                block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                block.StreamAccessorResults.Read(data, 0, block.BufferSize);
+                _messageQueue.Enqueue(data);    
+            }
 
-            _messageQueue.Enqueue(data);
             _messageQueue.Enqueue(new byte[0]);
         }
 

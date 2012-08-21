@@ -72,6 +72,8 @@
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Communication\MarshalWapper.cs" />
+    <Compile Include="Manager\IMemoryManager.cs" />
+    <Compile Include="Manager\MemoryManager.cs" />
     <Compile Include="Manager\ProfilerManager.cs" />
     <Compile Include="Communication\MessageHandler.cs" />
     <Compile Include="Communication\Messages.cs" />
