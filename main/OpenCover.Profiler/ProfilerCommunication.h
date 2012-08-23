@@ -11,6 +11,7 @@
 
 #include <ppl.h>
 #include <concurrent_queue.h>
+#include <exception>
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
@@ -22,7 +23,6 @@ public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
     bool Initialise(TCHAR* key, TCHAR *ns);
-    void Stop();
 
 public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
@@ -45,7 +45,7 @@ private:
     tstring m_namespace;
 
     template<class BR, class PR>
-    void RequestInformation(BR buildRequest, PR processResults);
+    void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
 
 private:
     CMutex m_mutexCommunication;
@@ -63,6 +63,18 @@ private:
 
 private:
     ATL::CComAutoCriticalSection m_critResults;
+    bool hostCommunicationActive;
+
+private:
+  
+    class CommunicationException : std::exception
+    {
+        DWORD dwReason;
+    public:
+        CommunicationException(DWORD reason) {dwReason = reason;}
+
+        DWORD getReason() {return dwReason;}
+    };
 
 };
 

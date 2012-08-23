@@ -15,6 +15,8 @@
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define MAX_MSG_SIZE 65536
+#define COMM_WAIT_SHORT 2000
+#define COMM_WAIT_LONG 20000
 
 ProfilerCommunication::ProfilerCommunication() 
 {
@@ -48,6 +50,8 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
     ATLTRACE(_T("Initialised communication interface"));
 
+    hostCommunicationActive = true;
+
     m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
     ULONG bufferId =  0;
@@ -59,8 +63,6 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         stream >> memoryKey;
 
         memoryKey = m_key + memoryKey;
-
-        //ATLTRACE(_T("Allocated buffer %ld => %s"), bufferId, memoryKey.c_str());
         
         m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
         if (!m_eventProfilerHasResults.IsValid()) return false;
@@ -78,12 +80,13 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         ATLTRACE(_T("Initialised results interface"));
     }
 
-    return true;
+    return hostCommunicationActive;
 }
 
 void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId)
 {
-    //ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    if (!hostCommunicationActive) return;
     if (uniqueId == 0) return;
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
@@ -93,14 +96,17 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId)
     }
 }
 
-void ProfilerCommunication::Stop()
-{
-}
-
 void ProfilerCommunication::SendVisitPoints()
 {
-    if (m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, 5000) == WAIT_TIMEOUT) {ATLTRACE(_T("**** timeout ****"));};
-    m_eventResultsHaveBeenReceived.Reset();
+    if (!hostCommunicationActive) return;
+    try {
+        DWORD dwSignal = m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, COMM_WAIT_SHORT);
+        if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+        m_eventResultsHaveBeenReceived.Reset();
+    } catch (CommunicationException ex) {
+        RELTRACE(_T("ProfilerCommunication::SendVisitPoints() => Communication (Results channel) with host has failed (0x%x)"), ex.getReason());
+        hostCommunicationActive = false;
+    }
     return;
 }
 
@@ -108,6 +114,7 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
     WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    if (!hostCommunicationActive) return false;
 
     bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
      
@@ -119,6 +126,10 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
 bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  
     WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
+    if (!hostCommunicationActive) return false;
+
+    points.clear();
+
     RequestInformation(
         [=]
         {
@@ -133,7 +144,8 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
                 points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
             return m_pMSG->getSequencePointsResponse.hasMore;
         }
-    );
+        , COMM_WAIT_SHORT
+        , _T("GetSequencePoints"));
 
     return (points.size() != 0);
 }
@@ -141,6 +153,10 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
 bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, 
     WCHAR* pAssemblyName, std::vector<BranchPoint> &points)
 {
+    if (!hostCommunicationActive) return false;
+    
+    points.clear();
+
     RequestInformation(
         [=]
         {
@@ -155,7 +171,8 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
                 points.push_back(m_pMSG->getBranchPointsResponse.points[i]); 
             return m_pMSG->getBranchPointsResponse.hasMore;
         }
-    );
+        , COMM_WAIT_SHORT
+        , _T("GetBranchPoints"));
 
     return (points.size() != 0);
 }
@@ -163,6 +180,7 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
 bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    if (!hostCommunicationActive) return false;
 
     bool response = false;
     RequestInformation(
@@ -177,7 +195,8 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
             response =  m_pMSG->trackAssemblyResponse.bResponse == TRUE;
             return FALSE;
         }
-    );
+        , COMM_WAIT_LONG
+        , _T("TrackAssembly"));
 
     return response;
 }
@@ -185,6 +204,7 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
 bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    if (!hostCommunicationActive) return false;
 
     bool response = false;
     RequestInformation(
@@ -201,7 +221,8 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
             uniqueId = m_pMSG->trackMethodResponse.ulUniqueId;
             return FALSE;
         }
-    );
+        , COMM_WAIT_SHORT
+        , _T("TrackMethod"));
 
     return response;
 }
@@ -209,8 +230,10 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
 bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
+    if (!hostCommunicationActive) return false;
 
     bool response = false;
+
     RequestInformation(
         [=]()
         {
@@ -223,30 +246,41 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
             bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
             return FALSE;
         }
-    );
+        , COMM_WAIT_SHORT
+        , _T("AllocateBuffer"));
 
     return response;
 }
 
 template<class BR, class PR>
-void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResults)
+void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message)
 {
-    buildRequest();
+    try {
+        buildRequest();
+    
+        DWORD dwSignal = m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler, dwTimeout);
+        if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+    
+        m_eventInformationReadyForProfiler.Reset();
 
-    m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler);
-    m_eventInformationReadyForProfiler.Reset();
-
-    BOOL hasMore = FALSE;
-    do
-    {
-        hasMore = processResults();
-
-        if (hasMore)
+        BOOL hasMore = FALSE;
+        do
         {
-            m_eventInformationReadByProfiler.SignalAndWait(m_eventInformationReadyForProfiler);
-            m_eventInformationReadyForProfiler.Reset();
-        }
-    }while (hasMore);
+            hasMore = processResults();
 
-    m_eventInformationReadByProfiler.Set();
+            if (hasMore)
+            {
+                dwSignal = m_eventInformationReadByProfiler.SignalAndWait(m_eventInformationReadyForProfiler, COMM_WAIT_SHORT);
+                if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+            
+                m_eventInformationReadyForProfiler.Reset();
+            }
+        }while (hasMore);
+
+        m_eventInformationReadByProfiler.Set();
+    } catch (CommunicationException ex) {
+        RELTRACE(_T("ProfilerCommunication::RequestInformation(...) => Communication (Chat channel - %s) with host has failed (0x%x)"),  
+            message.c_str(), ex.getReason());
+        hostCommunicationActive = false;
+    }
 }

@@ -120,12 +120,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
-    ATLTRACE(_T("::Shutdown"));
-    if (g_pProfiler != NULL)
-    {
-        g_pProfiler = NULL;
-        try {m_host.Stop();} catch(...){}
-    }
+    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK"));
+    g_pProfiler = NULL;
     return S_OK; 
 }
 
