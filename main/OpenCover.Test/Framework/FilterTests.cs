@@ -532,5 +532,20 @@ namespace OpenCover.Test.Framework
             }
         }
 
+        [Test]
+        public void Handles_Issue117()
+        {
+            var filter = new Filter();
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
+
+            var mockDefinition = new Mock<IMemberDefinition>();
+
+            mockDefinition.SetupGet(x => x.HasCustomAttributes).Returns(true);
+            mockDefinition.SetupGet(x => x.CustomAttributes).Returns(new Collection<CustomAttribute>());
+            mockDefinition.SetupGet(x => x.Name).Returns("<>f_ddd");
+            mockDefinition.SetupGet(x => x.DeclaringType).Returns(new TypeDefinition("","f_ddd", TypeAttributes.Public));
+
+            filter.ExcludeByAttribute(mockDefinition.Object);
+        }
     }
 }

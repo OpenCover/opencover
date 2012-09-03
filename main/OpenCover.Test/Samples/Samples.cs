@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace OpenCover.Test.Samples
 {
@@ -149,4 +151,22 @@ namespace OpenCover.Test.Samples
 // ReSharper restore ConvertToAutoProperty
     }
 
+    public class LinqIssue
+    {
+        public void Method()
+        {
+            var s = new ObservableCollection<string>();
+            var x = (from a in s select new {a});
+        }
+
+        public object Property
+        {
+            get
+            {
+                var s = new ObservableCollection<string>();
+                var x = (from a in s select new { a });
+                return x;
+            }
+        }
+    }
 }

@@ -259,9 +259,11 @@ namespace OpenCover.Framework
                         return true;
                 }
             }
-            if (entity.Name.StartsWith("<"))
+            if (entity.DeclaringType != null && entity.Name.StartsWith("<"))
             {
-                var name = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+").Groups["name"].Value;
+                var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
+                if (match.Groups["name"] == null) return false;
+                var name = match.Groups["name"].Value;
                 var target = entity.DeclaringType.Methods.FirstOrDefault(m => m.Name == name);
                 if (target != null)
                 {
