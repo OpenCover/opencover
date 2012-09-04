@@ -15,8 +15,8 @@
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define MAX_MSG_SIZE 65536
-#define COMM_WAIT_SHORT 2000
-#define COMM_WAIT_LONG 20000
+#define COMM_WAIT_SHORT 10000
+#define COMM_WAIT_LONG 60000
 
 ProfilerCommunication::ProfilerCommunication() 
 {

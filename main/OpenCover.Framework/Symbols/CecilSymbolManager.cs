@@ -32,6 +32,7 @@ namespace OpenCover.Framework.Symbols
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
+        private Dictionary<int, MethodDefinition> _methodMap = new Dictionary<int, MethodDefinition>(); 
 
         public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategy[] trackedMethodStrategies)
         {
@@ -278,108 +279,110 @@ namespace OpenCover.Framework.Symbols
 
         public SequencePoint[] GetSequencePointsForToken(int token)
         {
+            BuildMethodMap();
             var list = new List<SequencePoint>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetSequencePointsForToken(typeDefinitions, token, list);
+            GetSequencePointsForToken(token, list);
             return list.ToArray();
         }
 
         public BranchPoint[] GetBranchPointsForToken(int token)
         {
+            BuildMethodMap();
             var list = new List<BranchPoint>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetBranchPointsForToken(typeDefinitions, token, list);
+            GetBranchPointsForToken(token, list);
             return list.ToArray();
         }
 
         public int GetCyclomaticComplexityForToken(int token)
         {
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            BuildMethodMap();
             var complexity = 0;
-            GetCyclomaticComplexityForToken(typeDefinitions, token, ref complexity);
+            GetCyclomaticComplexityForToken(token, ref complexity);
             return complexity;
         }
 
-        private static void GetSequencePointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<SequencePoint> list)
+        // TODO: Build a map of tokens to method definitions
+        private void BuildMethodMap()
+        {
+            if (_methodMap.Count > 0) return;
+            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+            BuildMethodMap(typeDefinitions);
+        }
+
+        private void BuildMethodMap(IEnumerable<TypeDefinition> typeDefinitions)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
-                foreach (var methodDefinition in
-                    typeDefinition.Methods
-                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
+                foreach (var methodDefinition in typeDefinition.Methods
                     .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
                 {
-                    UInt32 ordinal = 0;
-                    foreach (var instruction in methodDefinition.Body.Instructions)
-                    {
-                        if (instruction.SequencePoint != null &&
-                            instruction.SequencePoint.StartLine != stepOverLineCode)
-                        {
-                            var sp = instruction.SequencePoint;
-                            var point = new SequencePoint()
-                                            {
-                                                EndColumn = sp.EndColumn,
-                                                EndLine = sp.EndLine,
-                                                Offset = instruction.Offset,
-                                                Ordinal = ordinal++,
-                                                StartColumn = sp.StartColumn,
-                                                StartLine = sp.StartLine,
-                                            };
-                            list.Add(point);
-                        }
-                    }
+                    _methodMap.Add(methodDefinition.MetadataToken.ToInt32(), methodDefinition);
                 }
-                if (typeDefinition.HasNestedTypes) 
-                    GetSequencePointsForToken(typeDefinition.NestedTypes, token, list);
+                if (typeDefinition.HasNestedTypes)
+                {
+                    BuildMethodMap(typeDefinition.NestedTypes);
+                }
             }
         }
 
-        private static void GetBranchPointsForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, List<BranchPoint> list)
+        private void GetSequencePointsForToken(int token, List<SequencePoint> list)
         {
-            foreach (var typeDefinition in typeDefinitions)
+            var methodDefinition = GetMethodDefinition(token);
+            if (methodDefinition == null) return;
+            UInt32 ordinal = 0;
+            foreach (var instruction in methodDefinition.Body.Instructions)
             {
-                foreach (var methodDefinition in
-                    typeDefinition.Methods
-                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
-                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
+                if (instruction.SequencePoint != null &&
+                    instruction.SequencePoint.StartLine != stepOverLineCode)
                 {
-                    UInt32 ordinal = 0;
-                    foreach (var instruction in methodDefinition.Body.Instructions)
-                    {
-                        if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch) continue;
-                        if (instruction.OpCode.Code != Code.Switch)
-                        {
-                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
-                            list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
-                        }
-                        else
-                        {
-                            for (var i = 0; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
-                            {
-                                list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
-                            }
-                        }
-                    }
+                    var sp = instruction.SequencePoint;
+                    var point = new SequencePoint()
+                                    {
+                                        EndColumn = sp.EndColumn,
+                                        EndLine = sp.EndLine,
+                                        Offset = instruction.Offset,
+                                        Ordinal = ordinal++,
+                                        StartColumn = sp.StartColumn,
+                                        StartLine = sp.StartLine,
+                                    };
+                    list.Add(point);
                 }
-                if (typeDefinition.HasNestedTypes) 
-                    GetBranchPointsForToken(typeDefinition.NestedTypes, token, list);
             }
         }
 
-        private static void GetCyclomaticComplexityForToken(IEnumerable<TypeDefinition> typeDefinitions, int token, ref int complexity)
+        private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
-            foreach (var typeDefinition in typeDefinitions)
+            var methodDefinition = GetMethodDefinition(token);
+            if (methodDefinition == null) return;
+            UInt32 ordinal = 0;
+            foreach (var instruction in methodDefinition.Body.Instructions)
             {
-                foreach (var methodDefinition in
-                    typeDefinition.Methods
-                    .Where(methodDefinition => methodDefinition.MetadataToken.ToInt32() == token)
-                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
+                if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch) continue;
+                if (instruction.OpCode.Code != Code.Switch)
                 {
-                    complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
+                    list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
+                    list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
                 }
-                if (typeDefinition.HasNestedTypes) 
-                    GetCyclomaticComplexityForToken(typeDefinition.NestedTypes, token, ref complexity);
+                else
+                {
+                    for (var i = 0; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
+                    {
+                        list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
+                    }
+                }
             }
+        }
+
+        private MethodDefinition GetMethodDefinition(int token)
+        {
+            return !_methodMap.ContainsKey(token) ? null : _methodMap[token];
+        }
+
+        private void GetCyclomaticComplexityForToken(int token, ref int complexity)
+        {
+            var methodDefinition = GetMethodDefinition(token);
+            if (methodDefinition == null) return;
+            complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
         }
 
         public TrackedMethod[] GetTrackedMethods()

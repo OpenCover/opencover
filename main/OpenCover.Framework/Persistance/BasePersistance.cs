@@ -18,6 +18,7 @@ namespace OpenCover.Framework.Persistance
         protected readonly ICommandLine _commandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
+        private Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>(); 
 
         protected BasePersistance(ICommandLine commandLine, ILog logger)
         {
@@ -44,6 +45,14 @@ namespace OpenCover.Framework.Persistance
                         existingModule.Aliases.Add(module.FullName); 
                     }
                     return;
+                }
+            }
+            _moduleMethodMap[module] = new Dictionary<int, KeyValuePair<Class, Method>>();
+            foreach(var @class in module.Classes)
+            {
+                foreach (var method in @class.Methods)
+                {
+                    _moduleMethodMap[module][method.MetadataToken] = new KeyValuePair<Class, Method>(@class, method);        
                 }
             }
             var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
@@ -134,16 +143,10 @@ namespace OpenCover.Framework.Persistance
             var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
             if (module == null)
                 return null;
-            foreach (var c in module.Classes)
-            {
-                @class = c;
-                foreach (var method in c.Methods)
-                {
-                    if (method.MetadataToken == functionToken) return method;
-                }
-            }
-            @class = null;
-            return null;
+            if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
+            var pair = _moduleMethodMap[module][functionToken];
+            @class = pair.Key;
+            return pair.Value;
         }
 
         public string GetClassFullName(string modulePath, int functionToken)
