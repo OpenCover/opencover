@@ -29,7 +29,8 @@
     <file src="main\bin\Release\OpenCover.Framework.dll"/>
     <file src="main\bin\Release\log4net.config"/>
     <file src="main\bin\Release\log4net.dll"/>
-    <file src="main\OpenCover.Documentation\Usage.rtf" target="doc"/>
+    <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
+    <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
     <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
   </files>

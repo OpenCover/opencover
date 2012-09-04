@@ -45,6 +45,9 @@
             <fileset basedir="${solution.folder}\..">
                 <include name="License.rtf" />
             </fileset>
+            <fileset basedir="${solution.folder}\.." prefix="docs">
+                <include name="ReleaseNotes.txt" />
+            </fileset>
             <fileset basedir="${solution.folder}\OpenCover.Documentation" prefix="docs">
                 <include name="Usage.rtf" />
             </fileset>

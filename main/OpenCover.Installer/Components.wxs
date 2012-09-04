@@ -42,6 +42,9 @@
       <Component Id="Documentation" Guid="07BF07A1-BCC5-40E9-953E-0C543F29D22A">
         <File Id="USAGE_RTF" Source="..\OpenCover.Documentation\Usage.rtf" KeyPath="yes" />
       </Component>
+      <Component Id="Documentation_RelNotes" Guid="0A7C5485-0458-46E3-AFDC-DACD5CE1ECBF">
+        <File Id="RELNOTES_TXT" Source="..\..\ReleaseNotes.txt" />
+      </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="X86" >
