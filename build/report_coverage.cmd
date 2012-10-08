@@ -1,1 +1,1 @@
-..\..\..\tools\ReportGenerator\ReportGenerator.exe opencovertests.xml report
+..\..\..\tools\ReportGenerator\ReportGenerator.exe -reports:opencovertests.xml -targetdir:report
