@@ -327,13 +327,27 @@ namespace OpenCover.Console
                 filter.AddFilter("-[Microsoft.VisualBasic]*");
             }
 
-            if (parser.Filters.Count == 0)
+
+            if (parser.Filters.Count == 0 && string.IsNullOrEmpty(parser.FilterFile))
             {
                 filter.AddFilter("+[*]*");
             }
             else
             {
-                parser.Filters.ForEach(filter.AddFilter);
+                if (!string.IsNullOrEmpty(parser.FilterFile))
+                {
+                    if (!File.Exists(parser.FilterFile))
+                        System.Console.WriteLine("FilterFile '{0}' cannot be found - have you specified your arguments correctly?", parser.FilterFile);
+                    else
+                    {
+                        var filters = File.ReadAllLines(parser.FilterFile);
+                        filters.ToList().ForEach(filter.AddFilter);
+                    }
+                }
+                if (parser.Filters.Count > 0)
+                {
+                    parser.Filters.ForEach(filter.AddFilter);
+                }
             }
 
             filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
