@@ -29,11 +29,11 @@ public:
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
     bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
     bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
-    inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_VisitPoint); }
-    inline void AddTestEnterPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodEnter); }
-    inline void AddTestLeavePoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodLeave); }
-    inline void AddTestTailcallPoint(ULONG uniqueId) { if (uniqueId!=0) AddVisitPointToBuffer(uniqueId | IT_MethodTailcall); }
-    void AddVisitPointToBuffer(ULONG uniqueId);
+	inline void AddVisitPoint(ULONG uniqueId) { if (uniqueId!=0) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }}
+	inline void AddTestEnterPoint(ULONG uniqueId) { if (uniqueId!=0) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }}
+	inline void AddTestLeavePoint(ULONG uniqueId) { if (uniqueId!=0) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }}
+	inline void AddTestTailcallPoint(ULONG uniqueId) { if (uniqueId!=0) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }}
+    void AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType);
 
 private:
     void SendVisitPoints();

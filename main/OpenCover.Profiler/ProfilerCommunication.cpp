@@ -83,15 +83,16 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     return hostCommunicationActive;
 }
 
-void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId)
+void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType)
 {
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
     if (!hostCommunicationActive) return;
     if (uniqueId == 0) return;
-    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = uniqueId;
+    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
+		::ZeroMemory(m_pVisitPoints, MAX_MSG_SIZE);
         m_pVisitPoints->count = 0;
     }
 }
@@ -142,7 +143,9 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         {
             for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
                 points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
-            return m_pMSG->getSequencePointsResponse.hasMore;
+            BOOL hasMore = m_pMSG->getSequencePointsResponse.hasMore;
+			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+			return hasMore;
         }
         , COMM_WAIT_SHORT
         , _T("GetSequencePoints"));
@@ -169,7 +172,9 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
         {
             for (int i=0; i < m_pMSG->getBranchPointsResponse.count;i++)
                 points.push_back(m_pMSG->getBranchPointsResponse.points[i]); 
-            return m_pMSG->getBranchPointsResponse.hasMore;
+            BOOL hasMore = m_pMSG->getBranchPointsResponse.hasMore;
+ 		    ::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+			return hasMore;
         }
         , COMM_WAIT_SHORT
         , _T("GetBranchPoints"));
@@ -193,6 +198,7 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
         [=, &response]()->BOOL
         {
             response =  m_pMSG->trackAssemblyResponse.bResponse == TRUE;
+			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
             return FALSE;
         }
         , COMM_WAIT_LONG
@@ -219,6 +225,7 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
         {
             response =  m_pMSG->trackMethodResponse.bResponse == TRUE;
             uniqueId = m_pMSG->trackMethodResponse.ulUniqueId;
+			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
             return FALSE;
         }
         , COMM_WAIT_SHORT
@@ -244,6 +251,7 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
         {
             response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
             bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
+			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
             return FALSE;
         }
         , COMM_WAIT_SHORT

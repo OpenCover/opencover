@@ -60,7 +60,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         ATLTRACE(_T("    ::Initialize (Runtime %d)"), m_runtimeType);
     }
 
-
     TCHAR key[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
     RELTRACE(_T("    ::Initialize(...) => key = %s"), key);

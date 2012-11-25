@@ -7,6 +7,9 @@ using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
 {
+    /// <summary>
+    /// A reference to a tracked method
+    /// </summary>
     public class TrackedMethodRef
     {
         /// <summary>
@@ -28,10 +31,13 @@ namespace OpenCover.Framework.Model
     public class TrackedMethod
     {
         private static int _methodId;
-
+        
+        /// <summary>
+        /// Initialise
+        /// </summary>
         public TrackedMethod()
         {
-            UniqueId = (UInt32)Interlocked.Increment(ref _methodId);
+            UniqueId = (uint)Interlocked.Increment(ref _methodId);
         }
 
         /// <summary>
