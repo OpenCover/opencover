@@ -107,6 +107,10 @@ namespace OpenCover.MSBuild
                 builder.AppendSwitch("-mergebyhash");
             if (ShowUnvisited)
                 builder.AppendSwitch("-showunvisited");
+            if (ReturnTargetCode)
+            {
+                builder.AppendSwitch("-returntargetcode" + (TargetCodeOffset != 0 ? string.Format(":{0}", TargetCodeOffset) : null));
+            }
 
             builder.AppendSwitchIfNotNull("-target:", Target);
             builder.AppendSwitchIfNotNull("-targetdir:", TargetWorkingDir);
@@ -269,6 +273,25 @@ namespace OpenCover.MSBuild
         /// Arguments to be passed to the target process.
         /// </summary>
         public string TargetArgs
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Return the target process return code instead of the OpenCover console return code.
+        /// </summary>
+        public bool ReturnTargetCode
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Use the offset to return the OpenCover console at a value outside the range returned by the target process.
+        /// Valid only if ReturnTargetCode is set.
+        /// </summary>
+        public int TargetCodeOffset
         {
             get;
             set;
