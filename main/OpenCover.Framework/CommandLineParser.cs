@@ -49,6 +49,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
             builder.AppendLine("    [[\"]-filter:<space separated filters>[\"]]");
+            builder.AppendLine("    [[\"]-filterfile:<path to file>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
@@ -128,6 +129,9 @@ namespace OpenCover.Framework
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
+                        break;
+                    case "filterfile":
+                        FilterFile = GetArgumentValue("filterfile");
                         break;
                     case "excludebyattribute":
                         AttributeExclusionFilters = GetArgumentValue("excludebyattribute")
@@ -236,6 +240,11 @@ namespace OpenCover.Framework
         /// A list of filters
         /// </summary>
         public List<string> Filters { get; private set; }
+
+        /// <summary>
+        /// A File that has additional filters, one per line.
+        /// </summary>
+        public string FilterFile { get; private set; }
 
         /// <summary>
         /// The offset for the return code - this is to help avoid collisions between opencover return codes and the target
