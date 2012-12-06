@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Model;
 using log4net.Core;
 
 namespace OpenCover.Test.Framework
@@ -403,6 +405,95 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.OldStyleInstrumentation);
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_Handles_Single_Arg()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:File", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.HideSkipped.Count);
+            Assert.AreEqual(SkippedMethod.File, parser.HideSkipped[0]);
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_Handles_Multiple_Arg()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:File;Filter;MissingPdb;Attribute", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(SkippedMethod.File, parser.HideSkipped[0]);
+            Assert.AreEqual(SkippedMethod.Filter, parser.HideSkipped[1]);
+            Assert.AreEqual(SkippedMethod.MissingPdb, parser.HideSkipped[2]);
+            Assert.AreEqual(SkippedMethod.Attribute, parser.HideSkipped[3]);
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_RejectsUnexpected()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:File;wibble", RequiredArgs });
+
+            // act
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_ConvertsAll()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:All", RequiredArgs });
+
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_Merges_AllFile()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:All;File", RequiredArgs });
+
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_Merges_FileFile()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped:File;File", RequiredArgs });
+
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.HideSkipped.Distinct().Count());
+        }
+
+        [Test]
+        public void ExtractsHideSkipped_DefaultsToAll()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-hideskipped", RequiredArgs });
+
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
         }
 
     }

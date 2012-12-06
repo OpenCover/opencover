@@ -15,14 +15,14 @@ namespace OpenCover.Framework.Persistance
     /// </summary>
     public abstract class BasePersistance : IPersistance
     {
-        protected readonly ICommandLine _commandLine;
+        protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
-        private Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>(); 
+        private readonly Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>(); 
 
         protected BasePersistance(ICommandLine commandLine, ILog logger)
         {
-            _commandLine = commandLine;
+            CommandLine = commandLine;
             _logger = logger;
             CoverageSession = new CoverageSession();
             _trackedMethodId = 0;
@@ -34,7 +34,7 @@ namespace OpenCover.Framework.Persistance
         {
             if (module == null) return;
             module.Classes = module.Classes ?? new Class[0];
-            if (_commandLine.MergeByHash)
+            if (CommandLine.MergeByHash)
             {
                 var modules = CoverageSession.Modules ?? new Module[0];
                 var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
@@ -68,6 +68,92 @@ namespace OpenCover.Framework.Persistance
         public virtual void Commit()
         {
             PopulateInstrumentedPoints();
+
+            if (CommandLine.HideSkipped == null) return;
+            
+            if (!CommandLine.HideSkipped.Any()) return;
+            
+            foreach (var skippedMethod in CommandLine.HideSkipped.OrderBy(x => x))
+            {
+                switch (skippedMethod)
+                {
+                    case SkippedMethod.File:
+                        RemoveSkippedMethods(SkippedMethod.File);
+                        RemoveEmptyClasses();
+                        RemoveUnreferencedFiles();
+                        break;
+                    case SkippedMethod.Filter:
+                        RemoveSkippedModules(SkippedMethod.Filter);
+                        RemoveSkippedClasses(SkippedMethod.Filter);
+                        break;
+                    case SkippedMethod.MissingPdb:
+                        RemoveSkippedModules(SkippedMethod.MissingPdb);
+                        break;
+                    case SkippedMethod.Attribute:
+                        RemoveSkippedClasses(SkippedMethod.Attribute);
+                        RemoveSkippedMethods(SkippedMethod.Attribute);
+                        RemoveEmptyClasses();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private void RemoveSkippedModules(SkippedMethod skipped)
+        {
+            if (CoverageSession.Modules == null) return;
+            var modules = CoverageSession.Modules;
+            modules = modules.Where(x => x.SkippedDueTo != skipped).ToArray();
+            CoverageSession.Modules = modules;
+        }
+
+        private void RemoveSkippedClasses(SkippedMethod skipped)
+        {
+            if (CoverageSession.Modules == null) return;
+            foreach (var module in CoverageSession.Modules)
+            {
+                if (module.Classes == null) continue;
+                var classes = module.Classes.Where(x => x.SkippedDueTo != skipped).ToArray();
+                module.Classes = classes;
+            }
+        }
+
+        private void RemoveSkippedMethods(SkippedMethod skipped)
+        {
+            if (CoverageSession.Modules == null) return;
+            foreach (var module in CoverageSession.Modules)
+            {
+                if (module.Classes == null) continue;
+                foreach (var @class in module.Classes)
+                {
+                    if (@class.Methods == null) continue;
+                    var methods = @class.Methods.Where(x => x.SkippedDueTo != skipped).ToArray();
+                    @class.Methods = methods;
+                }
+            }
+        }
+
+        private void RemoveEmptyClasses()
+        {
+            if (CoverageSession.Modules == null) return;
+            foreach (var module in CoverageSession.Modules)
+            {
+                if (module.Classes == null) continue;
+                module.Classes = module.Classes.Where(@class => @class.Methods != null && @class.Methods.Any()).ToArray();
+            }
+        }
+
+        private void RemoveUnreferencedFiles()
+        {
+            if (CoverageSession.Modules == null) return;
+            foreach (var module in CoverageSession.Modules)
+            {
+                module.Files = (from file in module.Files ?? new File[0] 
+                                from @class in module.Classes ?? new Class[0]
+                                where (@class.Methods ?? new Method[0]).Where(x=>x.FileRef != null).Any(x => x.FileRef.UniqueId == file.UniqueId)
+                                select file).Distinct().ToArray();
+            }
         }
 
         protected void PopulateInstrumentedPoints()

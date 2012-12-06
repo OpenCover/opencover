@@ -15,17 +15,29 @@ using log4net;
 
 namespace OpenCover.Framework.Persistance
 {
+    /// <summary>
+    /// Simple file persistence of the model
+    /// </summary>
     public class FilePersistance : BasePersistance
     {
         private readonly ILog _logger;
 
+        /// <summary>
+        /// Construct a file persistence object
+        /// </summary>
+        /// <param name="commandLine"></param>
+        /// <param name="logger"></param>
         public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine, logger)
         {
             _logger = logger;
         }
 
         private string _fileName;
-
+        
+        /// <summary>
+        /// Initialise the file persistence
+        /// </summary>
+        /// <param name="fileName">The filename to save to</param>
         public void Initialise(string fileName)
         {
             _fileName = fileName;
@@ -59,6 +71,5 @@ namespace OpenCover.Framework.Persistance
             serializer.Serialize(writer, CoverageSession);
             writer.Close();
         }
-
     }
 }

@@ -3,6 +3,10 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
+
+using System.Collections.Generic;
+using OpenCover.Framework.Model;
+
 namespace OpenCover.Framework
 {
     /// <summary>
@@ -24,5 +28,10 @@ namespace OpenCover.Framework
         /// Show the unvisited classes/methods at the end of the coverage run
         /// </summary>
         bool ShowUnvisited { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        List<SkippedMethod> HideSkipped { get; }
     }
 }

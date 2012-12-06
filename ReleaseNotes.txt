@@ -1,3 +1,9 @@
+Version 4.0.1107
+#133 - Remove skipped File/Module/Class/Methods from report
+#130 - Support for 'returntargetcode' switch in msbuild task
+#126, #127, #132 - ReportGenerator upgrades
+#122 - filter from file instead of command line list option (#123 patch)
+
 Version 4.0.804
 #117 - fix filter crash with anonymous types
 #110 - fix timeout issues due to performance woes in dealing with large number of types/methods

@@ -8,21 +8,21 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Entity was skipped due to a matching exclusion attribute filter
         /// </summary>
-        Attribute,
+        Attribute = 3,
 
         /// <summary>
         /// Entity was skipped due to a matching exclusion file filter
         /// </summary>
-        File,
+        File = 4,
 
         /// <summary>
         /// Entity was skipped due to a matching exclusion module/class filter 
         /// </summary>
-        Filter,
+        Filter = 2,
 
         /// <summary>
         /// Entity was skipped due to a missing PDB
         /// </summary>
-        MissingPdb,
+        MissingPdb = 1,
     }
 }

@@ -10,6 +10,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using OpenCover.Framework.Model;
 using log4net.Core;
 
 namespace OpenCover.Framework
@@ -33,6 +34,7 @@ namespace OpenCover.Framework
             FileExclusionFilters = new List<string>();
             TestFilters = new List<string>();
             LogLevel = Level.Info;
+            HideSkipped = new List<SkippedMethod>();
         }
 
         /// <summary>
@@ -57,6 +59,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service]");
             builder.AppendLine("    [-oldStyle]");
@@ -135,15 +138,18 @@ namespace OpenCover.Framework
                         break;
                     case "excludebyattribute":
                         AttributeExclusionFilters = GetArgumentValue("excludebyattribute")
-                            .Split(";".ToCharArray()).ToList();
+                            .Split(';').ToList();
                         break;
                     case "excludebyfile":
                         FileExclusionFilters = GetArgumentValue("excludebyfile")
-                            .Split(";".ToCharArray()).ToList();
+                            .Split(';').ToList();
+                        break;
+                    case "hideskipped":
+                        HideSkipped = ExtractSkipped(GetArgumentValue("hideskipped"));
                         break;
                     case "coverbytest":
                         TestFilters = GetArgumentValue("coverbytest")
-                            .Split(";".ToCharArray()).ToList();
+                            .Split(';').ToList();
                         break;
                     case "log":
                         var value = GetArgumentValue("log");
@@ -179,6 +185,34 @@ namespace OpenCover.Framework
             var myRegex = new Regex(strRegex, myRegexOptions);
             
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
+        }
+
+        private static List<SkippedMethod> ExtractSkipped(string skipped)
+        {
+            if (string.IsNullOrWhiteSpace(skipped)) skipped = "All";
+            var options = skipped.Split(';');
+            var list = new List<SkippedMethod>();
+            foreach (var option in options)
+            {
+                switch (option.ToLowerInvariant())
+                {
+                    case "all":
+                        list.Add(SkippedMethod.Attribute);
+                        list.Add(SkippedMethod.File);
+                        list.Add(SkippedMethod.Filter);
+                        list.Add(SkippedMethod.MissingPdb);
+                        break;
+                    default:
+                        SkippedMethod result;
+                        if (!Enum.TryParse(option, true, out result))
+                        {
+                            throw new InvalidOperationException(string.Format("The hideskipped option {0} is not valid", option));
+                        }
+                        list.Add(result);
+                        break;
+                }
+            }
+            return list.Distinct().ToList();
         }
 
         /// <summary>
@@ -265,6 +299,11 @@ namespace OpenCover.Framework
         /// A list of test file filters
         /// </summary>
         public List<string> TestFilters { get; private set; }
+
+        /// <summary>
+        /// A list of skipped entities to hide from being ouputted
+        /// </summary>
+        public List<SkippedMethod> HideSkipped { get; private set; }
 
         /// <summary>
         /// The logging level based on log4net.Core.Level
