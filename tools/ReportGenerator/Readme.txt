@@ -1,4 +1,4 @@
-=======================================================================
+﻿=======================================================================
 =                                                                     =
 =                                                                     =
 =                           ReportGenerator                           =
@@ -50,6 +50,16 @@ For further details take a look at LICENSE.txt.
 =======================================================================
 
 CHANGELOG
+
+1.7.1.0
+
+    * Fix: Issue #9706: Trailing slashes in command line arguments
+
+1.7.0.0
+
+    * New: Issue #9698: Added "coverbytest" support of OpenCover
+    * Fix: Issue #9671: Reduced length of report filenames
+    * Fix: Reports can now be located in an UNC path
 
 1.6.1.0
 
