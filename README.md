@@ -28,7 +28,7 @@ Please raise issues on GitHub, if you can repeat the issue then please provide a
 Dropbox is very useful for sharing files [Dropbox] (http://db.tt/VanqFDn)
 
 ### Project Management
-Currently using AgileZen to organise the project and workflow, however you may have to become a member and/or get an invite. Initially I'll grant view only access to those who are just interested i.e. "Chickens" and grant greater rights to those people who wish to, or already actively, contribute i.e. "Pigs".
+Was using AgileZen (which I quite liked) but the maintenance of an online board (for 1 person, me) vs the card wall (in office) got monotonous for no real gain.
 
 ### Thanks
 I would like to thank the guys at CodeBetter, Devlicious and Los Techies who arranged my MSDN licence and also to the NextGenUG and their free swag from where I got lots of useful tools. I'd also like to thank my employers, colleagues and friends for all their support. 
