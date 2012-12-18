@@ -38,6 +38,9 @@ public:
         m_header.MaxStack += extraStackSize;
     }
 
+    DWORD GetCodeSize(){ return m_header.CodeSize; }
+
+
 public:
     void RecalculateOffsets();
 
@@ -47,7 +50,7 @@ private:
     void ConvertShortBranches();
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
-    Instruction * GetInstructionAtOffset(long offset, bool isFinally, bool isFault);
+    Instruction * GetInstructionAtOffset(long offset, bool isFinally, bool isFault, bool isFilter, bool isTyped);
     void ReadSections();
     void WriteSections();
     bool DoesTryHandlerPointToOffset(long offset);

@@ -680,3 +680,33 @@ TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
 
     delete [] map;
 }
+
+TEST_F(InstrumentationTest, WillAddCodeLabelWhenClauseExtendsLastOpcode)
+{
+    BYTE data[] = {
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,      
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00,       
+        0xFE, 0x1A, // CEE_RETHROW
+        0x00, 0x00, // align
+        0x01, 0x0C, 0x00, 0x00,
+        0x00, 0x00, 0x01, 0x00, 0x11, 0x12, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00}; 
+
+	DWORD codeSize = 26;
+
+    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
+    pHeader->CodeSize = codeSize;
+    pHeader->Size = 3;
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+
+	ASSERT_EQ(codeSize, (DWORD)instrument.GetCodeSize()); // no change in size	
+	ASSERT_EQ(CEE_CODE_LABEL, instrument.m_instructions.back()->m_operation);
+}

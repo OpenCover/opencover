@@ -283,7 +283,9 @@ void Method::ReadSections()
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
-                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT);
+                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
+						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -321,7 +323,9 @@ void Method::ReadSections()
                     pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
-                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT);
+                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
+						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -371,7 +375,7 @@ Instruction * Method::GetInstructionAtOffset(long offset)
 ///            }
 ///     }
 /// </example>
-Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally, bool isFault)
+Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally, bool isFault, bool isFilter, bool isTyped)
 {
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
@@ -381,13 +385,13 @@ Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally, bool i
         }
     }
 
-    if (isFinally || isFault)
+    if (isFinally || isFault || isFilter || isTyped)
     {
         Instruction *pLast = m_instructions.back();
         OperationDetails &details = Operations::m_mapNameOperationDetails[pLast->m_operation];
         if (offset == pLast->m_offset + details.length + details.operandSize)
         {
-            // add a code label to hang the try/finally handler end off
+            // add a code label to hang the clause handler end off
             Instruction *pInstruction = new Instruction(CEE_CODE_LABEL); 
             pInstruction->m_offset = offset;
             m_instructions.push_back(pInstruction);
