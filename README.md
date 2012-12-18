@@ -1,3 +1,11 @@
+### Downloads
+It seems that GitHub no longer wish to offer [downloads](https://github.com/blog/1302-goodbye-uploads) as part of the source hosting facility I have therefore decided to host the downloads in the meantime on [Dropbox] (http://db.tt/VanqFDn) until I find an alternative way of providing the [downloads with a counter](https://github.com/sawilde/opencover/downloads) which I think is a very useful feature.
+
+* 4.0.1107 [MSI] (https://dl.dropbox.com/u/16543630/OpenCover/opencover.4.0.1107.msi) [ZIP] (https://dl.dropbox.com/u/16543630/OpenCover/opencover.4.0.1107.zip)
+* 4.0.1118 [MSI] (https://dl.dropbox.com/u/16543630/OpenCover/opencover.4.0.1118.msi) [ZIP] (https://dl.dropbox.com/u/16543630/OpenCover/opencover.4.0.1118.zip)
+
+Alternatively why not try [nuget] (http://nuget.org/packages/opencover).
+
 ### Licence
 All Original Software is licensed under the [MIT Licence] (https://github.com/sawilde/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
