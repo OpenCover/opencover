@@ -18,11 +18,13 @@ public:
 public:
     long GetMethodSize();
     void WriteMethod(IMAGE_COR_ILMETHOD* pMethod);
-    void InsertInstructionsAtOriginalOffset(long origOffset, InstructionList &instructions);
-    void InsertInstructionsAtOffset(long offset, InstructionList &instructions);
+    void InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions);
+    void InsertInstructionsAtOffset(long offset, const InstructionList &instructions);
     void DumpIL();
     ULONG GetILMapSize();
     void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
+
+    bool IsInstrumented(long offset, const InstructionList &instructions);
 
 public:
     void SetMinimumStackSize(unsigned int minimumStackSize)

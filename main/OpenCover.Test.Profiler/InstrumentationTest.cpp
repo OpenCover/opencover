@@ -710,3 +710,33 @@ TEST_F(InstrumentationTest, WillAddCodeLabelWhenClauseExtendsLastOpcode)
 	ASSERT_EQ(codeSize, (DWORD)instrument.GetCodeSize()); // no change in size	
 	ASSERT_EQ(CEE_CODE_LABEL, instrument.m_instructions.back()->m_operation);
 }
+
+TEST_F(InstrumentationTest, CanIdentifyInstrumentedMethods)
+{
+    BYTE data[] = {(0x02 << 2) + CorILMethod_TinyFormat, 
+        CEE_NOP, CEE_RET};
+
+    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    ASSERT_EQ(2, instrument.m_instructions.size());
+
+	InstructionList instructions;
+	instructions.push_back(new Instruction(CEE_LDC_I4, 1234));
+	instructions.push_back(new Instruction(CEE_CALL, 1234));
+
+	ASSERT_FALSE(instrument.IsInstrumented(0, instructions));
+	instrument.InsertInstructionsAtOffset(0, instructions);
+
+	// now we need to pretend we are rejitting 
+    int size = instrument.GetMethodSize();
+    BYTE* pBuffer = new BYTE[size];
+    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
+    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
+
+    Method newInstrument((IMAGE_COR_ILMETHOD*)newMethod);
+    delete []newMethod;
+
+	ASSERT_TRUE(newInstrument.IsInstrumented(0, instructions));
+	ASSERT_FALSE(newInstrument.IsInstrumented(5, instructions));
+	ASSERT_FALSE(newInstrument.IsInstrumented(1, instructions)); // no instruction at offset 0
+
+}

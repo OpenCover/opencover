@@ -431,6 +431,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             //seqPoints.clear();
             //brPoints.clear();
 
+			// Instrument method
             InstrumentMethod(moduleId, instumentedMethod, seqPoints, brPoints);
 
             instumentedMethod.DumpIL();
@@ -463,7 +464,12 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
     if (m_useOldStyle)
     {
         mdSignature pvsig = GetMethodSignatureToken_I4(moduleId);
-        void (__fastcall *pt)(ULONG) = &InstrumentPointVisit ;
+        void (__fastcall *pt)(ULONG) = &InstrumentPointVisit;
+
+		InstructionList instructions;
+		CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, seqPoints[0].UniqueId);
+		if (method.IsInstrumented(0, instructions)) return;
+
         CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
@@ -477,7 +483,12 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
     else
     {
         mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
-        CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+
+		InstructionList instructions;
+		CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, seqPoints[0].UniqueId);
+		if (method.IsInstrumented(0, instructions)) return;
+		
+		CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
         }, method, seqPoints);

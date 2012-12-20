@@ -49,4 +49,16 @@ Instruction& Instruction::operator = (const Instruction& b)
     return *this;
 }
 
-
+bool Instruction::Equivalent(const Instruction&b)
+{
+	if (m_operation != b.m_operation) return false;
+	if (m_operand != b.m_operand) return false;
+	if (m_branches.size() != b.m_branches.size()) return false;
+	auto it2 = b.m_branches.begin();
+	for (auto it = m_branches.begin(); it != m_branches.end(); ++it, ++it2)
+	{
+		if (!(*it)->Equivalent(*(*it2)))
+			return false;
+	}
+	return true;
+}

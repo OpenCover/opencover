@@ -24,6 +24,7 @@ public:
 protected:
     Instruction(void);
     Instruction& operator = (const Instruction& b);
+    bool Equivalent(const Instruction& b);
 
 #ifdef TEST_FRAMEWORK
 public:
