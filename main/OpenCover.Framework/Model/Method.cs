@@ -94,5 +94,13 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("isSetter")]
         public bool IsSetter { get; set; }
 
+        public override void MarkAsSkipped(SkippedMethod reason)
+        {
+            SkippedDueTo = reason;
+            if (MethodPoint != null) MethodPoint.IsSkipped = true;
+            MethodPoint = null;
+            SequencePoints = null;
+            BranchPoints = null;
+        }
     }
 }

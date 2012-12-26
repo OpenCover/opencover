@@ -102,6 +102,12 @@ namespace OpenCover.Framework.Model
         public int Offset { get; set; }
 
         /// <summary>
+        /// Used to hide an instrumentation point
+        /// </summary>
+        [XmlIgnore]
+        public bool IsSkipped { get; set; }
+
+        /// <summary>
         /// The list of tracked methods
         /// </summary>
         public TrackedMethodRef[] TrackedMethodRefs

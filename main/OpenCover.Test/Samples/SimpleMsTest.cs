@@ -18,7 +18,7 @@ namespace OpenCover.Test.Samples
             foreach (var mi in methods)
             {
                 if (mi.DeclaringType != typeof(BasePersistenceTests)) continue;
-
+                if (mi.GetParameters().Any()) continue;
                 fixture.SetUp();
                 mi.Invoke(fixture, null);
                 fixture.TearDown();

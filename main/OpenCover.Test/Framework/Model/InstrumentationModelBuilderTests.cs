@@ -80,7 +80,8 @@ namespace OpenCover.Test.Framework.Model
         public void BuildModuleModel_DoesNotGetMethods_For_SkippedClasses()
         {
             // arrange
-            var @class = new Class(){SkippedDueTo = SkippedMethod.File};
+            var @class = new Class();
+            @class.MarkAsSkipped(SkippedMethod.File);
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetInstrumentableTypes())
                 .Returns(new[] { @class });

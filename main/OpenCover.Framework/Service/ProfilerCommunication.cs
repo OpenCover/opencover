@@ -35,12 +35,12 @@ namespace OpenCover.Framework.Service
             if (!_filter.UseAssembly(assemblyName))
             {
                 module = builder.BuildModuleModel(false);
-                module.SkippedDueTo = SkippedMethod.Filter;
+                module.MarkAsSkipped(SkippedMethod.Filter);
             }
             else if (!builder.CanInstrument)
             {
                 module = builder.BuildModuleModel(false);
-                module.SkippedDueTo = SkippedMethod.MissingPdb;
+                module.MarkAsSkipped(SkippedMethod.MissingPdb);
             }
 
             module = module ?? builder.BuildModuleModel(true);

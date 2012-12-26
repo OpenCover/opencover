@@ -60,5 +60,10 @@ namespace OpenCover.Framework.Model
         /// </summary>
         [XmlAttribute("hash")]
         public string ModuleHash { get; set; }
+
+        public override void MarkAsSkipped(SkippedMethod reason)
+        {
+            SkippedDueTo = reason;
+        }
     }
 }

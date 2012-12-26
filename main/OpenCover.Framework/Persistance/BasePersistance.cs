@@ -159,7 +159,18 @@ namespace OpenCover.Framework.Persistance
         protected void PopulateInstrumentedPoints()
         {
             if (CoverageSession.Modules == null) return;
-           
+
+            foreach (var method in from @class in (from module in CoverageSession.Modules
+                                                   from @class in module.Classes ?? new Class[0]
+                                                   select @class) 
+                                   where @class.Methods.Any(m => m.ShouldSerializeSkippedDueTo()) 
+                                   where @class.Methods.All(m => m.FileRef == null)
+                                   from method in @class.Methods.Where(x => !x.ShouldSerializeSkippedDueTo()) 
+                                   select method)
+            {
+                method.MarkAsSkipped(SkippedMethod.Inferred);
+            }
+
             foreach (var method in from module in CoverageSession.Modules
                                    from @class in module.Classes ?? new Class[0]
                                    from method in @class.Methods ?? new Method[0]

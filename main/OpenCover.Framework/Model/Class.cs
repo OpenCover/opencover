@@ -34,5 +34,9 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public Method[] Methods { get; set; }
 
+        public override void MarkAsSkipped(SkippedMethod reason)
+        {
+            SkippedDueTo = reason;
+        }
     }
 }

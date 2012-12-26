@@ -106,7 +106,9 @@ namespace OpenCover.Test.Framework.Persistance
         public void IsTracking_Fase_IfModuleSkipped()
         {
             // arrange
-            var module = new Module() { FullName = "ModulePath", SkippedDueTo = SkippedMethod.Filter };
+            var module = new Module() { FullName = "ModulePath"};
+            module.MarkAsSkipped(SkippedMethod.Filter);
+
             module.Aliases.Add("ModulePath");
             Instance.PersistModule(module);
 
@@ -507,15 +509,19 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(5678, trackedId);
         }
 
+        readonly SkippedMethod[] _skippedReasonsModules = new[] { SkippedMethod.Filter, SkippedMethod.MissingPdb, };
+
         [Test]
-        public void HideSkipped_With_MissingPdb_Removes_SkippedModules()
+        public void HideSkipped_With_X_Removes_SkippedModules([ValueSource("_skippedReasonsModules")]SkippedMethod reason)
         {
             // arrange
             Container.GetMock<ICommandLine>()
                 .SetupGet(x => x.HideSkipped)
-                .Returns(new List<SkippedMethod>(){SkippedMethod.MissingPdb});
+                .Returns(new List<SkippedMethod>(){reason});
 
-            Instance.PersistModule(new Module() { SkippedDueTo = SkippedMethod.MissingPdb, FullName = "Skipped" });
+            var module = new Module() {FullName = "Skipped"};
+            module.MarkAsSkipped(reason);
+            Instance.PersistModule(module);
             Instance.PersistModule(new Module() { FullName = "Keep" });
 
             // act
@@ -526,70 +532,25 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual("Keep", Instance.CoverageSession.Modules[0].FullName);
         }
 
+        readonly SkippedMethod[] _skippedReasonsClasses = new[] { SkippedMethod.Filter, SkippedMethod.File, SkippedMethod.Attribute, };
+
         [Test]
-        public void HideSkipped_With_Filter_Removes_SkippedModules()
+        public void HideSkipped_With_X_Removes_SkippedClasses([ValueSource("_skippedReasonsClasses")]SkippedMethod reason)
         {
             // arrange
             Container.GetMock<ICommandLine>()
                 .SetupGet(x => x.HideSkipped)
-                .Returns(new List<SkippedMethod>() { SkippedMethod.Filter });
+                .Returns(new List<SkippedMethod>() { reason });
 
-            Instance.PersistModule(new Module() { SkippedDueTo = SkippedMethod.Filter, FullName = "Skipped" });
-            Instance.PersistModule(new Module() { FullName = "Keep" });
-
-            // act
-            Instance.Commit();
-
-            // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
-            Assert.AreEqual("Keep", Instance.CoverageSession.Modules[0].FullName);
-        }
-
-        [Test]
-        public void HideSkipped_With_Filter_Removes_SkippedClasses()
-        {
-            // arrange
-            Container.GetMock<ICommandLine>()
-                .SetupGet(x => x.HideSkipped)
-                .Returns(new List<SkippedMethod>() { SkippedMethod.Filter });
-
-            Instance.PersistModule(new Module() { SkippedDueTo = SkippedMethod.Filter, FullName = "Skipped" });
-            Instance.PersistModule(new Module()
-                {
-                    FullName = "Keep",
-                    Classes = new[]
-                        {
-                            new Class() {SkippedDueTo = SkippedMethod.Filter, FullName = "Skipped"},
-                            new Class() {FullName = "KeepClass"}
-                        }
-                });
-
-            // act
-            Instance.Commit();
-
-            // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
-            Assert.AreEqual("Keep", Instance.CoverageSession.Modules[0].FullName);
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Count());
-            Assert.AreEqual("KeepClass", Instance.CoverageSession.Modules[0].Classes[0].FullName);
-        }
-
-        [Test]
-        public void HideSkipped_With_Attribute_Removes_SkippedClasses()
-        {
-            // arrange
-            Container.GetMock<ICommandLine>()
-                .SetupGet(x => x.HideSkipped)
-                .Returns(new List<SkippedMethod>() { SkippedMethod.Attribute });
-
+            var @class = new Class() {FullName = "Skipped"};
+            @class.MarkAsSkipped(reason);
             Instance.PersistModule(new Module()
             {
                 FullName = "Keep",
                 Classes = new[]
                         {
-                            new Class() {SkippedDueTo = SkippedMethod.Attribute, FullName = "Skipped"},
+                            @class,
                             new Class() {FullName = "KeepClass", Methods = new[]{new Method()}},
-                            new Class() {FullName = "RemoveClass"}
                         }
             });
 
@@ -601,67 +562,115 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual("KeepClass", Instance.CoverageSession.Modules[0].Classes[0].FullName);
         }
 
+        /// <summary>
+        /// NOTE: A (compiler) generated method will not have any file references 
+        /// </summary>
         [Test]
-        public void HideSkipped_With_Attribute_Removes_SkippedMethods()
+        public void InstrumentationPoints_Of_CompilerGeneratedMethods_Belonging_To_Classes_WhereAllOtherMethodsAreSkipped_AreRemoved()
         {
             // arrange
-            Container.GetMock<ICommandLine>()
-                .SetupGet(x => x.HideSkipped)
-                .Returns(new List<SkippedMethod>() { SkippedMethod.Attribute });
-
-            Instance.PersistModule(new Module()
+            var point = new InstrumentationPoint() { IsSkipped = false };
+            var module = new Module()
                 {
                     FullName = "Keep",
                     Classes = new[]
                         {
-                            new Class() {SkippedDueTo = SkippedMethod.Attribute, FullName = "Skipped"},
+                            new Class() {Methods = new[] {new Method() {MethodPoint = point}, new Method()}},
+                            new Class()
+                                {
+                                    Methods = new[]
+                                        {
+                                            new Method()
+                                                {
+                                                    MethodPoint = new InstrumentationPoint() {IsSkipped = false},
+                                                    FileRef = new FileRef()
+                                                },
+                                            new Method()
+                                        }
+                                },
+                        }
+                };
+
+            module.Classes[0].Methods[1].MarkAsSkipped(SkippedMethod.File);
+            module.Classes[1].Methods[1].MarkAsSkipped(SkippedMethod.File);
+
+            Instance.PersistModule(module);
+
+            // act
+            Instance.Commit();
+
+            // assert
+            Assert.IsNull(Instance.CoverageSession.Modules[0].Classes[0].Methods[0].MethodPoint);
+            Assert.IsTrue(point.IsSkipped);
+            Assert.IsFalse(Instance.CoverageSession.Modules[0].Classes[1].Methods[0].MethodPoint.IsSkipped);
+        }
+
+        readonly SkippedMethod[] _skippedReasonsMethods = new[] { SkippedMethod.File, SkippedMethod.Attribute, };
+
+        [Test]
+        public void HideSkipped_With_X_Removes_SkippedMethods([ValueSource("_skippedReasonsMethods")]SkippedMethod reason)
+        {
+            // arrange
+            Container.GetMock<ICommandLine>()
+                .SetupGet(x => x.HideSkipped)
+                .Returns(new List<SkippedMethod>() { reason });
+
+            var method = new Method() {Name = "SkippedMethod", FileRef = new FileRef()};
+            method.MarkAsSkipped(reason);
+
+            var module = new Module()
+                {
+                    FullName = "Keep",
+                    Classes = new[]
+                        {
+                            new Class()
+                                {
+                                    FullName = "RemoveClassThoughSkippedAttribute",
+                                    Methods = new[] { method }
+                                },
                             new Class()
                                 {
                                     FullName = "KeepClass",
-                                    Methods =
-                                        new[]
-                                            {
-                                                new Method() {SkippedDueTo = SkippedMethod.Attribute, Name = "SkippedMethod"},
-                                                new Method() {Name = "KeepMethod"}
-                                            }
+                                    Methods = new[] { method, new Method() {Name = "KeepMethod", FileRef = new FileRef()}}
                                 }
                         }
-                });
+                };
+
+            module.Classes[0].MarkAsSkipped(SkippedMethod.Attribute);
+
+            Instance.PersistModule(module);
 
             // act
             Instance.Commit();
 
             // assert
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Count());
-            Assert.AreEqual("KeepClass", Instance.CoverageSession.Modules[0].Classes[0].FullName);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods.Count());
             Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Name);
         }
 
         [Test]
-        public void HideSkipped_With_File_Removes_SkippedMethods()
+        public void HideSkipped_With_File_Removes_EmptyClasses()
         {
             // arrange
             Container.GetMock<ICommandLine>()
                 .SetupGet(x => x.HideSkipped)
                 .Returns(new List<SkippedMethod>() { SkippedMethod.File });
 
-            Instance.PersistModule(new Module()
-                {
-                    FullName = "Keep",
-                    Classes = new[]
+            var module = new Module()
+            {
+                FullName = "Keep",
+                Classes = new[]
                         {
                             new Class()
                                 {
-                                    SkippedDueTo = SkippedMethod.Attribute,
                                     FullName = "KeepClassThoughSkippedAttribute",
-                                    Methods = new[] {new Method()}
+                                    Methods = new[] {new Method(){FileRef = new FileRef()}}
                                 },
                             new Class()
                                 {
-                                    SkippedDueTo = SkippedMethod.Attribute,
                                     FullName = "RemoveClassThoughSkippedAttribute",
-                                    Methods = new[] {new Method() {SkippedDueTo = SkippedMethod.File, Name = "SkippedMethod"}}
+                                    Methods = new[] {new Method() {Name = "SkippedMethod", FileRef = new FileRef()}}
                                 },
                             new Class()
                                 {
@@ -669,12 +678,19 @@ namespace OpenCover.Test.Framework.Persistance
                                     Methods =
                                         new[]
                                             {
-                                                new Method(){SkippedDueTo = SkippedMethod.File, Name = "SkippedMethod"},
-                                                new Method() {Name = "KeepMethod"}
+                                                new Method(){Name = "SkippedMethod", FileRef = new FileRef()},
+                                                new Method() {Name = "KeepMethod", FileRef = new FileRef()}
                                             }
                                 }
                         }
-                });
+            };
+
+            module.Classes[0].MarkAsSkipped(SkippedMethod.Attribute);
+            module.Classes[1].MarkAsSkipped(SkippedMethod.Attribute);
+            module.Classes[1].Methods[0].MarkAsSkipped(SkippedMethod.File);
+            module.Classes[2].Methods[0].MarkAsSkipped(SkippedMethod.File);
+
+            Instance.PersistModule(module);
 
             // act
             Instance.Commit();
@@ -693,6 +709,9 @@ namespace OpenCover.Test.Framework.Persistance
                 .SetupGet(x => x.HideSkipped)
                 .Returns(new List<SkippedMethod>() { SkippedMethod.File });
 
+            var method = new Method() {Name = "SkippedMethod", FileRef = new FileRef() {UniqueId = 2}};
+            method.MarkAsSkipped(SkippedMethod.File);
+
             Instance.PersistModule(new Module()
             {
                 FullName = "Keep",
@@ -705,7 +724,7 @@ namespace OpenCover.Test.Framework.Persistance
                                     Methods =
                                         new[]
                                             {
-                                                new Method() {SkippedDueTo = SkippedMethod.File, Name = "SkippedMethod", FileRef = new FileRef(){UniqueId = 2}},
+                                                method,
                                                 new Method() {Name = "KeepMethod", FileRef = new FileRef(){UniqueId = 1}}
                                             }
                                 }

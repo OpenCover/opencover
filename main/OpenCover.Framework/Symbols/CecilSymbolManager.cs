@@ -150,11 +150,11 @@ namespace OpenCover.Framework.Symbols
                 var @class = new Class() { FullName = typeDefinition.FullName };
                 if (!filter.InstrumentClass(moduleName, @class.FullName))
                 {
-                    @class.SkippedDueTo = SkippedMethod.Filter;
+                    @class.MarkAsSkipped(SkippedMethod.Filter);
                 }
                 else if (filter.ExcludeByAttribute(typeDefinition))
                 {
-                    @class.SkippedDueTo = SkippedMethod.Attribute;
+                    @class.MarkAsSkipped(SkippedMethod.Attribute);
                 }
 
                 var list = new List<string>();
@@ -267,9 +267,9 @@ namespace OpenCover.Framework.Symbols
             method.MetadataToken = methodDefinition.MetadataToken.ToInt32();
 
             if (alreadySkippedDueToAttr || filter.ExcludeByAttribute(methodDefinition))
-                method.SkippedDueTo = SkippedMethod.Attribute;
+                method.MarkAsSkipped(SkippedMethod.Attribute);
             else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
-                method.SkippedDueTo = SkippedMethod.File;
+                method.MarkAsSkipped(SkippedMethod.File);
 
             var definition = methodDefinition;
             method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))

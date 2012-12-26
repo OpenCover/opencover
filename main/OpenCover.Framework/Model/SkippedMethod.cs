@@ -24,5 +24,10 @@ namespace OpenCover.Framework.Model
         /// Entity was skipped due to a missing PDB
         /// </summary>
         MissingPdb = 1,
+
+        /// <summary>
+        /// Entity was skipped by inference (usually related to File filters)
+        /// </summary>
+        Inferred = 5,
     }
 }

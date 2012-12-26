@@ -23,5 +23,11 @@ namespace OpenCover.Framework.Model
         /// If this class has been skipped then this value will allow the data to be serialized
         /// </summary>
         public bool ShouldSerializeSkippedDueTo() { return skippedDueTo.HasValue; }
+
+        /// <summary>
+        /// Mark an entity as skipped
+        /// </summary>
+        /// <param name="reason">Provide a reason</param>
+        public abstract void MarkAsSkipped(SkippedMethod reason);
     }
 }
