@@ -169,6 +169,30 @@ namespace OpenCover.MSBuild
         }
 
         /// <summary>
+        /// Adds batching support to MSBuild OpenCover task.
+        /// </summary>
+        /// <remarks>This property is not used by OpenCover task. Its sole purpose is to provide extension point for batching support.</remarks>
+        /// <example>
+        /// In following example we populate list of assemblies with tests and MSBuild calls OpenCover task for each item in TestAssemblies list.
+        /// <![CDATA[
+        /// ItemGroup>
+        ///     <TestAssemblies Include="$(TestsBuildOutputFolder)\*.Tests.dll" />
+        /// </ItemGroup>
+        /// <OpenCover
+        /// Batch="@(TestAssemblies)"
+        /// ...
+        /// TargetArgs="&#x0022;$(TestsBuildOutputFolder)\%(filename)%(extension)&#x0022; /xml &#x0022;$(TestResultsFolder)\%(filename)%(extension).xml&#x0022;"
+        /// Output="$(CoverageResultsFolder)\%(filename)%(extension).xml" />
+        /// ]]>
+        /// </example>
+        /// <seealso cref="http://msdn.microsoft.com/en-us/library/ms171473.aspx"/>
+        public ITaskItem[] Batch
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gather coverage by test.
         /// </summary>
         public ITaskItem[] CoverByTest
