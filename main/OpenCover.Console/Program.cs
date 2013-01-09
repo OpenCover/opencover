@@ -148,14 +148,29 @@ namespace OpenCover.Console
             // and wait for it to stop
             service.WaitForStatus(ServiceControllerStatus.Stopped);
             logger.InfoFormat("Service stopped '{0}'", parser.Target);
-
         }
 
+        private static IEnumerable<string> GetSearchPaths(string targetDir)
+        {
+            return (new[] { Environment.CurrentDirectory, targetDir }).Concat((Environment.GetEnvironmentVariable("PATH") ?? Environment.CurrentDirectory).Split(Path.PathSeparator));            
+        } 
+
+        private static string ResolveTargetPathname(CommandLineParser parser)
+        {
+            var expandedTargetName = Environment.ExpandEnvironmentVariables(parser.Target);
+            var expandedTargetDir = Environment.ExpandEnvironmentVariables(parser.TargetDir ?? string.Empty);
+            return Path.IsPathRooted(expandedTargetName) ? Path.Combine(Environment.CurrentDirectory, expandedTargetName) :
+                    GetSearchPaths(expandedTargetDir).Select(dir => Path.Combine(dir.Trim('"'), expandedTargetName)).FirstOrDefault(File.Exists) ?? expandedTargetName;
+        }
+        
         private static int RunProcess(CommandLineParser parser, Action<StringDictionary> environment)
         {
             var returnCode = 0;
-            var startInfo =
-                new ProcessStartInfo(Path.Combine(Environment.CurrentDirectory, parser.Target));
+
+            var targetPathname = ResolveTargetPathname(parser);
+            System.Console.WriteLine("Executing: {0}", Path.GetFullPath(targetPathname));
+
+            var startInfo = new ProcessStartInfo(targetPathname);
             environment(startInfo.EnvironmentVariables);
 
             if (parser.OldStyleInstrumentation)
@@ -398,7 +413,7 @@ namespace OpenCover.Console
                         return false;
                     }                    
                 }
-                else if (!File.Exists(Environment.ExpandEnvironmentVariables(parser.Target)))
+                else if (!File.Exists(ResolveTargetPathname(parser)))
                 {
                     System.Console.WriteLine("Target '{0}' cannot be found - have you specified your arguments correctly?", parser.Target);
                     return false;
