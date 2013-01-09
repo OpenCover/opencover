@@ -45,6 +45,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     if (m_profilerInfo2 != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo2 OK)"));
     if (m_profilerInfo2 == NULL) return E_FAIL;
     m_profilerInfo3 = pICorProfilerInfoUnk;
+	m_profilerInfo4 = pICorProfilerInfoUnk;
+
     ZeroMemory(&m_runtimeVersion, sizeof(m_runtimeVersion));
     if (m_profilerInfo3 != NULL) 
     {
@@ -90,6 +92,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     if (m_useOldStyle)
        dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
+
+	if (m_profilerInfo4 != NULL)
+	{
+		dwMask |= COR_PRF_ENABLE_REJIT;
+	}
 
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask), 
         _T("    ::Initialize(...) => SetEventMask => 0x%X"));

@@ -5,7 +5,7 @@
 //
 #pragma once
 
-class CProfilerBase : public ICorProfilerCallback3
+class CProfilerBase : public ICorProfilerCallback5
 {
     // ICorProfilerCallback
 public:
@@ -367,5 +367,55 @@ public:
         
     virtual HRESULT STDMETHODCALLTYPE ProfilerDetachSucceeded( void)
     { return S_OK; }
+
+// ICorProfilerCallback4
+public:
+    virtual HRESULT STDMETHODCALLTYPE ReJITCompilationStarted( 
+        /* [in] */ FunctionID functionId,
+        /* [in] */ ReJITID rejitId,
+        /* [in] */ BOOL fIsSafeToBlock)     
+	{ return S_OK; }
+
+    virtual HRESULT STDMETHODCALLTYPE GetReJITParameters( 
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ mdMethodDef methodId,
+        /* [in] */ ICorProfilerFunctionControl *pFunctionControl)     
+	{ return S_OK; }
+        
+	virtual HRESULT STDMETHODCALLTYPE ReJITCompilationFinished( 
+        /* [in] */ FunctionID functionId,
+        /* [in] */ ReJITID rejitId,
+        /* [in] */ HRESULT hrStatus,
+        /* [in] */ BOOL fIsSafeToBlock)     
+	{ return S_OK; }
+        
+	virtual HRESULT STDMETHODCALLTYPE ReJITError( 
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ mdMethodDef methodId,
+        /* [in] */ FunctionID functionId,
+        /* [in] */ HRESULT hrStatus)     
+	{ return S_OK; }
+        
+	virtual HRESULT STDMETHODCALLTYPE MovedReferences2( 
+        /* [in] */ ULONG cMovedObjectIDRanges,
+        /* [size_is][in] */ ObjectID oldObjectIDRangeStart[  ],
+        /* [size_is][in] */ ObjectID newObjectIDRangeStart[  ],
+        /* [size_is][in] */ SIZE_T cObjectIDRangeLength[  ])     
+	{ return S_OK; }
+
+    virtual HRESULT STDMETHODCALLTYPE SurvivingReferences2( 
+        /* [in] */ ULONG cSurvivingObjectIDRanges,
+        /* [size_is][in] */ ObjectID objectIDRangeStart[  ],
+        /* [size_is][in] */ SIZE_T cObjectIDRangeLength[  ])      
+	{ return S_OK; }
+
+// ICorProfilerCallback5
+public:
+	virtual HRESULT STDMETHODCALLTYPE ConditionalWeakTableElementReferences( 
+		/* [in] */ ULONG cRootRefs,
+		/* [size_is][in] */ ObjectID keyRefIds[  ],
+		/* [size_is][in] */ ObjectID valueRefIds[  ],
+		/* [size_is][in] */ GCHandleID rootIds[  ])      
+	{ return S_OK; }
 
 };
