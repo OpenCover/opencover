@@ -95,7 +95,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
 	if (m_profilerInfo4 != NULL)
 	{
+        ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
 		dwMask |= COR_PRF_ENABLE_REJIT;
+		dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
 	}
 
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask), 

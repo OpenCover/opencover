@@ -1,1 +1,1 @@
-OpenCover.Console.exe -register:user -hideskipped:all -target:..\..\..\tools\NUnit-2.6.0.12051\bin\nunit-console-x86.exe -targetargs:"OpenCover.Test.dll /noshadow" -excludebyfile:*\ProfilerRegistration.* -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml
+OpenCover.Console.exe -register:user -hideskipped:all -target:..\..\..\tools\NUnit-2.6.2\bin\nunit-console-x86.exe -targetargs:"OpenCover.Test.dll /noshadow" -excludebyfile:*\ProfilerRegistration.* -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml
