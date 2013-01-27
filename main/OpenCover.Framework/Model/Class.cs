@@ -19,7 +19,19 @@ namespace OpenCover.Framework.Model
         public Class()
         {
             Methods = new Method[0];
+            Summary = new Summary();
         }
+
+        /// <summary>
+        /// A Summary of results for a class
+        /// </summary>
+        public Summary Summary { get; set; }
+
+        /// <summary>
+        /// Control serialization of the Summary  object
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldSerializeSummary() { return !ShouldSerializeSkippedDueTo(); }
 
         /// <summary>
         /// The full name of the class

@@ -22,7 +22,19 @@ namespace OpenCover.Framework.Model
         public Module()
         {
             Aliases = new List<string>();
+            Summary = new Summary();
         }
+
+        /// <summary>
+        /// A Summary of results for a module
+        /// </summary>
+        public Summary Summary { get; set; }
+
+        /// <summary>
+        /// Control serialization of the Summary  object
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldSerializeSummary() { return !ShouldSerializeSkippedDueTo(); }
 
         /// <summary>
         /// The full path name to the module

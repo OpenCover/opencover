@@ -85,6 +85,7 @@
     <Compile Include="Model\InstrumentationPoint.cs" />
     <Compile Include="Model\SkippedEntity.cs" />
     <Compile Include="Model\SkippedMethod.cs" />
+    <Compile Include="Model\Summary.cs" />
     <Compile Include="Model\TrackedMethod.cs" />
     <Compile Include="Persistance\BasePersistance.cs" />
     <Compile Include="ExcludeCoverageAttribute.cs" />

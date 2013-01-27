@@ -21,11 +21,17 @@ namespace OpenCover.Framework.Model
         public CoverageSession()
         {
             Modules = new Module[0];
+            Summary = new Summary();
         }
         /// <summary>
         /// A unique session identifier
         /// </summary>
         public string SessionId { get; set; }
+
+        /// <summary>
+        /// A Summary of results for the session
+        /// </summary>
+        public Summary Summary { get; set; }
 
         /// <summary>
         /// A list of modules that have been profiled under the session

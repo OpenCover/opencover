@@ -160,45 +160,94 @@ namespace OpenCover.Framework.Persistance
         {
             if (CoverageSession.Modules == null) return;
 
-            foreach (var method in from @class in (from module in CoverageSession.Modules
-                                                   from @class in module.Classes ?? new Class[0]
-                                                   select @class) 
-                                   where @class.Methods.Any(m => m.ShouldSerializeSkippedDueTo()) 
+            foreach (var method in from @class in
+                                       (from module in CoverageSession.Modules
+                                        from @class in module.Classes ?? new Class[0]
+                                        select @class)
+                                   where @class.Methods.Any(m => m.ShouldSerializeSkippedDueTo())
                                    where @class.Methods.All(m => m.FileRef == null)
-                                   from method in @class.Methods.Where(x => !x.ShouldSerializeSkippedDueTo()) 
+                                   from method in @class.Methods.Where(x => !x.ShouldSerializeSkippedDueTo())
                                    select method)
             {
                 method.MarkAsSkipped(SkippedMethod.Inferred);
             }
 
-            foreach (var method in from module in CoverageSession.Modules
-                                   from @class in module.Classes ?? new Class[0]
-                                   from method in @class.Methods ?? new Method[0]
-                                   select method)
+            foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
-                var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
-                var branchPoints = method.BranchPoints ?? new BranchPoint[0];
-
-                if (method.MethodPoint != null)
+                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
-                    method.Visited = (method.MethodPoint.VisitCount > 0);
+                    @class.Summary.MinCyclomaticComplexity = 1;
+                    @class.Summary.MaxCyclomaticComplexity = 1;
+
+                    foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
+                    {
+                        var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
+                        var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+
+                        if (method.MethodPoint != null)
+                        {
+                            method.Visited = (method.MethodPoint.VisitCount > 0);
+                        }
+
+                        method.Summary.NumBranchPoints = branchPoints.Count();
+                        method.Summary.VisitedBranchPoints = branchPoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumSequencePoints = sequencePoints.Count();
+                        method.Summary.VisitedSequencePoints = sequencePoints.Count(pt => pt.VisitCount != 0);
+
+                        if (method.Summary.NumBranchPoints == 0)
+                        {
+                            if (method.Summary.VisitedSequencePoints > 0)
+                            {
+                                method.Summary.VisitedBranchPoints = 1;
+                                method.Summary.NumBranchPoints = 1;
+                            }
+                        }
+
+                        AddPoints(@class.Summary, method.Summary);
+                        CalculateCoverage(method.Summary);
+
+                        method.SequenceCoverage = method.Summary.SequenceCoverage;
+                        method.BranchCoverage = method.Summary.BranchCoverage;
+
+                        method.Summary.MinCyclomaticComplexity = method.CyclomaticComplexity;
+                        method.Summary.MaxCyclomaticComplexity = method.CyclomaticComplexity;
+
+                        @class.Summary.MinCyclomaticComplexity = Math.Min(@class.Summary.MinCyclomaticComplexity, method.CyclomaticComplexity);
+                        @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
+                    }
+
+                    AddPoints(module.Summary, @class.Summary);
+                    CalculateCoverage(@class.Summary);
+
+                    module.Summary.MinCyclomaticComplexity = Math.Min(module.Summary.MinCyclomaticComplexity, @class.Summary.MinCyclomaticComplexity);
+                    module.Summary.MaxCyclomaticComplexity = Math.Max(module.Summary.MaxCyclomaticComplexity, @class.Summary.MaxCyclomaticComplexity);
                 }
 
-                var numTotBrPoint = branchPoints.Count();
-                var numVisBrPoint = branchPoints.Count(pt => pt.VisitCount != 0);
-                var numTotSeqPoint = sequencePoints.Count();
-                var numVisSeqPoint = sequencePoints.Count(pt => pt.VisitCount != 0);
+                AddPoints(CoverageSession.Summary, module.Summary);
+                CalculateCoverage(module.Summary);
 
-                if (numTotSeqPoint > 0)
-                    method.SequenceCoverage = (numVisSeqPoint * 100) / numTotSeqPoint;
-
-                if (numTotBrPoint == 0)
-                {
-                    if (numVisSeqPoint > 0) method.BranchCoverage = 100;
-                }
-                else
-                    method.BranchCoverage = (numVisBrPoint * 100) / numTotBrPoint;
+                CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
+                CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
             }
+
+            CalculateCoverage(CoverageSession.Summary);
+        }
+
+        private static void CalculateCoverage(Summary summary)
+        {
+            if (summary.NumSequencePoints > 0)
+                summary.SequenceCoverage = Math.Round((summary.VisitedSequencePoints*100m)/summary.NumSequencePoints, 2);
+
+            if (summary.NumBranchPoints > 0)
+                summary.BranchCoverage = Math.Round((summary.VisitedBranchPoints*100m)/summary.NumBranchPoints, 2);
+        }
+
+        private static void AddPoints(Summary parent, Summary child)
+        {
+            parent.NumBranchPoints += child.NumBranchPoints;
+            parent.VisitedBranchPoints += child.VisitedBranchPoints;
+            parent.NumSequencePoints += child.NumSequencePoints;
+            parent.VisitedSequencePoints += child.VisitedSequencePoints;
         }
 
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
