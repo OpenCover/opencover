@@ -176,8 +176,6 @@ namespace OpenCover.Framework.Persistance
             {
                 foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
-                    @class.Summary.MinCyclomaticComplexity = 1;
-                    @class.Summary.MaxCyclomaticComplexity = 1;
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
@@ -194,14 +192,11 @@ namespace OpenCover.Framework.Persistance
                         method.Summary.NumSequencePoints = sequencePoints.Count();
                         method.Summary.VisitedSequencePoints = sequencePoints.Count(pt => pt.VisitCount != 0);
 
-                        if (method.Summary.NumBranchPoints == 0)
-                        {
-                            if (method.Summary.VisitedSequencePoints > 0)
-                            {
-                                method.Summary.VisitedBranchPoints = 1;
-                                method.Summary.NumBranchPoints = 1;
-                            }
-                        }
+                        if (method.Summary.NumSequencePoints > 0)
+                            method.Summary.NumBranchPoints += 1;
+
+                        if (method.Summary.VisitedSequencePoints > 0)
+                            method.Summary.VisitedBranchPoints += 1;
 
                         AddPoints(@class.Summary, method.Summary);
                         CalculateCoverage(method.Summary);
@@ -209,9 +204,11 @@ namespace OpenCover.Framework.Persistance
                         method.SequenceCoverage = method.Summary.SequenceCoverage;
                         method.BranchCoverage = method.Summary.BranchCoverage;
 
-                        method.Summary.MinCyclomaticComplexity = method.CyclomaticComplexity;
-                        method.Summary.MaxCyclomaticComplexity = method.CyclomaticComplexity;
+                        method.Summary.MinCyclomaticComplexity = method.Summary.MaxCyclomaticComplexity = Math.Max(1, method.CyclomaticComplexity);
 
+                        if (@class.Summary.MinCyclomaticComplexity == 0)
+                            @class.Summary.MinCyclomaticComplexity = method.Summary.MinCyclomaticComplexity;
+                        
                         @class.Summary.MinCyclomaticComplexity = Math.Min(@class.Summary.MinCyclomaticComplexity, method.CyclomaticComplexity);
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
@@ -219,12 +216,18 @@ namespace OpenCover.Framework.Persistance
                     AddPoints(module.Summary, @class.Summary);
                     CalculateCoverage(@class.Summary);
 
+                    if (module.Summary.MinCyclomaticComplexity == 0)
+                        module.Summary.MinCyclomaticComplexity = @class.Summary.MinCyclomaticComplexity;
+
                     module.Summary.MinCyclomaticComplexity = Math.Min(module.Summary.MinCyclomaticComplexity, @class.Summary.MinCyclomaticComplexity);
                     module.Summary.MaxCyclomaticComplexity = Math.Max(module.Summary.MaxCyclomaticComplexity, @class.Summary.MaxCyclomaticComplexity);
                 }
 
                 AddPoints(CoverageSession.Summary, module.Summary);
                 CalculateCoverage(module.Summary);
+
+                if (CoverageSession.Summary.MinCyclomaticComplexity == 0)
+                    CoverageSession.Summary.MinCyclomaticComplexity = module.Summary.MinCyclomaticComplexity;
 
                 CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);

@@ -219,6 +219,20 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void HandlesFilterFileArgumentsWithEmptyArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-filterfile:XYZABC.LOG", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("XYZABC.LOG", parser.FilterFile);
+
+        }
+
+        [Test]
         public void HandlesMergeByHashArgument()
         {
             // arrange  

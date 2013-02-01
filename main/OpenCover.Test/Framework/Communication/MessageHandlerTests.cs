@@ -3,6 +3,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Communication;
+using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Service;
 using OpenCover.Test.MoqFramework;
@@ -45,6 +46,24 @@ namespace OpenCover.Test.Framework.Communication
             uint uniqueId;
             Container.GetMock<IProfilerCommunication>()
                 .Verify(x => x.TrackMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out uniqueId), Times.Once());
+
+        }
+
+        [Test]
+        public void Handles_MSG_AllocateMemoryBuffer()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_AllocateBuffer_Request());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, IntPtr.Zero, (x) => { });
+
+            // assert
+            uint uniqueId;
+            Container.GetMock<IMemoryManager>()
+                .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()), Times.Once());
 
         }
 
@@ -185,6 +204,16 @@ namespace OpenCover.Test.Framework.Communication
         {
             var size = Instance.ReadSize;
             Assert.AreNotEqual(0, size);
+        }
+
+        [Test]
+        public void WhenComplete_Stop_ProfilerCommunication()
+        {
+            // act
+            Instance.Complete();
+
+            // assert
+            Container.GetMock<IProfilerCommunication>().Verify(x => x.Stopping(), Times.Once());
         }
     }
 }
