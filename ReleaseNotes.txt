@@ -1,3 +1,19 @@
+Version 4.5.1302
+Update version number to reflect 4.5 support
+Fix bug in summaries
+
+Version 4.0.1229
+Supports .NET 4.5 (not windows store apps)
+Built in Summary Reports - useful for build systems
+
+Version 4.0.1128
+#125 - Hide compiler generated method when no source remains after skipping
+#107 - fix 'sporadic' crash when dealing with Generic methods. 
+
+Version 4.0.1118
+#137 - Fix instrumentation issue when dealing with typed clauses
+#107 - fix 'sporadic' crash when dealing with Generic methods. 
+
 Version 4.0.1107
 #133 - Remove skipped File/Module/Class/Methods from report
 #130 - Support for 'returntargetcode' switch in msbuild task
