@@ -13,7 +13,7 @@ namespace OpenCover.Integration.Test
             ExecuteProfiler32((info) =>
                                   {
                                       info.FileName = Path.Combine(Environment.CurrentDirectory,
-                                                                   @"..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
+                                                                   @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
                                       info.Arguments =
                                           "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleBranchTests.SimpleIf";
                                       info.WorkingDirectory = Environment.CurrentDirectory;

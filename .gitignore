@@ -19,7 +19,6 @@
 /main/OpenCover.Profiler/OpenCoverProfiler64_p.c
 /main/OpenCover.Profiler/dlldata.c
 /tools/gtest-1.5.0
-/tools/Moq.4.0.10531.7
 /tools/atlsvr.9.0.70425
 /main/opencover.sln.cache
 /build/Version/opencover.snk
@@ -42,9 +41,11 @@
 /tools/xunit-1.8
 /main/OpenCover.sln.docstates.suo
 /main/CodeAnalyst/OpenCover.caw
-/tools/log4net-1.2.11
 /samples/OpenCover.Samples.6.0.ReSharper.user
 /main/OpenCover.sln.DotSettings.user
 /tools/NUnit-2.6.0.12051
 /tools/NUnit-2.6.2
 /main/OpenCover.v11.suo
+/main/packages
+/tools/GendarmeSigned
+/main/TestResults

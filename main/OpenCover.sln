@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCover.Console\OpenCover.Console.csproj", "{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2}"
@@ -23,6 +23,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target", "OpenCover.Simple.Target\OpenCover.Simple.Target.csproj", "{27AD5F08-0625-4093-8782-F7936737FAB7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Framework", "OpenCover.Framework\OpenCover.Framework.csproj", "{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E} = {0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{1E02E180-E417-4810-B8AF-939CB3DB4939}"
 	ProjectSection(SolutionItems) = preProject
@@ -43,6 +46,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Integration.Test"
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.MSBuild", "OpenCover.MSBuild\OpenCover.MSBuild.csproj", "{746A6B40-4570-40CB-BBE5-CEECEE9E220F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C4B551F8-0420-40EE-B5F8-67487627BFDD}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Gendarme.Signer", "OpenCover.Gendarme.Signer\OpenCover.Gendarme.Signer.csproj", "{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -114,6 +127,14 @@ Global
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x64.Build.0 = Release|Any CPU
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x86.ActiveCfg = Release|Any CPU
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x86.Build.0 = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.Build.0 = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.Build.0 = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.Build.0 = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -121,5 +142,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4337F24C-830C-4A9A-987B-2348F9222C39} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
 		{299202E9-EDCF-4386-8795-C20DCDCE0122} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal

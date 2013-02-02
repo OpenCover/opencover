@@ -12,7 +12,7 @@ namespace OpenCover.Integration.Test
             ExecuteProfiler32((info) =>
             {
                 info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
+                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
                 info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFault_NoExceptionThrown";
                 info.WorkingDirectory = Environment.CurrentDirectory;
             });
@@ -24,7 +24,7 @@ namespace OpenCover.Integration.Test
             ExecuteProfiler32((info) =>
             {
                 info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
+                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
                 info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFinally_NoExceptionThrown";
                 info.WorkingDirectory = Environment.CurrentDirectory;
             });
@@ -36,7 +36,7 @@ namespace OpenCover.Integration.Test
             ExecuteProfiler32((info) =>
             {
                 info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\tools\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
+                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
                 info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFilter_NoExceptionThrown";
                 info.WorkingDirectory = Environment.CurrentDirectory;
             });

@@ -17,19 +17,10 @@
 	<target name="prepare-environment" >
 		<property name="target.folder" value="${tools.folder}/gtest-1.5.0" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/Moq.4.0.10531.7" />
-		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/NUnit-2.6.2" />
-		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/wix36" />
-		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/xunit-1.8" />
-		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/log4net-1.2.11" />
-		<call target="extract" />
-		
+		<call target="extract" />		
 	</target>
 	
 </project>
