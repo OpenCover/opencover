@@ -47,22 +47,29 @@
         <call target="build.opencover" />
     </target>
 
-    <target name="build-all-platforms" description="Build all flavours i.e. all configurations and all platforms">
-        <property name="configuration" value="debug" />
-        <property name="platform" value="x86" />
-        <call target="build.opencover" />
-        <property name="configuration" value="release" />
-        <property name="platform" value="x86" />
-        <call target="build.opencover" />
-        <property name="configuration" value="debug" />
-        <property name="platform" value="x64" />
-        <call target="build.opencover" />
-        <property name="configuration" value="release" />
-        <property name="platform" value="x64" />
-        <call target="build.opencover" />
-    </target>
-    
-    <target name="build.opencover">
+  <target name="build-all-platforms"
+          depends="build-debug-platforms, build-release-platforms"
+          description="Build all flavours i.e. all configurations and all platforms" />
+
+  <target name="build-release-platforms" description="Build all release platform flavours">
+      <property name="configuration" value="release" />
+      <property name="platform" value="x64" />
+      <call target="build.opencover" />
+    <property name="configuration" value="release" />
+    <property name="platform" value="x86" />
+    <call target="build.opencover" />
+  </target>
+
+  <target name="build-debug-platforms" description="Build all debug platform flavours">
+    <property name="configuration" value="debug" />
+    <property name="platform" value="x64" />
+    <call target="build.opencover" />
+    <property name="configuration" value="debug" />
+    <property name="platform" value="x86" />
+    <call target="build.opencover" />
+  </target>
+
+  <target name="build.opencover">
 		
 		<exec program="${msbuild.exe}">
 		    <arg value="${solution.folder}/opencover.sln" />

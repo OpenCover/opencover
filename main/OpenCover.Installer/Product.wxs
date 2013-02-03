@@ -3,7 +3,7 @@
   <?include ..\..\build\Version\Version.wxi ?>
 
   <Product Id="*" Name="OpenCover" Language="1033" Version="$(var.Version)"
-      Manufacturer="OpenCover @ GitHub" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6" >
+      Manufacturer="OpenCover" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6" >
 
     <Package InstallerVersion="200" Compressed="yes" />
 

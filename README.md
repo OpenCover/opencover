@@ -9,11 +9,20 @@ All Original Software is licensed under the [MIT Licence](https://github.com/saw
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
 ### Building
-You will need Visual Studio VS2010 with C# and C++, all other software should be included with this repository. 
+You will need:
+
+1. Visual Studio VS2012 with C# and C++
+2. WiX 3.7 (http://wix.codeplex.com/releases/view/99514)
+
+All other software should be included with this repository. 
 
 Nant scripts (encapsulated by the build.bat file) are used to build the project outside visual studio and will run all unit tests.
 
 To build the code in 32-bit Debug mode just run Build in the root of the project folder.
+
+To build a release package including installer, zip and nuget packages use 
+
+> build create-release
 
 ### WIKI
 

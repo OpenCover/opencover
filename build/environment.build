@@ -19,8 +19,6 @@
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
 		<call target="extract" />
-		<property name="target.folder" value="${tools.folder}/wix36" />
-		<call target="extract" />		
 	</target>
 	
 </project>
