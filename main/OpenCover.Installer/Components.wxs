@@ -47,7 +47,16 @@
       </Component>
     </DirectoryRef>
 
-    <DirectoryRef Id="X86" >
+    <DirectoryRef Id="TRANSFORM_FLDR">
+      <Component Id="TransformScript" Guid="1FEB814D-5FE0-491F-9CB1-6FA6FB17D3C5">
+        <File Id="TRANSFORM_PS1" Source="..\transform\transform.ps1" KeyPath="yes" />
+      </Component>
+      <Component Id="SimpleTransform" Guid="F79B8C73-070F-458B-B9B3-313CE5AEE311">
+        <File Id="SIMPLE_REPORT_XSLT" Source="..\transform\simple_report.xslt" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+      <DirectoryRef Id="X86" >
       <Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
         <File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">
           <!--

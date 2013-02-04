@@ -21,6 +21,7 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="APPLICATIONFOLDER" Name="[ApplicationFolderName]" ShortName="OpnCover">
           <Directory Id="DOCS" Name="Docs" />
+          <Directory Id="TRANSFORM_FLDR" Name="Transforms" />
           <Directory Id="X86" Name="x86" />
           <Directory Id="X64" Name="x64" />
           <Directory Id="SAMPLES" Name="Samples">
@@ -46,6 +47,8 @@
       <ComponentRef Id="Licence" />
       <ComponentRef Id="Documentation_RelNotes" />
       <ComponentRef Id="PromptShortcut" />
+      <ComponentRef Id="TransformScript" />
+      <ComponentRef Id="SimpleTransform" />
       <Feature Id="SamplesFeature" Title="Samples" Level="1" Description="Install 32-bit and 64-bit samples. NOTE: Useful for testing the installation.">
         <ComponentRef Id="X86Samples" />
         <ComponentRef Id="X64Samples" />

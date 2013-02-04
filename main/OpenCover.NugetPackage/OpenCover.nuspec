@@ -34,5 +34,7 @@
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
     <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
+    <file src="main\transform\simple_report.xslt" target="transform"/>
+    <file src="main\transform\transform.ps1" target="transform"/>
   </files>
 </package>

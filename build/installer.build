@@ -51,6 +51,10 @@
                 <include name="OpenCover.MSBuild.dll" />
                 <include name="OpenCover.targets" />
             </fileset>
+            <fileset basedir="${solution.folder}\transform" prefix="transform">
+                <include name="simple_report.xslt" />
+                <include name="transform.ps1" />
+            </fileset>
         </zip>
         
     </target>
