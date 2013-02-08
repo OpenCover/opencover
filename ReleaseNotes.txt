@@ -4,7 +4,7 @@ Fix bug in summaries
 
 Version 4.0.1229
 Supports .NET 4.5 (not windows store apps)
-Built in Summary Reports - useful for build systems
+#120 - Built in Summary Reports - useful for build systems
 
 Version 4.0.1128
 #125 - Hide compiler generated method when no source remains after skipping
