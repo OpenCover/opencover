@@ -9,6 +9,7 @@ using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
+using OpenCover.Framework.Utility;
 using log4net;
 
 namespace OpenCover.Integration.Test
@@ -65,7 +66,7 @@ namespace OpenCover.Integration.Test
         private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
         {
             var bootstrapper = new Bootstrapper(_logger.Object);
-            bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, _manager);
+            bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, _manager, new NullPerfCounter());
             var harness = (IProfilerManager)bootstrapper.Container.Resolve(typeof(IProfilerManager), null);
 
             harness.RunProcess((environment) =>

@@ -9,11 +9,14 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Authentication;
+using System.Security.Principal;
 using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
+using OpenCover.Framework.Utility;
 using log4net;
 using log4net.Core;
 
@@ -44,11 +47,31 @@ namespace OpenCover.Console
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
+                IPerfCounters perfCounter = new NullPerfCounter();
+                if (parser.EnablePerformanceCounters)
+                {
+                    if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+                    {
+                        perfCounter = new PerfCounters();
+                    }
+                    else
+                    {
+                        throw  new InvalidCredentialException("You must be running as an Administrator to enable performance counters.");
+                    }
+                }
+
+                try
+                {
+                }
+                catch
+                {
+                }
+
                 using (var memoryManager = new MemoryManager())
                 {
                     var container = new Bootstrapper(logger);
                     var persistance = new FilePersistance(parser, logger);
-                    container.Initialise(filter, parser, persistance, memoryManager);
+                    container.Initialise(filter, parser, persistance, memoryManager, perfCounter);
                     persistance.Initialise(outputFile);
                     var registered = false;
 
@@ -88,6 +111,8 @@ namespace OpenCover.Console
                             ProfilerRegistration.Unregister(parser.UserRegistration);
                     }
                 }
+
+                perfCounter.ResetCounters();
             }
             catch (Exception ex)
             {

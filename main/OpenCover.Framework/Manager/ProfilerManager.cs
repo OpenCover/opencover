@@ -17,6 +17,7 @@ using System.Threading;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
+using OpenCover.Framework.Utility;
 
 namespace OpenCover.Framework.Manager
 {
@@ -33,6 +34,7 @@ namespace OpenCover.Framework.Manager
         private readonly IPersistance _persistance;
         private readonly IMemoryManager _memoryManager;
         private readonly ICommandLine _commandLine;
+        private readonly IPerfCounters _perfCounters;
         private MemoryMappedViewStream _streamAccessorComms;
         private EventWaitHandle _profilerRequestsInformation;
         private EventWaitHandle _informationReadyForProfiler;
@@ -41,12 +43,13 @@ namespace OpenCover.Framework.Manager
         private ConcurrentQueue<byte[]> _messageQueue;
 
         public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance, 
-            IMemoryManager memoryManager, ICommandLine commandLine)
+            IMemoryManager memoryManager, ICommandLine commandLine, IPerfCounters perfCounters)
         {
             _messageHandler = messageHandler;
             _persistance = persistance;
             _memoryManager = memoryManager;
             _commandLine = commandLine;
+            _perfCounters = perfCounters;
         }
 
         public void RunProcess(Action<Action<StringDictionary>> process, bool isService)
@@ -103,9 +106,16 @@ namespace OpenCover.Framework.Manager
                 {
                     while (true)
                     {
+                        //// use this block to introduce a delay in to the queue processing
+                        //if (_messageQueue.Count < 100)
+                        //  Thread.Sleep(10);
+
                         byte[] data;
                         while (!_messageQueue.TryDequeue(out data))
                             Thread.Yield();
+
+                        _perfCounters.CurrentMemoryQueueSize = _messageQueue.Count;
+                        _perfCounters.IncrementBlocksReceived();
 
                         if (data.Length == 0)
                         {
@@ -113,7 +123,6 @@ namespace OpenCover.Framework.Manager
                             queueMgmt.Set();
                             return;
                         }
-                            
                         _persistance.SaveVisitData(data);
                     }
                 });

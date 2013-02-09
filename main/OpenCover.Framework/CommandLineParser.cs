@@ -36,6 +36,7 @@ namespace OpenCover.Framework
             TestFilters = new List<string>();
             LogLevel = Level.Info;
             HideSkipped = new List<SkippedMethod>();
+            EnablePerformanceCounters = false;
         }
 
         /// <summary>
@@ -155,6 +156,9 @@ namespace OpenCover.Framework
                         break;
                     case "oldstyle":
                         OldStyleInstrumentation = true;
+                        break;
+                    case "enableperformancecounters":
+                        EnablePerformanceCounters = true;
                         break;
                     case "threshold":
                         Threshold = ExtractValue<ulong>("threshold", () =>
@@ -342,6 +346,11 @@ namespace OpenCover.Framework
         /// work when - ngen install /Profile "mscorlib" - has been used
         /// </summary>
         public bool OldStyleInstrumentation { get; private set; }
+
+        /// <summary>
+        /// Enable the performance counters
+        /// </summary>
+        public bool EnablePerformanceCounters { get; private set; }
     }
 
 }

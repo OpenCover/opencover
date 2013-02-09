@@ -1,0 +1,1 @@
+OpenCover.Console.exe -register:user -enableperformancecounters -target:dogfood_threshold.cmd -filter:+[OpenCover*]* -output:pedigree_results.xml

@@ -27,6 +27,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.Service);
             Assert.IsFalse(parser.ShowUnvisited);
             Assert.IsFalse(parser.MergeByHash);
+            Assert.IsFalse(parser.EnablePerformanceCounters);
         }
 
         [Test]
@@ -442,6 +443,19 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.OldStyleInstrumentation);
+        }
+
+        [Test]
+        public void Detects_EnablePerformanceCounters_Argument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-enableperformancecounters", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.EnablePerformanceCounters);
         }
 
         [Test]

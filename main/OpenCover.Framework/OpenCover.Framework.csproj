@@ -119,6 +119,8 @@
     <Compile Include="Strategy\TrackNUnitTestMethods.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
+    <Compile Include="Utility\IPerfCounters.cs" />
+    <Compile Include="Utility\PerfCounters.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log4net.config">

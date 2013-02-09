@@ -244,7 +244,6 @@ namespace OpenCover.Framework
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-        [ExcludeFromCoverage]
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
             if (ExcludedAttributes.Count == 0) 
