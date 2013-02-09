@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
@@ -31,6 +32,7 @@ namespace OpenCover.Framework.Manager
         private readonly IMessageHandler _messageHandler;
         private readonly IPersistance _persistance;
         private readonly IMemoryManager _memoryManager;
+        private readonly ICommandLine _commandLine;
         private MemoryMappedViewStream _streamAccessorComms;
         private EventWaitHandle _profilerRequestsInformation;
         private EventWaitHandle _informationReadyForProfiler;
@@ -38,11 +40,13 @@ namespace OpenCover.Framework.Manager
         private byte[] _dataCommunication;
         private ConcurrentQueue<byte[]> _messageQueue;
 
-        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance, IMemoryManager memoryManager)
+        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance, 
+            IMemoryManager memoryManager, ICommandLine commandLine)
         {
             _messageHandler = messageHandler;
             _persistance = persistance;
             _memoryManager = memoryManager;
+            _commandLine = commandLine;
         }
 
         public void RunProcess(Action<Action<StringDictionary>> process, bool isService)
@@ -80,6 +84,8 @@ namespace OpenCover.Framework.Manager
                             if (dictionary == null) return;
                             dictionary[@"OpenCover_Profiler_Key"] = key;
                             dictionary[@"OpenCover_Profiler_Namespace"] = @namespace;
+                            dictionary[@"OpenCover_Profiler_Threshold"] = _commandLine.Threshold.ToString(CultureInfo.InvariantCulture);
+
                             dictionary["Cor_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
                             dictionary["Cor_Enable_Profiling"] = "1";
                             dictionary["CoreClr_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";

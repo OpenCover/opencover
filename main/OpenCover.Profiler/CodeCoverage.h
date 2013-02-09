@@ -41,6 +41,7 @@ public:
     {
         m_runtimeType = COR_PRF_DESKTOP_CLR;
         m_useOldStyle = false;
+		m_threshold = 0U;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -79,7 +80,9 @@ public:
     std::wstring GetAssemblyName(AssemblyID assemblyId);
     BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath, AssemblyID *pAssemblyId);
 
-public:
+	void AddVisitPoint(ULONG uniqueId);
+
+private:
     ProfilerCommunication m_host;
 
 private:
@@ -112,6 +115,7 @@ private:
     ASSEMBLYMETADATA m_runtimeVersion;
 
     bool m_useOldStyle;
+	ULONG m_threshold;
 
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 

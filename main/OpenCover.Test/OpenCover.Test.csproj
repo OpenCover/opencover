@@ -200,6 +200,10 @@
       <Link>dogfood_shadow.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\dogfood_threshold.cmd">
+      <Link>dogfood_threshold.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\mstest.opencover.cmd">
       <Link>mstest.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

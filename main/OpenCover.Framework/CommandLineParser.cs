@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
@@ -120,15 +121,8 @@ namespace OpenCover.Framework
                         break;
                     case "returntargetcode":
                         ReturnTargetCode = true;
-                        var argument = GetArgumentValue("returntargetcode");
-                        if (argument != string.Empty)
-                        {
-                            int offset;
-                            if (int.TryParse(argument, out offset))
-                                ReturnCodeOffset = offset;
-                            else
-                                throw new InvalidOperationException("The return target code offset must be an integer");
-                        }
+                        ReturnCodeOffset = ExtractValue<int>("returntargetcode", () =>
+                            { throw new InvalidOperationException("The return target code offset must be an integer"); });
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
@@ -162,6 +156,10 @@ namespace OpenCover.Framework
                     case "oldstyle":
                         OldStyleInstrumentation = true;
                         break;
+                    case "threshold":
+                        Threshold = ExtractValue<ulong>("threshold", () =>
+                            { throw new InvalidOperationException("The threshold must be an integer"); });
+                        break;
                     case "?":
                         PrintUsage = true;
                         break;
@@ -176,6 +174,25 @@ namespace OpenCover.Framework
             {
                 throw new InvalidOperationException("The target argument is required");
             }
+        }
+
+        private T ExtractValue<T>(string argumentName, Action onError)
+        {
+            var textValue = GetArgumentValue(argumentName);
+            if (!string.IsNullOrEmpty(textValue))
+            {
+                try
+                {
+                    return (T)TypeDescriptor
+                        .GetConverter(typeof (T))
+                        .ConvertFromString(textValue);
+                }
+                catch (Exception)
+                {
+                    onError();
+                }
+            }
+            return default(T);
         }
 
         private static List<string> ExtractFilters(string rawFilters)
@@ -304,6 +321,11 @@ namespace OpenCover.Framework
         /// A list of skipped entities to hide from being ouputted
         /// </summary>
         public List<SkippedMethod> HideSkipped { get; private set; }
+
+        /// <summary>
+        /// Set the threshold i.e. max visit count reporting
+        /// </summary>
+        public ulong Threshold { get; private set; }
 
         /// <summary>
         /// The logging level based on log4net.Core.Level

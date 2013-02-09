@@ -74,6 +74,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Instrumentation"), instrumentation, 1024);
     ATLTRACE(_T("    ::Initialize(...) => instrumentation = %s"), instrumentation);
 
+    TCHAR threshold[1024] = {0};
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_Threshold"), threshold, 1024);
+	m_threshold = _tcstoul(threshold, NULL, 10);
+
+    ATLTRACE(_T("    ::Initialize(...) => threshold = %ul"), m_threshold);
+
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
     if (!m_host.Initialise(key, ns))
@@ -140,7 +146,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 /// </remarks>
 static void __fastcall InstrumentPointVisit(ULONG seq)
 {
-    CCodeCoverage::g_pProfiler->m_host.AddVisitPoint(seq);
+    CCodeCoverage::g_pProfiler->AddVisitPoint(seq);
+}
+
+void CCodeCoverage::AddVisitPoint(ULONG uniqueId)
+{
+	m_host.AddVisitPointWithThreshold(uniqueId, m_threshold);
 }
 
 static COR_SIGNATURE visitedMethodCallSignature[] = 
@@ -462,6 +473,15 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
             // only do this for .NET4 and above as there are issues with earlier runtimes (Access Violations)
             if (m_runtimeVersion.usMajorVersion >= 4)
                 CoTaskMemFree(pMap);
+
+			// resize the threshold array 
+			if (m_threshold != 0)
+			{
+				if (seqPoints.size() > 0) 
+					m_host.Resize(seqPoints.back().UniqueId + 1);
+				if (brPoints.size() > 0) 
+					m_host.Resize(brPoints.back().UniqueId + 1);
+			}
         }
     }
     

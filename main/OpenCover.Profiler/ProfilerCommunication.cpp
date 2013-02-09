@@ -83,11 +83,18 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     return hostCommunicationActive;
 }
 
-void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType)
+void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType, ULONG threshold)
 {
-    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
-    if (!hostCommunicationActive) return;
     if (uniqueId == 0) return;
+	if (threshold != 0) 
+	{
+		if (m_thresholds[uniqueId] >= threshold)
+			return;
+		m_thresholds[uniqueId]++;
+	}
+
+	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    if (!hostCommunicationActive) return;
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {

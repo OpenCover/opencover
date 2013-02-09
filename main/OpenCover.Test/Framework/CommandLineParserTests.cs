@@ -297,6 +297,29 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void HandlesThresholdArgument_WithValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-threshold:127", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(127, parser.Threshold);
+        }
+
+        [Test]
+        public void InvalidThresholdArgumentValue_ThrowsException()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-threshold:wibble", RequiredArgs });
+
+            // assert
+            Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+        }
+
+        [Test]
         public void HandlesExcludeByAttributeArgument_WithValue()
         {
             // arrange  
