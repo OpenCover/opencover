@@ -18,6 +18,7 @@ namespace OpenCover.Framework
     /// <remarks>
     /// Intentionally not unit tested - as this is calling regsvr32 which does what it does and does not need more testing from me
     /// </remarks>
+    [ExcludeFromCoverage("Intentionally not unit tested - as this is calling regsvr32 which does what it does and does not need more testing from me")]
     public class ProfilerRegistration
     {
         private const string UserRegistrationString = "/n /i:user";

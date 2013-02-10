@@ -60,18 +60,10 @@ namespace OpenCover.Console
                     }
                 }
 
-                try
+                using (var container = new Bootstrapper(logger))
                 {
-                }
-                catch
-                {
-                }
-
-                using (var memoryManager = new MemoryManager())
-                {
-                    var container = new Bootstrapper(logger);
                     var persistance = new FilePersistance(parser, logger);
-                    container.Initialise(filter, parser, persistance, memoryManager, perfCounter);
+                    container.Initialise(filter, parser, persistance, perfCounter);
                     persistance.Initialise(outputFile);
                     var registered = false;
 
@@ -82,7 +74,7 @@ namespace OpenCover.Console
                             ProfilerRegistration.Register(parser.UserRegistration);
                             registered = true;
                         }
-                        var harness = (IProfilerManager) container.Container.Resolve(typeof (IProfilerManager), null);
+                        var harness = container.Resolve<IProfilerManager>();
 
                         harness.RunProcess((environment) =>
                                                {

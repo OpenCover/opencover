@@ -28,27 +28,31 @@ ProfilerCommunication::~ProfilerCommunication()
 
 bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 {
-    m_key = key;
+	m_key = key;
+
+	std::wstring sharedKey = key;
+	sharedKey.append(_T("-1"));
+
     m_namespace = ns;
 
     m_mutexCommunication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     if (!m_mutexCommunication.IsValid()) return false;
     
-    ATLTRACE(_T("Initialised mutexes"));
+	RELTRACE(_T("Initialised mutexes"));
 
-    m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + m_key).c_str());
+    m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + sharedKey).c_str());
     if (!m_eventProfilerRequestsInformation.IsValid()) return false;
 
-    m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + m_key).c_str());
+    m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + sharedKey).c_str());
     if (!m_eventInformationReadByProfiler.IsValid()) return false;
 
-    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + m_key).c_str());
+    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + sharedKey).c_str());
     if (!m_eventInformationReadyForProfiler.IsValid()) return false;
 
-    m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + m_key).c_str());
+    m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey).c_str());
     if (!m_memoryCommunication.IsValid()) return false;
 
-    ATLTRACE(_T("Initialised communication interface"));
+    RELTRACE(_T("Initialised communication interface"));
 
     hostCommunicationActive = true;
 
@@ -109,10 +113,11 @@ void ProfilerCommunication::SendVisitPoints()
     if (!hostCommunicationActive) return;
     try {
         DWORD dwSignal = m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, COMM_WAIT_SHORT);
-        if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+        if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, COMM_WAIT_SHORT);
         m_eventResultsHaveBeenReceived.Reset();
     } catch (CommunicationException ex) {
-        RELTRACE(_T("ProfilerCommunication::SendVisitPoints() => Communication (Results channel) with host has failed (0x%x)"), ex.getReason());
+        RELTRACE(_T("ProfilerCommunication::SendVisitPoints() => Communication (Results channel) with host has failed (0x%x, %d)"), 
+			ex.getReason(), ex.getTimeout());
         hostCommunicationActive = false;
     }
     return;
@@ -274,7 +279,7 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
         buildRequest();
     
         DWORD dwSignal = m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler, dwTimeout);
-        if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+		if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, dwTimeout);
     
         m_eventInformationReadyForProfiler.Reset();
 
@@ -286,7 +291,7 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
             if (hasMore)
             {
                 dwSignal = m_eventInformationReadByProfiler.SignalAndWait(m_eventInformationReadyForProfiler, COMM_WAIT_SHORT);
-                if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal);
+                if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, COMM_WAIT_SHORT);
             
                 m_eventInformationReadyForProfiler.Reset();
             }
@@ -294,8 +299,8 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
 
         m_eventInformationReadByProfiler.Set();
     } catch (CommunicationException ex) {
-        RELTRACE(_T("ProfilerCommunication::RequestInformation(...) => Communication (Chat channel - %s) with host has failed (0x%x)"),  
-            message.c_str(), ex.getReason());
+        RELTRACE(_T("ProfilerCommunication::RequestInformation(...) => Communication (Chat channel - %s) with host has failed (0x%x, %d)"),  
+			message.c_str(), ex.getReason(), ex.getTimeout());
         hostCommunicationActive = false;
     }
 }

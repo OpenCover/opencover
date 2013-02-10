@@ -30,22 +30,19 @@ namespace OpenCover.Framework.Manager
     {
         const int maxMsgSize = 65536;
 
-        private readonly IMessageHandler _messageHandler;
+        private readonly ICommunicationManager _communicationManager;
         private readonly IPersistance _persistance;
         private readonly IMemoryManager _memoryManager;
         private readonly ICommandLine _commandLine;
         private readonly IPerfCounters _perfCounters;
-        private MemoryMappedViewStream _streamAccessorComms;
-        private EventWaitHandle _profilerRequestsInformation;
-        private EventWaitHandle _informationReadyForProfiler;
-        private EventWaitHandle _informationReadByProfiler;
-        private byte[] _dataCommunication;
+        private MemoryManager.ManagedCommunicationBlock _mcb;
+
         private ConcurrentQueue<byte[]> _messageQueue;
 
-        public ProfilerManager(IMessageHandler messageHandler, IPersistance persistance, 
+        public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance, 
             IMemoryManager memoryManager, ICommandLine commandLine, IPerfCounters perfCounters)
         {
-            _messageHandler = messageHandler;
+            _communicationManager = communicationManager;
             _persistance = persistance;
             _memoryManager = memoryManager;
             _commandLine = commandLine;
@@ -64,20 +61,12 @@ namespace OpenCover.Framework.Manager
 
             _memoryManager.Initialise(@namespace, key);
 
-            _profilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset, 
-                @namespace + @"\OpenCover_Profiler_Communication_SendData_Event_" + key);
-            _informationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, 
-                @namespace + @"\OpenCover_Profiler_Communication_ReceiveData_Event_" + key);
-            _informationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset, 
-                @namespace + @"\OpenCover_Profiler_Communication_ChunkData_Event_" + key);
-
-            handles.Add(_profilerRequestsInformation);
-
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (var mmfComms = MemoryMappedFile.CreateNew(@namespace + @"\OpenCover_Profiler_Communication_MemoryMapFile_" + key, maxMsgSize))
-            using (_streamAccessorComms = mmfComms.CreateViewStream(0, maxMsgSize, MemoryMappedFileAccess.ReadWrite))
+            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, maxMsgSize, -1))
             {
+                handles.Add(_mcb.ProfilerRequestsInformation);
+
                 ThreadPool.QueueUserWorkItem((state) =>
                 {
                     try
@@ -119,7 +108,7 @@ namespace OpenCover.Framework.Manager
 
                         if (data.Length == 0)
                         {
-                            _messageHandler.Complete();
+                            _communicationManager.Complete();
                             queueMgmt.Set();
                             return;
                         }
@@ -128,25 +117,15 @@ namespace OpenCover.Framework.Manager
                 });
 
                 // wait for the environment key to be read
-                if (WaitHandle.WaitAny(new[] { environmentKeyRead }, new TimeSpan(0, 0, 0, 10)) == -1) 
-                    return;
-
-                _dataCommunication = new byte[maxMsgSize];
-                var pinnedComms = GCHandle.Alloc(_dataCommunication, GCHandleType.Pinned);
-                try
+                if (WaitHandle.WaitAny(new WaitHandle[] {environmentKeyRead}, new TimeSpan(0, 0, 0, 10)) != -1)
                 {
-                    ProcessMessages(handles, pinnedComms);
+                    ProcessMessages(handles);
+                    queueMgmt.WaitOne();
                 }
-                finally
-                {
-                    pinnedComms.Free();
-                }
-
-                queueMgmt.WaitOne();
             }
         }
 
-        private void ProcessMessages(List<WaitHandle> handles, GCHandle pinnedComms)
+        private void ProcessMessages(List<WaitHandle> handles)
         {
             var continueWait = true;
             do
@@ -160,28 +139,14 @@ namespace OpenCover.Framework.Manager
                     case 0:
                         continueWait = false;
                         break;
+
                     case 1:
-                        _profilerRequestsInformation.Reset();
-                   
-                        _streamAccessorComms.Seek(0, SeekOrigin.Begin);
-                        _streamAccessorComms.Read(_dataCommunication, 0, _messageHandler.ReadSize);
-
-                        var writeSize = _messageHandler.StandardMessage(
-                            (MSG_Type)BitConverter.ToInt32(_dataCommunication, 0), 
-                            pinnedComms.AddrOfPinnedObject(), 
-                            SendChunkAndWaitForConfirmation);
-
-                        SendChunkAndWaitForConfirmation(writeSize);
+                        _communicationManager.HandleCommunicationBlock(_mcb);
                         break;
+
                     default:
                         var block = _memoryManager.GetBlocks[@case - 2];
-                        var data = new byte[block.BufferSize];
-                        block.ProfilerHasResults.Reset();
-
-                        block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
-                        block.StreamAccessorResults.Read(data, 0, block.BufferSize);
-
-                        block.ResultsHaveBeenReceived.Set();
+                        var data = _communicationManager.HandleMemoryBlock(block);
                         _messageQueue.Enqueue(data);
                         break;
                 }
@@ -196,15 +161,6 @@ namespace OpenCover.Framework.Manager
             }
 
             _messageQueue.Enqueue(new byte[0]);
-        }
-
-        private void SendChunkAndWaitForConfirmation(int writeSize)
-        {
-            _streamAccessorComms.Seek(0, SeekOrigin.Begin);
-            _streamAccessorComms.Write(_dataCommunication, 0, writeSize);
-
-            WaitHandle.SignalAndWait(_informationReadyForProfiler, _informationReadByProfiler);
-            _informationReadByProfiler.Reset();
         }
     }
 }

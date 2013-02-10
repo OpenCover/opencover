@@ -73,10 +73,12 @@ private:
     class CommunicationException : std::exception
     {
         DWORD dwReason;
+        DWORD dwTimeout;
     public:
-        CommunicationException(DWORD reason) {dwReason = reason;}
+		CommunicationException(DWORD reason, DWORD timeout) {dwReason = reason; dwTimeout = timeout;}
 
         DWORD getReason() {return dwReason;}
+        DWORD getTimeout() {return dwTimeout;}
     };
 
 };

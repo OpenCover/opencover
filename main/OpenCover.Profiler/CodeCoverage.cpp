@@ -30,9 +30,13 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
     //::OutputDebugStringW(szGuid);
 
+	WCHAR szExeName[MAX_PATH];
+	GetModuleFileNameW(NULL, szExeName, MAX_PATH);
+    RELTRACE(L"    ::Initialize(...) => EXE = %s", szExeName);
+
     WCHAR szModuleName[MAX_PATH];
     GetModuleFileNameW(_AtlModule.m_hModule, szModuleName, MAX_PATH);
-    RELTRACE(L"    ::Initialize(...) => PATH = %s", szModuleName);
+    RELTRACE(L"    ::Initialize(...) => PROFILER = %s", szModuleName);
     //::OutputDebugStringW(szModuleName);
 
     if (g_pProfiler!=NULL) 
@@ -134,7 +138,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
-    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK"));
+	WCHAR szExeName[MAX_PATH];
+	GetModuleFileNameW(NULL, szExeName, MAX_PATH);
+	RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), szExeName);
     g_pProfiler = NULL;
     return S_OK; 
 }

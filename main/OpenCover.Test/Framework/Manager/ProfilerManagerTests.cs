@@ -78,9 +78,14 @@ namespace OpenCover.Test.Framework.Manager
         public void Manager_Handles_StandardMessageEvent()
         {
             // arrange
-            Container.GetMock<IMessageHandler>()
-                .Setup(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()))
-                .Callback<MSG_Type, IntPtr, Action<int>>((t, p, action) => { });
+            EventWaitHandle standardMessageReady = null;
+            Container.GetMock<ICommunicationManager>()
+                     .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>()))
+                     .Callback(() =>
+                         {
+                             if (standardMessageReady != null) 
+                                 standardMessageReady.Reset();
+                         });
 
             // act
             var dict = new StringDictionary();
@@ -89,22 +94,17 @@ namespace OpenCover.Test.Framework.Manager
             {
                 e(dict);
 
-                var standardMessageReady = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    @"Local\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"]);
+                standardMessageReady = new EventWaitHandle(false, EventResetMode.ManualReset,
+                    @"Local\OpenCover_Profiler_Communication_SendData_Event_" + dict[@"OpenCover_Profiler_Key"] + "-1");
 
                 standardMessageReady.Set();
-
-                var standardMessageChunk = new EventWaitHandle(false, EventResetMode.ManualReset,
-                   @"Local\OpenCover_Profiler_Communication_ChunkData_Event_" + dict[@"OpenCover_Profiler_Key"]);
-
-                standardMessageChunk.Set();
 
                 Thread.Sleep(new TimeSpan(0, 0, 0, 0, 100));
             }, false);
 
             // assert
-            Container.GetMock<IMessageHandler>()
-                .Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), It.IsAny<IntPtr>(), It.IsAny<Action<int>>()), Times.Once());
+            Container.GetMock<ICommunicationManager>()
+                .Verify(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>()), Times.Once());
         }
 
         [Test]
@@ -122,11 +122,22 @@ namespace OpenCover.Test.Framework.Manager
 
         private void RunProcess(StringDictionary dict, Action doExtra)
         {
+            // arrange
+            EventWaitHandle standardMessageDataReady = null;
+            Container.GetMock<ICommunicationManager>()
+                     .Setup(x => x.HandleMemoryBlock(It.IsAny<IManagedMemoryBlock>()))
+                     .Returns(() =>
+                         {
+                             if (standardMessageDataReady != null)
+                                 standardMessageDataReady.Reset();
+                             return new byte[4];
+                         });
+
             Instance.RunProcess(e =>
             {
                 e(dict);
 
-                var standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
+                standardMessageDataReady = new EventWaitHandle(false, EventResetMode.ManualReset,
                     @"Local\OpenCover_Profiler_Communication_SendResults_Event_ABC0");
 
                 standardMessageDataReady.Set();

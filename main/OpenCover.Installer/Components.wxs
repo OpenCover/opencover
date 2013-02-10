@@ -13,15 +13,25 @@
           </RegistryKey>
         </RegistryKey>
       </Component>
-      <Component Id="MainProduct" Guid="40EEDF0F-E41B-4A2C-ADEB-EEC719FC110D">
+      <Component Id="MainProduct" Guid="{D451E3FE-35A6-4946-B0C5-FFE22580891C}">
         <File Id="OPENCOVER_CONSOLE_EXE" Source="..\bin\Release\OpenCover.Console.exe" KeyPath="yes" />
         <File Id="OPENCOVER_CONSOLE_EXE_CONFIG" Source="..\bin\Release\OpenCover.Console.exe.config" />
-        <File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" />
-        <File Id="MICROSOFT_PRACTICES_UNITY_DLL" Source="..\bin\Release\Microsoft.Practices.Unity.dll" />
+      </Component>
+      <Component Id="MainFramework" Guid="{6AA473E5-13D3-4963-983E-3F5B007A29D9}">
+        <File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="Autofac_3rdParty" Guid="{A6250FF4-A22D-49C2-8EB6-306F2382E293}">
+        <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" />
+      </Component>
+      <Component Id="MonoCecil_3rdParty" Guid="{99006183-6952-46C2-92FE-07158A5249F7}">
         <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" />
         <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
+      </Component>
+      <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
         <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" />
         <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
+      </Component>
+      <Component Id="Log4Net_3rdParty" Guid="{12E6BB24-EC81-4831-A1CD-9DF0600901A0}">
         <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" />
         <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
       </Component>

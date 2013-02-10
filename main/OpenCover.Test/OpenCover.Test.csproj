@@ -118,6 +118,7 @@
     <Compile Include="..\..\tools\Moq.contrib\UnityAutoMockContainer.cs">
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
+    <Compile Include="Framework\Communication\CommunicationManagerTests.cs" />
     <Compile Include="Framework\Communication\MessageHandlerTests.cs" />
     <Compile Include="Framework\BootstrapperTests.cs" />
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />

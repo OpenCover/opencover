@@ -9,6 +9,6 @@ namespace OpenCover.Framework.Manager
         void Initialise(string nameSpace, string key);
         void AllocateMemoryBuffer(int bufferSize, uint bufferId);
         IList<WaitHandle> GetHandles();
-        IList<MemoryManager.ManagedMemoryBlock> GetBlocks { get; }
+        IList<IManagedMemoryBlock> GetBlocks { get; }
     }
 }

@@ -28,18 +28,18 @@ namespace OpenCover.Framework.Symbols
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
         private readonly ILog _logger;
-        private readonly ITrackedMethodStrategy[] _trackedMethodStrategies;
+        private readonly IEnumerable<ITrackedMethodStrategy> _trackedMethodStrategies;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
         private Dictionary<int, MethodDefinition> _methodMap = new Dictionary<int, MethodDefinition>(); 
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategy[] trackedMethodStrategies)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, IEnumerable<ITrackedMethodStrategy> trackedMethodStrategies)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
-            _trackedMethodStrategies = trackedMethodStrategies;
+            _trackedMethodStrategies = trackedMethodStrategies ?? new ITrackedMethodStrategy[0];
         }
 
         public string ModulePath
