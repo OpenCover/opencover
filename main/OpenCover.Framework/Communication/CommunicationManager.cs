@@ -15,7 +15,8 @@ namespace OpenCover.Framework.Communication
         /// Process a communication related message from a profiler
         /// </summary>
         /// <param name="mcb"></param>
-        void HandleCommunicationBlock(IManagedCommunicationBlock mcb);
+        /// <param name="offloadHandling"></param>
+        void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
 
         /// <summary>
         /// process a results block from the profiler
@@ -40,13 +41,12 @@ namespace OpenCover.Framework.Communication
         /// Initialise
         /// </summary>
         /// <param name="messageHandler"></param>
-        /// <param name="profilerCommunication"></param>
         public CommunicationManager(IMessageHandler messageHandler)
         {
             _messageHandler = messageHandler;
         }
 
-        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb)
+        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
         {
             mcb.ProfilerRequestsInformation.Reset();
 
@@ -54,7 +54,7 @@ namespace OpenCover.Framework.Communication
             mcb.StreamAccessorComms.Read(mcb.DataCommunication, 0, _messageHandler.ReadSize);
 
             var writeSize = _messageHandler.StandardMessage((MSG_Type)BitConverter.ToInt32(mcb.DataCommunication, 0),
-                mcb, SendChunkAndWaitForConfirmation);
+                mcb, SendChunkAndWaitForConfirmation, offloadHandling);
 
             SendChunkAndWaitForConfirmation(writeSize, mcb);
         }

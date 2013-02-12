@@ -14,7 +14,7 @@ namespace OpenCover.Framework.Manager
         private string _key;
         private readonly object lockObject = new object();
 
-        private readonly IList<IManagedMemoryBlock> _blocks = new List<IManagedMemoryBlock>();
+        private readonly IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> _blocks = new List<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>>();
 
         public class ManagedBlock
         {
@@ -117,25 +117,23 @@ namespace OpenCover.Framework.Manager
             isIntialised = true;
         }
 
-        public void AllocateMemoryBuffer(int bufferSize, uint bufferId)
+        public Tuple<IManagedCommunicationBlock, IManagedMemoryBlock> AllocateMemoryBuffer(int bufferSize, uint bufferId)
         {
-            if (!isIntialised) return;
+            if (!isIntialised) return null;
 
             lock (lockObject)
             {
-                _blocks.Add(new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId));
+                var tuple = new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(
+                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId), 
+                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId));
+                _blocks.Add(tuple);
+                return tuple;
             }
         }
 
-        public IList<WaitHandle> GetHandles()
-        {
-            lock (lockObject)
-            {
-                return _blocks.Select(x => x.ProfilerHasResults).ToList<WaitHandle>();
-            }
-        }
+        
 
-        public IList<IManagedMemoryBlock> GetBlocks
+        public IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> GetBlocks
         {
             get { return _blocks; }
         }
@@ -145,9 +143,10 @@ namespace OpenCover.Framework.Manager
             //Console.WriteLine("Disposing...");
             lock (lockObject)
             {
-                foreach (var managedMemoryBlock in _blocks)
+                foreach(var block in _blocks)
                 {
-                    managedMemoryBlock.Dispose();
+                    block.Item1.Dispose();
+                    block.Item2.Dispose();
                 }
                 _blocks.Clear();
             }

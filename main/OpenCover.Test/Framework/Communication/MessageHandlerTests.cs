@@ -45,7 +45,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_TrackAssembly_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object, (x, y) => { });
+            Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
 
             // assert
             Container.GetMock<IProfilerCommunication>()
@@ -62,7 +62,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_TrackMethod_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, _mockCommunicationBlock.Object, (x, y) => { });
+            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
 
             // assert
             uint uniqueId;
@@ -79,8 +79,12 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_AllocateBuffer_Request());
 
+            Container.GetMock<IMemoryManager>()
+                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()))
+                     .Returns(new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(null, null));
+
             // act
-            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (x, y) => { });
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
 
             // assert
             uint uniqueId;
@@ -98,7 +102,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetSequencePoints_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (x, y) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
 
             // assert
             InstrumentationPoint[] points;
@@ -121,7 +125,7 @@ namespace OpenCover.Test.Framework.Communication
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (x, y) => { chunked = true; });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
             
             // assert
             Container.GetMock<IMarshalWrapper>()
@@ -146,7 +150,7 @@ namespace OpenCover.Test.Framework.Communication
             
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (x, y) => { chunked = true; });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()
@@ -165,7 +169,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetBranchPoints_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (x, y) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
 
             // assert
             BranchPoint[] points;
@@ -188,7 +192,7 @@ namespace OpenCover.Test.Framework.Communication
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (x, y) => { chunked = true; });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()
@@ -212,7 +216,7 @@ namespace OpenCover.Test.Framework.Communication
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (x, y) => { chunked = true; });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()

@@ -53,10 +53,13 @@ namespace OpenCover.Test.Framework.Communication
             var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0);
 
             // act
-            ThreadPool.QueueUserWorkItem(state => Instance.HandleCommunicationBlock(mcb));
+            ThreadPool.QueueUserWorkItem(state => Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { }));
 
             // assert
-            Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb, It.IsAny<Action<int, IManagedCommunicationBlock>>()), Times.Once());
+            Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb, 
+                It.IsAny<Action<int, IManagedCommunicationBlock>>(), 
+                It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
+
             Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
             mcb.InformationReadByProfiler.Set();
         }

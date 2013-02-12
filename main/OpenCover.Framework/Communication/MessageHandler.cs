@@ -16,7 +16,7 @@ namespace OpenCover.Framework.Communication
 {
     public interface IMessageHandler
     {
-        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady);
+        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
         int ReadSize { get; }
         void Complete();
     }
@@ -38,7 +38,7 @@ namespace OpenCover.Framework.Communication
         }
 
         // TODO: change pinnedMemory to an byte[], pass in mcb as well
-        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady)
+        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
         {
             IntPtr pinnedMemory = mcb.PinnedDataCommunication.AddrOfPinnedObject();
             var writeSize = 0;
@@ -145,11 +145,15 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_AllocateMemoryBuffer:
                     {
                         var msgAB = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
-                        _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, _bufferId);
+                        
+                        var block = _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, _bufferId);
+
                         var responseAB = new MSG_AllocateBuffer_Response {allocated = true, bufferId = _bufferId };
                         _marshalWrapper.StructureToPtr(responseAB, pinnedMemory, false);
                         writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
                         _bufferId++;
+
+                        offloadHandling(block.Item1, block.Item2);
                     }
                     break;
             }

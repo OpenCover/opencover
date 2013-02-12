@@ -9,16 +9,17 @@ class CMutex
 {
 public:
     CMutex() : m_hMutex(NULL) {}
-    ~CMutex() { if (m_hMutex!=NULL) { ::CloseHandle(m_hMutex); m_hMutex=NULL; } }
+    ~CMutex() { CloseHandle(); }
     bool IsValid() {return m_hMutex!=NULL; }
 
 public:
-    void Initialise(const TCHAR * pName) { m_hMutex = ::CreateMutex(NULL, false, pName); }
+    void Initialise(const TCHAR * pName) { CloseHandle(); m_hMutex = ::CreateMutex(NULL, false, pName); }
     void Enter(){ if (m_hMutex!=NULL) { ::WaitForSingleObject(m_hMutex, INFINITE);} }
     void Leave(){ if (m_hMutex!=NULL) { ::ReleaseMutex(m_hMutex);} }
 
 private:
     HANDLE m_hMutex;
+	void CloseHandle() {if (m_hMutex!=NULL) { ::CloseHandle(m_hMutex); m_hMutex=NULL; }}
 };
 
 template<class T>
@@ -35,11 +36,11 @@ class CEvent
 {
 public:
     CEvent () : m_hEvent(NULL) { }
-    ~CEvent() { if (m_hEvent!= NULL) { ::CloseHandle(m_hEvent); m_hEvent = NULL; } }
+    ~CEvent() { CloseHandle(); }
     bool IsValid() {return m_hEvent!=NULL; }
 
 public:
-    void Initialise(const TCHAR * pName, BOOL bManualReset = TRUE) { m_hEvent = ::CreateEvent(NULL, bManualReset, FALSE, pName); }
+    void Initialise(const TCHAR * pName, BOOL bManualReset = TRUE) { CloseHandle(); m_hEvent = ::CreateEvent(NULL, bManualReset, FALSE, pName); }
     void Set() { ::SetEvent(m_hEvent); }
     void Wait() { ::WaitForSingleObject(m_hEvent, INFINITE); }
 
@@ -48,5 +49,6 @@ public:
 
 private:
     HANDLE m_hEvent;
+	void CloseHandle() {if (m_hEvent!= NULL) { ::CloseHandle(m_hEvent); m_hEvent = NULL; }}
 };
 

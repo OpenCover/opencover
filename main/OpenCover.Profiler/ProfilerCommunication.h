@@ -66,6 +66,7 @@ private:
 
 private:
     ATL::CComAutoCriticalSection m_critResults;
+    ATL::CComAutoCriticalSection m_critComms;
     bool hostCommunicationActive;
 
 private:

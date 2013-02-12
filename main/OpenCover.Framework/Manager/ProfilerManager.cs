@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.IO.MemoryMappedFiles;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using OpenCover.Framework.Communication;
@@ -127,32 +128,45 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(List<WaitHandle> handles)
         {
-            var continueWait = true;
+            bool[] continueWait = {true};
+            var mainEvents = new List<WaitHandle>(handles);
             do
             {
-                var @events = new List<WaitHandle>(handles);
-                @events.AddRange(_memoryManager.GetHandles());
-
-                var @case = WaitHandle.WaitAny(@events.ToArray());
-                switch (@case)
+                switch (WaitHandle.WaitAny(mainEvents.ToArray()))
                 {
                     case 0:
-                        continueWait = false;
+                        continueWait[0] = false;
                         break;
 
                     case 1:
-                        _communicationManager.HandleCommunicationBlock(_mcb);
-                        break;
+                        _communicationManager.HandleCommunicationBlock(_mcb, (communicationBlock, memoryBlock) => ThreadPool.QueueUserWorkItem((state) =>
+                            {
+                                var processEvents = new List<WaitHandle>(){communicationBlock.ProfilerRequestsInformation, memoryBlock.ProfilerHasResults};
+                                do
+                                {
+                                    switch (WaitHandle.WaitAny(processEvents.ToArray(), new TimeSpan(0, 0, 1)))
+                                    {
+                                        case WaitHandle.WaitTimeout:
+                                            break;
 
-                    default:
-                        var block = _memoryManager.GetBlocks[@case - 2];
-                        var data = _communicationManager.HandleMemoryBlock(block);
-                        _messageQueue.Enqueue(data);
+                                        case 0:
+                                            _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
+                                            break;
+
+                                        case 1:
+                                            {
+                                                var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                                                _messageQueue.Enqueue(data);
+                                            }
+                                            break;
+                                    }
+                                } while (continueWait[0]);
+                            }));
                         break;
                 }
-            } while (continueWait);
+            } while (continueWait[0]);
 
-            foreach (var block in _memoryManager.GetBlocks)
+            foreach (var block in _memoryManager.GetBlocks.Select(b => b.Item2))
             {
                 var data = new byte[block.BufferSize];
                 block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
