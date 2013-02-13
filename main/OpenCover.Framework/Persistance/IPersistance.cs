@@ -69,7 +69,7 @@ namespace OpenCover.Framework.Persistance
         void SaveVisitData(byte[] data);
 
         /// <summary>
-        /// 
+        /// Is this method one we wish to track enter/exit for trace by test feature
         /// </summary>
         /// <param name="modulePath"></param>
         /// <param name="assemblyName"></param>

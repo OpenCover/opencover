@@ -28,6 +28,8 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.ShowUnvisited);
             Assert.IsFalse(parser.MergeByHash);
             Assert.IsFalse(parser.EnablePerformanceCounters);
+            Assert.IsFalse(parser.TraceByTest);
+
         }
 
         [Test]
@@ -394,6 +396,7 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual("wibble", parser.TestFilters[0]);
             Assert.AreEqual("wobble", parser.TestFilters[1]);
             Assert.AreEqual("woop", parser.TestFilters[2]);
+            Assert.IsTrue(parser.TraceByTest);
         }
 
         [Test]

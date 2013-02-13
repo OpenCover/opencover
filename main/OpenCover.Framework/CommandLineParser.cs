@@ -37,6 +37,7 @@ namespace OpenCover.Framework
             LogLevel = Level.Info;
             HideSkipped = new List<SkippedMethod>();
             EnablePerformanceCounters = false;
+            TraceByTest = false;
         }
 
         /// <summary>
@@ -64,6 +65,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service]");
+            builder.AppendLine("    [-threshold:<max count>]");
+            builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-oldStyle]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -145,6 +148,7 @@ namespace OpenCover.Framework
                     case "coverbytest":
                         TestFilters = GetArgumentValue("coverbytest")
                             .Split(';').ToList();
+                        TraceByTest = TestFilters.Any();
                         break;
                     case "log":
                         var value = GetArgumentValue("log");
@@ -330,6 +334,8 @@ namespace OpenCover.Framework
         /// Set the threshold i.e. max visit count reporting
         /// </summary>
         public ulong Threshold { get; private set; }
+
+        public bool TraceByTest { get; private set; }
 
         /// <summary>
         /// The logging level based on log4net.Core.Level

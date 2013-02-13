@@ -38,5 +38,10 @@ namespace OpenCover.Framework
         /// Set the threshold i.e. max visit count reporting
         /// </summary>
         ulong Threshold { get; }
+
+        /// <summary>
+        /// Set when tracing coverage by test has been enabled
+        /// </summary>
+        bool TraceByTest { get; }
     }
 }

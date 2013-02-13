@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using OpenCover.Framework;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
@@ -49,6 +50,64 @@ namespace OpenCover.Test.Framework.Manager
         }
 
         [Test]
+        public void Manager_Adds_Default_Threshold_EnvironmentVariable()
+        {
+            // arrange
+            var dict = new StringDictionary();
+
+            // act
+            RunProcess(dict, () => { });
+
+            // assert
+            Assert.NotNull(dict[@"OpenCover_Profiler_Threshold"]);
+            Assert.AreEqual("0", dict[@"OpenCover_Profiler_Threshold"]);
+        }
+
+        [Test]
+        public void Manager_Adds_Supplied_Threshold_EnvironmentVariable()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.Threshold).Returns(500);
+
+            // act
+            RunProcess(dict, () => { });
+
+            // assert
+            Assert.NotNull(dict[@"OpenCover_Profiler_Threshold"]);
+            Assert.AreEqual("500", dict[@"OpenCover_Profiler_Threshold"]);
+        }
+
+        [Test]
+        public void Manager_Adds_TraceByTest_EnvironmentVariable_When_Tracing_Enabled()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.TraceByTest).Returns(true);
+
+            // act
+            RunProcess(dict, () => { });
+
+            // assert
+            Assert.NotNull(dict[@"OpenCover_Profiler_TraceByTest"]);
+            Assert.AreEqual("1", dict[@"OpenCover_Profiler_TraceByTest"]);
+        }
+
+        [Test]
+        public void Manager_DoesNotAdd_TraceByTest_EnvironmentVariable_When_Tracing_Disabled()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.TraceByTest).Returns(false);
+
+            // act
+            RunProcess(dict, () => { });
+
+            // assert
+            Assert.IsNull(dict[@"OpenCover_Profiler_TraceByTest"]);
+        }
+
+        [Test]
         public void Manager_Adds_Cor_Profiler_EnvironmentVariable()
         {
             // arrange
@@ -59,6 +118,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.AreEqual("{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}".ToUpper(), dict[@"Cor_Profiler"].ToUpper());
+            Assert.AreEqual("{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}".ToUpper(), dict[@"CoreClr_Profiler"].ToUpper());
         }
 
         [Test]
@@ -72,6 +132,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.AreEqual("1", dict[@"Cor_Enable_Profiling"]);
+            Assert.AreEqual("1", dict[@"CoreClr_Enable_Profiling"]);
         }
 
         [Test, RequiresMTA]

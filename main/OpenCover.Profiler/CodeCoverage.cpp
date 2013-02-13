@@ -81,8 +81,13 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     TCHAR threshold[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Threshold"), threshold, 1024);
 	m_threshold = _tcstoul(threshold, NULL, 10);
-
     ATLTRACE(_T("    ::Initialize(...) => threshold = %ul"), m_threshold);
+
+    TCHAR tracebyTest[1024] = {0};
+	::GetEnvironmentVariable(_T("OpenCover_Profiler_TraceByTest"), tracebyTest, 1024);
+    bool tracingEnabled = _tcslen(tracebyTest) != 0;
+    ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), tracingEnabled ? _T("true") : _T("false"), tracebyTest);
+
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
@@ -97,8 +102,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	    // Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
     dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
     dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
-    dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Don't use NGen images
-    dwMask |= COR_PRF_MONITOR_ENTERLEAVE;           // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
+    dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Causes the native image search to look for profiler-enhanced images
+	
+	if (tracingEnabled)
+		dwMask |= COR_PRF_MONITOR_ENTERLEAVE;       // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
 
     if (m_useOldStyle)
        dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
