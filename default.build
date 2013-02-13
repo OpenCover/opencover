@@ -9,7 +9,7 @@
 	<property name="program.files.x86" value="${environment::get-variable('ProgramFiles(x86)')}" if="${environment::variable-exists('ProgramFiles(x86)')}"/>
 	<property name="program.files.x86" value="${environment::get-variable('ProgramFiles')}" unless="${property::exists('program.files.x86')}" />
 	<property name="program.files" value="${environment::get-variable('ProgramFiles')}" />
-	<property name="netfx.tools.folder" value="${program.files.x86}/Microsoft SDKs\Windows\v7.0A\Bin\NETFX 4.0 Tools" />
+	<property name="netfx.tools.folder" value="${program.files.x86}/Microsoft SDKs\Windows\v8.0A\Bin\NETFX 4.0 Tools" />
 	<property name="netfx.folder" value="${environment::get-variable('SystemRoot')}/Microsoft.NET" />
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework" if="${directory::exists(netfx.folder + '/Framework')}" />
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework64" if="${directory::exists(netfx.folder + '/Framework64')}" />

@@ -99,6 +99,7 @@
         <exec program="${nunit-console}">
             <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
             <arg value="/framework=4.0" />
+            <arg value="/exclude=AdminOnly" />
             <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
         </exec>
         
