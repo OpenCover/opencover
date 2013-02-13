@@ -1,3 +1,8 @@
+Version 4.5.1313
+#118 - Fix communication issue between profiler and host when many processes are vying for the channel
+			- improved thread management
+			- only check if method needs tracing if coverbytest option is utilised 
+
 Version 4.5.1310
 #128 - Add threshold limits (optional commandline) to reduce reporting of visits
 #135 - Add performance counters (admin privileges required) around the memory processing queues
