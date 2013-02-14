@@ -1,3 +1,6 @@
+Version 4.5.1314
+#148 - Fix issue with nuget and zip packages and missing Autofac assembly.
+
 Version 4.5.1313
 #118 - Fix communication issue between profiler and host when many processes are vying for the channel
 			- improved thread management

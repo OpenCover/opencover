@@ -20,7 +20,7 @@
     <file src="main\bin\Release\x86\OpenCover.Profiler.dll" target="x86"/>
     <file src="main\bin\Release\Gendarme.Framework.dll"/>
     <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll"/>
-    <file src="main\bin\Release\Microsoft.Practices.Unity.dll"/>
+    <file src="main\bin\Release\Autofac.dll"/>
     <file src="main\bin\Release\Mono.Cecil.dll"/>
     <file src="main\bin\Release\Mono.Cecil.Pdb.dll"/>
     <file src="License.rtf"/>
