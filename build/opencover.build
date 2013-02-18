@@ -89,15 +89,35 @@
         <copy file="${teamcity-nunit-add-in}" todir="${nunit.path}\addins" if="${file::exists(teamcity-nunit-add-in)}" />
 	</target>
 	
-    <target name="test" description="Run unit tests" depends="build" >
+    <target name="test" description="Run unit tests" >
         
 		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin==''}" />
 		
         <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
         <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
         
+		<echo message="test: ${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
+		
         <exec program="${nunit-console}">
             <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
+            <arg value="/framework=4.0" />
+            <arg value="/exclude=AdminOnly" />
+            <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
+        </exec>
+        
+    </target>
+
+    <target name="test-bdd" description="Run BDD tests" >
+        
+		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin==''}" />
+		
+        <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
+        <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+
+		<echo message="test-bdd: ${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
+        
+        <exec program="${nunit-console}">
+            <arg value="${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
             <arg value="/framework=4.0" />
             <arg value="/exclude=AdminOnly" />
             <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
@@ -111,7 +131,8 @@
         <exec program="${open-cover-test-console}" if="${file::exists(open-cover-test-console)}" />
     </target>
     
-    <target name="unregister" description="Unregister the profiler assembly" >
+    <target name="unregister" description="Unregister the profiler assembly (per-user)" >
+	    <echo message="unregister: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
         <exec program="regsvr32" >	
             <arg value="/u" />
 			<arg value="/n" />
@@ -122,7 +143,7 @@
     </target>
 
     <target name="register" description="Register the profiler assembly (per-user)" >
-	    <echo message="test: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
+	    <echo message="register: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
         <exec program="regsvr32" >	
             <arg value="/n" />
             <arg value="/i:user" />

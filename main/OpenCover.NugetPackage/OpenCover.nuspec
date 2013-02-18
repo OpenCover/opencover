@@ -36,5 +36,9 @@
     <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
     <file src="main\transform\simple_report.xslt" target="transform"/>
     <file src="main\transform\transform.ps1" target="transform"/>
+    <file src="main\bin\Release\x86\OpenCover.Simple.Target.exe" target="Samples\x86"/>
+    <file src="main\bin\Release\x86\OpenCover.Simple.Target.pdb" target="Samples\x86"/>
+    <file src="main\bin\Release\x64\OpenCover.Simple.Target.exe" target="Samples\x64"/>
+    <file src="main\bin\Release\x64\OpenCover.Simple.Target.pdb" target="Samples\x64"/>
   </files>
 </package>
