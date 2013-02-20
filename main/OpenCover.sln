@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Gendarme.Signer",
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "OpenCover.Installer", "OpenCover.Installer\OpenCover.Installer.wixproj", "{F6D7F279-F302-4741-BE54-DD75D32E378F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCover.Specs\OpenCover.Specs.csproj", "{5A908D9D-617E-408F-ACED-9E505693DE96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -134,6 +136,14 @@ Global
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Release|x64.ActiveCfg = Release|x86
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Release|x86.ActiveCfg = Release|x86
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Release|x86.Build.0 = Release|x86
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Debug|x64.Build.0 = Debug|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Debug|x86.Build.0 = Debug|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Release|x64.ActiveCfg = Release|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Release|x64.Build.0 = Release|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Release|x86.ActiveCfg = Release|Any CPU
+		{5A908D9D-617E-408F-ACED-9E505693DE96}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
