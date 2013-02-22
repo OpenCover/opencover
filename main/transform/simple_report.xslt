@@ -110,8 +110,7 @@ powershell -noexit -file transform.ps1 -xsl simple_report.xslt -xml ..\results\o
         <xsl:sort select="ModuleName" order="ascending"/>
         <xsl:sort select="ModuleName"/>
         <xsl:variable name="ModulenameVariable" select="ModuleName"></xsl:variable>
-        <xsl:variable name="FileLocationLink" select=".">
-        </xsl:variable>
+        <xsl:variable name="FileLocationLink" select="."></xsl:variable>
         <tr class="expanded">
           <th>
             <a href="#" class="toggleClassesInAssembly" style="text-decoration: none;color:red;font-size:10px" title="Collapse/Expand classes"></a>
