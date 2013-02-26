@@ -135,6 +135,7 @@
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
     <Compile Include="Framework\Strategy\TrackMSTestTestMethodsTests.cs" />
     <Compile Include="Framework\Strategy\TrackNUnitTestMethodsTests.cs" />
+    <Compile Include="Framework\Strategy\TrackXUnitTestMethodsTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />
@@ -145,7 +146,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\Samples.cs" />
     <Compile Include="Samples\SimpleMsTest.cs" />
-    <Compile Include="Samples\Simple_xUnit.cs" />
+    <Compile Include="Samples\SimpleXUnit.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">

@@ -1,1 +1,1 @@
-OpenCover.Console.exe -register:user -target:"..\..\..\main\packages\xunit-1.8\xunit.console.clr4.x86.exe" -targetargs:"OpenCover.Test.dll /noshadow" -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml
+OpenCover.Console.exe -register:user -target:"..\..\..\main\packages\xunit.runners.1.9.1\tools\xunit.console.clr4.x86.exe" -targetargs:"OpenCover.Test.dll /noshadow" -filter:"+[Open*]* -[OpenCover.T*]*" -output:xunit_opencovertests.xml -coverbytest:*.Test.dll

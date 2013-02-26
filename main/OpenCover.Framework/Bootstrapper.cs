@@ -77,6 +77,7 @@ namespace OpenCover.Framework
 
             builder.RegisterType<TrackNUnitTestMethods>().As<ITrackedMethodStrategy>();
             builder.RegisterType<TrackMSTestTestMethods>().As<ITrackedMethodStrategy>();
+            builder.RegisterType<TrackXUnitTestMethods>().As<ITrackedMethodStrategy>();
 
             _container = builder.Build();
         }

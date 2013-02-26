@@ -120,6 +120,7 @@
     <Compile Include="Strategy\ITrackedMethodStrategy.cs" />
     <Compile Include="Strategy\TrackMSTestTestMethods.cs" />
     <Compile Include="Strategy\TrackNUnitTestMethods.cs" />
+    <Compile Include="Strategy\TrackXUnitTestMethods.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Utility\IPerfCounters.cs" />

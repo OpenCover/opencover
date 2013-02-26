@@ -63,7 +63,7 @@ namespace OpenCover.Test.Framework
                 // assert
                 Assert.IsNotNull(instance);
 
-                Assert.AreEqual(2, instance.MethodStrategies.Count());
+                Assert.AreEqual(3, instance.MethodStrategies.Count());
             }
         }
     }
