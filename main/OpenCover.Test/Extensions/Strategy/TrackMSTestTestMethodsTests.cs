@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework.Strategy;
-using OpenCover.Test.Samples;
 
-namespace OpenCover.Test.Framework.Strategy
+namespace OpenCover.Test.Extensions.Strategy
 {
     [TestFixture]
     public class TrackMSTestTestMethodsTests

@@ -41,6 +41,7 @@
     <Feature Id="ProductFeature" Title="OpenCover" Level="1" Description="The OpenCover code-coverage tool and supporting binaries. NOTE: This is the main application, to not install this would be pointless.">
       <ComponentRef Id="MainProduct" />
       <ComponentRef Id="MainFramework" />
+      <ComponentRef Id="Extensions" />
       <ComponentRef Id="Autofac_3rdParty" />
       <ComponentRef Id="MonoCecil_3rdParty" />
       <ComponentRef Id="Gendarme_Signed_3rdParty" />

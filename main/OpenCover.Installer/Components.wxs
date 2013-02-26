@@ -20,24 +20,29 @@
       <Component Id="MainFramework" Guid="{6AA473E5-13D3-4963-983E-3F5B007A29D9}">
         <File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" KeyPath="yes" />
       </Component>
-      <Component Id="Autofac_3rdParty" Guid="{A6250FF4-A22D-49C2-8EB6-306F2382E293}">
-        <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" />
+      <Component Id="Extensions" Guid="{B34740C7-1432-4AD0-A205-A036CBC8EAE4}">
+        <File Id="OPENCOVER_EXTENSIONS_DLL" Source="..\bin\Release\OpenCover.Extensions.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="Autofac_3rdParty" Guid="{C0CB1F5D-38BF-4B20-94F4-CD74C349CD79}">
+        <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" KeyPath="yes" />
+        <File Id="AUTOFAC_CONFIGURATION_DLL" Source="..\bin\Release\Autofac.Configuration.dll" />
       </Component>
       <Component Id="MonoCecil_3rdParty" Guid="{99006183-6952-46C2-92FE-07158A5249F7}">
-        <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" />
+        <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" KeyPath="yes" />
         <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
       </Component>
       <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
-        <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" />
+        <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
         <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
       </Component>
       <Component Id="Log4Net_3rdParty" Guid="{12E6BB24-EC81-4831-A1CD-9DF0600901A0}">
-        <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" />
+        <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
         <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
       </Component>
       <Component Id="MainProductSymbols" Guid="6A175C94-446D-49B0-8D29-184F091B5582">
         <File Id="OPENCOVER_CONSOLE_PDB" Source="..\bin\Release\OpenCover.Console.pdb" KeyPath="yes" />
         <File Id="OPENCOVER_FRAMEWORK_PDB" Source="..\bin\Release\OpenCover.Framework.pdb" />
+        <File Id="OPENCOVER_EXTENSIONS_PDB" Source="..\bin\Release\OpenCover.Extensions.pdb" />
       </Component>
       <Component Id="SampleCmds" Guid="4D7F8200-EC80-49A2-92FB-2083E8FC469D">
         <File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" KeyPath="yes" />
@@ -53,7 +58,7 @@
         <File Id="USAGE_RTF" Source="..\OpenCover.Documentation\Usage.rtf" KeyPath="yes" />
       </Component>
       <Component Id="Documentation_RelNotes" Guid="0A7C5485-0458-46E3-AFDC-DACD5CE1ECBF">
-        <File Id="RELNOTES_TXT" Source="..\..\ReleaseNotes.txt" />
+        <File Id="RELNOTES_TXT" Source="..\..\ReleaseNotes.txt" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 

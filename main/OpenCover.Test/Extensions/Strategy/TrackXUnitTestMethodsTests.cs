@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using OpenCover.Framework.Strategy;
 
-namespace OpenCover.Test.Framework.Strategy
+namespace OpenCover.Test.Extensions.Strategy
 {
     [TestFixture]
     public class TrackXUnitTestMethodsTests

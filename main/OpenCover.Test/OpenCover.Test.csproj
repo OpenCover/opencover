@@ -57,6 +57,14 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Autofac, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.3.0.1\lib\net40\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Autofac.Configuration, Version=3.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Autofac.3.0.1\lib\net40\Autofac.Configuration.dll</HintPath>
+    </Reference>
     <Reference Include="ISymWrapper" />
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -118,6 +126,7 @@
     <Compile Include="..\..\tools\Moq.contrib\UnityAutoMockContainer.cs">
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
+    <Compile Include="Extensions\RegisterStrategiesModuleTests.cs" />
     <Compile Include="Framework\Communication\CommunicationManagerTests.cs" />
     <Compile Include="Framework\Communication\MessageHandlerTests.cs" />
     <Compile Include="Framework\BootstrapperTests.cs" />
@@ -133,9 +142,9 @@
     <Compile Include="Framework\Persistance\FilePersistenceTests.cs" />
     <Compile Include="Framework\ProfilerRegistrationTests.cs" />
     <Compile Include="Framework\Service\ProfilerCommunicationTests.cs" />
-    <Compile Include="Framework\Strategy\TrackMSTestTestMethodsTests.cs" />
-    <Compile Include="Framework\Strategy\TrackNUnitTestMethodsTests.cs" />
-    <Compile Include="Framework\Strategy\TrackXUnitTestMethodsTests.cs" />
+    <Compile Include="Extensions\Strategy\TrackMSTestTestMethodsTests.cs" />
+    <Compile Include="Extensions\Strategy\TrackNUnitTestMethodsTests.cs" />
+    <Compile Include="Extensions\Strategy\TrackXUnitTestMethodsTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />
@@ -149,6 +158,10 @@
     <Compile Include="Samples\SimpleXUnit.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\OpenCover.Extensions\OpenCover.Extensions.csproj">
+      <Project>{ee9b358a-335c-43e9-bc35-853807c5e776}</Project>
+      <Name>OpenCover.Extensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">
       <Project>{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}</Project>
       <Name>OpenCover.Framework</Name>
@@ -246,6 +259,7 @@
       <Link>xunit.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,7 +10,10 @@
                 <include name="OpenCover.Console.exe.config" />
                 <include name="OpenCover.Framework.dll" />
                 <include name="OpenCover.Framework.pdb" />
+				<include name="OpenCover.Extensions.dll" />
+				<include name="OpenCover.Extensions.pdb" />
                 <include name="Autofac.dll" />
+                <include name="Autofac.Configuration.dll" />
                 <include name="Mono.Cecil.dll" />
                 <include name="Mono.Cecil.Pdb.dll" />
                 <include name="Gendarme.Framework.dll" />

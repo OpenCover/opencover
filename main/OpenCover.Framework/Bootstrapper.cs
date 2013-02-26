@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using Autofac.Builder;
+using Autofac.Configuration;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
@@ -61,6 +62,8 @@ namespace OpenCover.Framework
                                IPerfCounters perfCounters)
         {
             var builder = new ContainerBuilder();
+            builder.RegisterModule(new ConfigurationSettingsReader());
+
             builder.RegisterInstance(_logger);
             builder.RegisterInstance(filter);
             builder.RegisterInstance(commandLine);
@@ -75,16 +78,14 @@ namespace OpenCover.Framework
             builder.RegisterType<MarshalWrapper>().As<IMarshalWrapper>().SingleInstance();
             builder.RegisterType<MemoryManager>().As<IMemoryManager>().SingleInstance();
 
-            builder.RegisterType<TrackNUnitTestMethods>().As<ITrackedMethodStrategy>();
-            builder.RegisterType<TrackMSTestTestMethods>().As<ITrackedMethodStrategy>();
-            builder.RegisterType<TrackXUnitTestMethods>().As<ITrackedMethodStrategy>();
-
             _container = builder.Build();
         }
 
         public void Dispose()
         {
+            if (_container == null) return;
             _container.Dispose();
+            _container = null;
         }
     }
 }
