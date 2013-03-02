@@ -74,6 +74,7 @@
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegisterStrategiesModule.cs" />
+    <Compile Include="Strategy\TrackedMethodStrategyBase.cs" />
     <Compile Include="Strategy\TrackMSTestTestMethods.cs" />
     <Compile Include="Strategy\TrackNUnitTestMethods.cs" />
     <Compile Include="Strategy\TrackXUnitTestMethods.cs" />

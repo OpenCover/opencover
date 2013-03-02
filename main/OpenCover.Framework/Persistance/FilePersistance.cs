@@ -45,21 +45,9 @@ namespace OpenCover.Framework.Persistance
 
         public override void Commit()
         {
-            if (_logger.IsInfoEnabled)
-            {
-                _logger.Info("Committing...");
-            }
-
-            try
-            {
-                base.Commit();
-                SaveCoverageFile();
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.Message);
-                Trace.WriteLine(ex.StackTrace);
-            }
+            _logger.Info("Committing...");
+            base.Commit();
+            SaveCoverageFile();
         }
 
         private void SaveCoverageFile()

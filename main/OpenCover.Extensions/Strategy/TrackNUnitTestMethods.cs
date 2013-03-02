@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Mono.Cecil;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Strategy;
 
-namespace OpenCover.Framework.Strategy
+namespace OpenCover.Extensions.Strategy
 {
     /// <summary>
     /// Track NUnit test methods

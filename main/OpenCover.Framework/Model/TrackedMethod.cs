@@ -28,18 +28,9 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// A method being tracked
     /// </summary>
-    public class TrackedMethod
+    [Serializable]
+    public sealed class TrackedMethod
     {
-        private static int _methodId;
-        
-        /// <summary>
-        /// Initialise
-        /// </summary>
-        public TrackedMethod()
-        {
-            UniqueId = (uint)Interlocked.Increment(ref _methodId);
-        }
-
         /// <summary>
         /// unique id assigned 
         /// </summary>

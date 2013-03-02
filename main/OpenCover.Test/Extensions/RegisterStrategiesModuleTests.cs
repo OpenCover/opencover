@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac;
 using NUnit.Framework;
 using OpenCover.Extensions;
+using OpenCover.Extensions.Strategy;
 using OpenCover.Framework.Strategy;
 
 namespace OpenCover.Test.Extensions

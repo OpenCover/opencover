@@ -121,6 +121,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Strategy\ITrackedMethodStrategy.cs" />
+    <Compile Include="Strategy\ITrackedMethodStrategyManager.cs" />
+    <Compile Include="Strategy\TrackedMethodStrategyManager.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Utility\IPerfCounters.cs" />
