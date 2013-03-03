@@ -408,6 +408,7 @@ namespace OpenCover.Test.Framework
 
             Assert.IsTrue(filter.UseTestAssembly("ABC.dll"));
             Assert.IsFalse(filter.UseTestAssembly("XYZ.dll"));
+            Assert.IsFalse(filter.UseTestAssembly(""));
         }
 
         [Test]

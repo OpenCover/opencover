@@ -1,27 +1,22 @@
 using System.Collections.Generic;
-using System.Linq;
 using Mono.Cecil;
 using OpenCover.Framework.Model;
 
-namespace OpenCover.Framework.Strategy
+namespace OpenCover.Extensions.Strategy
 {
     /// <summary>
     /// Track MSTest test methods
     /// </summary>
-    public class TrackMSTestTestMethods : ITrackedMethodStrategy
+    public class TrackMSTestTestMethods : TrackedMethodStrategyBase
     {
-        public IEnumerable<TrackedMethod> GetTrackedMethods(IEnumerable<TypeDefinition> typeDefinitions)
+        public override IEnumerable<TrackedMethod> GetTrackedMethods(IEnumerable<TypeDefinition> typeDefinitions)
         {
-            return (from typeDefinition in typeDefinitions
-                    from methodDefinition in typeDefinition.Methods
-                    from customAttribute in methodDefinition.CustomAttributes
-                    where customAttribute.AttributeType.FullName == "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute"
-                    select new TrackedMethod()
-                               {
-                                   MetadataToken = methodDefinition.MetadataToken.ToInt32(),
-                                   Name = methodDefinition.FullName,
-                                   Strategy = "MSTestTest"
-                               });
+            const string attributeName = "Microsoft.VisualStudio.TestTools.UnitTesting.TestMethodAttribute";
+            const string strategyName = "MSTestTest";
+
+            return GetTrackedMethodsByAttribute(typeDefinitions, attributeName, strategyName);
         }
+
+        
     }
 }

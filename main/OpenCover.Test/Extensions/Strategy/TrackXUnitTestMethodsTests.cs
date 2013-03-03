@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NUnit.Framework;
+using OpenCover.Extensions.Strategy;
 using OpenCover.Framework.Strategy;
 
 namespace OpenCover.Test.Extensions.Strategy

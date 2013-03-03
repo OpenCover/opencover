@@ -28,18 +28,18 @@ namespace OpenCover.Framework.Symbols
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
         private readonly ILog _logger;
-        private readonly IEnumerable<ITrackedMethodStrategy> _trackedMethodStrategies;
+        private readonly ITrackedMethodStrategyManager _trackedMethodStrategyManager;
         private string _modulePath;
         private string _moduleName;
         private AssemblyDefinition _sourceAssembly;
         private Dictionary<int, MethodDefinition> _methodMap = new Dictionary<int, MethodDefinition>(); 
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, IEnumerable<ITrackedMethodStrategy> trackedMethodStrategies)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategyManager trackedMethodStrategyManager)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
-            _trackedMethodStrategies = trackedMethodStrategies ?? new ITrackedMethodStrategy[0];
+            _trackedMethodStrategyManager = trackedMethodStrategyManager;
         }
 
         public string ModulePath
@@ -388,13 +388,7 @@ namespace OpenCover.Framework.Symbols
         public TrackedMethod[] GetTrackedMethods()
         {
             if (SourceAssembly==null) return null;
-            var trackedmethods = new List<TrackedMethod>();
-            foreach (var trackedMethodStrategy in _trackedMethodStrategies)
-            {
-                IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-                trackedmethods.AddRange(trackedMethodStrategy.GetTrackedMethods(typeDefinitions));
-            }
-            return trackedmethods.ToArray();
+            return _trackedMethodStrategyManager.GetTrackedMethods(_modulePath);
         }
     }
 }

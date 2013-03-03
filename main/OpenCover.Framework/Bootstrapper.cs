@@ -4,19 +4,12 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using Autofac.Builder;
-using Autofac.Configuration;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Service;
 using OpenCover.Framework.Strategy;
-using OpenCover.Framework.Symbols;
 using OpenCover.Framework.Utility;
 using log4net;
 using Autofac;
@@ -62,7 +55,6 @@ namespace OpenCover.Framework
                                IPerfCounters perfCounters)
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new ConfigurationSettingsReader());
 
             builder.RegisterInstance(_logger);
             builder.RegisterInstance(filter);
@@ -70,13 +62,15 @@ namespace OpenCover.Framework
             builder.RegisterInstance(persistance);
             builder.RegisterInstance(perfCounters);
 
+            builder.RegisterType<TrackedMethodStrategyManager>().As<ITrackedMethodStrategyManager>().SingleInstance();
             builder.RegisterType<InstrumentationModelBuilderFactory>().As<IInstrumentationModelBuilderFactory>();
-            builder.RegisterType<CommunicationManager>().As<ICommunicationManager>().SingleInstance();
-            builder.RegisterType<MessageHandler>().As<IMessageHandler>().SingleInstance();
-            builder.RegisterType<ProfilerManager>().As<IProfilerManager>().SingleInstance();
-            builder.RegisterType<ProfilerCommunication>().As<IProfilerCommunication>().SingleInstance();
-            builder.RegisterType<MarshalWrapper>().As<IMarshalWrapper>().SingleInstance();
+            builder.RegisterType<CommunicationManager>().As<ICommunicationManager>();
+            builder.RegisterType<ProfilerManager>().As<IProfilerManager>();
+            builder.RegisterType<ProfilerCommunication>().As<IProfilerCommunication>();
+
+            builder.RegisterType<MarshalWrapper>().As<IMarshalWrapper>();
             builder.RegisterType<MemoryManager>().As<IMemoryManager>().SingleInstance();
+            builder.RegisterType<MessageHandler>().As<IMessageHandler>();
 
             _container = builder.Build();
         }

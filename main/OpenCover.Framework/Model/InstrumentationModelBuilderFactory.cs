@@ -17,22 +17,22 @@ namespace OpenCover.Framework.Model
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
         private readonly ILog _logger;
+        private readonly ITrackedMethodStrategyManager _trackedMethodStrategyManager;
 
-        public InstrumentationModelBuilderFactory(ICommandLine commandLine, IFilter filter, ILog logger, IEnumerable<ITrackedMethodStrategy> trackedMethodStrategies)
+        public InstrumentationModelBuilderFactory(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategyManager trackedMethodStrategyManager)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
-            MethodStrategies = trackedMethodStrategies;
+            _trackedMethodStrategyManager = trackedMethodStrategyManager;
         }
 
         public IInstrumentationModelBuilder CreateModelBuilder(string modulePath, string moduleName)
         {
-            var manager = new CecilSymbolManager(_commandLine, _filter, _logger, MethodStrategies);
+            var manager = new CecilSymbolManager(_commandLine, _filter, _logger, _trackedMethodStrategyManager);
             manager.Initialise(modulePath, moduleName);
             return new InstrumentationModelBuilder(manager);
         }
 
-        public IEnumerable<ITrackedMethodStrategy> MethodStrategies { get; private set; }
     }
 }

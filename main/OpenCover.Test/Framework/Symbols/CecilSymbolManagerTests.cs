@@ -25,6 +25,7 @@ namespace OpenCover.Test.Framework.Symbols
         private Mock<ICommandLine> _mockCommandLine;
         private Mock<IFilter> _mockFilter;
         private Mock<ILog> _mockLogger;
+        private Mock<ITrackedMethodStrategyManager> _mockManager;
         
         [SetUp]
         public void Setup()
@@ -32,6 +33,7 @@ namespace OpenCover.Test.Framework.Symbols
             _mockCommandLine = new Mock<ICommandLine>();
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
+            _mockManager = new Mock<ITrackedMethodStrategyManager>();
             
             _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
 
@@ -481,7 +483,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_NoStrategies()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new ITrackedMethodStrategy[0]);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -495,9 +497,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_StrategiesFindNothing()
         {
             // arrange
-            var strategy = new Mock<ITrackedMethodStrategy>();
-
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new [] { strategy.Object });
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -511,12 +511,10 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_TrackedMethods_When_StrategiesMatch()
         {
             // arrange
-            var strategy = new Mock<ITrackedMethodStrategy>();
-
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, new[] { strategy.Object });
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
-            strategy.Setup(x => x.GetTrackedMethods(It.IsAny<IEnumerable<TypeDefinition>>()))
+            _mockManager.Setup(x => x.GetTrackedMethods(It.IsAny<string>()))
                 .Returns(new[] { new TrackedMethod() });
 
             // act
