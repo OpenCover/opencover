@@ -56,12 +56,12 @@ namespace OpenCover.Test.Framework.Communication
             ThreadPool.QueueUserWorkItem(state => Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { }));
 
             // assert
+            Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
+            mcb.InformationReadByProfiler.Set();
+
             Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb, 
                 It.IsAny<Action<int, IManagedCommunicationBlock>>(), 
                 It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
-
-            Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
-            mcb.InformationReadByProfiler.Set();
         }
 
     }

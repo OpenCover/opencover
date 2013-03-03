@@ -129,45 +129,23 @@ namespace OpenCover.Framework.Manager
             }
         }
 
-        private void ProcessMessages(List<WaitHandle> handles)
+        private bool _continueWait = true;
+        private void ProcessMessages(IEnumerable<WaitHandle> handles)
         {
-            bool[] continueWait = {true};
             var mainEvents = new List<WaitHandle>(handles);
             do
             {
                 switch (WaitHandle.WaitAny(mainEvents.ToArray()))
                 {
                     case 0:
-                        continueWait[0] = false;
+                        _continueWait = false;
                         break;
 
                     case 1:
-                        _communicationManager.HandleCommunicationBlock(_mcb, (communicationBlock, memoryBlock) => ThreadPool.QueueUserWorkItem((state) =>
-                            {
-                                var processEvents = new List<WaitHandle>(){communicationBlock.ProfilerRequestsInformation, memoryBlock.ProfilerHasResults};
-                                do
-                                {
-                                    switch (WaitHandle.WaitAny(processEvents.ToArray(), new TimeSpan(0, 0, 1)))
-                                    {
-                                        case WaitHandle.WaitTimeout:
-                                            break;
-
-                                        case 0:
-                                            _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
-                                            break;
-
-                                        case 1:
-                                            {
-                                                var data = _communicationManager.HandleMemoryBlock(memoryBlock);
-                                                _messageQueue.Enqueue(data);
-                                            }
-                                            break;
-                                    }
-                                } while (continueWait[0]);
-                            }));
+                        _communicationManager.HandleCommunicationBlock(_mcb, StartProcessingThread);
                         break;
                 }
-            } while (continueWait[0]);
+            } while (_continueWait);
 
             foreach (var block in _memoryManager.GetBlocks.Select(b => b.Item2))
             {
@@ -178,6 +156,40 @@ namespace OpenCover.Framework.Manager
             }
 
             _messageQueue.Enqueue(new byte[0]);
+        }
+
+        private void StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
+        {
+            var threadActivated = new AutoResetEvent(false);
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                var processEvents = new WaitHandle[]
+                                    {
+                                        communicationBlock.ProfilerRequestsInformation,
+                                        memoryBlock.ProfilerHasResults
+                                    };
+                threadActivated.Set();
+                do
+                {
+                    switch (WaitHandle.WaitAny(processEvents, new TimeSpan(0, 0, 1)))
+                    {
+                        case WaitHandle.WaitTimeout:
+                            break;
+
+                        case 0:
+                            _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
+                            break;
+
+                        case 1:
+                            {
+                                var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                                _messageQueue.Enqueue(data);
+                            }
+                            break;
+                    }
+                } while (_continueWait);
+            });
+            threadActivated.WaitOne();
         }
     }
 }
