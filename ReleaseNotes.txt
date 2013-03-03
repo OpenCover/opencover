@@ -1,3 +1,8 @@
+Version 4.5.1403
+#154 - Add xUnit to the list of supported strategies for the Cover by Test feature
+#150 - fix for Xslt issue
+Build Environment now uses BDD tests to ensure the packages have all assemblies required to run
+
 Version 4.5.1314
 #148 - Fix issue with nuget and zip packages and missing Autofac assembly.
 
