@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="OpenCover" >
+	
+	<property name="metrics.password" value="${environment::get-variable('OpenCoverMetricsPwd')}" if="${environment::variable-exists('OpenCoverMetricsPwd')}"/>
+	<property name="metrics.password" value="pwd" unless="${property::exists('metrics.password')}" />
+    <property name="metrics.endpint.sequence" value="http://opencover-metrics.herokuapp.com/metrics/opencover_release_sequence/value" />
+    <property name="metrics.endpint.branch" value="http://opencover-metrics.herokuapp.com/metrics/opencover_release_branch/value" />
+	
+    <target name="update-metrics" failonerror="false">
+
+		<exec program="${solution.folder}/bin/Release/dogfood.cmd"
+			workingdir="${solution.folder}/bin/Release" /> 
+	
+		<xmlpeek
+			file="${solution.folder}/bin/Release/opencovertests.xml"
+			xpath="CoverageSession/Summary/@sequenceCoverage"
+			property="metrics.sequenceCoverage">
+			
+		</xmlpeek>
+		
+		<xmlpeek
+			file="${solution.folder}/bin/Release/opencovertests.xml"
+			xpath="CoverageSession/Summary/@branchCoverage"
+			property="metrics.branchCoverage">
+			
+		</xmlpeek>
+		
+		<echo message="${metrics.sequenceCoverage} ${metrics.branchCoverage}" />
+		
+		<exec program="powershell" 
+			commandline="-File ${build.folder}/ps/update_metrics.ps1 -value ${metrics.sequenceCoverage} -password ${metrics.password} -endpoint ${metrics.endpint.sequence}" />
+		
+		<exec program="powershell" 
+			commandline="-File ${build.folder}/ps/update_metrics.ps1 -value ${metrics.branchCoverage} -password ${metrics.password} -endpoint ${metrics.endpint.branch}" />
+		
+	</target>
+	
+</project>

@@ -3,6 +3,14 @@ It seems that GitHub no longer wish to offer [downloads](https://github.com/blog
 
 Alternatively why not try [nuget](http://nuget.org/packages/opencover).
 
+### Coverage
+
+The current OpenCover coverage (found by dogfooding OpenCover on its own tests) can be viewed here
+
+http://opencover-metrics.herokuapp.com/charts/sample_chart.htm
+
+The nodejs application used to store and display the resuts can also be found on Github - https://github.com/sawilde/metrics-store
+
 ### Licence
 All Original Software is licensed under the [MIT Licence](https://github.com/sawilde/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
