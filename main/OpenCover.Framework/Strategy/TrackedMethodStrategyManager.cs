@@ -41,6 +41,11 @@ namespace OpenCover.Framework.Strategy
                 }
                 return trackedmethods.ToArray();
             }
+
+            public override object InitializeLifetimeService()
+            {
+                return null;
+            }
         }
 
         /// <summary>
