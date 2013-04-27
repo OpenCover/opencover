@@ -94,8 +94,6 @@ namespace OpenCover.Framework.Persistance
                         RemoveSkippedMethods(SkippedMethod.Attribute);
                         RemoveEmptyClasses();
                         break;
-                    default:
-                        break;
                 }
             }
         }

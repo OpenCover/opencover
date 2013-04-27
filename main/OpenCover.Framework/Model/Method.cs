@@ -11,26 +11,8 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// An method entity that can be instrumented
     /// </summary>
-    public class Method : SkippedEntity
+    public class Method : SummarySkippedEntity
     {
-        /// <summary>
-        /// Construct a result model for an instrumented method
-        /// </summary>
-        public Method()
-        {
-            Summary = new Summary();
-        }
-        
-        /// <summary>
-        /// A Summary of the instrumentation
-        /// </summary>
-        public Summary Summary { get; set; }
-
-        /// <summary>
-        /// Control serialization of the Summary  object
-        /// </summary>
-        /// <returns></returns>
-        public bool ShouldSerializeSummary() { return !ShouldSerializeSkippedDueTo(); }
 
         /// <summary>
         /// The MetadataToken used to identify this entity within the assembly
