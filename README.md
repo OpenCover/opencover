@@ -1,3 +1,5 @@
+[![endorse](http://api.coderwall.com/sawilde/endorsecount.png)](http://coderwall.com/sawilde)
+
 ### Downloads
 It seems that GitHub no longer wish to offer [downloads](https://github.com/blog/1302-goodbye-uploads) as part of the source hosting facility I have therefore decided to host the downloads on the opencover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
 
