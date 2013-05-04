@@ -528,7 +528,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_NoPDB()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
 
             // act
@@ -536,6 +536,24 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNull(methods);
+        }
+
+        /// <summary>
+        /// Issue #156
+        /// </summary>
+        [Test]
+        public void GetTrackedMethods_Prepends_TargetDir_When_Assembly_NotFound()
+        {
+            // arrange
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader.Initialise(@"c:\OpenCover.Test.dll", "OpenCover.Test");
+            _mockCommandLine.SetupGet(x => x.TargetDir).Returns(@"c:\temp");
+            
+            // act
+            var methods = _reader.GetTrackedMethods();
+
+            // assert
+            _mockManager.Verify(x => x.GetTrackedMethods(@"c:\temp\OpenCover.Test.dll"));
         }
 
         [Test]

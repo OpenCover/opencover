@@ -380,7 +380,14 @@ namespace OpenCover.Framework.Symbols
         public TrackedMethod[] GetTrackedMethods()
         {
             if (SourceAssembly==null) return null;
-            return _trackedMethodStrategyManager.GetTrackedMethods(ModulePath);
+
+            var modulePath = ModulePath;
+            if (!System.IO.File.Exists(modulePath))
+            {
+                modulePath = Path.Combine(_commandLine.TargetDir, Path.GetFileName(modulePath));
+            }
+
+            return _trackedMethodStrategyManager.GetTrackedMethods(modulePath);
         }
     }
 }
