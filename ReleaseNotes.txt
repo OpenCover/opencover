@@ -1,4 +1,10 @@
 Version 4.5.1403
+#156 - prepend targetdir when applying test strategies (silverlight)
+
+Version 4.5.1403
+#158 - fix app domain crash due to timeout of proxy
+
+Version 4.5.1403
 #154 - Add xUnit to the list of supported strategies for the Cover by Test feature
 #150 - fix for Xslt issue
 Build Environment now uses BDD tests to ensure the packages have all assemblies required to run
