@@ -316,9 +316,11 @@ namespace OpenCover.Console
             }
             else
             {
-                logger.InfoFormat("No results - no assemblies that matched the supplied filter were instrumented");
-                logger.InfoFormat("    this could be due to missing PDBs for the assemblies that match the filter");
-                logger.InfoFormat("    please review the output file and refer to the Usage guide (Usage.rtf)");
+                logger.InfoFormat("No results, this could be for a number of reasons. The most common reasons are:");
+                logger.InfoFormat("    1) missing PDBs for the assemblies that match the filter please review the");
+                logger.InfoFormat("    output file and refer to the Usage guide (Usage.rtf) about filters.");
+                logger.InfoFormat("    2) the profiler may not be registered correctly, please refer to the Usage");
+                logger.InfoFormat("    guide and the -register switch.");
             }
         }
 
