@@ -16,6 +16,13 @@ using log4net.Core;
 
 namespace OpenCover.Framework
 {
+    public enum Registration
+    {
+        Normal,
+        User,
+        Path32,
+        Path64
+    }
 
     /// <summary>
     /// Parse the command line arguments and set the appropriate properties
@@ -100,7 +107,9 @@ namespace OpenCover.Framework
                 {
                     case "register":
                         Register = true;
-                        UserRegistration = (GetArgumentValue("register").ToLowerInvariant() == "user");
+                        var registration = Registration.Normal;
+                        Enum.TryParse(GetArgumentValue("register"), true, out registration);
+                        Registration = registration;
                         break;
                     case "target":
                         Target = GetArgumentValue("target");
@@ -248,7 +257,7 @@ namespace OpenCover.Framework
         /// <summary>
         /// the switch -register with the user argument was supplied i.e. -register:user
         /// </summary>
-        public bool UserRegistration { get; private set; }
+        public Registration Registration { get; private set; }
 
         /// <summary>
         /// The target executable that is to be profiles

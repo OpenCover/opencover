@@ -86,6 +86,12 @@ namespace OpenCover.Framework.Manager
                             dictionary["Cor_Enable_Profiling"] = "1";
                             dictionary["CoreClr_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
                             dictionary["CoreClr_Enable_Profiling"] = "1";
+
+                            if (_commandLine.Registration == Registration.Path32)
+                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
+                            if (_commandLine.Registration == Registration.Path64)
+                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
+
                             environmentKeyRead.Set();
                         });
                     }

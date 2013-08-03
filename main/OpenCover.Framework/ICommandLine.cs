@@ -43,5 +43,10 @@ namespace OpenCover.Framework
         /// Set when tracing coverage by test has been enabled
         /// </summary>
         bool TraceByTest { get; }
+
+        /// <summary>
+        /// The type of profiler registration
+        /// </summary>
+        Registration Registration { get; }
     }
 }

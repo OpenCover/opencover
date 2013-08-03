@@ -26,19 +26,25 @@ namespace OpenCover.Framework
         /// <summary>
         /// Register the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
-        /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        public static void Register(bool userRegistration)
+        /// <param name="registration">User - use the /n /i:user switches</param>
+        public static void Register(Registration registration)
         {
-            ExecuteRegsvr32(userRegistration, true);
+            if (registration == Registration.Normal || registration == Registration.User)
+            {
+                ExecuteRegsvr32(registration == Registration.User, true);                
+            }
         }
 
         /// <summary>
         /// Unregister the profiler using %SystemRoot%\system\regsvr32.exe
         /// </summary>
-        /// <param name="userRegistration">true - user the /n /i:user switches</param>
-        public static void Unregister(bool userRegistration)
+        /// <param name="registration">User - use the /n /i:user switches</param>
+        public static void Unregister(Registration registration)
         {
-            ExecuteRegsvr32(userRegistration, false);
+            if (registration == Registration.Normal || registration == Registration.User)
+            {
+                ExecuteRegsvr32(registration == Registration.User, false);
+            }
         }
 
         private static void ExecuteRegsvr32(bool userRegistration, bool register)

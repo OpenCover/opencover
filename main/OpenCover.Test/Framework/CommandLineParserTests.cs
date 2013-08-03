@@ -22,7 +22,7 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsFalse(parser.Register);
-            Assert.IsFalse(parser.UserRegistration);
+            Assert.AreEqual(Registration.Normal, parser.Registration);
             Assert.IsFalse(parser.NoDefaultFilters);
             Assert.IsFalse(parser.Service);
             Assert.IsFalse(parser.ShowUnvisited);
@@ -55,21 +55,49 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.Register);
-            Assert.IsFalse(parser.UserRegistration);
+            Assert.AreEqual(Registration.Normal, parser.Registration);
         }
 
         [Test]
-        public void HandlesTheRegisterArgumentWithKnownValue()
+        public void HandlesTheRegisterArgumentWithUserValue()
         {
             // arrange  
-            var parser = new CommandLineParser(new[]{"-register:user" , RequiredArgs});
+            var parser = new CommandLineParser(new[]{"-register:User" , RequiredArgs});
 
             // act
             parser.ExtractAndValidateArguments();
 
             // assert
             Assert.IsTrue(parser.Register);
-            Assert.IsTrue(parser.UserRegistration);
+            Assert.AreEqual(Registration.User, parser.Registration);
+        }
+
+        [Test]
+        public void HandlesTheRegisterArgumentWithPath32Value()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-register:path32", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.Register);
+            Assert.AreEqual(Registration.Path32, parser.Registration);
+        }
+
+        [Test]
+        public void HandlesTheRegisterArgumentWithPath64Value()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-register:path64", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.Register);
+            Assert.AreEqual(Registration.Path64, parser.Registration);
         }
 
         [Test]

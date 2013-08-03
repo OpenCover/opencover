@@ -131,6 +131,62 @@ namespace OpenCover.Test.Framework.Manager
             Assert.AreEqual("1", dict[@"CoreClr_Enable_Profiling"]);
         }
 
+        [Test]
+        public void Manager_DoesNotAdd_Cor_Profiler_Path_EnvironmentVariable_WithNormalRegistration()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.Registration).Returns(Registration.Normal);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
+        }
+
+        [Test]
+        public void Manager_DoesNotAdd_Cor_Profiler_Path_EnvironmentVariable_WithUserRegistration()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.Registration).Returns(Registration.User);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
+        }
+
+        [Test]
+        public void Manager_DoesNotAdd_Cor_Profiler_Path_EnvironmentVariable_WithPath32Registration()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.Registration).Returns(Registration.Path32);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.IsTrue(dict.ContainsKey(@"Cor_Profiler_Path"));
+        }
+
+        [Test]
+        public void Manager_DoesNotAdd_Cor_Profiler_Path_EnvironmentVariable_WithPath64Registration()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.Registration).Returns(Registration.Path64);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.IsTrue(dict.ContainsKey(@"Cor_Profiler_Path"));
+        }
+
         [Test, RequiresMTA]
         public void Manager_Handles_Shared_StandardMessageEvent()
         {

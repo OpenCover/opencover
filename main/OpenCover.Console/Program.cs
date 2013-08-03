@@ -71,7 +71,7 @@ namespace OpenCover.Console
                     {
                         if (parser.Register)
                         {
-                            ProfilerRegistration.Register(parser.UserRegistration);
+                            ProfilerRegistration.Register(parser.Registration);
                             registered = true;
                         }
                         var harness = container.Resolve<IProfilerManager>();
@@ -100,7 +100,7 @@ namespace OpenCover.Console
                     finally
                     {
                         if (parser.Register && registered)
-                            ProfilerRegistration.Unregister(parser.UserRegistration);
+                            ProfilerRegistration.Unregister(parser.Registration);
                     }
                 }
 
