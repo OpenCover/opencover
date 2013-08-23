@@ -176,7 +176,7 @@ namespace OpenCover.Framework.Symbols
                 }
                 if (typeDefinition.HasNestedTypes) 
                     GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, moduleName); 
-            }
+            }                                                                                        
         }
 
        
@@ -184,7 +184,7 @@ namespace OpenCover.Framework.Symbols
         {
             var methods = new List<Method>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter);
+            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
             return methods.ToArray();
         }
 
@@ -201,21 +201,21 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
-        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, string fullName, List<Method> methods, File[] files, IFilter filter)
+        private static void GetMethodsForType(IEnumerable<TypeDefinition> typeDefinitions, string fullName, List<Method> methods, File[] files, IFilter filter,ICommandLine commandLine)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.FullName == fullName)
                 {
-                    BuildPropertyMethods(methods, files, filter, typeDefinition);
-                    BuildMethods(methods, files, filter, typeDefinition);
+                    BuildPropertyMethods(methods, files, filter, typeDefinition, commandLine);
+                    BuildMethods(methods, files, filter, typeDefinition, commandLine);
                 }
                 if (typeDefinition.HasNestedTypes) 
-                    GetMethodsForType(typeDefinition.NestedTypes, fullName, methods, files, filter);
+                    GetMethodsForType(typeDefinition.NestedTypes, fullName, methods, files, filter, commandLine);
             }
         }
 
-        private static void BuildMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition)
+        private static void BuildMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition, ICommandLine commandLine)
         {
             foreach (var methodDefinition in typeDefinition.Methods)
             {
@@ -223,12 +223,12 @@ namespace OpenCover.Framework.Symbols
                 if (methodDefinition.IsGetter) continue;
                 if (methodDefinition.IsSetter) continue;
 
-                var method = BuildMethod(files, filter, methodDefinition, false);
+                var method = BuildMethod(files, filter, methodDefinition, false, commandLine);
                 methods.Add(method);
             }
         }
 
-        private static void BuildPropertyMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition)
+        private static void BuildPropertyMethods(ICollection<Method> methods, File[] files, IFilter filter, TypeDefinition typeDefinition, ICommandLine commandLine)
         {
             foreach (var propertyDefinition in typeDefinition.Properties)
             {
@@ -236,19 +236,19 @@ namespace OpenCover.Framework.Symbols
                 
                 if (propertyDefinition.GetMethod != null && !propertyDefinition.GetMethod.IsAbstract)
                 {
-                    var method = BuildMethod(files, filter, propertyDefinition.GetMethod, skipped);
+                    var method = BuildMethod(files, filter, propertyDefinition.GetMethod, skipped, commandLine);
                     methods.Add(method);
                 }
 
                 if (propertyDefinition.SetMethod != null && !propertyDefinition.SetMethod.IsAbstract)
                 {
-                    var method = BuildMethod(files, filter, propertyDefinition.SetMethod, skipped);
+                    var method = BuildMethod(files, filter, propertyDefinition.SetMethod, skipped, commandLine);
                     methods.Add(method);
                 }
             }
         }
 
-        private static Method BuildMethod(IEnumerable<File> files, IFilter filter, MethodDefinition methodDefinition, bool alreadySkippedDueToAttr)
+        private static Method BuildMethod(IEnumerable<File> files, IFilter filter, MethodDefinition methodDefinition, bool alreadySkippedDueToAttr, ICommandLine commandLine)
         {
             var method = new Method();
             method.Name = methodDefinition.FullName;
@@ -262,6 +262,8 @@ namespace OpenCover.Framework.Symbols
                 method.MarkAsSkipped(SkippedMethod.Attribute);
             else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
                 method.MarkAsSkipped(SkippedMethod.File);
+            else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
+                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);                
 
             var definition = methodDefinition;
             method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))

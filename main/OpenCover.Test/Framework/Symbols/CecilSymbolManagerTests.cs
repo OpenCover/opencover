@@ -480,6 +480,33 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void Can_Exclude_AutoImplmentedProperties()
+        {
+            // arrange
+            var filter = new Filter();
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            _mockFilter
+                .Setup(x => x.IsAutoImplementedProperty(It.IsAny<MethodDefinition>()))
+                .Returns<MethodDefinition>(x => filter.IsAutoImplementedProperty(x));
+
+            _mockCommandLine.Setup(x => x.SkipAutoImplementedProperties).Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var target = types.First(x => x.FullName == typeof(DeclaredMethodClass).FullName);
+
+            // act
+            var methods = _reader.GetMethodsForType(target, new File[0]);
+
+            // assert
+            Assert.True(methods.Any());
+            Assert.AreEqual(SkippedMethod.AutoImplementedProperty, methods.First(y => y.Name.EndsWith("AutoProperty()")).SkippedDueTo);
+            Assert.AreEqual((SkippedMethod)0, methods.First(y => y.Name.EndsWith("PropertyWithBackingField()")).SkippedDueTo);
+        }
+
+        [Test]
         public void GetTrackedMethods_NoTrackedMethods_When_NoStrategies()
         {
             // arrange

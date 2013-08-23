@@ -29,5 +29,10 @@ namespace OpenCover.Framework.Model
         /// Entity was skipped by inference (usually related to File filters)
         /// </summary>
         Inferred = 5,
+
+        /// <summary>
+        /// Entity (method) was skipped as it is an auto-implemented property.
+        /// </summary>
+        AutoImplementedProperty = 6,
     }
 }

@@ -48,5 +48,10 @@ namespace OpenCover.Framework
         /// The type of profiler registration
         /// </summary>
         Registration Registration { get; }
+
+        /// <summary>
+        /// Should auto implemented properties be skipped
+        /// </summary>
+        bool SkipAutoImplementedProperties { get; }
     }
 }

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
@@ -80,6 +81,13 @@ namespace OpenCover.Framework
         /// </summary>
         /// <param name="testFilters"></param>
         void AddTestFileFilters(string[] testFilters);
+
+        /// <summary>
+        /// Is the method an auto-implemented property get/set
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        bool IsAutoImplementedProperty(MethodDefinition method);
     }  
 
     internal static class FilterHelper
@@ -328,5 +336,13 @@ namespace OpenCover.Framework
             }
         }
 
+        public bool IsAutoImplementedProperty(MethodDefinition method)
+        {
+            if ((method.IsSetter || method.IsGetter) && method.HasCustomAttributes)
+            {
+                return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
+            }
+            return false;
+        }
     }
 }

@@ -16,11 +16,29 @@ using log4net.Core;
 
 namespace OpenCover.Framework
 {
+    /// <summary>
+    /// What registration method
+    /// </summary>
     public enum Registration
     {
+        /// <summary>
+        /// normal
+        /// </summary>
         Normal,
+
+        /// <summary>
+        /// user
+        /// </summary>
         User,
+
+        /// <summary>
+        /// use path to 32 bit profiler
+        /// </summary>
         Path32,
+
+        /// <summary>
+        /// use path to 64 bit profiler
+        /// </summary>
         Path64
     }
 
@@ -74,6 +92,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-service]");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
+            builder.AppendLine("    [-skipautoprops]");
             builder.AppendLine("    [-oldStyle]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -177,6 +196,9 @@ namespace OpenCover.Framework
                         Threshold = ExtractValue<ulong>("threshold", () =>
                             { throw new InvalidOperationException("The threshold must be an integer"); });
                         break;
+                    case "skipautoprops":
+                        SkipAutoImplementedProperties = true;
+                        break;
                     case "?":
                         PrintUsage = true;
                         break;
@@ -235,6 +257,7 @@ namespace OpenCover.Framework
                         list.Add(SkippedMethod.File);
                         list.Add(SkippedMethod.Filter);
                         list.Add(SkippedMethod.MissingPdb);
+                        list.Add(SkippedMethod.AutoImplementedProperty);
                         break;
                     default:
                         SkippedMethod result;
@@ -258,6 +281,11 @@ namespace OpenCover.Framework
         /// the switch -register with the user argument was supplied i.e. -register:user
         /// </summary>
         public Registration Registration { get; private set; }
+
+        /// <summary>
+        /// whether auto-implemented properties sould be skipped 
+        /// </summary>
+        public bool SkipAutoImplementedProperties { get; private set; }
 
         /// <summary>
         /// The target executable that is to be profiles
@@ -344,6 +372,9 @@ namespace OpenCover.Framework
         /// </summary>
         public ulong Threshold { get; private set; }
 
+        /// <summary>
+        /// activate trace by test feature
+        /// </summary>
         public bool TraceByTest { get; private set; }
 
         /// <summary>

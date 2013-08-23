@@ -43,9 +43,16 @@ namespace OpenCover.Test.Samples
 
     class DeclaredMethodClass
     {
+        private string _propertyWithBackingField;
         void Method() {}
 
         string AutoProperty { get; set;}
+
+        string PropertyWithBackingField
+        {
+            get { return _propertyWithBackingField; }
+            set { _propertyWithBackingField = value; }
+        }
 
         void DoThing(Action<object> doThing)
         {

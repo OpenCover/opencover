@@ -546,7 +546,35 @@ namespace OpenCover.Test.Framework
             mockDefinition.SetupGet(x => x.Name).Returns("<>f_ddd");
             mockDefinition.SetupGet(x => x.DeclaringType).Returns(new TypeDefinition("","f_ddd", TypeAttributes.Public));
 
-            filter.ExcludeByAttribute(mockDefinition.Object);
+            Assert.DoesNotThrow(() => filter.ExcludeByAttribute(mockDefinition.Object));
+        }
+
+        [Test]
+        public void CanIdentify_AutoImplementedProperties()
+        {
+            // arrange
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.DeclaredMethodClass).FullName);
+
+            // act/assert
+            var filter = new Filter();
+            var wasTested = false;
+            foreach (var methodDefinition in type.Methods
+                .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("AutoProperty")))
+            {
+                wasTested = true;
+                Assert.IsTrue(filter.IsAutoImplementedProperty(methodDefinition));
+            }
+            Assert.IsTrue(wasTested);
+
+            wasTested = false;
+            foreach (var methodDefinition in type.Methods
+                .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("PropertyWithBackingField")))
+            {
+                wasTested = true;
+                Assert.IsFalse(filter.IsAutoImplementedProperty(methodDefinition));
+            }
+            Assert.IsTrue(wasTested);
         }
     }
 }

@@ -29,6 +29,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.MergeByHash);
             Assert.IsFalse(parser.EnablePerformanceCounters);
             Assert.IsFalse(parser.TraceByTest);
+            Assert.IsFalse(parser.SkipAutoImplementedProperties);
 
         }
 
@@ -539,7 +540,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -551,7 +552,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -575,8 +576,19 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(4, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
         }
 
+        [Test]
+        public void Extracts_SkipAutoImplementedProperties()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-skipautoprops", RequiredArgs });
+
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.SkipAutoImplementedProperties);
+        }
     }
 }
