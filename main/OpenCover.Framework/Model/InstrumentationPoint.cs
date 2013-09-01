@@ -16,7 +16,15 @@ namespace OpenCover.Framework.Model
 
         static InstrumentationPoint()
         {
+            _instrumentPoint = 0;
             InstrumentPoints = new List<InstrumentationPoint>() {null};
+        }
+
+        static internal void Clear()
+        {
+            InstrumentPoints.Clear();
+            InstrumentPoints.Add(null);
+            _instrumentPoint = 0;
         }
 
         /// <summary>
@@ -47,6 +55,8 @@ namespace OpenCover.Framework.Model
             {
                 var point = InstrumentPoints[(int) spid];
                 point.VisitCount += sum;
+                if (point.VisitCount < 0) 
+                    point.VisitCount = int.MaxValue;
                 if (trackedMethodId != 0)
                 {
                     point._tracked = point._tracked ?? new List<TrackedMethodRef>();
@@ -59,6 +69,8 @@ namespace OpenCover.Framework.Model
                     else
                     {
                         tracked.VisitCount += sum;
+                        if (tracked.VisitCount < 0)
+                            tracked.VisitCount = int.MaxValue;
                     }
                 }
                 return true;
