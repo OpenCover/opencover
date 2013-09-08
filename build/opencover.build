@@ -9,7 +9,7 @@
     <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
     
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
-	
+  	
 	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
 	
     <target name="clean" description="Delete all previously compiled binaries.">
@@ -69,7 +69,13 @@
     <call target="build.opencover" />
   </target>
 
-  <target name="build.opencover">
+  <target name="fetch.solution.packages" description="pull solution nuget packages">
+    <exec program="${nuget.exe}">
+      <arg value='restore "${solution.folder}/.nuget/packages.config" -packagesdirectory "${solution.folder}/packages"' />
+    </exec>
+  </target>
+  
+  <target name="build.opencover" depends="fetch.solution.packages">
 		
 		<exec program="${msbuild.exe}">
 		    <arg value="${solution.folder}/opencover.sln" />
