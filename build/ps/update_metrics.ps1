@@ -11,6 +11,7 @@ $web.Method = "POST"
 
 $auth = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($username+":"+$password ))
 $web.Headers.Add('Authorization', "Basic $auth" )
+$web.Timeout = 30000
 
 $command = '{"value": "' + $value + '" }'
 $bytes = [System.Text.Encoding]::ASCII.GetBytes($command)
