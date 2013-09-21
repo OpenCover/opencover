@@ -25,12 +25,16 @@
 			
 		</xmlpeek>
 		
-		<echo message="${metrics.sequenceCoverage} ${metrics.branchCoverage}" />
+		<echo message="metrics are sequence=${metrics.sequenceCoverage} branch=${metrics.branchCoverage}" />
 		
-		<exec program="powershell" 
+		<echo message="sending sequence=${metrics.sequenceCoverage}" />
+
+		<exec program="powershell" timeout="60000" failonerror="false" 
 			commandline="-File ${build.folder}/ps/update_metrics.ps1 -value ${metrics.sequenceCoverage} -password ${metrics.password} -endpoint ${metrics.endpint.sequence}" />
 		
-		<exec program="powershell" 
+		<echo message="sending branch=${metrics.branchCoverage}" />
+
+		<exec program="powershell" timeout="60000" failonerror="false" 
 			commandline="-File ${build.folder}/ps/update_metrics.ps1 -value ${metrics.branchCoverage} -password ${metrics.password} -endpoint ${metrics.endpint.branch}" />
 		
 	</target>
