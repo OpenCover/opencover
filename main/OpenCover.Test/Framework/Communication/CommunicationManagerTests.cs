@@ -28,40 +28,48 @@ namespace OpenCover.Test.Framework.Communication
             Container.GetMock<IMessageHandler>().Verify(x => x.Complete(), Times.Once());
         }
 
-        [Test]
+        [Test, Repeat(100)]
         public void HandleMemoryBlock_Returns_Block_Informs_Profiler_When_Read()
         {
             // arrange
-            var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0);
-
-            // act
-            byte[] data = null; 
-            ThreadPool.QueueUserWorkItem(state =>
-                {
-                    data = Instance.HandleMemoryBlock(mcb);
-                });
-
-            // assert
-            Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
-            Assert.AreEqual(100, data.Count());
+            var wait = new AutoResetEvent(false);
+            using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0))
+            {
+                // act
+                byte[] data = null;
+                ThreadPool.QueueUserWorkItem(state =>
+                    {
+                        data = Instance.HandleMemoryBlock(mcb);
+                        wait.Set();
+                    });
+                wait.WaitOne();
+                
+                // assert
+                Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
+                Assert.AreEqual(100, data.Count());
+            }
         }
 
-        [Test]
+        [Test, Repeat(1000)]
         public void HandleCommunicationBlock_Informs_Profiler_When_Data_Is_Ready()
         {
             // arrange
-            var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0);
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0))
+            {
+                // act
+                ThreadPool.QueueUserWorkItem(state =>
+                    {
+                        Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { });
+                    });
 
-            // act
-            ThreadPool.QueueUserWorkItem(state => Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { }));
+                // assert
+                Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
+                mcb.InformationReadByProfiler.Set();
 
-            // assert
-            Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
-            mcb.InformationReadByProfiler.Set();
-
-            Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb, 
-                It.IsAny<Action<int, IManagedCommunicationBlock>>(), 
-                It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
+                Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb,
+                    It.IsAny<Action<int, IManagedCommunicationBlock>>(),
+                    It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
+            }
         }
 
     }

@@ -136,19 +136,20 @@ namespace OpenCover.Framework.Manager
         }
 
         private bool _continueWait = true;
+
         private void ProcessMessages(IEnumerable<WaitHandle> handles)
         {
-            var mainEvents = new List<WaitHandle>(handles);
+            var threadHandles = new List<Tuple<ManualResetEvent, ManualResetEvent>>();
             do
             {
-                switch (WaitHandle.WaitAny(mainEvents.ToArray()))
+                switch (WaitHandle.WaitAny(handles.ToArray()))
                 {
                     case 0:
                         _continueWait = false;
                         break;
 
                     case 1:
-                        _communicationManager.HandleCommunicationBlock(_mcb, StartProcessingThread);
+                        _communicationManager.HandleCommunicationBlock(_mcb, (mcb, mmb) => threadHandles.Add(StartProcessingThread(mcb, mmb)));
                         break;
                 }
             } while (_continueWait);
@@ -161,21 +162,31 @@ namespace OpenCover.Framework.Manager
                 _messageQueue.Enqueue(data);    
             }
 
+            if (threadHandles.Any())
+            {
+                threadHandles.Select(h => h.Item1).ToList().ForEach(h => h.Set());
+                WaitHandle.WaitAll(threadHandles.Select(h => h.Item2).Cast<WaitHandle>().ToArray());
+            }
+
             _messageQueue.Enqueue(new byte[0]);
         }
 
-        private void StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
+        private Tuple<ManualResetEvent, ManualResetEvent> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
         {
             var threadActivated = new AutoResetEvent(false);
+            var terminateThread = new ManualResetEvent(false);
+            var threadTerminated = new ManualResetEvent(false);
+
             ThreadPool.QueueUserWorkItem((state) =>
             {
                 var processEvents = new WaitHandle[]
                                     {
                                         communicationBlock.ProfilerRequestsInformation,
-                                        memoryBlock.ProfilerHasResults
+                                        memoryBlock.ProfilerHasResults,
+                                        terminateThread,
                                     };
                 threadActivated.Set();
-                do
+                while(true)
                 {
                     switch (WaitHandle.WaitAny(processEvents, new TimeSpan(0, 0, 1)))
                     {
@@ -192,10 +203,15 @@ namespace OpenCover.Framework.Manager
                                 _messageQueue.Enqueue(data);
                             }
                             break;
+                        case 2:
+                            threadTerminated.Set();
+                            return;
+
                     }
-                } while (_continueWait);
+                }
             });
             threadActivated.WaitOne();
+            return new Tuple<ManualResetEvent, ManualResetEvent>(terminateThread, threadTerminated);
         }
     }
 }
