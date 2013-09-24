@@ -7,6 +7,7 @@
     <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
     <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
     <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
+    <property name="curl.exe" value="${solution.folder}/packages/curl.7.30.0.2/tools/native/v110/Win32/Release/static/curl.exe" />
     
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
   	
