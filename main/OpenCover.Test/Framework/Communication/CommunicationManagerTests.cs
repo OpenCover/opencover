@@ -50,21 +50,24 @@ namespace OpenCover.Test.Framework.Communication
             }
         }
 
-        [Test, Repeat(1000)]
+        [Test, Repeat(100)]
         public void HandleCommunicationBlock_Informs_Profiler_When_Data_Is_Ready()
         {
             // arrange
+            var wait = new AutoResetEvent(false);
             using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0))
             {
                 // act
                 ThreadPool.QueueUserWorkItem(state =>
                     {
                         Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { });
+                        wait.Set();
                     });
 
                 // assert
                 Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
                 mcb.InformationReadByProfiler.Set();
+                wait.WaitOne();
 
                 Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb,
                     It.IsAny<Action<int, IManagedCommunicationBlock>>(),

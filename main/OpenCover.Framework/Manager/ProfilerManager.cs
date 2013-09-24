@@ -188,11 +188,8 @@ namespace OpenCover.Framework.Manager
                 threadActivated.Set();
                 while(true)
                 {
-                    switch (WaitHandle.WaitAny(processEvents, new TimeSpan(0, 0, 1)))
+                    switch (WaitHandle.WaitAny(processEvents))
                     {
-                        case WaitHandle.WaitTimeout:
-                            break;
-
                         case 0:
                             _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
                             break;
@@ -203,6 +200,7 @@ namespace OpenCover.Framework.Manager
                                 _messageQueue.Enqueue(data);
                             }
                             break;
+
                         case 2:
                             threadTerminated.Set();
                             return;
