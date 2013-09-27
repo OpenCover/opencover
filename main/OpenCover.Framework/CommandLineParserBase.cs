@@ -41,7 +41,10 @@ namespace OpenCover.Framework
                 {
                     var arg = trimmed.Substring(0, colonidx);
                     var val = trimmed.Substring(colonidx + 1);
-                    ParsedArguments.Add(arg, val); 
+                    if (!ParsedArguments.ContainsKey(arg))
+                        ParsedArguments.Add(arg, val);
+                    else
+                        ParsedArguments[arg] = ParsedArguments[arg] + " " + val; 
                 }
                 else
                 {
