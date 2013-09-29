@@ -156,5 +156,98 @@ namespace OpenCover.Test.Framework
             // assert
             
         }
+        
+        [Test]
+        public void CanParseArgumentWithSamekey()
+        {
+            // arrange
+
+            // act
+            //var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg:value2" });
+            var parser = new CommandLineParserStub(new[] { "-arg", "-arg" });
+
+            // assert
+            Assert.AreEqual(1, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+        }
+
+        [Test]
+        public void CanParseManyArgumentsWithSamekey()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "-arg", "-arg2", "-arg", "-arg2", "-arg1", "-arg" });
+
+            // assert
+            Assert.AreEqual(3, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+            Assert.IsTrue(parser.HasArgument("arg2"));
+            Assert.IsTrue(parser.HasArgument("arg1"));
+        }
+
+        [Test]
+        public void CanParseOneArgumentWithValueWithSamekey()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg:value1" });
+
+            // assert
+            Assert.AreEqual(1, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+            Assert.AreEqual("value value1", parser.GetArgumentValue("arg"));
+            //Result will be space appended values.
+        }
+
+        [Test]
+        public void CanParseManyArgumentsWithValueWithSamekey()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg1:value2", "-arg:value1", "-arg1:value3" });
+
+            // assert
+            Assert.AreEqual(2, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+            Assert.AreEqual("value value1", parser.GetArgumentValue("arg"));
+            Assert.IsTrue(parser.HasArgument("arg1"));
+            Assert.AreEqual("value2 value3", parser.GetArgumentValue("arg1"));
+        }
+
+        [Test]
+        public void CanParseOneArgumentWithEmptyValueWithSamekey()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "-arg:", "-arg:" });
+
+            // assert
+            Assert.AreEqual(1, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+            Assert.AreEqual(String.Empty, parser.GetArgumentValue("arg"));
+        }
+
+        [Test]
+        public void CanParseMultipleArgumentsWithValuesWithSamekey()
+        {
+            // arrange
+
+            // act
+            var parser = new CommandLineParserStub(new[] { "-arg:value", "-arg1", "-arg2:", "-arg:value1", "-arg1", "-arg2:" });
+
+            // assert
+            Assert.AreEqual(3, parser.ArgumentCount);
+            Assert.IsTrue(parser.HasArgument("arg"));
+            Assert.AreEqual("value value1", parser.GetArgumentValue("arg"));
+            Assert.IsTrue(parser.HasArgument("arg1"));
+            Assert.AreEqual(string.Empty, parser.GetArgumentValue("arg1"));
+            Assert.IsTrue(parser.HasArgument("arg2"));
+            Assert.AreEqual(string.Empty, parser.GetArgumentValue("arg2"));
+
+        }
     }
 }
