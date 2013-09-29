@@ -45,7 +45,8 @@ namespace OpenCover.Framework
                 }
                 else
                 {
-                    ParsedArguments.Add(trimmed, String.Empty);    
+                    if (!ParsedArguments.ContainsKey(trimmed))
+                        ParsedArguments.Add(trimmed, String.Empty);
                 }       
             }
         }
