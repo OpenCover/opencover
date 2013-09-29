@@ -590,5 +590,61 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.IsTrue(parser.SkipAutoImplementedProperties);
         }
+        
+        [Test]
+        public void HandlesTheTargetArgsArgumentWithSuppliedValueWithMultipleTimes()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-targetargs:XXX", "-targetargs:YYY", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("XXX YYY", parser.TargetArgs);
+        }
+
+        [Test]
+        public void HandlesTheOutputArgumentWithSuppliedValueWithMultipleTimes()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-output:ZYX", "-output:XYZ", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual("ZYX XYZ", parser.OutputFile);
+        }
+
+        [Test]
+        public void HandlesFilterArgumentWithMultipleTimes()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-filter:+[XYZ]ABC", "-filter:-[XYZ]ABC*", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.Filters.Count);
+            Assert.AreEqual("+[XYZ]ABC", parser.Filters[0]);
+            Assert.AreEqual("-[XYZ]ABC*", parser.Filters[1]);
+        }
+
+        [Test]
+        public void HandlesFilterArgumentsWithSpacesInNamespaceWithMultipleTimes()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-filter:+[XY Z]ABC", "-filter:-[XY Z*]ABC", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.Filters.Count);
+            Assert.AreEqual("+[XY Z]ABC", parser.Filters[0]);
+            Assert.AreEqual("-[XY Z*]ABC", parser.Filters[1]);
+        }
     }
 }
