@@ -45,7 +45,7 @@ namespace OpenCover.Test.Framework.Communication
                 wait.WaitOne();
                 
                 // assert
-                Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
+                Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
                 Assert.AreEqual(100, data.Count());
             }
         }
@@ -65,7 +65,7 @@ namespace OpenCover.Test.Framework.Communication
                     });
 
                 // assert
-                Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 1)), "Profiler wasn't signalled");
+                Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
                 mcb.InformationReadByProfiler.Set();
                 wait.WaitOne();
 
