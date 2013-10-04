@@ -44,7 +44,7 @@ namespace OpenCover.Framework
                     if (!ParsedArguments.ContainsKey(arg))
                         ParsedArguments.Add(arg, val);
                     else
-                        ParsedArguments[arg] = ParsedArguments[arg] + " " + val; 
+                        ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim(); 
                 }
                 else
                 {
