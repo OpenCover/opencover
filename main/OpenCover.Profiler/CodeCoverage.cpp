@@ -515,16 +515,16 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
 		InstructionList instructions;
 		CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, seqPoints[0].UniqueId);
 		if (method.IsInstrumented(0, instructions)) return;
-
-        CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
-        {
-            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
-        }, method, seqPoints);
   
         CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
         }, method, brPoints);
+
+        CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
+        }, method, seqPoints);
     }
     else
     {
@@ -533,15 +533,15 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
 		InstructionList instructions;
 		CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, seqPoints[0].UniqueId);
 		if (method.IsInstrumented(0, instructions)) return;
-		
-		CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
-        {
-            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
-        }, method, seqPoints);
   
         CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
         }, method, brPoints);
+		
+		CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        {
+            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
+        }, method, seqPoints);
     }
 }
