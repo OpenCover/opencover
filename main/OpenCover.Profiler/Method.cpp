@@ -811,4 +811,51 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 }
 
 
+#define DBGMSG_EndOfBranch FALSE
+#define ENABLE_EndOfBranch FALSE
+
+Instruction* Method::EndOfBranch(Instruction* toFollow)
+	{
+#if !ENABLE_EndOfBranch
+		return toFollow;
+#else
+		Instruction* next = toFollow;
+		Instruction* target = NULL;
+		long nextOffset;
+#if DBGMSG_EndOfBranch
+		long dbgCounter = 0;
+#endif
+		if (next != NULL)
+		{
+			while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
+#if DBGMSG_EndOfBranch
+				++dbgCounter;
+#endif
+				OperationDetails &nextDetails = Operations::m_mapNameOperationDetails[next->m_operation];
+				nextOffset = next->m_offset + nextDetails.length + nextDetails.operandSize;
+				if (nextDetails.operandSize == 1) {
+					nextOffset += (BYTE)next->m_operand;
+				} else {
+					nextOffset += (ULONG)next->m_operand;
+				}
+				target = GetInstructionAtOffset(nextOffset);
+				_ASSERTE(target != NULL);
+				if ( target == NULL ) break;
+				next = target; // store last BR target instruction found (so far) 
+			}
+		}
+#if DBGMSG_EndOfBranch
+		if (next!=toFollow && GetCodeSize() == 527) // set your module size (open ILSpy and read)
+		{
+			_TCHAR szBuffer[100];
+			_stprintf(szBuffer, _T("(%i) toFollow %04X at %04X linksTo %04X => %04X"), dbgCounter, toFollow->m_origOffset, toFollow->m_offset, next->m_offset, (next->m_offset-toFollow->m_offset+toFollow->m_origOffset));
+			MessageBox(NULL, szBuffer, L"Shit", MB_OK);
+		}
+#endif
+		return next == NULL? toFollow : next;
+#endif
+	}
+
+#undef DBGMSG_EndOfBranch
+#undef ENABLE_EndOfBranch
 
