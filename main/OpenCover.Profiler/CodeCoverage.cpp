@@ -49,7 +49,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     if (m_profilerInfo2 != NULL) ATLTRACE(_T("    ::Initialize (m_profilerInfo2 OK)"));
     if (m_profilerInfo2 == NULL) return E_FAIL;
     m_profilerInfo3 = pICorProfilerInfoUnk;
+#ifndef _TOOLSETV71
 	m_profilerInfo4 = pICorProfilerInfoUnk;
+#endif
 
     ZeroMemory(&m_runtimeVersion, sizeof(m_runtimeVersion));
     if (m_profilerInfo3 != NULL) 
@@ -110,13 +112,14 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     if (m_useOldStyle)
        dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
 
+#ifndef _TOOLSETV71
 	if (m_profilerInfo4 != NULL)
 	{
         ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
 		//dwMask |= COR_PRF_ENABLE_REJIT;
 		//dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
 	}
-
+#endif
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask), 
         _T("    ::Initialize(...) => SetEventMask => 0x%X"));
 
@@ -133,10 +136,11 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     g_pProfiler = this;
 
+#ifndef _TOOLSETV71
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEnterLeaveFunctionHooks2(
         _FunctionEnter2, _FunctionLeave2, _FunctionTailcall2), 
         _T("    ::Initialize(...) => SetEnterLeaveFunctionHooks2 => 0x%X"));
-
+#endif
     RELTRACE(_T("::Initialize - Done!"));
     
     return S_OK; 

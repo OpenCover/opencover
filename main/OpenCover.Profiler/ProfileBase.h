@@ -5,8 +5,13 @@
 //
 #pragma once
 
+#ifndef _TOOLSETV71
 class CProfilerBase : public ICorProfilerCallback5
 {
+#else
+class CProfilerBase : public ICorProfilerCallback3
+{
+#endif
     // ICorProfilerCallback
 public:
     virtual HRESULT STDMETHODCALLTYPE Initialize( 
@@ -368,6 +373,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE ProfilerDetachSucceeded( void)
     { return S_OK; }
 
+#ifndef _TOOLSETV71
 // ICorProfilerCallback4
 public:
     virtual HRESULT STDMETHODCALLTYPE ReJITCompilationStarted( 
@@ -417,5 +423,6 @@ public:
 		/* [size_is][in] */ ObjectID valueRefIds[  ],
 		/* [size_is][in] */ GCHandleID rootIds[  ])      
 	{ return S_OK; }
+#endif
 
 };

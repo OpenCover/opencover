@@ -23,7 +23,9 @@ library OpenCoverProfilerLib
 		[default] interface ICorProfilerCallback;
 		interface ICorProfilerCallback2;
 		interface ICorProfilerCallback3;
+#ifndef _TOOLSETV71
 		interface ICorProfilerCallback4;
 		interface ICorProfilerCallback5;
+#endif
 	};
 };

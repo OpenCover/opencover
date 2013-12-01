@@ -50,8 +50,10 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback)
     COM_INTERFACE_ENTRY(ICorProfilerCallback2)
     COM_INTERFACE_ENTRY(ICorProfilerCallback3)
+#ifndef _TOOLSETV71
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
     COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+#endif
 END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -66,14 +68,18 @@ END_COM_MAP()
         if (m_profilerInfo!=NULL) m_profilerInfo.Release();
         if (m_profilerInfo2!=NULL) m_profilerInfo2.Release();
         if (m_profilerInfo3!=NULL) m_profilerInfo3.Release();
+#ifndef _TOOLSETV71
         if (m_profilerInfo4!=NULL) m_profilerInfo4.Release();
-    }
+#endif
+	}
 
 public:
     CComQIPtr<ICorProfilerInfo> m_profilerInfo;
     CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
     CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
+#ifndef _TOOLSETV71
     CComQIPtr<ICorProfilerInfo4> m_profilerInfo4;
+#endif
 
     std::wstring GetModulePath(ModuleID moduleId);
     std::wstring GetModulePath(ModuleID moduleId, AssemblyID *pAssemblyId);
