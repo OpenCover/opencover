@@ -45,7 +45,8 @@ public:
 
 public:
     void RecalculateOffsets();
-	Instruction* EndOfBranch(Instruction* toFollow);
+    Instruction* EndOfBranch(Instruction* toFollow);
+    Instruction* GetInstructionAtOriginalOffset(long offset);
 
 private:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);

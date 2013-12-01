@@ -343,6 +343,24 @@ void Method::ReadSections()
 /// <returns>An <c>Instruction</c> that exists at that location.</returns>
 /// <remarks>Ensure that the offsets are current by executing <c>RecalculateOffsets</c>
 /// beforehand</remarks>
+Instruction * Method::GetInstructionAtOriginalOffset(long offset)
+{
+    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
+    {
+		if ((*it)->m_origOffset == offset)
+        {
+            return (*it);
+        }
+    }
+    _ASSERTE(FALSE);
+    return NULL;
+}
+
+/// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
+/// <param name="offset">The offset to look for.</param>
+/// <returns>An <c>Instruction</c> that exists at that location.</returns>
+/// <remarks>Ensure that the offsets are current by executing <c>RecalculateOffsets</c>
+/// beforehand</remarks>
 Instruction * Method::GetInstructionAtOffset(long offset)
 {
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
@@ -839,8 +857,8 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 }
 
 
-#define DBGMSG_EndOfBranch FALSE
-#define ENABLE_EndOfBranch FALSE
+#define DBGMSG_EndOfBranch TRUE
+#define ENABLE_EndOfBranch TRUE
 
 Instruction* Method::EndOfBranch(Instruction* toFollow)
 	{
@@ -848,7 +866,9 @@ Instruction* Method::EndOfBranch(Instruction* toFollow)
 		return toFollow;
 #else
 		Instruction* next = toFollow;
-		Instruction* target = NULL;
+		next->m_prev = NULL;
+		Instruction* jump = NULL;
+		Instruction* jumpTo = NULL;
 		long nextOffset;
 #if DBGMSG_EndOfBranch
 		long dbgCounter = 0;
@@ -859,17 +879,20 @@ Instruction* Method::EndOfBranch(Instruction* toFollow)
 #if DBGMSG_EndOfBranch
 				++dbgCounter;
 #endif
-				OperationDetails &nextDetails = Operations::m_mapNameOperationDetails[next->m_operation];
-				nextOffset = next->m_offset + nextDetails.length + nextDetails.operandSize;
-				if (nextDetails.operandSize == 1) {
-					nextOffset += (BYTE)next->m_operand;
-				} else {
-					nextOffset += (ULONG)next->m_operand;
-				}
-				target = GetInstructionAtOffset(nextOffset);
-				_ASSERTE(target != NULL);
-				if ( target == NULL ) break;
-				next = target; // store last BR target instruction found (so far) 
+				//OperationDetails &nextDetails = Operations::m_mapNameOperationDetails[next->m_operation];
+				//nextOffset = next->m_offset + nextDetails.length + nextDetails.operandSize;
+				//if (nextDetails.operandSize == 1) {
+				//	nextOffset += (BYTE)next->m_operand;
+				//} else {
+				//	nextOffset += (ULONG)next->m_operand;
+				//}
+				//jumpTo = GetInstructionAtOffset(nextOffset);
+				jumpTo = next->m_branches[0];
+				_ASSERTE(jumpTo != NULL);
+				if ( jumpTo == NULL ) break;
+				jump = next; // store last BR instruction
+				next = jumpTo; // store last BR jump-target instruction found (so far) 
+				next->m_prev = jump; // set m_prev to last BR instruction
 			}
 		}
 #if DBGMSG_EndOfBranch
