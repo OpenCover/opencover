@@ -717,6 +717,7 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
 /// copy the data between them</remarks>
 void Method::InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions)
 {
+#define MOVE_TO_ENDOFBRANCH FALSE
 	InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
 	{
@@ -724,21 +725,48 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
 	}
 
 	long actualOffset = 0;
+	Instruction* offsetInstruction;
+	Instruction* actualInstruction;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)
         {
-            actualOffset = (*it)->m_offset;
-            m_instructions.insert(++it, clone.begin(), clone.end());
+			offsetInstruction = *it;
+#if MOVE_TO_ENDOFBRANCH
+			actualInstruction = EndOfBranch(offsetInstruction);
+#else
+			actualInstruction = offsetInstruction;
+#endif			
+			actualOffset = (actualInstruction)->m_offset;
+#if MOVE_TO_ENDOFBRANCH
+			if ( actualInstruction == offsetInstruction )
+			{
+				m_instructions.insert(++it, clone.begin(), clone.end());
+			}
+			else
+			{
+				for (auto itActual = m_instructions.begin(); itActual != m_instructions.end(); ++itActual)
+				{
+					if (*itActual == actualInstruction)
+					{
+						m_instructions.insert(++itActual, clone.begin(), clone.end());
+						break;
+					}
+				}
+			}
+#else
+			m_instructions.insert(++it, clone.begin(), clone.end());
+#endif
             break;
         }
     } 
+#undef MOVE_TO_ENDOFBRANCH 
 
     if (!DoesTryHandlerPointToOffset (actualOffset))
     {
         for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-            if ((*it)->m_origOffset == origOffset)
+            if (*it == actualInstruction)
             {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<clone.size();i++)
