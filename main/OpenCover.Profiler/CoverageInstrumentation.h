@@ -27,7 +27,7 @@ namespace CoverageInstrumentation
     template<class IM>
     void AddBranchCoverage(IM instrumentMethod, Method& method, std::vector<BranchPoint> points)
     {
-#define MOVE_TO_ENDOFBRANCH FALSE
+#define MOVE_TO_ENDOFBRANCH TRUE
         if (points.size() == 0) return;
 
         for (auto it = method.m_instructions.begin(); it != method.m_instructions.end(); ++it)
@@ -45,15 +45,43 @@ namespace CoverageInstrumentation
 
                     InstructionList instructions;
 
+                    // istrument branch 0 == fall-through branch => 
+                    //		switch instruction DEFAULT branch
+                    //		br(if) instruction ELSE branch
                     ULONG uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId; 
 
 #if MOVE_TO_ENDOFBRANCH
+                    // push-down instrumentation by following links (unconditional BR instructions)
+                    // if two or more end-of-branch link to same instruction (branch-join-point),
+                    // then visit counts will merge. ie:
+                    // IL_100 branch instrumentation 1) - count visits for 1)
+                    // IL_101 branch instrumentation 2) - count visits for 1) and 2)
+                    // IL_102 branch instrumentation 3) - count visits for 1) and 2) and 3)
+                    // IL_103 branch join-point
+                    // But, at branch instrumentation visit-count doesn't really count :)
+                    // What does count is visited or not-visited.
                     instructions.clear();
                     Instruction* pElse = instrumentMethod(instructions, uniqueId);
-                    Instruction* toInstrument = method.EndOfBranch( pNext );
-                    if ( toInstrument->m_prev != NULL ) // rewire last BR instruction?
-                        toInstrument->m_prev->m_branches[0] = pElse; 
-                    method.InsertInstructionsAtOffset( toInstrument->m_offset, instructions );
+                    Instruction* toInstrument = pNext;
+                    if (pCurrent->m_operation == CEE_SWITCH) {
+                        // to minimize unwanted branch join/merge
+                        // push down only (switch)DEFAULT branch
+                        toInstrument = method.EndOfBranch( pNext ); // push SWITCH default branch down
+                        if ( toInstrument->m_jump != NULL ) 
+                        {
+                            _ASSERTE(toInstrument != pNext);
+                            _ASSERTE(toInstrument->m_jump->m_isBranch && toInstrument->m_jump->m_operation==CEE_BR);
+                            _ASSERTE(toInstrument->m_jump->m_branches.size() == 1);
+                            _ASSERTE(toInstrument->m_jump->m_branches[0] == toInstrument);
+                            toInstrument->m_jump->m_branches[0] = pElse; // rewire BR/jump instruction to instrumentation
+                        }
+                        else
+                        {
+                            _ASSERTE(toInstrument == pNext);
+                        }
+                    }
+                    for (it = method.m_instructions.begin(); *it != toInstrument; ++it);
+                    method.m_instructions.insert(it, instructions.begin(), instructions.end());
 #else
                     instrumentMethod(instructions, uniqueId);
 
@@ -71,15 +99,34 @@ namespace CoverageInstrumentation
 #if MOVE_TO_ENDOFBRANCH
                         instructions.clear();
                         Instruction* pRecordJmp = instrumentMethod(instructions, uniqueId);
-                        Instruction* toInstrument = method.EndOfBranch( *sbit );
-                        if ( toInstrument->m_prev == NULL ) // rewire branch direct to instrumentation?
-                            *sbit = pRecordJmp; 
-                        else // rewire indirect via last BR instruction
-                            toInstrument->m_prev->m_branches[0] = pRecordJmp; 
-                        method.InsertInstructionsAtOffset( toInstrument->m_offset, instructions );
+                        Instruction* toInstrument = *sbit;
+                        if (pCurrent->m_operation == CEE_SWITCH)
+                        {
+                            // to minimize unwanted join-merge
+                            // do not push-down instrumentation for switch branches
+                            *sbit = pRecordJmp; // rewire switch branch to instrumentation
+                        }
+                        else
+                        {
+                            toInstrument = method.EndOfBranch( *sbit );
+                            if ( toInstrument->m_jump == NULL )
+                            {
+                                _ASSERTE(toInstrument == *sbit);
+                                *sbit = pRecordJmp; // rewire branch to instrumentation
+                            }
+                            else 
+                            {
+                                _ASSERTE(toInstrument != *sbit);
+                                _ASSERTE(toInstrument->m_jump->m_isBranch && toInstrument->m_jump->m_operation==CEE_BR );
+                                _ASSERTE(toInstrument->m_jump->m_branches.size() == 1);
+                                _ASSERTE(toInstrument->m_jump->m_branches[0] == toInstrument);
+                                toInstrument->m_jump->m_branches[0] = pRecordJmp; // rewire last BR to instrumentation
+                            }
+                        }
+                        for (it = method.m_instructions.begin(); *it != toInstrument; ++it);
+                        method.m_instructions.insert(it, instructions.begin(), instructions.end());
 #else
                         Instruction *pRecordJmp = instrumentMethod(instructions, uniqueId); 
-
                         Instruction *pSwitchJump = new Instruction(CEE_BR);
                         pSwitchJump->m_isBranch = true;
                         instructions.push_back(pSwitchJump);
@@ -92,9 +139,9 @@ namespace CoverageInstrumentation
 #else
                     // *it points here at pNext
                     method.m_instructions.insert(it, instructions.begin(), instructions.end());
+#endif
                     // restore 'it' position
                     for (it = method.m_instructions.begin(); *it != pNext; ++it);
-#endif
                 }
             }
         }

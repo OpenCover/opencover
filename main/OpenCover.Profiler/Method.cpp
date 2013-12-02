@@ -284,8 +284,8 @@ void Method::ReadSections()
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
                         (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
+                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -324,8 +324,8 @@ void Method::ReadSections()
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
                         (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
+                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -336,24 +336,6 @@ void Method::ReadSections()
             }
         } while((flags & CorILMethod_Sect_MoreSects) == CorILMethod_Sect_MoreSects);
     }
-}
-
-/// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
-/// <param name="offset">The offset to look for.</param>
-/// <returns>An <c>Instruction</c> that exists at that location.</returns>
-/// <remarks>Ensure that the offsets are current by executing <c>RecalculateOffsets</c>
-/// beforehand</remarks>
-Instruction * Method::GetInstructionAtOriginalOffset(long offset)
-{
-    for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
-    {
-		if ((*it)->m_origOffset == offset)
-        {
-            return (*it);
-        }
-    }
-    _ASSERTE(FALSE);
-    return NULL;
 }
 
 /// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
@@ -668,19 +650,19 @@ bool Method::IsInstrumented(long offset, const InstructionList &instructions)
     bool foundInstructionAtOffset = false;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-		if ((*it)->m_origOffset == offset)
+        if ((*it)->m_origOffset == offset)
         {
-			foundInstructionAtOffset = true;
-			for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2, ++it)
-			{
-				if (!(*it2)->Equivalent(*(*it))) 
-					return false;
-			}
-			break;
+            foundInstructionAtOffset = true;
+            for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2, ++it)
+            {
+                if (!(*it2)->Equivalent(*(*it))) 
+                    return false;
+            }
+            break;
         }
     } 
 
-	return foundInstructionAtOffset;
+    return foundInstructionAtOffset;
 }
 
 /// <summary>Insert a sequence of instructions at a specific offset</summary>
@@ -691,11 +673,11 @@ bool Method::IsInstrumented(long offset, const InstructionList &instructions)
 /// copy the data between them</remarks>
 void Method::InsertInstructionsAtOffset(long offset, const InstructionList &instructions)
 {
-	InstructionList clone;
+    InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
-	{
-		clone.push_back(new Instruction(*(*it)));
-	}
+    {
+        clone.push_back(new Instruction(*(*it)));
+    }
 
     long actualOffset = 0;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -736,56 +718,60 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
 void Method::InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions)
 {
 #define MOVE_TO_ENDOFBRANCH FALSE
-	InstructionList clone;
+    InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
-	{
-		clone.push_back(new Instruction(*(*it)));
-	}
+    {
+        clone.push_back(new Instruction(*(*it)));
+    }
 
-	long actualOffset = 0;
-	Instruction* offsetInstruction;
-	Instruction* actualInstruction;
+    long actualOffset = 0;
+    Instruction* offsetInstruction;
+    Instruction* actualInstruction;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)
         {
-			offsetInstruction = *it;
+            offsetInstruction = *it;
 #if MOVE_TO_ENDOFBRANCH
-			actualInstruction = EndOfBranch(offsetInstruction);
+            actualInstruction = EndOfBranch(offsetInstruction);
 #else
-			actualInstruction = offsetInstruction;
+            actualInstruction = offsetInstruction;
 #endif			
-			actualOffset = (actualInstruction)->m_offset;
+            actualOffset = (actualInstruction)->m_offset;
 #if MOVE_TO_ENDOFBRANCH
-			if ( actualInstruction == offsetInstruction )
-			{
-				m_instructions.insert(++it, clone.begin(), clone.end());
-			}
-			else
-			{
-				for (auto itActual = m_instructions.begin(); itActual != m_instructions.end(); ++itActual)
-				{
-					if (*itActual == actualInstruction)
-					{
-						m_instructions.insert(++itActual, clone.begin(), clone.end());
-						break;
-					}
-				}
-			}
+            if ( actualInstruction == offsetInstruction )
+            {
+                m_instructions.insert(++it, clone.begin(), clone.end());
+            }
+            else
+            {
+                for (auto itActual = m_instructions.begin(); itActual != m_instructions.end(); ++itActual)
+                {
+                    if (*itActual == actualInstruction)
+                    {
+                        m_instructions.insert(++itActual, clone.begin(), clone.end());
+                        break;
+                    }
+                }
+            }
 #else
-			m_instructions.insert(++it, clone.begin(), clone.end());
+            m_instructions.insert(++it, clone.begin(), clone.end());
 #endif
             break;
         }
     } 
-#undef MOVE_TO_ENDOFBRANCH 
 
     if (!DoesTryHandlerPointToOffset (actualOffset))
     {
         for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-            if (*it == actualInstruction)
-            {            
+#if MOVE_TO_ENDOFBRANCH
+            if (*it == actualInstruction) // this works in both cases
+#else
+            if (*it == actualInstruction) // this works in both cases
+            //if ((*it)->m_origOffset == origOffset)
+#endif
+             {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<clone.size();i++)
                 {
@@ -800,6 +786,7 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
 
     RecalculateOffsets();
     return;
+#undef MOVE_TO_ENDOFBRANCH 
 }
 
 /// <summary>Test if we have an exception where the handler start points to the 
@@ -857,55 +844,50 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 }
 
 
-#define DBGMSG_EndOfBranch TRUE
+#define DBGMSG_EndOfBranch FALSE
 #define ENABLE_EndOfBranch TRUE
 
 Instruction* Method::EndOfBranch(Instruction* toFollow)
-	{
+    {
 #if !ENABLE_EndOfBranch
-		return toFollow;
+        return toFollow;
 #else
-		Instruction* next = toFollow;
-		next->m_prev = NULL;
-		Instruction* jump = NULL;
-		Instruction* jumpTo = NULL;
-		long nextOffset;
+        Instruction* next = toFollow;
+        next->m_jump = NULL;
+        Instruction* jump = NULL;
+        Instruction* jumpTo = NULL;
 #if DBGMSG_EndOfBranch
-		long dbgCounter = 0;
+        long dbgCounter = 0;
 #endif
-		if (next != NULL)
-		{
-			while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
+        if (next != NULL)
+        {
+            while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
 #if DBGMSG_EndOfBranch
-				++dbgCounter;
+                ++dbgCounter;
 #endif
-				//OperationDetails &nextDetails = Operations::m_mapNameOperationDetails[next->m_operation];
-				//nextOffset = next->m_offset + nextDetails.length + nextDetails.operandSize;
-				//if (nextDetails.operandSize == 1) {
-				//	nextOffset += (BYTE)next->m_operand;
-				//} else {
-				//	nextOffset += (ULONG)next->m_operand;
-				//}
-				//jumpTo = GetInstructionAtOffset(nextOffset);
-				jumpTo = next->m_branches[0];
-				_ASSERTE(jumpTo != NULL);
-				if ( jumpTo == NULL ) break;
-				jump = next; // store last BR instruction
-				next = jumpTo; // store last BR jump-target instruction found (so far) 
-				next->m_prev = jump; // set m_prev to last BR instruction
-			}
-		}
+                _ASSERTE(next->m_isBranch);
+                _ASSERTE(next->m_branches.size() == 1);
+                _ASSERTE(next->m_branches[0] != NULL);
+                jumpTo = next->m_branches[0];
+                _ASSERTE(jumpTo != NULL);
+                if ( jumpTo == NULL ) break;
+                jump = next; // store last BR instruction
+                next = jumpTo; // store last BR jump-target instruction found (so far) 
+                next->m_jump = jump; // set m_jump to last BR instruction
+            }
+        }
 #if DBGMSG_EndOfBranch
-		if (next!=toFollow && GetCodeSize() == 527) // set your module size (open ILSpy and read)
-		{
-			_TCHAR szBuffer[100];
-			_stprintf(szBuffer, _T("(%i) toFollow %04X at %04X linksTo %04X => %04X"), dbgCounter, toFollow->m_origOffset, toFollow->m_offset, next->m_offset, (next->m_offset-toFollow->m_offset+toFollow->m_origOffset));
-			MessageBox(NULL, szBuffer, L"Shit", MB_OK);
-		}
+        if (next!=toFollow && GetCodeSize() == 527) // set your module size (open ILSpy and read)
+        {
+            _TCHAR szBuffer[100];
+            _stprintf(szBuffer, _T("(%i) toFollow %04X at %04X linksTo %04X => %04X"), dbgCounter, toFollow->m_origOffset, toFollow->m_offset, next->m_offset, (next->m_offset-toFollow->m_offset+toFollow->m_origOffset));
+            MessageBox(NULL, szBuffer, L"Shit", MB_OK);
+            _ASSERTE(FALSE);
+        }
 #endif
-		return next == NULL? toFollow : next;
+        return next == NULL? toFollow : next;
 #endif
-	}
+    }
 
 #undef DBGMSG_EndOfBranch
 #undef ENABLE_EndOfBranch
