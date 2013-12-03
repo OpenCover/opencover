@@ -725,38 +725,14 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
     }
 
     long actualOffset = 0;
-    Instruction* offsetInstruction;
     Instruction* actualInstruction;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)
         {
-            offsetInstruction = *it;
-#if MOVE_TO_ENDOFBRANCH
-            actualInstruction = EndOfBranch(offsetInstruction);
-#else
-            actualInstruction = offsetInstruction;
-#endif			
+            actualInstruction = *it;
             actualOffset = (actualInstruction)->m_offset;
-#if MOVE_TO_ENDOFBRANCH
-            if ( actualInstruction == offsetInstruction )
-            {
-                m_instructions.insert(++it, clone.begin(), clone.end());
-            }
-            else
-            {
-                for (auto itActual = m_instructions.begin(); itActual != m_instructions.end(); ++itActual)
-                {
-                    if (*itActual == actualInstruction)
-                    {
-                        m_instructions.insert(++itActual, clone.begin(), clone.end());
-                        break;
-                    }
-                }
-            }
-#else
             m_instructions.insert(++it, clone.begin(), clone.end());
-#endif
             break;
         }
     } 
@@ -765,12 +741,7 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
     {
         for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-#if MOVE_TO_ENDOFBRANCH
-            if (*it == actualInstruction) // this works in both cases
-#else
-            if (*it == actualInstruction) // this works in both cases
-            //if ((*it)->m_origOffset == origOffset)
-#endif
+            if (*it == actualInstruction)
              {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<clone.size();i++)
@@ -786,7 +757,6 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
 
     RecalculateOffsets();
     return;
-#undef MOVE_TO_ENDOFBRANCH 
 }
 
 /// <summary>Test if we have an exception where the handler start points to the 
@@ -844,27 +814,15 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 }
 
 
-#define DBGMSG_EndOfBranch FALSE
-#define ENABLE_EndOfBranch TRUE
-
 Instruction* Method::EndOfBranch(Instruction* toFollow)
     {
-#if !ENABLE_EndOfBranch
-        return toFollow;
-#else
         Instruction* next = toFollow;
         next->m_jump = NULL;
         Instruction* jump = NULL;
         Instruction* jumpTo = NULL;
-#if DBGMSG_EndOfBranch
-        long dbgCounter = 0;
-#endif
         if (next != NULL)
         {
             while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
-#if DBGMSG_EndOfBranch
-                ++dbgCounter;
-#endif
                 _ASSERTE(next->m_isBranch);
                 _ASSERTE(next->m_branches.size() == 1);
                 _ASSERTE(next->m_branches[0] != NULL);
@@ -876,19 +834,6 @@ Instruction* Method::EndOfBranch(Instruction* toFollow)
                 next->m_jump = jump; // set m_jump to last BR instruction
             }
         }
-#if DBGMSG_EndOfBranch
-        if (next!=toFollow && GetCodeSize() == 527) // set your module size (open ILSpy and read)
-        {
-            _TCHAR szBuffer[100];
-            _stprintf(szBuffer, _T("(%i) toFollow %04X at %04X linksTo %04X => %04X"), dbgCounter, toFollow->m_origOffset, toFollow->m_offset, next->m_offset, (next->m_offset-toFollow->m_offset+toFollow->m_origOffset));
-            MessageBox(NULL, szBuffer, L"Shit", MB_OK);
-            _ASSERTE(FALSE);
-        }
-#endif
         return next == NULL? toFollow : next;
-#endif
     }
-
-#undef DBGMSG_EndOfBranch
-#undef ENABLE_EndOfBranch
 

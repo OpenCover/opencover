@@ -27,7 +27,6 @@ namespace CoverageInstrumentation
     template<class IM>
     void AddBranchCoverage(IM instrumentMethod, Method& method, std::vector<BranchPoint> points)
     {
-#define MOVE_TO_ENDOFBRANCH TRUE
         if (points.size() == 0) return;
 
         for (auto it = method.m_instructions.begin(); it != method.m_instructions.end(); ++it)
@@ -45,121 +44,74 @@ namespace CoverageInstrumentation
 
                     InstructionList instructions;
 
-                    // istrument branch 0 == fall-through branch =>
+                    // here we istrument branch 0 == fall-through branch =>
                     //        switch instruction DEFAULT branch
                     //        br(if) instruction ELSE branch
                     ULONG uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
 
-#if MOVE_TO_ENDOFBRANCH
-                    // push-down instrumentation by following links (unconditional BR instructions)
-                    // if two or more end-of-branch link to same instruction (branch-join-point),
-                    // then visit counts will merge. ie:
-                    // IL_100 branch instrumentation 1) - count visits for 1)
-                    // IL_101 branch instrumentation 2) - count visits for 1) and 2)
-                    // IL_102 branch instrumentation 3) - count visits for 1) and 2) and 3)
-                    // IL_103 branch join-point
-                    // But, at branch instrumentation visit-count doesn't really count :)
-                    // What does count is visited or not-visited.
                     instructions.clear();
-                    Instruction* pElse = instrumentMethod(instructions, uniqueId);
-                    Instruction* toInstrument = pNext;
-                    if (pCurrent->m_operation == CEE_SWITCH) {
-                        // to minimize unwanted branch join/merge
-                        // push down only (switch)DEFAULT branch
-                        toInstrument = method.EndOfBranch( pNext ); // push SWITCH default branch down
-                        if ( toInstrument->m_jump != NULL )
-                        {
-                            _ASSERTE(toInstrument != pNext);
-                            _ASSERTE(toInstrument->m_jump->m_isBranch && toInstrument->m_jump->m_operation==CEE_BR);
-                            _ASSERTE(toInstrument->m_jump->m_branches.size() == 1);
-                            _ASSERTE(toInstrument->m_jump->m_branches[0] == toInstrument);
-                            if (toInstrument->m_isInstrumented == TRUE)
+                    Instruction* pElseOrDefault = instrumentMethod(instructions, uniqueId);
+                    Instruction* pToInstrument = pNext;
+                    if (pCurrent->m_operation == CEE_SWITCH)
+                    {   // we got "default:" branch here
+                        Instruction* pEndOfDefaultBranch = method.EndOfBranch( pNext );
+                        if ( pEndOfDefaultBranch->m_joints.size() != 0 )
+                        {   // cool, our "default:" branch ends up into "joint" point
+
+                            // update instruction to instrument
+                            if ( pToInstrument != pEndOfDefaultBranch )
                             {
-                                // join instrumentation branch
-                                toInstrument->m_jump->m_branches[0] = pElse; // rewire BR/jump instruction to instrumentation
+                                pToInstrument = pEndOfDefaultBranch;
                             }
-                            else
+                            // rewire other joints
+                            for(auto joint = pToInstrument->m_joints.begin(); joint != pToInstrument->m_joints.end(); joint++)
                             {
-                                // do not join instrumentation branch
-                                toInstrument = pNext;
+                                Instruction* pToRewire = *joint; // :)
+                                _ASSERTE(pToRewire->m_isBranch);
+                                _ASSERTE(pToRewire->m_branches.size() == 1);
+                                _ASSERTE(pToRewire->m_branches[0] == pToInstrument);
+                                pToRewire->m_branches[0] = pElseOrDefault; // rewire pointing branch to instrumentation 
                             }
-                        }
-                        else
-                        {
-                            _ASSERTE(toInstrument == pNext);
                         }
                     }
-                    for (it = method.m_instructions.begin(); *it != toInstrument; ++it);
+                    
+                    for (it = method.m_instructions.begin(); *it != pToInstrument; ++it);
                     method.m_instructions.insert(it, instructions.begin(), instructions.end());
-#else
-                    instrumentMethod(instructions, uniqueId);
 
-                    Instruction *pJumpNext = new Instruction(CEE_BR);
-                    pJumpNext->m_isBranch = true;
-                    instructions.push_back(pJumpNext);
-                    pJumpNext->m_branches.push_back(pNext);
-#endif
-
+                    // here we instrument
                     for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
                     {
                         idx++;
                         uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
 
-#if MOVE_TO_ENDOFBRANCH
                         instructions.clear();
                         Instruction* pRecordJmp = instrumentMethod(instructions, uniqueId);
+
+                        // insert instrumentation point as usual 
+						// do not push-down anything here, 
                         Instruction* toInstrument = *sbit;
-                        if (pCurrent->m_operation == CEE_SWITCH)
+                        *sbit = pRecordJmp; // rewire switch branch to instrumentation
+
+                        if (pCurrent->m_operation != CEE_SWITCH)
                         {
-                            // to minimize unwanted join-merge
-                            // do not push-down instrumentation for switch branches
-                            *sbit = pRecordJmp; // rewire switch branch to instrumentation
-                        }
-                        else
-                        {
-                            // conditional BR
-                            toInstrument = method.EndOfBranch( *sbit );
-                            if ( toInstrument->m_jump == NULL )
+                            // Current operation is any conditional branch except switch
+                            Instruction* endOfCondBranch = method.EndOfBranch( toInstrument );
+                            if (endOfCondBranch->m_jump == NULL)
                             {
-                                _ASSERTE(toInstrument == *sbit);
-                                *sbit = pRecordJmp; // rewire branch to instrumentation
+                                // if no branch-chain exists, then add current branch to joints
+                                endOfCondBranch->m_joints.push_back(pCurrent);
                             }
                             else
                             {
-                                _ASSERTE(toInstrument != *sbit);
-                                _ASSERTE(toInstrument->m_jump->m_isBranch && toInstrument->m_jump->m_operation==CEE_BR );
-                                _ASSERTE(toInstrument->m_jump->m_branches.size() == 1);
-                                _ASSERTE(toInstrument->m_jump->m_branches[0] == toInstrument);
-                                if (toInstrument->m_isInstrumented != TRUE)
-                                {
-                                    // not instrumented by another conditional BR instruction
-                                    toInstrument->m_jump->m_branches[0] = pRecordJmp; // rewire last BR to instrumentation
-                                }
-                                else
-                                {
-                                    // do not join, instrument *sbit as above
-                                    *sbit = pRecordJmp; // rewire branch to instrumentation
-                                }
+                                // if branch-chain exists, then add last jump-branch to joints
+                                endOfCondBranch->m_joints.push_back(endOfCondBranch->m_jump);
                             }
-                            pRecordJmp->m_isInstrumented = TRUE;
                         }
+
                         for (it = method.m_instructions.begin(); *it != toInstrument; ++it);
                         method.m_instructions.insert(it, instructions.begin(), instructions.end());
-#else
-                        Instruction *pRecordJmp = instrumentMethod(instructions, uniqueId);
-                        Instruction *pSwitchJump = new Instruction(CEE_BR);
-                        pSwitchJump->m_isBranch = true;
-                        instructions.push_back(pSwitchJump);
-                        pSwitchJump->m_branches.push_back(*sbit);
-                        *sbit = pRecordJmp;
-#endif
                     }
 
-#if MOVE_TO_ENDOFBRANCH
-#else
-                    // *it points here at pNext
-                    method.m_instructions.insert(it, instructions.begin(), instructions.end());
-#endif
                     // restore 'it' position
                     for (it = method.m_instructions.begin(); *it != pNext; ++it);
                 }
@@ -171,6 +123,5 @@ namespace CoverageInstrumentation
     Instruction* InsertInjectedMethod(InstructionList &instructions, mdMethodDef injectedMethodDef, ULONG uniqueId);
     Instruction* InsertFunctionCall(InstructionList &instructions, mdSignature pvsig, FPTR pt, ULONGLONG uniqueId);
 
-#undef MOVE_TO_ENDOFBRANCH
 };
 

@@ -38,8 +38,9 @@ public:
 
     std::vector<long> m_branchOffsets;
     InstructionList m_branches;
+    InstructionList m_joints;
     Instruction* m_jump;
-    bool m_isInstrumented;
+
     long m_origOffset;
 
 public:
