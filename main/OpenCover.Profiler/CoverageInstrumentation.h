@@ -44,74 +44,136 @@ namespace CoverageInstrumentation
 
                     InstructionList instructions;
 
-                    // here we istrument branch 0 == fall-through branch =>
-                    //        switch instruction DEFAULT branch
-                    //        br(if) instruction ELSE branch
                     ULONG uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
+                    ULONG storedId = uniqueId; // store branch 0 ID (default/else)
 
-                    instructions.clear();
-                    Instruction* pElseOrDefault = instrumentMethod(instructions, uniqueId);
-                    Instruction* pToInstrument = pNext;
-                    if (pCurrent->m_operation == CEE_SWITCH)
-                    {   // we got "default:" branch here
-                        Instruction* pEndOfDefaultBranch = method.EndOfBranch( pNext );
-                        if ( pEndOfDefaultBranch->m_joints.size() != 0 )
-                        {   // cool, our "default:" branch ends up into "joint" point
+                    Instruction *pJumpNext = new Instruction(CEE_BR);
+                    pJumpNext->m_isBranch = true;
+                    pJumpNext->m_branches.push_back(pNext);
 
-                            // update instruction to instrument
-                            if ( pToInstrument != pEndOfDefaultBranch )
-                            {
-                                pToInstrument = pEndOfDefaultBranch;
-                            }
-                            // rewire other joints
-                            for(auto joint = pToInstrument->m_joints.begin(); joint != pToInstrument->m_joints.end(); joint++)
-                            {
-                                Instruction* pToRewire = *joint; // :)
-                                _ASSERTE(pToRewire->m_isBranch);
-                                _ASSERTE(pToRewire->m_branches.size() == 1);
-                                _ASSERTE(pToRewire->m_branches[0] == pToInstrument);
-                                pToRewire->m_branches[0] = pElseOrDefault; // rewire pointing branch to instrumentation 
-                            }
-                        }
-                    }
-                    
-                    for (it = method.m_instructions.begin(); *it != pToInstrument; ++it);
-                    method.m_instructions.insert(it, instructions.begin(), instructions.end());
+                    instructions.push_back(pJumpNext);
 
-                    // here we instrument
+                    // collect branches instrumentation
                     for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
                     {
                         idx++;
                         uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
-
-                        instructions.clear();
-                        Instruction* pRecordJmp = instrumentMethod(instructions, uniqueId);
-
-                        // insert instrumentation point as usual 
-						// do not push-down anything here, 
-                        Instruction* toInstrument = *sbit;
-                        *sbit = pRecordJmp; // rewire switch branch to instrumentation
-
+                        Instruction* pBranchInstrument = instrumentMethod(instructions, uniqueId);
+                        Instruction *pBranchJump = new Instruction(CEE_BR);
+                        pBranchJump->m_isBranch = true;
+                        pBranchJump->m_branches.push_back(*sbit);
+                        instructions.push_back(pBranchJump);
+                        *sbit = pBranchInstrument; // rewire conditional branch to instrumentation
+                        
                         if (pCurrent->m_operation != CEE_SWITCH)
                         {
-                            // Current operation is any conditional branch except switch
-                            Instruction* endOfCondBranch = method.EndOfBranch( toInstrument );
-                            if (endOfCondBranch->m_jump == NULL)
-                            {
-                                // if no branch-chain exists, then add current branch to joints
-                                endOfCondBranch->m_joints.push_back(pCurrent);
-                            }
-                            else
-                            {
-                                // if branch-chain exists, then add last jump-branch to joints
-                                endOfCondBranch->m_joints.push_back(endOfCondBranch->m_jump);
-                            }
+	                        // add join
+	                        Instruction* pBranchEnd = method.EndOfBranch(pBranchJump->m_branches[0]);
+	                        if (pBranchEnd->m_jump == NULL)
+	                        {   // if no branch-chain exists, then add current branch to joins
+	                            _ASSERTE(pBranchJump != pBranchEnd);
+	                            _ASSERTE(pBranchJump->m_isBranch);
+                                _ASSERTE(pBranchJump->m_branches.size() == 1);
+                                _ASSERTE(pBranchJump->m_branches[0] == pBranchEnd);
+	                            pBranchEnd->m_joins.push_back(pBranchJump);
+	                        }
+	                        else
+	                        {   // if branch-chain exists, then add last jump-branch to joins
+	                            _ASSERTE(pBranchEnd->m_jump != NULL);
+	                            _ASSERTE(pBranchEnd != pBranchJump);
+	                            _ASSERTE(pBranchEnd->m_jump->m_isBranch);
+                                _ASSERTE(pBranchEnd->m_jump->m_branches.size() == 1);
+                                _ASSERTE(pBranchEnd->m_jump->m_branches[0] == pBranchEnd);
+	                            pBranchEnd->m_joins.push_back(pBranchEnd->m_jump);
+	                        }
+	                    }
+                    }
+                    
+                    // now instrument "default:" or "else" branch
+                    Instruction* pDefaultEnd = method.EndOfBranch( pNext );
+                    if (pCurrent->m_operation == CEE_SWITCH 
+                        && pDefaultEnd->m_jump != NULL 
+                        && pDefaultEnd->m_joins.size() != 0 )
+                    {   // switch "default:" branch ends up into "join" point
+
+                        // add final join to be rewired
+                        _ASSERTE(pDefaultEnd != pNext);
+                        _ASSERTE(pDefaultEnd->m_jump->m_isBranch);
+                        _ASSERTE(pDefaultEnd->m_jump->m_branches.size() == 1);
+                        _ASSERTE(pDefaultEnd->m_jump->m_branches[0] == pDefaultEnd);
+                        pDefaultEnd->m_joins.push_back(pDefaultEnd->m_jump);
+
+                        // goal: join "default:" instrumentation with branch created before IL-switch
+                        // why? compiler sometimes excludes Path 0 by BR instruction before IL-switch 
+
+                        // insert not "default:" instrumentation at pNext
+                        // ----------------------------------------------
+                        //        IL_xx Conditional Branch instruction with arguments (at BranchPoint.Offset)
+                        //        IL_xx BR pNext (Path 0)
+                        //        IL_xx Path 1 Instrument
+                        //        IL_xx pBranchJump back to original Path 1 Instruction
+                        //        IL_xx Path 2 Instrument
+                        //        IL_xx pBranchJump back to original Path 2 Instruction
+                        //        IL_xx Path N.. Instrument
+                        //        IL_xx pBranchJump back to original Path N.. Instruction
+                        // pNext: IL_xx BR jump [chain] to pDefaultEnd join point 
+                        
+                        // insert not "default:" instrumentation at pNext
+                        for (it = method.m_instructions.begin(); *it != pNext; ++it);
+                        method.m_instructions.insert(it, instructions.begin(), instructions.end());
+                        
+                        // insert "default:" instrumentation at pDefaultEnd
+                        // ------------------------------------------------
+                        // pNext:       IL_xx BR jump to [optional] or to pDefaultEnd (=>last jump)
+                        // ....
+                        // [optional]   IL_xx BR jump to next [optional] jump
+                        // ....
+                        // [optional]   IL_xx BR jump to pDefaultEnd (=>last jump)
+                        // ....
+                        // pDefault:    IL_xx Path 0 Instrument
+                        // pDefaultEnd: IL_xx whatever it is <- rewire incoming (joined) jumps from here to pDefault 
+
+                        instructions.clear();
+                        Instruction* pDefault = instrumentMethod(instructions, storedId);
+
+                        // rewire pDefaultEnd joins
+                        for(auto join = pDefaultEnd->m_joins.begin(); join != pDefaultEnd->m_joins.end(); join++)
+                        {
+                            _ASSERTE((*join)->m_isBranch);
+                            _ASSERTE((*join)->m_branches.size() == 1);
+
+                            // deal with rewired duplicates (two branches merging into same join path)
+                            _ASSERTE((*join)->m_branches[0] == pDefaultEnd || (*join)->m_branches[0] == pDefault);
+                            if ((*join)->m_branches[0] != pDefault)
+                                (*join)->m_branches[0] = pDefault; // rewire pointing branch to instrumentation 
                         }
 
-                        for (it = method.m_instructions.begin(); *it != toInstrument; ++it);
+                        // insert "default:" part of instrumentation at pDefaultEnd
+                        for (it = method.m_instructions.begin(); *it != pDefaultEnd; ++it);
                         method.m_instructions.insert(it, instructions.begin(), instructions.end());
                     }
+                    else
+                    {
+                        // here insert all instrumentation at pNext
+                        // ----------------------------------------
+                        //        IL_xx Conditional Branch instruction with arguments (at BranchPoint.Offset)
+                        //        IL_xx BR pNext -> rewired to pElse (Path 0)
+                        //        IL_xx Path 1 Instrument
+                        //        IL_xx pBranchJump back to original Path 1 Instruction
+                        //        IL_xx Path 2 Instrument
+                        //        IL_xx pBranchJump back to original Path 2 Instruction
+                        //        IL_xx Path N.. Instrument
+                        //        IL_xx pBranchJump back to original Path N.. Instruction
+                        // pElse: IL_xx Path 0 Instrument 
+                        // pNext: IL_xx Whatever it is 
+                        
+                        Instruction* pElse = instrumentMethod(instructions, storedId);
+                        pJumpNext->m_branches[0] = pElse; // rewire pJumpNext
 
+                        for (it = method.m_instructions.begin(); *it != pNext; ++it);
+                        method.m_instructions.insert(it, instructions.begin(), instructions.end());
+                    }
+                    
                     // restore 'it' position
                     for (it = method.m_instructions.begin(); *it != pNext; ++it);
                 }

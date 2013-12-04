@@ -45,7 +45,7 @@ Instruction& Instruction::operator = (const Instruction& b)
     m_isBranch = b.m_isBranch;
     m_branchOffsets = b.m_branchOffsets;
     m_branches = b.m_branches;
-    m_joints = b.m_joints;
+    m_joins = b.m_joins;
     m_origOffset = b.m_origOffset;
     return *this;
 }

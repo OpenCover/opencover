@@ -38,7 +38,7 @@ public:
 
     std::vector<long> m_branchOffsets;
     InstructionList m_branches;
-    InstructionList m_joints;
+    InstructionList m_joins;
     Instruction* m_jump;
 
     long m_origOffset;
