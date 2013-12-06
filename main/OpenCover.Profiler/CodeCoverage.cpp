@@ -519,7 +519,7 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
         CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
-        }, method, brPoints);
+        }, method, brPoints, seqPoints);
 
         CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
@@ -537,7 +537,7 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
         CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {
             return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
-        }, method, brPoints);
+        }, method, brPoints, seqPoints);
         
         CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
         {

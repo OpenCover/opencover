@@ -25,12 +25,31 @@ namespace CoverageInstrumentation
     }
 
     template<class IM>
-    void AddBranchCoverage(IM instrumentMethod, Method& method, std::vector<BranchPoint> points)
+    void AddBranchCoverage(IM instrumentMethod, Method& method, std::vector<BranchPoint> points, std::vector<SequencePoint> seqPoints)
     {
         if (points.size() == 0) return;
 
+        bool seqPointsBegin = false;
+        auto iseqp = seqPoints.begin();
+        SequencePoint currentSeqPoint;
         for (auto it = method.m_instructions.begin(); it != method.m_instructions.end(); ++it)
         {
+            if (!seqPointsBegin) {
+                if (iseqp != seqPoints.end()) {
+                    if ((*it)->m_origOffset == (*iseqp).Offset) {
+                        seqPointsBegin = true;
+                        currentSeqPoint = (*iseqp);
+                        ++iseqp;
+            }   }   }
+            else {
+                if (iseqp != seqPoints.end()) {
+                    if ((*it)->m_origOffset == (*iseqp).Offset) {
+                        currentSeqPoint = (*iseqp);
+                        ++iseqp;
+            }   }   }
+            if (seqPointsBegin) { (*it)->m_seqp = currentSeqPoint; }
+
+
             if ((*it)->m_isBranch && ((*it)->m_origOffset != -1))
             {
                 OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -67,33 +86,37 @@ namespace CoverageInstrumentation
                         
                         if (pCurrent->m_operation != CEE_SWITCH)
                         {
-	                        // add join
-	                        Instruction* pBranchEnd = method.EndOfBranch(pBranchJump->m_branches[0]);
-	                        if (pBranchEnd->m_jump == NULL)
-	                        {   // if no branch-chain exists, then add current branch to joins
-	                            _ASSERTE(pBranchJump != pBranchEnd);
-	                            _ASSERTE(pBranchJump->m_isBranch);
+                            // add join
+                            Instruction* pBranchEnd = method.EndOfBranch(pBranchJump->m_branches[0]);
+                            if (pBranchEnd->m_jump == NULL)
+                            {   // if no branch-chain exists, then add current branch to joins
+                                _ASSERTE(pBranchJump != pBranchEnd);
+                                _ASSERTE(pBranchJump->m_branches[0] == pBranchEnd);
+                                _ASSERTE(pBranchJump->m_isBranch);
                                 _ASSERTE(pBranchJump->m_branches.size() == 1);
                                 _ASSERTE(pBranchJump->m_branches[0] == pBranchEnd);
-	                            pBranchEnd->m_joins.push_back(pBranchJump);
-	                        }
-	                        else
-	                        {   // if branch-chain exists, then add last jump-branch to joins
-	                            _ASSERTE(pBranchEnd->m_jump != NULL);
-	                            _ASSERTE(pBranchEnd != pBranchJump);
-	                            _ASSERTE(pBranchEnd->m_jump->m_isBranch);
+                                pBranchEnd->m_seqp = pCurrent->m_seqp;
+                                pBranchEnd->m_joins.push_back(pBranchJump);
+                            }
+                            else
+                            {   // if branch-chain exists, then add last jump-branch to joins
+                                _ASSERTE(pBranchEnd->m_jump != NULL);
+                                _ASSERTE(pBranchEnd != pBranchJump->m_branches[0]);
+                                _ASSERTE(pBranchEnd->m_jump->m_isBranch);
                                 _ASSERTE(pBranchEnd->m_jump->m_branches.size() == 1);
                                 _ASSERTE(pBranchEnd->m_jump->m_branches[0] == pBranchEnd);
-	                            pBranchEnd->m_joins.push_back(pBranchEnd->m_jump);
-	                        }
-	                    }
+                                pBranchEnd->m_jump->m_seqp = pCurrent->m_seqp;
+                                pBranchEnd->m_joins.push_back(pBranchEnd->m_jump);
+                            }
+                        }
                     }
                     
                     // now instrument "default:" or "else" branch
                     Instruction* pDefaultEnd = method.EndOfBranch( pNext );
                     if (pCurrent->m_operation == CEE_SWITCH 
                         && pDefaultEnd->m_jump != NULL 
-                        && pDefaultEnd->m_joins.size() != 0 )
+                        && pDefaultEnd->m_joins.size() != 0
+                        && seqPointsBegin )
                     {   // switch "default:" branch ends up into "join" point
 
                         // add final join to be rewired
@@ -142,10 +165,14 @@ namespace CoverageInstrumentation
                             _ASSERTE((*join)->m_isBranch);
                             _ASSERTE((*join)->m_branches.size() == 1);
 
-                            // deal with rewired duplicates (two branches merging into same join path)
-                            _ASSERTE((*join)->m_branches[0] == pDefaultEnd || (*join)->m_branches[0] == pDefault);
-                            if ((*join)->m_branches[0] != pDefault)
-                                (*join)->m_branches[0] = pDefault; // rewire pointing branch to instrumentation 
+                            // rewire only pCurrent-SequencePoint joins
+                            if ((*join)->m_seqp.UniqueId == pCurrent->m_seqp.UniqueId)
+                            {
+                                // deal with rewired duplicates (two branches merging into same join path)
+                                _ASSERTE((*join)->m_branches[0] == pDefaultEnd || (*join)->m_branches[0] == pDefault);
+                                if ((*join)->m_branches[0] != pDefault)
+                                    (*join)->m_branches[0] = pDefault; // rewire incoming branch to instrumentation
+                            }                                    
                         }
 
                         // insert "default:" part of instrumentation at pDefaultEnd

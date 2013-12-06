@@ -6,6 +6,7 @@
 #include "Operations.h"
 
 #pragma once
+#include "Messages.h"
 
 class Instruction;
 class Method;
@@ -40,6 +41,7 @@ public:
     InstructionList m_branches;
     InstructionList m_joins;
     Instruction* m_jump;
+    SequencePoint m_seqp;
 
     long m_origOffset;
 
