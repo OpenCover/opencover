@@ -34,21 +34,11 @@ namespace CoverageInstrumentation
         SequencePoint currentSeqPoint;
         for (auto it = method.m_instructions.begin(); it != method.m_instructions.end(); ++it)
         {
-            if (!seqPointsBegin) {
-                if (iseqp != seqPoints.end()) {
-                    if ((*it)->m_origOffset == (*iseqp).Offset) {
-                        seqPointsBegin = true;
-                        currentSeqPoint = (*iseqp);
-                        ++iseqp;
-            }   }   }
-            else {
-                if (iseqp != seqPoints.end()) {
-                    if ((*it)->m_origOffset == (*iseqp).Offset) {
-                        currentSeqPoint = (*iseqp);
-                        ++iseqp;
-            }   }   }
-            if (seqPointsBegin) { (*it)->m_seqp = currentSeqPoint; }
-
+            if ((iseqp != seqPoints.end()) && ((*it)->m_origOffset == (*iseqp).Offset)) {
+                if (!seqPointsBegin) { seqPointsBegin = true; }
+                currentSeqPoint = (*iseqp);
+                ++iseqp;
+            }
 
             if ((*it)->m_isBranch && ((*it)->m_origOffset != -1))
             {
@@ -95,7 +85,7 @@ namespace CoverageInstrumentation
                                 _ASSERTE(pBranchJump->m_isBranch);
                                 _ASSERTE(pBranchJump->m_branches.size() == 1);
                                 _ASSERTE(pBranchJump->m_branches[0] == pBranchEnd);
-                                pBranchEnd->m_seqp = pCurrent->m_seqp;
+                                if (seqPointsBegin) { pBranchEnd->m_seqp = currentSeqPoint; }
                                 pBranchEnd->m_joins.push_back(pBranchJump);
                             }
                             else
@@ -105,7 +95,7 @@ namespace CoverageInstrumentation
                                 _ASSERTE(pBranchEnd->m_jump->m_isBranch);
                                 _ASSERTE(pBranchEnd->m_jump->m_branches.size() == 1);
                                 _ASSERTE(pBranchEnd->m_jump->m_branches[0] == pBranchEnd);
-                                pBranchEnd->m_jump->m_seqp = pCurrent->m_seqp;
+                                if (seqPointsBegin) { pBranchEnd->m_jump->m_seqp = currentSeqPoint; }
                                 pBranchEnd->m_joins.push_back(pBranchEnd->m_jump);
                             }
                         }
@@ -165,8 +155,8 @@ namespace CoverageInstrumentation
                             _ASSERTE((*join)->m_isBranch);
                             _ASSERTE((*join)->m_branches.size() == 1);
 
-                            // rewire only pCurrent-SequencePoint joins
-                            if ((*join)->m_seqp.UniqueId == pCurrent->m_seqp.UniqueId)
+                            // rewire only current SequencePoint joins
+                            if ((*join)->m_seqp.UniqueId == currentSeqPoint.UniqueId)
                             {
                                 // deal with rewired duplicates (two branches merging into same join path)
                                 _ASSERTE((*join)->m_branches[0] == pDefaultEnd || (*join)->m_branches[0] == pDefault);
