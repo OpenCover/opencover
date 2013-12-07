@@ -158,7 +158,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 
 /// <summary>An unmanaged callback that can be called from .NET that has a single I4 parameter</summary>
 /// <remarks>
-/// void (__fastcall *pt)(long) = &SequencePointVisit ;
+/// void (__fastcall *pt)(long) = &amp;SequencePointVisit ;
 /// mdSignature pmsig = GetUnmanagedMethodSignatureToken_I4(moduleId);
 /// </remarks>
 static void __fastcall InstrumentPointVisit(ULONG seq)
