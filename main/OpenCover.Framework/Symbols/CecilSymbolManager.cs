@@ -349,22 +349,141 @@ namespace OpenCover.Framework.Symbols
             var methodDefinition = GetMethodDefinition(token);
             if (methodDefinition == null) return;
             UInt32 ordinal = 0;
-            foreach (var instruction in methodDefinition.Body.Instructions)
+            int branchOffset = 0;
+            int pathCounter = 0;
+            List<int> PathOffsetList;
+
+            foreach ( var instruction in methodDefinition.Body.Instructions )
             {
-                if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch) continue;
-                if (instruction.OpCode.Code != Code.Switch)
+                if ( instruction.OpCode.FlowControl != FlowControl.Cond_Branch )
+                    continue;
+
+                pathCounter = 0;
+
+                // store branch origin offset
+                branchOffset = instruction.Offset;
+
+                Debug.Assert(!Object.ReferenceEquals(null, instruction.Next));
+                if ( Object.ReferenceEquals(null, instruction.Next) ) { return; }
+
+                // Add Default branch (Path=0)
+                Debug.Assert(pathCounter == 0);
+
+                // Follow else/default instruction
+                Instruction @else = instruction.Next;
+                
+                PathOffsetList = GetBranchPath(@else);
+                Debug.Assert(PathOffsetList.Count > 0);
+
+                // add Path 0
+                BranchPoint path0 = new BranchPoint()
                 {
-                    list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 0 });
-                    list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = 1 });
-                }
-                else
+                    Offset = branchOffset,
+                    Ordinal = ordinal++,
+                    Path = pathCounter++,
+                    OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                    EndOffset = PathOffsetList.Last()
+                };
+                Debug.Assert(path0.Offset <= path0.EndOffset);
+                Debug.Assert(!Object.ReferenceEquals(null, path0.OffsetPoints));
+                list.Add(path0);
+
+                Debug.Assert(ordinal != 0);
+                Debug.Assert(pathCounter != 0);
+
+                // Add Conditional Branch (Path=1)
+                if ( instruction.OpCode.Code != Code.Switch )
                 {
-                    for (var i = 0; i < (instruction.Operand as Instruction[]).Count() + 1; i++)
+                    // Follow instruction at operand
+                    Instruction @then = instruction.Operand as Instruction;
+                    Debug.Assert(!Object.ReferenceEquals(null, @then));
+                    if ( Object.ReferenceEquals(null, @then) ) { return; }
+
+                    PathOffsetList = GetBranchPath(@then);
+                    Debug.Assert(PathOffsetList.Count > 0);
+
+                    // Add path 1
+                    BranchPoint path1 = new BranchPoint()
                     {
-                        list.Add(new BranchPoint() { Offset = instruction.Offset, Ordinal = ordinal++, Path = i });
+                        Offset = branchOffset,
+                        Ordinal = ordinal++,
+                        Path = pathCounter++,
+                        OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                        EndOffset = PathOffsetList.Last()
+                    };
+                    Debug.Assert(path1.Offset <= path1.EndOffset);
+                    Debug.Assert(!Object.ReferenceEquals(null, path1.OffsetPoints));
+                    list.Add( path1 );
+                }
+                else // instruction.OpCode.Code == Code.Switch
+                {
+                    Instruction[] branchInstructions = instruction.Operand as Instruction[];
+
+                    Debug.Assert(!Object.ReferenceEquals(null, branchInstructions));
+                    Debug.Assert(branchInstructions.Length != 0);
+
+                    if ( Object.ReferenceEquals(null, branchInstructions) || branchInstructions.Length == 0 ) { return; }
+
+                    // Add Conditional Branches (Path>0)
+                    foreach ( var @case in branchInstructions )
+                    {
+                    	
+                        // Follow operand istruction
+                        PathOffsetList = GetBranchPath(@case);
+                        Debug.Assert(PathOffsetList.Count > 0);
+
+                        // add paths 1..n
+                        BranchPoint path1toN = new BranchPoint()
+                        {
+                            Offset = branchOffset,
+                            Ordinal = ordinal++,
+                            Path = pathCounter++,
+                            OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                            EndOffset = PathOffsetList.Last()
+                        };
+                        Debug.Assert(path1toN.Offset<=path1toN.EndOffset);
+                        Debug.Assert(!Object.ReferenceEquals(null, path1toN.OffsetPoints));
+                        list.Add(path1toN);
                     }
                 }
             }
+        }
+
+        private List<int> GetBranchPath(Instruction instruction)
+        {
+            //Contract.Requires<ArgumentNullException>(!Object.ReferenceEquals(null, instruction));
+            //Contract.Ensures(!Object.ReferenceEquals(null, Debug.Result<List<int>>()));
+            //Contract.Ensures(Debug.Result<List<int>>().Count != 0, "Returned List<int>.Count == 0");
+
+            Debug.Assert(!Object.ReferenceEquals(null, instruction));
+
+            List<int> offsetList = new List<int>();
+
+            if ( !Object.ReferenceEquals(null, instruction) )
+            {
+
+                Instruction nextPoint = null;
+                Instruction point = instruction;
+                offsetList.Add(point.Offset);
+                while ( point.OpCode == OpCodes.Br || point.OpCode == OpCodes.Br_S )
+                {
+                    nextPoint = point.Operand as Instruction;
+                    Debug.Assert(!Object.ReferenceEquals(null, point));
+                    if ( !Object.ReferenceEquals(null, nextPoint) )
+                    {
+                        point = nextPoint;
+                        offsetList.Add(point.Offset);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Debug.Assert(!Object.ReferenceEquals(null, offsetList));
+            Debug.Assert(offsetList.Count != 0, "Returned List<int>.Count == 0");
+            return offsetList;
         }
 
         private MethodDefinition GetMethodDefinition(int token)

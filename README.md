@@ -1,9 +1,10 @@
 [![endorse](http://api.coderwall.com/sawilde/endorsecount.png)](http://coderwall.com/sawilde) 
 
 ### Downloads
-It seems that GitHub no longer wish to offer [downloads](https://github.com/blog/1302-goodbye-uploads) as part of the source hosting facility I have therefore decided to host the downloads on the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
 
-Alternatively why not try [nuget](http://nuget.org/packages/opencover).
+The latest releases can be downloaded from [releases](https://github.com/sawilde/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
+
+Alternatively why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
 ### Licence
 All Original Software is licensed under the [MIT Licence](https://github.com/sawilde/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.

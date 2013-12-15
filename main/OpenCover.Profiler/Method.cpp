@@ -284,8 +284,8 @@ void Method::ReadSections()
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
                         (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
+                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -324,8 +324,8 @@ void Method::ReadSections()
                     pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
                         (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
                         (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-						(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-						(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
+                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
                     if (filterStart!=0)
                     {
                         pSection->m_filterStart = GetInstructionAtOffset(filterStart);
@@ -650,19 +650,19 @@ bool Method::IsInstrumented(long offset, const InstructionList &instructions)
     bool foundInstructionAtOffset = false;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-		if ((*it)->m_origOffset == offset)
+        if ((*it)->m_origOffset == offset)
         {
-			foundInstructionAtOffset = true;
-			for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2, ++it)
-			{
-				if (!(*it2)->Equivalent(*(*it))) 
-					return false;
-			}
-			break;
+            foundInstructionAtOffset = true;
+            for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2, ++it)
+            {
+                if (!(*it2)->Equivalent(*(*it))) 
+                    return false;
+            }
+            break;
         }
     } 
 
-	return foundInstructionAtOffset;
+    return foundInstructionAtOffset;
 }
 
 /// <summary>Insert a sequence of instructions at a specific offset</summary>
@@ -673,11 +673,11 @@ bool Method::IsInstrumented(long offset, const InstructionList &instructions)
 /// copy the data between them</remarks>
 void Method::InsertInstructionsAtOffset(long offset, const InstructionList &instructions)
 {
-	InstructionList clone;
+    InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
-	{
-		clone.push_back(new Instruction(*(*it)));
-	}
+    {
+        clone.push_back(new Instruction(*(*it)));
+    }
 
     long actualOffset = 0;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -717,18 +717,21 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
 /// copy the data between them</remarks>
 void Method::InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions)
 {
-	InstructionList clone;
+#define MOVE_TO_ENDOFBRANCH FALSE
+    InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
-	{
-		clone.push_back(new Instruction(*(*it)));
-	}
+    {
+        clone.push_back(new Instruction(*(*it)));
+    }
 
-	long actualOffset = 0;
+    long actualOffset = 0;
+    Instruction* actualInstruction;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)
         {
-            actualOffset = (*it)->m_offset;
+            actualInstruction = *it;
+            actualOffset = (actualInstruction)->m_offset;
             m_instructions.insert(++it, clone.begin(), clone.end());
             break;
         }
@@ -738,8 +741,8 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
     {
         for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
         {
-            if ((*it)->m_origOffset == origOffset)
-            {            
+            if (*it == actualInstruction)
+             {            
                 Instruction orig = *(*it);
                 for (unsigned int i=0;i<clone.size();i++)
                 {
@@ -811,4 +814,26 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 }
 
 
+Instruction* Method::EndOfBranch(Instruction* toFollow)
+    {
+        Instruction* next = toFollow;
+        next->m_jump = NULL;
+        Instruction* jump = NULL;
+        Instruction* jumpTo = NULL;
+        if (next != NULL)
+        {
+            while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
+                _ASSERTE(next->m_isBranch);
+                _ASSERTE(next->m_branches.size() == 1);
+                _ASSERTE(next->m_branches[0] != NULL);
+                jumpTo = next->m_branches[0];
+                _ASSERTE(jumpTo != NULL);
+                if ( jumpTo == NULL ) break;
+                jump = next; // store last BR instruction
+                next = jumpTo; // store last BR jump-target instruction found (so far) 
+                next->m_jump = jump; // set m_jump to last BR instruction
+            }
+        }
+        return next == NULL? toFollow : next;
+    }
 
