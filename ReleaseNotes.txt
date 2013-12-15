@@ -1,7 +1,7 @@
 Version 4.5.1923
 #168 - skip auto implemented properties
 #164 - allow registryless loading
-#163 - imporved error messages
+#163 - improved error messages
 
 Version 4.5.1604
 #156 - prepend targetdir when applying test strategies (silverlight)

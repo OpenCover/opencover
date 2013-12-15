@@ -33,7 +33,7 @@ namespace OpenCover.Framework.Communication
     /// <summary>
     /// Deals with communcation syncrhonisation
     /// </summary>
-    public class CommunicationManager : ICommunicationManager
+    public sealed class CommunicationManager : ICommunicationManager
     {
         private readonly IMessageHandler _messageHandler;
 
