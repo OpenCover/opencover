@@ -384,7 +384,6 @@ namespace OpenCover.Framework.Symbols
                     OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
                     EndOffset = PathOffsetList.Last()
                 };
-                Debug.Assert(path0.Offset <= path0.EndOffset);
                 Debug.Assert(!Object.ReferenceEquals(null, path0.OffsetPoints));
                 list.Add(path0);
 
