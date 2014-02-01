@@ -184,6 +184,93 @@ namespace OpenCover.Framework.Persistance
                         var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
                         var branchPoints = method.BranchPoints ?? new BranchPoint[0];
 
+                        #region Merge branch-exits
+
+                        // anything to merge?
+                        if (sequencePoints.Length != 0 && branchPoints.Length != 0) {
+
+                            #region Join Sequences and Branches
+
+                            int index = 0;
+                            int nextOffset = 0;
+                            
+                            // get first sequencePoint and prepare list for Add(branchPoint)
+                            var parent = sequencePoints[index];
+                            parent.BranchPoints = new List<BranchPoint>();
+
+                            // get nextOffset
+                            if (index + 1 < sequencePoints.Length) {
+                                nextOffset = sequencePoints[index + 1].Offset;
+                            }
+                            else {
+                                nextOffset = int.MaxValue;
+                            }
+                            
+                            foreach (var branchPoint in branchPoints) {
+                                
+                                // while branchPoint belongs to next sequencePoint
+                                // nextOffset is offset of next sequencePoint 
+                                // or unreachable int.MinValue
+                                while (branchPoint.Offset > nextOffset) {
+
+                                    // increment index to next sequencePoint
+                                    ++index; 
+
+                                    // get next sequencePoint and prepare list for Add(branchPoint)
+                                    parent = sequencePoints[index];
+                                    parent.BranchPoints = new List<BranchPoint>();
+
+                                    // get nextOffset
+                                    if (index + 1 < sequencePoints.Length) {
+                                        nextOffset = sequencePoints[index + 1].Offset;
+                                    }
+                                    else {
+                                        nextOffset = int.MaxValue;
+                                    }
+                                }
+                                // join BranchPoint to SequencePoint
+                                parent.BranchPoints.Add(branchPoint);
+                            }
+    
+                            #endregion
+                            
+                            #region Merge each Sequence Branches
+
+                            var branchExits = new Dictionary<int, BranchPoint>();
+                            foreach (var sequencePoint in sequencePoints) {
+                
+                                // SequencePoint visited & has branches attached?
+                                if (sequencePoint.VisitCount != 0 
+                                    && sequencePoint.BranchPoints != null
+                                    && sequencePoint.BranchPoints.Count != 0) {
+                
+                                    // Merge Branches using EndOffset as branchExits key
+                                    branchExits.Clear();
+                                    foreach (var branchPoint in sequencePoint.BranchPoints) {
+                                        if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
+                                            branchExits[branchPoint.EndOffset] = branchPoint; // insert branch
+                                        } else {
+                                            branchExits[branchPoint.EndOffset].VisitCount += branchPoint.VisitCount; // update branch
+                                        }
+                                    }
+                
+                                    // Update SequencePoint properties/attributes
+                                    sequencePoint.BranchExits = 0;
+                                    sequencePoint.BranchExitsVisited = 0;
+                                    foreach (var branchPoint in branchExits.Values) {
+                                        sequencePoint.BranchExits += 1;
+                                        sequencePoint.BranchExitsVisited += branchPoint.VisitCount == 0? 0 : 1 ;
+                                    }
+                                }
+                                sequencePoint.BranchPoints = null; // release memory
+                            }
+                                            
+                            #endregion
+
+                        }
+
+                        #endregion
+
                         if (method.MethodPoint != null)
                         {
                             method.Visited = (method.MethodPoint.VisitCount > 0);

@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -24,5 +25,13 @@ namespace OpenCover.Framework.Model
         
         [XmlAttribute("ec")]
         public int EndColumn { get; set; }
+        
+        [XmlAttribute("bex")]
+        public int BranchExits { get; set; }
+        
+        [XmlAttribute("bev")]
+        public int BranchExitsVisited { get; set; }
+        
+        internal List<BranchPoint> BranchPoints { get; set; }
     }
 }
