@@ -26,11 +26,17 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("ec")]
         public int EndColumn { get; set; }
         
-        [XmlAttribute("bex")]
-        public int BranchExits { get; set; }
+        [XmlAttribute("bec")]
+        public int BranchExitsCount { get; set; }
         
         [XmlAttribute("bev")]
-        public int BranchExitsVisited { get; set; }
+        public int BranchExitsVisit { get; set; }
+        
+        [XmlAttribute("fileid")]
+        public uint FileId { get; set; }
+        
+        [XmlAttribute("url")]
+        public string Document { get; set; }
         
         internal List<BranchPoint> BranchPoints { get; set; }
     }

@@ -173,9 +173,20 @@ namespace OpenCover.Framework.Persistance
             {
                 method.MarkAsSkipped(SkippedMethod.Inferred);
             }
-
+            
             foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
+
+                #region Module File/FileID Dictionary
+
+                var filesDictionary = new Dictionary<string,uint>();
+                foreach (var file in module.Files) {
+                    if (!filesDictionary.ContainsKey(file.FullPath?? ""))
+                        filesDictionary.Add(file.FullPath?? "", file.UniqueId);
+                }
+
+                #endregion
+
                 foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
 
@@ -183,6 +194,18 @@ namespace OpenCover.Framework.Persistance
                     {
                         var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
                         var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+
+                        #region SequencePoint FileID
+                        
+                        foreach (var sp in method.SequencePoints) {
+                            uint fileid = 0;
+                            filesDictionary.TryGetValue (sp.Document?? "", out fileid);
+                            sp.FileId = fileid;
+                            // clear document if FileId is found
+                            sp.Document = sp.FileId != 0 ? null : sp.Document;
+                        }
+                        
+                        #endregion
 
                         #region Merge branch-exits
 
@@ -234,7 +257,7 @@ namespace OpenCover.Framework.Persistance
     
                             #endregion
                             
-                            #region Merge each Sequence Branches
+                            #region Merge each Sequence Branch-Exits
 
                             var branchExits = new Dictionary<int, BranchPoint>();
                             foreach (var sequencePoint in sequencePoints) {
@@ -255,11 +278,11 @@ namespace OpenCover.Framework.Persistance
                                     }
                 
                                     // Update SequencePoint properties/attributes
-                                    sequencePoint.BranchExits = 0;
-                                    sequencePoint.BranchExitsVisited = 0;
+                                    sequencePoint.BranchExitsCount = 0;
+                                    sequencePoint.BranchExitsVisit = 0;
                                     foreach (var branchPoint in branchExits.Values) {
-                                        sequencePoint.BranchExits += 1;
-                                        sequencePoint.BranchExitsVisited += branchPoint.VisitCount == 0? 0 : 1 ;
+                                        sequencePoint.BranchExitsCount += 1;
+                                        sequencePoint.BranchExitsVisit += branchPoint.VisitCount == 0? 0 : 1 ;
                                     }
                                 }
                                 sequencePoint.BranchPoints = null; // release memory

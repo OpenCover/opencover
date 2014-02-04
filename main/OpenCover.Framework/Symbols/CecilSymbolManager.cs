@@ -93,7 +93,7 @@ namespace OpenCover.Framework.Symbols
                         if (_sourceAssembly != null)
                             _sourceAssembly.MainModule.ReadSymbols();
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         // failure to here is quite normal for DLL's with no PDBs => no instrumentation
                         _sourceAssembly = null;
@@ -338,6 +338,7 @@ namespace OpenCover.Framework.Symbols
                                         Ordinal = ordinal++,
                                         StartColumn = sp.StartColumn,
                                         StartLine = sp.StartLine,
+                                        Document = sp.Document.Url,
                                     };
                     list.Add(point);
                 }
