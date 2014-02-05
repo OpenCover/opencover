@@ -262,12 +262,10 @@ namespace OpenCover.Framework.Persistance
                             var branchExits = new Dictionary<int, BranchPoint>();
                             foreach (var sequencePoint in sequencePoints) {
                 
-                                // SequencePoint visited & has branches attached?
-                                if (sequencePoint.VisitCount != 0 
-                                    && sequencePoint.BranchPoints != null
-                                    && sequencePoint.BranchPoints.Count != 0) {
+                                // SequencePoint has branches attached?
+                                if (sequencePoint.BranchPoints != null && sequencePoint.BranchPoints.Count != 0) {
                 
-                                    // Merge Branches using EndOffset as branchExits key
+                                    // Merge SP.BranchPoints using EndOffset as branchExits key
                                     branchExits.Clear();
                                     foreach (var branchPoint in sequencePoint.BranchPoints) {
                                         if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
@@ -282,7 +280,7 @@ namespace OpenCover.Framework.Persistance
                                     sequencePoint.BranchExitsVisit = 0;
                                     foreach (var branchPoint in branchExits.Values) {
                                         sequencePoint.BranchExitsCount += 1;
-                                        sequencePoint.BranchExitsVisit += branchPoint.VisitCount == 0? 0 : 1 ;
+                                        sequencePoint.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
                                     }
                                 }
                                 sequencePoint.BranchPoints = null; // release memory
