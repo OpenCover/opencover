@@ -180,7 +180,7 @@ namespace OpenCover.Framework.Persistance
                 #region Module File/FileID Dictionary
 
                 var filesDictionary = new Dictionary<string,uint>();
-                foreach (var file in module.Files) {
+                foreach (var file in module.Files ?? new File[0]) {
                     if (!filesDictionary.ContainsKey(file.FullPath?? ""))
                         filesDictionary.Add(file.FullPath?? "", file.UniqueId);
                 }
@@ -196,8 +196,9 @@ namespace OpenCover.Framework.Persistance
                         var branchPoints = method.BranchPoints ?? new BranchPoint[0];
 
                         #region SequencePoint FileID
-                        
-                        foreach (var sp in method.SequencePoints) {
+
+                        foreach (var sp in sequencePoints)
+                        {
                             uint fileid = 0;
                             filesDictionary.TryGetValue (sp.Document?? "", out fileid);
                             sp.FileId = fileid;
