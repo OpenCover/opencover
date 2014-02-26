@@ -12,7 +12,7 @@ All Original Software is licensed under the [MIT Licence](https://github.com/saw
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
 ### WIKI
-Please review the [wiki pages](https://github.com/sawilde/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/sawilde/opencover/wiki/Usage).
+Please review the [wiki pages](https://github.com/OpenCover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/OpenCover/opencover/wiki/Usage).
 
 ### Issues
 Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix. Please do not hijack unrelated issues, I would rather you create a new issue than add noise to an unrelated issue.
