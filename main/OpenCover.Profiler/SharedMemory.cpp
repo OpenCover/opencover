@@ -23,7 +23,7 @@ CSharedMemory::~CSharedMemory()
 
 void CSharedMemory::OpenFileMapping(const TCHAR* pName)
 {
-    m_hMemory = ::OpenFileMapping(FILE_MAP_ALL_ACCESS, false, pName);
+    m_hMemory = ::OpenFileMapping(FILE_MAP_WRITE, false, pName);
 }
 
 void* CSharedMemory::MapViewOfFile(DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow, SIZE_T dwNumberOfBytesToMap)

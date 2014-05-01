@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using Moq;
 using NUnit.Framework;
@@ -23,7 +24,7 @@ namespace OpenCover.Test.Framework.Manager
         {
             _key = (new Random().Next()).ToString();
             _manager = new MemoryManager();
-            _manager.Initialise("Local", _key);
+            _manager.Initialise("Local", _key, Enumerable.Empty<string>());
             _manager.AllocateMemoryBuffer(65536, 0);
             Container.RegisterInstance(_manager);
         }
@@ -235,8 +236,8 @@ namespace OpenCover.Test.Framework.Manager
                              return new byte[4];
                          });
 
-            using(var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, -5))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, -5))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, -5, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, -5, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
@@ -270,8 +271,8 @@ namespace OpenCover.Test.Framework.Manager
             EventWaitHandle standardMessageReady = null;
             EventWaitHandle offloadComplete = new AutoResetEvent(false);
 
-            using(var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
@@ -336,7 +337,7 @@ namespace OpenCover.Test.Framework.Manager
 
                 doExtraWork();
 
-            }, false);
+            }, Enumerable.Empty<string>());
 
         }
     }
