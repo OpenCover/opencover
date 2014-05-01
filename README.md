@@ -2,17 +2,17 @@
 
 ### Downloads
 
-The latest releases can be downloaded from [releases](https://github.com/sawilde/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
+The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
 
 Alternatively why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
 ### Licence
-All Original Software is licensed under the [MIT Licence](https://github.com/sawilde/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
+All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
 ### WIKI
-Please review the [wiki pages](https://github.com/OpenCover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/OpenCover/opencover/wiki/Usage).
+Please review the [wiki pages](https://github.com/opencover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/opencover/opencover/wiki/Usage).
 
 ### Issues
 Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix. Please do not hijack unrelated issues, I would rather you create a new issue than add noise to an unrelated issue.
@@ -51,10 +51,10 @@ http://opencover-metrics.herokuapp.com/charts/sample_chart.htm
 The nodejs application used to store and display the results can also be found on Github - https://github.com/sawilde/metrics-store
 
 ### Reports
-For viewing the output from OpenCover [start here.](https://github.com/sawilde/opencover/wiki/Reports)
+For viewing the output from OpenCover [start here.](https://github.com/opencover/opencover/wiki/Reports)
 
 ### Latest Drop as ZIP
-No Git? Don't worry you can download the latest code as a [zip file](http://github.com/sawilde/opencover/zipball/master).
+No Git? Don't worry you can download the latest code as a [zip file](http://github.com/opencover/opencover/zipball/master).
 
 ### Project Management
 Was using AgileZen (which I quite liked) but the maintenance of an online board (for 1 person, me) vs the card wall (in office) got monotonous for no real gain.
