@@ -43,6 +43,16 @@ namespace OpenCover.Framework.Manager
             public MemoryMappedViewStream StreamAccessorResults { get; private set; }
             public int BufferSize { get; private set; }
 
+            /// <summary>
+            /// Gets an ACL for unit test purposes
+            /// </summary>
+            internal MemoryMappedFileSecurity MemoryAcl
+            { 
+                get { 
+                    return _mmfResults.GetAccessControl(); 
+                }
+            }
+
             internal ManagedMemoryBlock(string @namespace, string key, int bufferSize, int bufferId, IEnumerable<string> servicePrincpal)
             {
                 Namespace = @namespace;
@@ -113,6 +123,17 @@ namespace OpenCover.Framework.Manager
             public EventWaitHandle InformationReadByProfiler { get; private set; }
             public byte[] DataCommunication { get; private set; }
             public GCHandle PinnedDataCommunication { get; private set; }
+
+            /// <summary>
+            /// Gets an ACL for unit test purposes
+            /// </summary>
+            internal MemoryMappedFileSecurity MemoryAcl
+            {
+                get
+                {
+                    return _memoryMappedFile.GetAccessControl();
+                }
+            }
 
             internal ManagedCommunicationBlock(string @namespace, string key, int bufferSize, int bufferId, IEnumerable<string> servicePrincpal)
             {

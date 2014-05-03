@@ -82,7 +82,7 @@ namespace OpenCover.Test.Service
         /// </summary>
         protected override void OnShutdown()
         {
-            eventLog.WriteEntry("Shutting down service");
+            Debug.WriteLine("Shutting down service");
             waiter.Set();
         }
     }
