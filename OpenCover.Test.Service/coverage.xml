@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CoverageSession xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Summary numSequencePoints="69" visitedSequencePoints="38" numBranchPoints="21" visitedBranchPoints="11" sequenceCoverage="55.07" branchCoverage="52.38" maxCyclomaticComplexity="3" minCyclomaticComplexity="1" />
+  <Modules>
+    <Module skippedDueTo="Filter" hash="E9-A8-6A-CC-31-FF-25-91-E6-86-F2-D5-72-EE-77-7D-AB-36-F0-0B">
+      <FullName>C:\Windows\Microsoft.Net\assembly\GAC_32\mscorlib\v4.0_4.0.0.0__b77a5c561934e089\mscorlib.dll</FullName>
+      <ModuleName>mscorlib</ModuleName>
+      <Classes />
+    </Module>
+    <Module hash="8F-A2-36-DB-EB-9F-20-D2-FF-00-AD-CE-BE-5D-B2-E0-7E-37-39-C8">
+      <Summary numSequencePoints="69" visitedSequencePoints="38" numBranchPoints="21" visitedBranchPoints="11" sequenceCoverage="55.07" branchCoverage="52.38" maxCyclomaticComplexity="3" minCyclomaticComplexity="1" />
+      <FullName>C:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\bin\Debug\OpenCover.Test.Service.exe</FullName>
+      <ModuleName>OpenCover.Test.Service</ModuleName>
+      <Files>
+        <File uid="1" fullPath="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\ProjectInstaller.Designer.cs" />
+        <File uid="2" fullPath="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\Service.Designer.cs" />
+        <File uid="3" fullPath="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\Service.cs" />
+      </Files>
+      <Classes>
+        <Class>
+          <Summary numSequencePoints="0" visitedSequencePoints="0" numBranchPoints="0" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="0" minCyclomaticComplexity="0" />
+          <FullName>&lt;Module&gt;</FullName>
+          <Methods />
+        </Class>
+        <Class>
+          <Summary numSequencePoints="24" visitedSequencePoints="0" numBranchPoints="7" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="3" minCyclomaticComplexity="1" />
+          <FullName>OpenCover.Test.Service.ProjectInstaller</FullName>
+          <Methods>
+            <Method visited="false" cyclomaticComplexity="1" sequenceCoverage="0" branchCoverage="0" isConstructor="true" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="5" visitedSequencePoints="0" numBranchPoints="1" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663297</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.ProjectInstaller::.ctor()</Name>
+              <FileRef uid="1" />
+              <SequencePoints>
+                <SequencePoint vc="0" uspid="1" ordinal="0" offset="0" sl="8" sc="9" el="8" ec="68" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="2" ordinal="1" offset="7" sl="14" sc="9" el="14" ec="34" bec="0" bev="0" fileid="0" url="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\ProjectInstaller.cs" />
+                <SequencePoint vc="0" uspid="3" ordinal="2" offset="14" sl="15" sc="9" el="15" ec="10" bec="0" bev="0" fileid="0" url="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\ProjectInstaller.cs" />
+                <SequencePoint vc="0" uspid="4" ordinal="3" offset="15" sl="16" sc="13" el="16" ec="35" bec="0" bev="0" fileid="0" url="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\ProjectInstaller.cs" />
+                <SequencePoint vc="0" uspid="5" ordinal="4" offset="22" sl="17" sc="9" el="17" ec="10" bec="0" bev="0" fileid="0" url="c:\Users\Steve\Documents\GitHub\opencover\OpenCover.Test.Service\OpenCover.Test.Service\ProjectInstaller.cs" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="0" uspid="1" ordinal="0" offset="0" sl="8" sc="9" el="8" ec="68" bec="0" bev="0" fileid="1" />
+            </Method>
+            <Method visited="false" cyclomaticComplexity="3" sequenceCoverage="0" branchCoverage="0" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="7" visitedSequencePoints="0" numBranchPoints="5" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="3" minCyclomaticComplexity="3" />
+              <MetadataToken>100663298</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.ProjectInstaller::Dispose(System.Boolean)</Name>
+              <FileRef uid="1" />
+              <SequencePoints>
+                <SequencePoint vc="0" uspid="6" ordinal="0" offset="0" sl="15" sc="9" el="15" ec="10" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="7" ordinal="1" offset="1" sl="16" sc="13" el="16" ec="51" bec="4" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="8" ordinal="2" offset="21" sl="17" sc="13" el="17" ec="14" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="9" ordinal="3" offset="22" sl="18" sc="17" el="18" ec="38" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="10" ordinal="4" offset="34" sl="19" sc="13" el="19" ec="14" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="11" ordinal="5" offset="35" sl="20" sc="13" el="20" ec="37" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="12" ordinal="6" offset="43" sl="21" sc="9" el="21" ec="10" bec="0" bev="0" fileid="1" />
+              </SequencePoints>
+              <BranchPoints>
+                <BranchPoint vc="0" uspid="13" ordinal="0" offset="2" path="0" offsetchain="" offsetend="4" />
+                <BranchPoint vc="0" uspid="14" ordinal="1" offset="2" path="1" offsetchain="" offsetend="15" />
+                <BranchPoint vc="0" uspid="15" ordinal="2" offset="19" path="0" offsetchain="" offsetend="21" />
+                <BranchPoint vc="0" uspid="16" ordinal="3" offset="19" path="1" offsetchain="" offsetend="35" />
+              </BranchPoints>
+              <MethodPoint xsi:type="SequencePoint" vc="0" uspid="6" ordinal="0" offset="0" sl="15" sc="9" el="15" ec="10" bec="0" bev="0" fileid="1" />
+            </Method>
+            <Method visited="false" cyclomaticComplexity="1" sequenceCoverage="0" branchCoverage="0" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="12" visitedSequencePoints="0" numBranchPoints="1" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663299</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.ProjectInstaller::InitializeComponent()</Name>
+              <FileRef uid="1" />
+              <SequencePoints>
+                <SequencePoint vc="0" uspid="17" ordinal="0" offset="0" sl="30" sc="9" el="30" ec="10" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="18" ordinal="1" offset="1" sl="31" sc="13" el="31" ec="96" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="19" ordinal="2" offset="12" sl="32" sc="13" el="32" ec="82" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="20" ordinal="3" offset="23" sl="36" sc="13" el="36" ec="104" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="21" ordinal="4" offset="36" sl="37" sc="13" el="37" ec="58" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="22" ordinal="5" offset="49" sl="38" sc="13" el="38" ec="58" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="23" ordinal="6" offset="62" sl="42" sc="13" el="42" ec="77" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="24" ordinal="7" offset="79" sl="43" sc="13" el="43" ec="74" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="25" ordinal="8" offset="96" sl="44" sc="13" el="44" ec="74" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="26" ordinal="9" offset="113" sl="45" sc="13" el="45" ec="96" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="27" ordinal="10" offset="126" sl="49" sc="13" el="51" ec="37" bec="0" bev="0" fileid="1" />
+                <SequencePoint vc="0" uspid="28" ordinal="11" offset="164" sl="53" sc="9" el="53" ec="10" bec="0" bev="0" fileid="1" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="0" uspid="17" ordinal="0" offset="0" sl="30" sc="9" el="30" ec="10" bec="0" bev="0" fileid="1" />
+            </Method>
+          </Methods>
+        </Class>
+        <Class>
+          <Summary numSequencePoints="45" visitedSequencePoints="38" numBranchPoints="14" visitedBranchPoints="11" sequenceCoverage="84.44" branchCoverage="78.57" maxCyclomaticComplexity="3" minCyclomaticComplexity="1" />
+          <FullName>OpenCover.Test.Service.Service</FullName>
+          <Methods>
+            <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="true" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="9" visitedSequencePoints="9" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663300</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::.ctor()</Name>
+              <FileRef uid="2" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="29" ordinal="0" offset="0" sl="8" sc="9" el="8" ec="68" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="30" ordinal="1" offset="7" sl="27" sc="9" el="27" ec="25" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="31" ordinal="2" offset="14" sl="28" sc="9" el="28" ec="10" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="32" ordinal="3" offset="15" sl="29" sc="13" el="29" ec="35" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="33" ordinal="4" offset="22" sl="30" sc="13" el="30" ec="48" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="34" ordinal="5" offset="34" sl="31" sc="13" el="31" ec="32" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="35" ordinal="6" offset="42" sl="32" sc="13" el="32" ec="28" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="36" ordinal="7" offset="50" sl="33" sc="13" el="33" ec="52" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="37" ordinal="8" offset="61" sl="34" sc="9" el="34" ec="10" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="29" ordinal="0" offset="0" sl="8" sc="9" el="8" ec="68" bec="0" bev="0" fileid="2" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="true" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="4" visitedSequencePoints="4" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663301</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::Main()</Name>
+              <FileRef uid="3" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="38" ordinal="0" offset="0" sl="40" sc="9" el="40" ec="10" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="39" ordinal="1" offset="1" sl="42" sc="13" el="45" ec="15" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="40" ordinal="2" offset="18" sl="47" sc="13" el="47" ec="44" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="41" ordinal="3" offset="25" sl="48" sc="9" el="48" ec="10" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="38" ordinal="0" offset="0" sl="40" sc="9" el="40" ec="10" bec="0" bev="0" fileid="3" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="4" visitedSequencePoints="4" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663302</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::OnStart(System.String[])</Name>
+              <FileRef uid="3" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="42" ordinal="0" offset="0" sl="56" sc="9" el="56" ec="10" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="43" ordinal="1" offset="1" sl="57" sc="13" el="57" ec="49" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="44" ordinal="2" offset="12" sl="58" sc="13" el="68" ec="16" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="45" ordinal="3" offset="30" sl="69" sc="9" el="69" ec="10" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="42" ordinal="0" offset="0" sl="56" sc="9" el="56" ec="10" bec="0" bev="0" fileid="3" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="4" visitedSequencePoints="4" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663303</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::OnStop()</Name>
+              <FileRef uid="3" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="46" ordinal="0" offset="0" sl="75" sc="9" el="75" ec="10" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="47" ordinal="1" offset="1" sl="76" sc="13" el="76" ec="49" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="48" ordinal="2" offset="12" sl="77" sc="13" el="77" ec="26" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="49" ordinal="3" offset="24" sl="78" sc="9" el="78" ec="10" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="46" ordinal="0" offset="0" sl="75" sc="9" el="75" ec="10" bec="0" bev="0" fileid="3" />
+            </Method>
+            <Method visited="false" cyclomaticComplexity="1" sequenceCoverage="0" branchCoverage="0" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="4" visitedSequencePoints="0" numBranchPoints="1" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663304</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::OnShutdown()</Name>
+              <FileRef uid="3" />
+              <SequencePoints>
+                <SequencePoint vc="0" uspid="50" ordinal="0" offset="0" sl="84" sc="9" el="84" ec="10" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="0" uspid="51" ordinal="1" offset="1" sl="85" sc="13" el="85" ec="58" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="0" uspid="52" ordinal="2" offset="18" sl="86" sc="13" el="86" ec="26" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="0" uspid="53" ordinal="3" offset="30" sl="87" sc="9" el="87" ec="10" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="0" uspid="50" ordinal="0" offset="0" sl="84" sc="9" el="84" ec="10" bec="0" bev="0" fileid="3" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="3" sequenceCoverage="57.14" branchCoverage="60" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="7" visitedSequencePoints="4" numBranchPoints="5" visitedBranchPoints="3" sequenceCoverage="57.14" branchCoverage="60" maxCyclomaticComplexity="3" minCyclomaticComplexity="3" />
+              <MetadataToken>100663305</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::Dispose(System.Boolean)</Name>
+              <FileRef uid="2" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="54" ordinal="0" offset="0" sl="15" sc="9" el="15" ec="10" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="55" ordinal="1" offset="1" sl="16" sc="13" el="16" ec="51" bec="4" bev="2" fileid="2" />
+                <SequencePoint vc="0" uspid="56" ordinal="2" offset="21" sl="17" sc="13" el="17" ec="14" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="0" uspid="57" ordinal="3" offset="22" sl="18" sc="17" el="18" ec="38" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="0" uspid="58" ordinal="4" offset="34" sl="19" sc="13" el="19" ec="14" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="59" ordinal="5" offset="35" sl="20" sc="13" el="20" ec="37" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="60" ordinal="6" offset="43" sl="21" sc="9" el="21" ec="10" bec="0" bev="0" fileid="2" />
+              </SequencePoints>
+              <BranchPoints>
+                <BranchPoint vc="1" uspid="61" ordinal="0" offset="2" path="0" offsetchain="" offsetend="4" />
+                <BranchPoint vc="0" uspid="62" ordinal="1" offset="2" path="1" offsetchain="" offsetend="15" />
+                <BranchPoint vc="0" uspid="63" ordinal="2" offset="19" path="0" offsetchain="" offsetend="21" />
+                <BranchPoint vc="1" uspid="64" ordinal="3" offset="19" path="1" offsetchain="" offsetend="35" />
+              </BranchPoints>
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="54" ordinal="0" offset="0" sl="15" sc="9" el="15" ec="10" bec="0" bev="0" fileid="2" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="6" visitedSequencePoints="6" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" />
+              <MetadataToken>100663306</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::InitializeComponent()</Name>
+              <FileRef uid="2" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="65" ordinal="0" offset="0" sl="30" sc="9" el="30" ec="10" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="66" ordinal="1" offset="1" sl="31" sc="13" el="31" ec="63" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="67" ordinal="2" offset="12" sl="32" sc="13" el="32" ec="85" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="68" ordinal="3" offset="24" sl="36" sc="13" el="36" ec="43" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="69" ordinal="4" offset="36" sl="37" sc="13" el="37" ec="83" bec="0" bev="0" fileid="2" />
+                <SequencePoint vc="1" uspid="70" ordinal="5" offset="48" sl="39" sc="9" el="39" ec="10" bec="0" bev="0" fileid="2" />
+              </SequencePoints>
+              <BranchPoints />
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="65" ordinal="0" offset="0" sl="30" sc="9" el="30" ec="10" bec="0" bev="0" fileid="2" />
+            </Method>
+            <Method visited="true" cyclomaticComplexity="2" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+              <Summary numSequencePoints="7" visitedSequencePoints="7" numBranchPoints="3" visitedBranchPoints="3" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="2" minCyclomaticComplexity="2" />
+              <MetadataToken>100663307</MetadataToken>
+              <Name>System.Void OpenCover.Test.Service.Service::&lt;OnStart&gt;b__0()</Name>
+              <FileRef uid="3" />
+              <SequencePoints>
+                <SequencePoint vc="1" uspid="71" ordinal="0" offset="0" sl="59" sc="13" el="59" ec="14" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="1" uspid="72" ordinal="1" offset="1" sl="61" sc="17" el="61" ec="54" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="6" uspid="73" ordinal="2" offset="14" sl="63" sc="17" el="63" ec="18" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="6" uspid="74" ordinal="3" offset="15" sl="64" sc="21" el="64" ec="56" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="6" uspid="75" ordinal="4" offset="26" sl="65" sc="17" el="65" ec="18" bec="0" bev="0" fileid="3" />
+                <SequencePoint vc="7" uspid="76" ordinal="5" offset="27" sl="62" sc="17" el="62" ec="50" bec="2" bev="2" fileid="3" />
+                <SequencePoint vc="1" uspid="77" ordinal="6" offset="46" sl="67" sc="17" el="67" ec="52" bec="0" bev="0" fileid="3" />
+              </SequencePoints>
+              <BranchPoints>
+                <BranchPoint vc="1" uspid="78" ordinal="0" offset="44" path="0" offsetchain="" offsetend="46" />
+                <BranchPoint vc="6" uspid="79" ordinal="1" offset="44" path="1" offsetchain="" offsetend="14" />
+              </BranchPoints>
+              <MethodPoint xsi:type="SequencePoint" vc="1" uspid="71" ordinal="0" offset="0" sl="59" sc="13" el="59" ec="14" bec="0" bev="0" fileid="3" />
+            </Method>
+          </Methods>
+        </Class>
+      </Classes>
+    </Module>
+    <Module skippedDueTo="Filter" hash="D8-5B-8F-C3-0A-84-E2-02-2C-57-E0-8D-EC-BC-C1-A5-AF-14-6E-BB">
+      <FullName>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.ServiceProcess\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.ServiceProcess.dll</FullName>
+      <ModuleName>System.ServiceProcess</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="8F-46-4B-BE-28-40-30-A2-E6-52-58-36-C3-F3-E3-75-03-AF-F4-FC">
+      <FullName>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System\v4.0_4.0.0.0__b77a5c561934e089\System.dll</FullName>
+      <ModuleName>System</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="8F-6E-E8-4F-40-6A-75-31-1B-08-C2-22-D5-EA-FE-23-3B-7B-82-15">
+      <FullName>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Configuration\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Configuration.dll</FullName>
+      <ModuleName>System.Configuration</ModuleName>
+      <Classes />
+    </Module>
+    <Module skippedDueTo="Filter" hash="2E-28-A3-E7-4F-05-75-91-3B-B4-A6-B7-58-E7-27-B0-EF-F7-52-11">
+      <FullName>C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll</FullName>
+      <ModuleName>System.Xml</ModuleName>
+      <Classes />
+    </Module>
+  </Modules>
+</CoverageSession>
