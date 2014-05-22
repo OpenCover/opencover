@@ -1,7 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test.Service", "OpenCover.Test.Service\OpenCover.Test.Service.csproj", "{7551376C-8B95-458C-BBDF-EB759D7BF250}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test.Service", "OpenCover.Test.Service.csproj", "{7551376C-8B95-458C-BBDF-EB759D7BF250}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9553CFEB-CBA4-402B-9327-35BB14F1A59A}"
+	ProjectSection(SolutionItems) = preProject
+		Grant-NetworkServiceExecuteAccess.ps1 = Grant-NetworkServiceExecuteAccess.ps1
+		ScriptOutline.ps1 = ScriptOutline.ps1
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
