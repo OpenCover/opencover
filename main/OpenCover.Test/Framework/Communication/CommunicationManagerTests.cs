@@ -33,7 +33,7 @@ namespace OpenCover.Test.Framework.Communication
         {
             // arrange
             var wait = new AutoResetEvent(false);
-            using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0))
+            using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
             {
                 // act
                 byte[] data = null;
@@ -55,7 +55,7 @@ namespace OpenCover.Test.Framework.Communication
         {
             // arrange
             var wait = new AutoResetEvent(false);
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
             {
                 // act
                 ThreadPool.QueueUserWorkItem(state =>

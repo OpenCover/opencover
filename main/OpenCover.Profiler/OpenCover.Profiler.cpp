@@ -25,7 +25,8 @@ STDAPI DllCanUnloadNow(void)
 	}
 
 // Returns a class factory to create an object of the requested type.
-STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
+_Check_return_
+STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID* ppv)
 {
 	#ifdef _MERGE_PROXYSTUB
 	if (PrxDllGetClassObject(rclsid, riid, ppv) == S_OK)
@@ -63,7 +64,7 @@ STDAPI DllUnregisterServer(void)
 }
 
 // DllInstall - Adds/Removes entries to the system registry per user per machine.
-STDAPI DllInstall(BOOL bInstall, LPCWSTR pszCmdLine)
+STDAPI DllInstall(BOOL bInstall, _In_opt_ LPCWSTR pszCmdLine)
 {
 	HRESULT hr = E_FAIL;
 	static const wchar_t szUserSwitch[] = L"user";

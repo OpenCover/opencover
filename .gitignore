@@ -49,3 +49,6 @@
 /main/packages
 /tools/GendarmeSigned
 /main/TestResults
+*.suo
+bin/
+obj/

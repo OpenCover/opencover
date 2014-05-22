@@ -42,6 +42,19 @@ namespace OpenCover.Framework
         Path64
     }
 
+    public enum ServiceEnvironment
+    {
+        /// <summary>
+        /// Default behaviour
+        /// </summary>
+        None,
+
+        /// <summary>
+        /// Service name, not service account
+        /// </summary>
+        ByName
+    }
+
     /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
@@ -63,6 +76,7 @@ namespace OpenCover.Framework
             HideSkipped = new List<SkippedMethod>();
             EnablePerformanceCounters = false;
             TraceByTest = false;
+            ServiceEnvironment = ServiceEnvironment.None;
         }
 
         /// <summary>
@@ -89,7 +103,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
-            builder.AppendLine("    [-service]");
+            builder.AppendLine("    [-service[:byname]]");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
@@ -185,6 +199,11 @@ namespace OpenCover.Framework
                         break;
                     case "service":
                         Service = true;
+                        ServiceEnvironment val;
+                        if (Enum.TryParse(this.GetArgumentValue("service"), true, out val))
+                        {
+                            ServiceEnvironment = val;
+                        }
                         break;
                     case "oldstyle":
                         OldStyleInstrumentation = true;
@@ -351,7 +370,7 @@ namespace OpenCover.Framework
         /// A list of attribute exclusion filters
         /// </summary>
         public List<string> AttributeExclusionFilters { get; private set; }
-    
+
         /// <summary>
         /// A list of file exclusion filters
         /// </summary>
@@ -386,6 +405,11 @@ namespace OpenCover.Framework
         /// This switch means we should treat the mandatory target as a service
         /// </summary>
         public bool Service { get; private set; }
+
+        /// <summary>
+        /// Gets the value indicating how to apply the service environment
+        /// </summary>
+        public ServiceEnvironment ServiceEnvironment { get; private set; }
 
         /// <summary>
         /// Use the old style of instrumentation that even though not APTCA friendly will

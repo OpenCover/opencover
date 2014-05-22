@@ -50,7 +50,7 @@ namespace OpenCover.Framework.Manager
             _perfCounters = perfCounters;
         }
 
-        public void RunProcess(Action<Action<StringDictionary>> process, bool isService)
+        public void RunProcess(Action<Action<StringDictionary>> process, IEnumerable<string> servicePrincipal)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
             var processMgmt = new AutoResetEvent(false);
@@ -58,13 +58,13 @@ namespace OpenCover.Framework.Manager
             var environmentKeyRead = new AutoResetEvent(false);
             var handles = new List<WaitHandle> { processMgmt };
 
-            string @namespace = isService ? "Global" : "Local";
+            string @namespace = servicePrincipal.Any() ? "Global" : "Local";
 
-            _memoryManager.Initialise(@namespace, key);
+            _memoryManager.Initialise(@namespace, key, servicePrincipal);
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, maxMsgSize, -1))
+            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, maxMsgSize, -1, servicePrincipal))
             {
                 handles.Add(_mcb.ProfilerRequestsInformation);
 

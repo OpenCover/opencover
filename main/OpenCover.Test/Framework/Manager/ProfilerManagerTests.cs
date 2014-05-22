@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using Moq;
 using NUnit.Framework;
@@ -23,7 +26,7 @@ namespace OpenCover.Test.Framework.Manager
         {
             _key = (new Random().Next()).ToString();
             _manager = new MemoryManager();
-            _manager.Initialise("Local", _key);
+            _manager.Initialise("Local", _key, Enumerable.Empty<string>());
             _manager.AllocateMemoryBuffer(65536, 0);
             Container.RegisterInstance(_manager);
         }
@@ -235,8 +238,8 @@ namespace OpenCover.Test.Framework.Manager
                              return new byte[4];
                          });
 
-            using(var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, -5))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, -5))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, -5, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, -5, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
@@ -270,8 +273,8 @@ namespace OpenCover.Test.Framework.Manager
             EventWaitHandle standardMessageReady = null;
             EventWaitHandle offloadComplete = new AutoResetEvent(false);
 
-            using(var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
@@ -313,6 +316,81 @@ namespace OpenCover.Test.Framework.Manager
             Container.GetMock<IPersistance>().Verify(x => x.SaveVisitData(It.IsAny<byte[]>()), Times.Once());
         }
 
+        [Test]
+        public void Manager_Sets_Service_ACLs_On_Events()
+        {
+            // arrange
+            var networkServiceSid = new SecurityIdentifier(WellKnownSidType.NetworkServiceSid, null);
+            var networkServiceAccount = networkServiceSid.Translate(typeof(NTAccount));
+            var servicePrincipal = new[] { networkServiceAccount.ToString() };
+            var self = WindowsIdentity.GetCurrent().User;
+
+            // act
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            {
+                var phrRules = mmb.ProfilerHasResults.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
+                var rhbrRules = mmb.ResultsHaveBeenReceived.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
+                var priRules = mcb.ProfilerRequestsInformation.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
+                var irfpRules = mcb.InformationReadyForProfiler.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
+                var irbpRules = mcb.InformationReadByProfiler.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
+
+                var rules = new[] { phrRules, rhbrRules, priRules, irfpRules, irbpRules };
+
+                // assert
+                foreach (var ruleset in rules)
+                {
+                    Assert.That(ruleset.Count, Is.EqualTo(2));
+
+                    Assert.That(ruleset.Cast<AccessRule>().Any(r => r.IdentityReference == networkServiceSid));
+                    Assert.That(ruleset.Cast<AccessRule>()
+                        .Where(r => r.IdentityReference == networkServiceSid)
+                        .Any(r => r.AccessControlType == AccessControlType.Allow));
+
+                    Assert.That(ruleset.Cast<AccessRule>().Any(r => r.IdentityReference == self));
+                    Assert.That(ruleset.Cast<AccessRule>()
+                        .Where(r => r.IdentityReference == self)
+                        .Any(r => r.AccessControlType == AccessControlType.Allow));
+                }
+            }
+        }
+
+        [Test]
+        public void Manager_Sets_Service_ACLs_On_Memory()
+        {
+            // arrange
+            var networkServiceSid = new SecurityIdentifier(WellKnownSidType.NetworkServiceSid, null);
+            var networkServiceAccount = networkServiceSid.Translate(typeof(NTAccount));
+            var servicePrincipal = new[] { networkServiceAccount.ToString() };
+            var self = WindowsIdentity.GetCurrent().User;
+
+            // act
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            {
+                var mcbRules = mcb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));
+                var mmbRules = mmb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));
+
+                var rules = new[] { mcbRules, mmbRules };
+
+                // assert
+                foreach (var ruleset in rules)
+                {
+                    Assert.That(ruleset.Count, Is.EqualTo(2));
+
+                    Assert.That(ruleset.Cast<AccessRule>().Any(r => r.IdentityReference == networkServiceSid));
+                    Assert.That(ruleset.Cast<AccessRule>()
+                        .Where(r => r.IdentityReference == networkServiceSid)
+                        .Any(r => r.AccessControlType == AccessControlType.Allow));
+
+                    Assert.That(ruleset.Cast<AccessRule>().Any(r => r.IdentityReference == self));
+                    Assert.That(ruleset.Cast<AccessRule>()
+                        .Where(r => r.IdentityReference == self)
+                        .Any(r => r.AccessControlType == AccessControlType.Allow));
+                }
+            }
+        }
+
         private void RunSimpleProcess(StringDictionary dict)
         {
             RunProcess(dict, standardMessageDataReady => { }, () => { });
@@ -336,7 +414,7 @@ namespace OpenCover.Test.Framework.Manager
 
                 doExtraWork();
 
-            }, false);
+            }, Enumerable.Empty<string>());
 
         }
     }
