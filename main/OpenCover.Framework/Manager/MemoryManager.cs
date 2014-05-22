@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text;
 using System.Threading;
 
@@ -40,18 +43,61 @@ namespace OpenCover.Framework.Manager
             public MemoryMappedViewStream StreamAccessorResults { get; private set; }
             public int BufferSize { get; private set; }
 
-            internal ManagedMemoryBlock(string @namespace, string key, int bufferSize, int bufferId)
+            /// <summary>
+            /// Gets an ACL for unit test purposes
+            /// </summary>
+            internal MemoryMappedFileSecurity MemoryAcl
+            { 
+                get { 
+                    return _mmfResults.GetAccessControl(); 
+                }
+            }
+
+            internal ManagedMemoryBlock(string @namespace, string key, int bufferSize, int bufferId, IEnumerable<string> servicePrincpal)
             {
                 Namespace = @namespace;
                 Key = key;
 
-                ProfilerHasResults = new EventWaitHandle(false, EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_SendResults_Event_", bufferId));
+                EventWaitHandleSecurity open = null;
+                MemoryMappedFileSecurity transparent = null;
 
-                ResultsHaveBeenReceived = new EventWaitHandle(false, EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveResults_Event_", bufferId));
+                if (servicePrincpal.Any())
+                {
+                    var service = servicePrincpal.First();
+                    open = new EventWaitHandleSecurity();
+                    open.AddAccessRule(new EventWaitHandleAccessRule(WindowsIdentity.GetCurrent().Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
-                _mmfResults = MemoryMappedFile.CreateNew(MakeName(@"\OpenCover_Profiler_Results_MemoryMapFile_", bufferId), bufferSize);
+                    // The event handles need more than just EventWaitHandleRights.Modify | EventWaitHandleRights.Synchronize to work
+                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+
+                    transparent = new MemoryMappedFileSecurity();
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(WindowsIdentity.GetCurrent().Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                }
+
+                bool createdNew;
+
+                ProfilerHasResults = new EventWaitHandle(
+                    false,
+                    EventResetMode.ManualReset, 
+                    MakeName(@"\OpenCover_Profiler_Communication_SendResults_Event_", bufferId),
+                    out createdNew,
+                    open);
+
+                ResultsHaveBeenReceived = new EventWaitHandle(
+                    false, 
+                    EventResetMode.ManualReset, 
+                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveResults_Event_", bufferId),
+                    out createdNew,
+                    open);
+
+                _mmfResults = MemoryMappedFile.CreateNew(
+                    MakeName(@"\OpenCover_Profiler_Results_MemoryMapFile_", bufferId),
+                    bufferSize,
+                    MemoryMappedFileAccess.ReadWrite,
+                    MemoryMappedFileOptions.None,
+                    transparent,
+                    HandleInheritability.Inheritable);
 
                 StreamAccessorResults = _mmfResults.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
                 StreamAccessorResults.Write(BitConverter.GetBytes(0), 0, 4);
@@ -76,25 +122,71 @@ namespace OpenCover.Framework.Manager
             public EventWaitHandle InformationReadyForProfiler { get; private set; }
             public EventWaitHandle InformationReadByProfiler { get; private set; }
             public byte[] DataCommunication { get; private set; }
-            public GCHandle PinnedDataCommunication { get; private set; } 
+            public GCHandle PinnedDataCommunication { get; private set; }
 
-            internal ManagedCommunicationBlock(string @namespace, string key, int bufferSize, int bufferId)
+            /// <summary>
+            /// Gets an ACL for unit test purposes
+            /// </summary>
+            internal MemoryMappedFileSecurity MemoryAcl
+            {
+                get
+                {
+                    return _memoryMappedFile.GetAccessControl();
+                }
+            }
+
+            internal ManagedCommunicationBlock(string @namespace, string key, int bufferSize, int bufferId, IEnumerable<string> servicePrincpal)
             {
                 Namespace = @namespace;
                 Key = key;
 
+                EventWaitHandleSecurity open = null;
+                MemoryMappedFileSecurity transparent = null;
+
+                if (servicePrincpal.Any())
+                {
+                    var service = servicePrincpal.First();
+                    open = new EventWaitHandleSecurity();
+                    open.AddAccessRule(new EventWaitHandleAccessRule(WindowsIdentity.GetCurrent().Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+
+                    transparent = new MemoryMappedFileSecurity();
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(WindowsIdentity.GetCurrent().Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                }
+
                 _memoryMappedFile = MemoryMappedFile.CreateNew(
-                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId), bufferSize);
+                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId),
+                    bufferSize,
+                    MemoryMappedFileAccess.ReadWrite,
+                    MemoryMappedFileOptions.None,
+                    transparent,
+                    HandleInheritability.Inheritable);
+
                 StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
 
-                ProfilerRequestsInformation = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    MakeName(@"\OpenCover_Profiler_Communication_SendData_Event_", bufferId));
+                bool createdNew;
 
-                InformationReadyForProfiler = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveData_Event_", bufferId));
+                ProfilerRequestsInformation = new EventWaitHandle(
+                    false, 
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Communication_SendData_Event_", bufferId),
+                    out createdNew,
+                    open);
 
-                InformationReadByProfiler = new EventWaitHandle(false, EventResetMode.ManualReset,
-                    MakeName(@"\OpenCover_Profiler_Communication_ChunkData_Event_", bufferId));
+                InformationReadyForProfiler = new EventWaitHandle(
+                    false, 
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveData_Event_", bufferId),
+                    out createdNew,
+                    open);
+
+                InformationReadByProfiler = new EventWaitHandle(
+                    false, 
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Communication_ChunkData_Event_", bufferId),
+                    out createdNew,
+                    open);
 
                 DataCommunication = new byte[bufferSize];
                 PinnedDataCommunication = GCHandle.Alloc(DataCommunication, GCHandleType.Pinned);
@@ -109,11 +201,14 @@ namespace OpenCover.Framework.Manager
         }
 
         private bool isIntialised = false;
-        public void Initialise(string @namespace, string key)
+
+        private string[] _servicePrincipal;
+        public void Initialise(string @namespace, string key, IEnumerable<string> servicePrincipal)
         {
             if (isIntialised) return;
             _namespace = @namespace;
             _key = key;
+            this._servicePrincipal = servicePrincipal.ToArray();
             isIntialised = true;
         }
 
@@ -124,14 +219,12 @@ namespace OpenCover.Framework.Manager
             lock (lockObject)
             {
                 var tuple = new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(
-                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId), 
-                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId));
+                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, this._servicePrincipal),
+                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, this._servicePrincipal));
                 _blocks.Add(tuple);
                 return tuple;
             }
         }
-
-        
 
         public IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> GetBlocks
         {

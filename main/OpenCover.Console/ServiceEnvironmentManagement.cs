@@ -22,6 +22,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
+using OpenCover.Framework;
+
 namespace OpenCover.Console
 {
     class ServiceEnvironmentManagementEx : ServiceEnvironmentManagement
@@ -39,7 +41,7 @@ namespace OpenCover.Console
         private string _serviceName;
         private string[] _profilerEnvironment;
 
-        public void PrepareServiceEnvironment(string serviceName, string[] profilerEnvironment)
+        public void PrepareServiceEnvironment(string serviceName, ServiceEnvironment envType, string[] profilerEnvironment)
         {
             _serviceName = serviceName;
             _profilerEnvironment = profilerEnvironment;
@@ -47,23 +49,34 @@ namespace OpenCover.Console
             // this is a bit intricate - if the service is running as LocalSystem, we need to set the environment
             // variables in the registry for the service, otherwise it's better to temporarily set it for the account,
             // assuming we can find out the account SID
-            string serviceAccountName = GetServiceAccountName(_serviceName);
-            if (serviceAccountName.StartsWith(@".\"))
-                serviceAccountName = Environment.MachineName + serviceAccountName.Substring(1);
+            // Network Service works better with environments is better on the service too
+            var serviceAccountName = MachineQualifiedServiceAccountName(this._serviceName);
             if (serviceAccountName != "LocalSystem")
             {
                 _serviceAccountSid = LookupAccountSid(serviceAccountName);
             }
-            if (_serviceAccountSid != null)
+            if (_serviceAccountSid != null && envType != ServiceEnvironment.ByName)
             {
                 SetAccountEnvironment(_serviceAccountSid, _profilerEnvironment);
             }
             else
             {
+                _serviceAccountSid = null;
                 string[] baseEnvironment = GetServicesEnvironment();
                 string[] combinedEnvironment = CombineEnvironmentVariables(baseEnvironment, _profilerEnvironment);
                 SetEnvironmentVariables(_serviceName, combinedEnvironment);
             }
+        }
+
+        public static string MachineQualifiedServiceAccountName(string serviceName)
+        {
+            string serviceAccountName = GetServiceAccountName(serviceName);
+            if (serviceAccountName.StartsWith(@".\"))
+            {
+                serviceAccountName = Environment.MachineName + serviceAccountName.Substring(1);
+            }
+
+            return serviceAccountName;
         }
 
         public void ResetServiceEnvironment()
@@ -116,15 +129,9 @@ namespace OpenCover.Console
                 key.SetValue("Environment", environment);
         }
 
-        private string[] CombineEnvironmentVariables(string[] a, string[] b)
+        private static string[] CombineEnvironmentVariables(string[] a, string[] b)
         {
-            string[] c = new string[a.Length + b.Length];
-            int i = 0;
-            foreach (string s in a)
-                c[i++] = s;
-            foreach (string s in b)
-                c[i++] = s;
-            return c;
+            return a.Concat(b).ToArray();
         }
 
         private string[] GetServicesEnvironment()
@@ -193,7 +200,7 @@ namespace OpenCover.Console
             }
         }
 
-        private string GetServiceAccountName(string serviceName)
+        private static string GetServiceAccountName(string serviceName)
         {
             Microsoft.Win32.RegistryKey key = GetServiceKey(serviceName);
             if (key != null)

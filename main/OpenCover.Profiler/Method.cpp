@@ -725,7 +725,7 @@ void Method::InsertInstructionsAtOriginalOffset(long origOffset, const Instructi
     }
 
     long actualOffset = 0;
-    Instruction* actualInstruction;
+    Instruction* actualInstruction = nullptr;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == origOffset)

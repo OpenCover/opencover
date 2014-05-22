@@ -74,7 +74,13 @@ namespace OpenCover.Console
                             ProfilerRegistration.Register(parser.Registration);
                             registered = true;
                         }
+
                         var harness = container.Resolve<IProfilerManager>();
+
+                        var servicePrincipal =
+                            (parser.Service
+                                ? new[] { ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target) }
+                                : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
                         harness.RunProcess((environment) =>
                                                {
@@ -87,7 +93,7 @@ namespace OpenCover.Console
                                                    {
                                                        returnCode = RunProcess(parser, environment);
                                                    }
-                                               }, parser.Service);
+                                               }, servicePrincipal);
 
                         DisplayResults(persistance, parser, logger);
 
@@ -130,10 +136,13 @@ namespace OpenCover.Console
             }
 
             var service = new ServiceController(parser.Target);
+            try
+            {
 
             if (service.Status != ServiceControllerStatus.Stopped)
             {
-                logger.ErrorFormat("The service '{0}' is already running. The profiler cannot attach to an already running service.", 
+                    logger.ErrorFormat(
+                        "The service '{0}' is already running. The profiler cannot attach to an already running service.",
                     parser.Target);
                 return;
             }
@@ -146,15 +155,24 @@ namespace OpenCover.Console
 
             try
             {
-                serviceEnvironment.PrepareServiceEnvironment(parser.Target, 
-                    (from string key in profilerEnvironment.Keys select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                serviceEnvironment.PrepareServiceEnvironment(
+                    parser.Target,
+                        parser.ServiceEnvironment,
+                    (from string key in profilerEnvironment.Keys
+                        select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
 
                 // now start the service
+                    var old = service;
                 service = new ServiceController(parser.Target);
+                    old.Dispose();
                 service.Start();
                 logger.InfoFormat("Service starting '{0}'", parser.Target);
                 service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
                 logger.InfoFormat("Service started '{0}'", parser.Target);
+            }
+            catch (InvalidOperationException fault)
+            {
+                logger.FatalFormat("Service launch failed with '{0}'", fault);
             }
             finally 
             {
@@ -165,6 +183,11 @@ namespace OpenCover.Console
             // and wait for it to stop
             service.WaitForStatus(ServiceControllerStatus.Stopped);
             logger.InfoFormat("Service stopped '{0}'", parser.Target);
+        }
+            finally
+            {
+                service.Dispose();
+            }
         }
 
         private static IEnumerable<string> GetSearchPaths(string targetDir)
@@ -411,8 +434,10 @@ namespace OpenCover.Console
                 {
                     try
                     {
-                        var service = new ServiceController(parser.Target);
+                        using (var service = new ServiceController(parser.Target))
+                        {
                         var name = service.DisplayName;
+                    }
                     }
                     catch (Exception)
                     {
