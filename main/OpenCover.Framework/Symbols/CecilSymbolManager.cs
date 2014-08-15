@@ -379,6 +379,7 @@ namespace OpenCover.Framework.Symbols
                 // add Path 0
                 BranchPoint path0 = new BranchPoint()
                 {
+                    StartLine = FindClosestSequencePoints(methodDefinition.Body, @else).Item1.SequencePoint.StartLine,
                     Offset = branchOffset,
                     Ordinal = ordinal++,
                     Path = pathCounter++,
@@ -405,6 +406,7 @@ namespace OpenCover.Framework.Symbols
                     // Add path 1
                     BranchPoint path1 = new BranchPoint()
                     {
+                        StartLine = FindClosestSequencePoints(methodDefinition.Body, @then).Item1.SequencePoint.StartLine,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
                         Path = pathCounter++,
@@ -434,6 +436,7 @@ namespace OpenCover.Framework.Symbols
                         // add paths 1..n
                         BranchPoint path1toN = new BranchPoint()
                         {
+                            StartLine = FindClosestSequencePoints(methodDefinition.Body, @case).Item1.SequencePoint.StartLine,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
                             Path = pathCounter++,
@@ -482,6 +485,43 @@ namespace OpenCover.Framework.Symbols
             Debug.Assert(!Object.ReferenceEquals(null, offsetList));
             Debug.Assert(offsetList.Count != 0, "Returned List<int>.Count == 0");
             return offsetList;
+        }
+
+        private Tuple<Instruction, Instruction> FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        {
+            Debug.Assert(methodBody != null);
+            Debug.Assert(methodBody.Instructions != null);
+
+            var sequencePointsInMethod = methodBody.Instructions.Where(i => i.SequencePoint != null).ToList();
+            var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
+            Instruction prev, next;
+            if (idx < 0)
+            {
+                // no exact match, idx corresponds to the next, larger element
+                int lower = Math.Max(~idx - 1, 0);
+                prev = sequencePointsInMethod[lower];
+                next = sequencePointsInMethod[~idx];
+            }
+            else
+            {
+                // exact match, idx corresponds to the match
+                int upper = Math.Min(idx + 1, sequencePointsInMethod.Count);
+                prev = sequencePointsInMethod[idx];
+                next = sequencePointsInMethod[upper];
+            }
+
+            Debug.Assert(prev.SequencePoint != null);
+            Debug.Assert(next.SequencePoint != null);
+            return Tuple.Create(prev, next);
+        }
+
+
+        private class InstructionByOffsetCompararer : IComparer<Instruction>
+        {
+            public int Compare(Instruction x, Instruction y)
+            {
+                return x.Offset.CompareTo(y.Offset);
+            }
         }
 
         private MethodDefinition GetMethodDefinition(int token)

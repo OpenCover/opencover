@@ -167,6 +167,7 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(18, points[0].StartLine);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(0, points[0].Path);
             Assert.AreEqual(1, points[1].Path);
@@ -190,6 +191,8 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(24, points[0].StartLine);
+            Assert.AreEqual(25, points[2].StartLine);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[2].Offset, points[3].Offset);
         }
@@ -213,8 +216,11 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.IsNotNull(points);
             Assert.AreEqual(4, points.Count());
             Assert.AreEqual(points[0].Offset, points[1].Offset);
-            Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);            
             Assert.AreEqual(3, points[3].Path);
+            Assert.AreEqual(33, points[1].StartLine);
+            Assert.AreEqual(35, points[2].StartLine);
+            Assert.AreEqual(37, points[3].StartLine);
         }
 
         [Test]
