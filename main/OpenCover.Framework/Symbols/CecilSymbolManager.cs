@@ -492,7 +492,7 @@ namespace OpenCover.Framework.Symbols
             Debug.Assert(methodBody != null);
             Debug.Assert(methodBody.Instructions != null);
 
-            var sequencePointsInMethod = methodBody.Instructions.Where(i => i.SequencePoint != null).ToList();
+            var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
             var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
             Instruction prev, next;
             if (idx < 0)
@@ -515,6 +515,10 @@ namespace OpenCover.Framework.Symbols
             return Tuple.Create(prev, next);
         }
 
+        private bool HasValidSequencePoint(Instruction instruction)
+        {
+            return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
+        }
 
         private class InstructionByOffsetCompararer : IComparer<Instruction>
         {

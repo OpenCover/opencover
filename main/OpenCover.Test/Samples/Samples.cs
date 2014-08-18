@@ -17,13 +17,25 @@ namespace OpenCover.Test.Samples
         {
             if (input.Contains("test")) return true;
             return false;
-        }
+        }        
 
         public bool HasTwoDecisions(string input)
         {
             if (input.Contains("test")) return true;
             if (input.Contains("xxx")) return true;
             return false;
+        }
+
+        public bool HasCompleteIf(string input)
+        {
+            if (input.Contains("test"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public bool HasSwitch(int input)
@@ -38,6 +50,35 @@ namespace OpenCover.Test.Samples
                     return true;
             }
             return false;
+        }
+
+        public bool HasSwitchWithDefault(string input)
+        {
+            switch (input)
+            {
+                case "test":
+                    return true;
+                case "xxx":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public bool HasSwitchWithBreaks(string input)
+        {
+            bool ret = false;
+            switch (input)
+            {
+                case "test":
+                    ret = true;
+                    break;
+                case "xxx":
+                    ret = true;
+                    break;
+            }
+
+            return ret;
         }
     }
 

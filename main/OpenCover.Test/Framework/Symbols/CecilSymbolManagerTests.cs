@@ -198,6 +198,30 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForMethodToken_CompleteIf()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasCompleteIf")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(31, points[0].StartLine);
+            Assert.AreEqual(35, points[2].StartLine);
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[2].Offset, points[3].Offset);
+        }
+
+        [Test]
         public void GetBranchPointsForMethodToken_Switch()
         {
             // arrange
@@ -217,6 +241,58 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(4, points.Count());
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);            
+            Assert.AreEqual(3, points[3].Path);
+            Assert.AreEqual(45, points[1].StartLine);
+            Assert.AreEqual(47, points[2].StartLine);
+            Assert.AreEqual(49, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_SwitchWithDefault()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithDefault")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(3, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(3, points[3].Path);
+            Assert.AreEqual(33, points[1].StartLine);
+            Assert.AreEqual(35, points[2].StartLine);
+            Assert.AreEqual(37, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_SwitchWithBreaks()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithBreaks")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(3, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
             Assert.AreEqual(33, points[1].StartLine);
             Assert.AreEqual(35, points[2].StartLine);
