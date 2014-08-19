@@ -505,7 +505,6 @@ namespace OpenCover.Framework.Symbols
             else
             {
                 // exact match, idx corresponds to the match
-                int upper = Math.Min(idx + 1, sequencePointsInMethod.Count);
                 prev = sequencePointsInMethod[idx];
             }
 
