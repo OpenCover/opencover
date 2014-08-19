@@ -52,33 +52,50 @@ namespace OpenCover.Test.Samples
             return false;
         }
 
-        public bool HasSwitchWithDefault(string input)
+        public bool HasSwitchWithDefault(int input)
         {
             switch (input)
             {
-                case "test":
+                case 1:
                     return true;
-                case "xxx":
+                case 2:
+                    return false;
+                case 3:
                     return true;
                 default:
                     return false;
             }
         }
 
-        public bool HasSwitchWithBreaks(string input)
+        public bool HasSwitchWithBreaks(int input)
         {
             bool ret = false;
             switch (input)
             {
-                case "test":
+                case 1:
                     ret = true;
                     break;
-                case "xxx":
+                case 2:
+                    ret = false;
+                    break;
+                case 3:
                     ret = true;
                     break;
             }
 
             return ret;
+        }
+
+        public bool HasSwitchWithMultipleCases(int input)
+        {
+            switch (input)
+            {
+                case 1:
+                case 3:
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 

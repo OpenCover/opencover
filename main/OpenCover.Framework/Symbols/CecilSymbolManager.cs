@@ -363,6 +363,7 @@ namespace OpenCover.Framework.Symbols
 
                 // store branch origin offset
                 branchOffset = instruction.Offset;
+                var branchingInstructionLine = FindClosestSequencePoints(methodDefinition.Body, instruction).Item1.SequencePoint.StartLine;
 
                 Debug.Assert(!Object.ReferenceEquals(null, instruction.Next));
                 if ( Object.ReferenceEquals(null, instruction.Next) ) { return; }
@@ -379,7 +380,7 @@ namespace OpenCover.Framework.Symbols
                 // add Path 0
                 BranchPoint path0 = new BranchPoint()
                 {
-                    StartLine = FindClosestSequencePoints(methodDefinition.Body, @else).Item1.SequencePoint.StartLine,
+                    StartLine = branchingInstructionLine,
                     Offset = branchOffset,
                     Ordinal = ordinal++,
                     Path = pathCounter++,
@@ -406,7 +407,7 @@ namespace OpenCover.Framework.Symbols
                     // Add path 1
                     BranchPoint path1 = new BranchPoint()
                     {
-                        StartLine = FindClosestSequencePoints(methodDefinition.Body, @then).Item1.SequencePoint.StartLine,
+                        StartLine = branchingInstructionLine,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
                         Path = pathCounter++,
@@ -436,7 +437,7 @@ namespace OpenCover.Framework.Symbols
                         // add paths 1..n
                         BranchPoint path1toN = new BranchPoint()
                         {
-                            StartLine = FindClosestSequencePoints(methodDefinition.Body, @case).Item1.SequencePoint.StartLine,
+                            StartLine = branchingInstructionLine,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
                             Path = pathCounter++,
