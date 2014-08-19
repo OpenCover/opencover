@@ -363,7 +363,7 @@ namespace OpenCover.Framework.Symbols
 
                 // store branch origin offset
                 branchOffset = instruction.Offset;
-                var branchingInstructionLine = FindClosestSequencePoints(methodDefinition.Body, instruction).Item1.SequencePoint.StartLine;
+                var branchingInstructionLine = FindClosestSequencePoints(methodDefinition.Body, instruction).SequencePoint.StartLine;
 
                 Debug.Assert(!Object.ReferenceEquals(null, instruction.Next));
                 if ( Object.ReferenceEquals(null, instruction.Next) ) { return; }
@@ -488,32 +488,29 @@ namespace OpenCover.Framework.Symbols
             return offsetList;
         }
 
-        private Tuple<Instruction, Instruction> FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
         {
             Debug.Assert(methodBody != null);
             Debug.Assert(methodBody.Instructions != null);
 
             var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
             var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
-            Instruction prev, next;
+            Instruction prev;
             if (idx < 0)
             {
                 // no exact match, idx corresponds to the next, larger element
                 int lower = Math.Max(~idx - 1, 0);
                 prev = sequencePointsInMethod[lower];
-                next = sequencePointsInMethod[~idx];
             }
             else
             {
                 // exact match, idx corresponds to the match
                 int upper = Math.Min(idx + 1, sequencePointsInMethod.Count);
                 prev = sequencePointsInMethod[idx];
-                next = sequencePointsInMethod[upper];
             }
 
             Debug.Assert(prev.SequencePoint != null);
-            Debug.Assert(next.SequencePoint != null);
-            return Tuple.Create(prev, next);
+            return prev;
         }
 
         private bool HasValidSequencePoint(Instruction instruction)
