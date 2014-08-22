@@ -333,6 +333,31 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForMethodToken_AssignsNegativeLineNumberToBranchesInMethodsThatHaveNoInstrumentablePoints()
+        {
+            /* 
+             * Yes these actually exist - the compiler is very inventive
+             * in this case for an anonymous class the compiler will dynamically create an Equals 'utility' method. 
+             */
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName.Contains("f__AnonymousType"));
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::Equals")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            foreach (var branchPoint in points)
+                Assert.AreEqual(-1, branchPoint.StartLine);
+        }
+
+        [Test]
         public void GetSequencePointsForToken_HandlesUnknownTokens()
         {
             // arrange

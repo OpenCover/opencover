@@ -78,6 +78,7 @@
       <Link>Properties\Version.cs</Link>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="HelperExtensions.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Communication\MarshalWapper.cs" />
