@@ -354,35 +354,45 @@ namespace OpenCover.Framework.Symbols
             int pathCounter = 0;
             List<int> PathOffsetList;
 
-            foreach ( var instruction in methodDefinition.Body.Instructions )
+            foreach (var instruction in methodDefinition.Body.Instructions)
             {
-                if ( instruction.OpCode.FlowControl != FlowControl.Cond_Branch )
+                if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
                     continue;
 
                 pathCounter = 0;
 
                 // store branch origin offset
                 branchOffset = instruction.Offset;
+                var branchingInstructionLine =
+                    FindClosestSequencePoints(methodDefinition.Body, instruction)
+                        .Maybe(sp => sp.SequencePoint.StartLine, -1);
 
                 Debug.Assert(!Object.ReferenceEquals(null, instruction.Next));
-                if ( Object.ReferenceEquals(null, instruction.Next) ) { return; }
+                if (Object.ReferenceEquals(null, instruction.Next))
+                {
+                    return;
+                }
 
                 // Add Default branch (Path=0)
                 Debug.Assert(pathCounter == 0);
 
                 // Follow else/default instruction
                 Instruction @else = instruction.Next;
-                
+
                 PathOffsetList = GetBranchPath(@else);
                 Debug.Assert(PathOffsetList.Count > 0);
 
                 // add Path 0
                 BranchPoint path0 = new BranchPoint()
                 {
+                    StartLine = branchingInstructionLine,
                     Offset = branchOffset,
                     Ordinal = ordinal++,
                     Path = pathCounter++,
-                    OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                    OffsetPoints =
+                        PathOffsetList.Count > 1
+                            ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1)
+                            : new List<int>(),
                     EndOffset = PathOffsetList.Last()
                 };
                 Debug.Assert(!Object.ReferenceEquals(null, path0.OffsetPoints));
@@ -392,12 +402,15 @@ namespace OpenCover.Framework.Symbols
                 Debug.Assert(pathCounter != 0);
 
                 // Add Conditional Branch (Path=1)
-                if ( instruction.OpCode.Code != Code.Switch )
+                if (instruction.OpCode.Code != Code.Switch)
                 {
                     // Follow instruction at operand
                     Instruction @then = instruction.Operand as Instruction;
                     Debug.Assert(!Object.ReferenceEquals(null, @then));
-                    if ( Object.ReferenceEquals(null, @then) ) { return; }
+                    if (Object.ReferenceEquals(null, @then))
+                    {
+                        return;
+                    }
 
                     PathOffsetList = GetBranchPath(@then);
                     Debug.Assert(PathOffsetList.Count > 0);
@@ -405,14 +418,18 @@ namespace OpenCover.Framework.Symbols
                     // Add path 1
                     BranchPoint path1 = new BranchPoint()
                     {
+                        StartLine = branchingInstructionLine,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
                         Path = pathCounter++,
-                        OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                        OffsetPoints =
+                            PathOffsetList.Count > 1
+                                ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1)
+                                : new List<int>(),
                         EndOffset = PathOffsetList.Last()
                     };
                     Debug.Assert(!Object.ReferenceEquals(null, path1.OffsetPoints));
-                    list.Add( path1 );
+                    list.Add(path1);
                 }
                 else // instruction.OpCode.Code == Code.Switch
                 {
@@ -421,12 +438,15 @@ namespace OpenCover.Framework.Symbols
                     Debug.Assert(!Object.ReferenceEquals(null, branchInstructions));
                     Debug.Assert(branchInstructions.Length != 0);
 
-                    if ( Object.ReferenceEquals(null, branchInstructions) || branchInstructions.Length == 0 ) { return; }
+                    if (Object.ReferenceEquals(null, branchInstructions) || branchInstructions.Length == 0)
+                    {
+                        return;
+                    }
 
                     // Add Conditional Branches (Path>0)
-                    foreach ( var @case in branchInstructions )
+                    foreach (var @case in branchInstructions)
                     {
-                    	
+
                         // Follow operand istruction
                         PathOffsetList = GetBranchPath(@case);
                         Debug.Assert(PathOffsetList.Count > 0);
@@ -434,10 +454,14 @@ namespace OpenCover.Framework.Symbols
                         // add paths 1..n
                         BranchPoint path1toN = new BranchPoint()
                         {
+                            StartLine = branchingInstructionLine,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
                             Path = pathCounter++,
-                            OffsetPoints = PathOffsetList.Count > 1 ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1) : new List<int>(),
+                            OffsetPoints =
+                                PathOffsetList.Count > 1
+                                    ? PathOffsetList.GetRange(0, PathOffsetList.Count - 1)
+                                    : new List<int>(),
                             EndOffset = PathOffsetList.Last()
                         };
                         Debug.Assert(!Object.ReferenceEquals(null, path1toN.OffsetPoints));
@@ -457,7 +481,7 @@ namespace OpenCover.Framework.Symbols
 
             List<int> offsetList = new List<int>();
 
-            if ( !Object.ReferenceEquals(null, instruction) )
+            if (!Object.ReferenceEquals(null, instruction) )
             {
 
                 Instruction nextPoint = null;
@@ -482,6 +506,44 @@ namespace OpenCover.Framework.Symbols
             Debug.Assert(!Object.ReferenceEquals(null, offsetList));
             Debug.Assert(offsetList.Count != 0, "Returned List<int>.Count == 0");
             return offsetList;
+        }
+
+        private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        {
+            Debug.Assert(methodBody != null);
+            Debug.Assert(methodBody.Instructions != null);
+
+            var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
+            if (!sequencePointsInMethod.Any()) return null;
+            var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
+            Instruction prev;
+            if (idx < 0)
+            {
+                // no exact match, idx corresponds to the next, larger element
+                var lower = Math.Max(~idx - 1, 0);
+                prev = sequencePointsInMethod[lower];
+            }
+            else
+            {
+                // exact match, idx corresponds to the match
+                prev = sequencePointsInMethod[idx];
+            }
+
+            Debug.Assert(prev.SequencePoint != null);
+            return prev;
+        }
+
+        private bool HasValidSequencePoint(Instruction instruction)
+        {
+            return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
+        }
+
+        private class InstructionByOffsetCompararer : IComparer<Instruction>
+        {
+            public int Compare(Instruction x, Instruction y)
+            {
+                return x.Offset.CompareTo(y.Offset);
+            }
         }
 
         private MethodDefinition GetMethodDefinition(int token)
