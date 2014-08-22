@@ -8,6 +8,12 @@ namespace OpenCover.Framework.Model
     public class BranchPoint : InstrumentationPoint
     {
         /// <summary>
+        /// Line of the branching instruction
+        /// </summary>
+        [XmlAttribute("sl")]
+        public int StartLine { get; set; }
+
+        /// <summary>
         /// A path that can be taken
         /// </summary>
         [XmlAttribute("path")]

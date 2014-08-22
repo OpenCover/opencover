@@ -363,6 +363,7 @@ namespace OpenCover.Framework.Symbols
 
                 // store branch origin offset
                 branchOffset = instruction.Offset;
+                var branchingInstructionLine = FindClosestSequencePoints(methodDefinition.Body, instruction).SequencePoint.StartLine;
 
                 Debug.Assert(!Object.ReferenceEquals(null, instruction.Next));
                 if ( Object.ReferenceEquals(null, instruction.Next) ) { return; }
@@ -379,6 +380,7 @@ namespace OpenCover.Framework.Symbols
                 // add Path 0
                 BranchPoint path0 = new BranchPoint()
                 {
+                    StartLine = branchingInstructionLine,
                     Offset = branchOffset,
                     Ordinal = ordinal++,
                     Path = pathCounter++,
@@ -405,6 +407,7 @@ namespace OpenCover.Framework.Symbols
                     // Add path 1
                     BranchPoint path1 = new BranchPoint()
                     {
+                        StartLine = branchingInstructionLine,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
                         Path = pathCounter++,
@@ -434,6 +437,7 @@ namespace OpenCover.Framework.Symbols
                         // add paths 1..n
                         BranchPoint path1toN = new BranchPoint()
                         {
+                            StartLine = branchingInstructionLine,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
                             Path = pathCounter++,
@@ -482,6 +486,43 @@ namespace OpenCover.Framework.Symbols
             Debug.Assert(!Object.ReferenceEquals(null, offsetList));
             Debug.Assert(offsetList.Count != 0, "Returned List<int>.Count == 0");
             return offsetList;
+        }
+
+        private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        {
+            Debug.Assert(methodBody != null);
+            Debug.Assert(methodBody.Instructions != null);
+
+            var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
+            var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
+            Instruction prev;
+            if (idx < 0)
+            {
+                // no exact match, idx corresponds to the next, larger element
+                int lower = Math.Max(~idx - 1, 0);
+                prev = sequencePointsInMethod[lower];
+            }
+            else
+            {
+                // exact match, idx corresponds to the match
+                prev = sequencePointsInMethod[idx];
+            }
+
+            Debug.Assert(prev.SequencePoint != null);
+            return prev;
+        }
+
+        private bool HasValidSequencePoint(Instruction instruction)
+        {
+            return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
+        }
+
+        private class InstructionByOffsetCompararer : IComparer<Instruction>
+        {
+            public int Compare(Instruction x, Instruction y)
+            {
+                return x.Offset.CompareTo(y.Offset);
+            }
         }
 
         private MethodDefinition GetMethodDefinition(int token)
