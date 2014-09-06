@@ -105,12 +105,14 @@ namespace OpenCover.Test.Samples
             {
 
             }
-            finally 
+            finally
             {
+                long x;
                 using (var stream = new MemoryStream())
                 {
-                    var x = stream.Length;
+                    x = stream.Length;
                 }
+                var y = x > 100 ? 1 : -1; 
             }
         }
 

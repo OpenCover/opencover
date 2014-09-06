@@ -478,9 +478,9 @@ namespace OpenCover.Framework.Symbols
             return methodDefinition.Body.ExceptionHandlers
                 .Where(e => e.HandlerType == ExceptionHandlerType.Finally)
                 .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset && branchInstruction.Offset < e.HandlerEnd.Offset)
-                .OrderByDescending(h => h.HandlerStart.Offset)
+                .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
                 .Any(eh => !methodDefinition.Body.Instructions
-                    .Where(i => i.SequencePoint != null)
+                    .Where(i => i.SequencePoint != null && i.SequencePoint.StartLine != StepOverLineCode)
                     .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Offset));
         }
 

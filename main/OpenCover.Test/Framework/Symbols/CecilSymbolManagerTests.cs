@@ -189,7 +189,7 @@ namespace OpenCover.Test.Framework.Symbols
             // act
             var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSimpleUsingStatement")).MetadataToken);
 
-            Assert.AreEqual(0, points.Length);
+            Assert.AreEqual(2, points.Length);
         }
 
         [Test]
