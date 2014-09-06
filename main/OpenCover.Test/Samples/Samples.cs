@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 
 namespace OpenCover.Test.Samples
@@ -96,6 +97,38 @@ namespace OpenCover.Test.Samples
                 default:
                     return false;
             }
+        }
+
+        public int HasUsing(int param)
+        {
+            byte[] buffer = BitConverter.GetBytes(param);
+            using (var someDisposable = new MemoryStream(buffer))
+            {                
+                byte[] readBytes = new byte[sizeof(int)];
+                someDisposable.Read(readBytes, 0, readBytes.Length);
+                return BitConverter.ToInt32(readBytes, 0);
+            }
+        }
+
+        public bool HasTryFinallyWithTernary(int param)
+        {
+            bool returnValue;
+            int readValue = -2;
+            byte[] buffer = BitConverter.GetBytes(param);
+            var someDisposable = new MemoryStream(buffer);
+            
+            try
+            {
+                byte[] readBytes = new byte[sizeof(int)];
+                someDisposable.Read(readBytes, 0, readBytes.Length);
+                readValue = BitConverter.ToInt32(readBytes, 0);
+            }
+            finally
+            {
+                returnValue = readValue > 0 ? true : false;
+            }
+
+            return returnValue;
         }
     }
 

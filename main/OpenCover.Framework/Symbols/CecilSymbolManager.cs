@@ -513,29 +513,43 @@ namespace OpenCover.Framework.Symbols
             Debug.Assert(methodBody != null);
             Debug.Assert(methodBody.Instructions != null);
 
-            var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
+            var ignoreableSequencePoints = new HashSet<Instruction>();
+            if (methodBody.HasExceptionHandlers)
+            {
+                ignoreableSequencePoints = new HashSet<Instruction>(
+                    methodBody.ExceptionHandlers
+                    .Where(eh => eh.HandlerType == ExceptionHandlerType.Finally)
+                    .Select(eh => eh.TryEnd).Where(IsIgnoreableInstruction)); 
+            }
+
+            var sequencePointsInMethod = methodBody.Instructions.Where(i => i.SequencePoint != null).ToList();
             if (!sequencePointsInMethod.Any()) return null;
             var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
             Instruction prev;
             if (idx < 0)
             {
                 // no exact match, idx corresponds to the next, larger element
-                var lower = Math.Max(~idx - 1, 0);
-                prev = sequencePointsInMethod[lower];
+                idx = Math.Max(~idx - 1, 0);
             }
-            else
+
+            prev = sequencePointsInMethod[idx];
+            if (ignoreableSequencePoints.Contains(prev))
             {
-                // exact match, idx corresponds to the match
-                prev = sequencePointsInMethod[idx];
+                return null;
             }
+            else if(IsIgnoreableInstruction(prev))
+            {
+                idx = Math.Max(idx - 1, 0);
+                prev = sequencePointsInMethod[idx];
+            }            
 
             Debug.Assert(prev.SequencePoint != null);
             return prev;
         }
 
-        private bool HasValidSequencePoint(Instruction instruction)
+        private bool IsIgnoreableInstruction(Instruction instruction)
         {
-            return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
+            return instruction.SequencePoint == null || instruction.SequencePoint.StartLine == StepOverLineCode;
         }
 
         private class InstructionByOffsetCompararer : IComparer<Instruction>
