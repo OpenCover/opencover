@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 
 namespace OpenCover.Test.Samples
@@ -97,6 +98,22 @@ namespace OpenCover.Test.Samples
                     return false;
             }
         }
+
+        public void HasSimpleUsingStatement()
+        {
+            try
+            {
+
+            }
+            finally 
+            {
+                using (var stream = new MemoryStream())
+                {
+                    var x = stream.Length;
+                }
+            }
+        }
+
     }
 
     class DeclaredMethodClass

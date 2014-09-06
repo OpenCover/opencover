@@ -45,7 +45,11 @@ namespace CoverageInstrumentation
 
                     InstructionList instructions;
 
-                    ULONG uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
+					auto bpp = std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;});
+					if (bpp == points.end()) // we can't find information on a branch to instrument (this may happen if it was skipped/ignored during initial investigation by the host process)
+						continue;
+
+                    ULONG uniqueId = (*bpp).UniqueId;
                     ULONG storedId = uniqueId; // store branch 0 ID (default/else)
 
                     Instruction *pJumpNext = new Instruction(CEE_BR);
