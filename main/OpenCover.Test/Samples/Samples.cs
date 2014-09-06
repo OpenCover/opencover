@@ -99,21 +99,22 @@ namespace OpenCover.Test.Samples
             }
         }
 
-        public void HasSimpleUsingStatement()
+        public string HasSimpleUsingStatement()
         {
+            string value;
             try
             {
 
             }
             finally
             {
-                long x;
                 using (var stream = new MemoryStream())
                 {
-                    x = stream.Length;
+                    var x = stream.Length;
+                    value = x > 1000 ? "yes" : "no";
                 }
-                var y = x > 100 ? 1 : -1; 
             }
+            return value;
         }
 
     }
