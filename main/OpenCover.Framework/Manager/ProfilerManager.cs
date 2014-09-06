@@ -4,19 +4,15 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.IO.MemoryMappedFiles;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using OpenCover.Framework.Communication;
-using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 
@@ -29,7 +25,8 @@ namespace OpenCover.Framework.Manager
     /// <remarks>It probably does too much!</remarks>
     public class ProfilerManager : IProfilerManager
     {
-        const int maxMsgSize = 65536;
+        const int MaxMsgSize = 65536;
+        private const int NumHandlesPerBlock = 32;
 
         private readonly ICommunicationManager _communicationManager;
         private readonly IPersistance _persistance;
@@ -40,6 +37,14 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
+        /// <summary>
+        /// Create an instance of the profiler manager
+        /// </summary>
+        /// <param name="communicationManager"></param>
+        /// <param name="persistance"></param>
+        /// <param name="memoryManager"></param>
+        /// <param name="commandLine"></param>
+        /// <param name="perfCounters"></param>
         public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance, 
             IMemoryManager memoryManager, ICommandLine commandLine, IPerfCounters perfCounters)
         {
@@ -50,7 +55,7 @@ namespace OpenCover.Framework.Manager
             _perfCounters = perfCounters;
         }
 
-        public void RunProcess(Action<Action<StringDictionary>> process, IEnumerable<string> servicePrincipal)
+        public void RunProcess(Action<Action<StringDictionary>> process, string[] servicePrincipal)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
             var processMgmt = new AutoResetEvent(false);
@@ -64,11 +69,11 @@ namespace OpenCover.Framework.Manager
 
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, maxMsgSize, -1, servicePrincipal))
+            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal))
             {
                 handles.Add(_mcb.ProfilerRequestsInformation);
 
-                ThreadPool.QueueUserWorkItem((state) =>
+                ThreadPool.QueueUserWorkItem(state =>
                 {
                     try
                     {
@@ -101,7 +106,7 @@ namespace OpenCover.Framework.Manager
                     }
                 });
 
-                ThreadPool.QueueUserWorkItem((state) =>
+                ThreadPool.QueueUserWorkItem(state =>
                 {
                     while (true)
                     {
@@ -129,7 +134,7 @@ namespace OpenCover.Framework.Manager
                 // wait for the environment key to be read
                 if (WaitHandle.WaitAny(new WaitHandle[] {environmentKeyRead}, new TimeSpan(0, 0, 0, 10)) != -1)
                 {
-                    ProcessMessages(handles);
+                    ProcessMessages(handles.ToArray());
                     queueMgmt.WaitOne();
                 }
             }
@@ -137,12 +142,12 @@ namespace OpenCover.Framework.Manager
 
         private bool _continueWait = true;
 
-        private void ProcessMessages(IEnumerable<WaitHandle> handles)
+        private void ProcessMessages(WaitHandle[] handles)
         {
             var threadHandles = new List<Tuple<ManualResetEvent, ManualResetEvent>>();
             do
             {
-                switch (WaitHandle.WaitAny(handles.ToArray()))
+                switch (WaitHandle.WaitAny(handles))
                 {
                     case 0:
                         _continueWait = false;
@@ -164,8 +169,16 @@ namespace OpenCover.Framework.Manager
 
             if (threadHandles.Any())
             {
-                threadHandles.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                WaitHandle.WaitAll(threadHandles.Select(h => h.Item2).Cast<WaitHandle>().ToArray());
+                var tasks = threadHandles
+                    .Select((e, index) => new {Pair = e, Block = index / NumHandlesPerBlock})
+                    .GroupBy(g => g.Block)
+                    .Select(g => g.Select(a => a.Pair))
+                    .Select(g => Task.Factory.StartNew(() =>
+                    {
+                        g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
+                        WaitHandle.WaitAll(g.Select(h => h.Item2).Cast<WaitHandle>().ToArray(), new TimeSpan(0, 0, 20));
+                    })).ToArray();
+                Task.WaitAll(tasks);
             }
 
             _messageQueue.Enqueue(new byte[0]);
@@ -177,13 +190,13 @@ namespace OpenCover.Framework.Manager
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
 
-            ThreadPool.QueueUserWorkItem((state) =>
+            ThreadPool.QueueUserWorkItem(state =>
             {
                 var processEvents = new WaitHandle[]
                                     {
                                         communicationBlock.ProfilerRequestsInformation,
                                         memoryBlock.ProfilerHasResults,
-                                        terminateThread,
+                                        terminateThread
                                     };
                 threadActivated.Set();
                 while(true)

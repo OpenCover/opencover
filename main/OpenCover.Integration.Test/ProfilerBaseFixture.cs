@@ -75,7 +75,7 @@ namespace OpenCover.Integration.Test
                 startInfo.UseShellExecute = false;
                 var process = Process.Start(startInfo);
                 process.WaitForExit();
-            }, Enumerable.Empty<string>());
+            }, Enumerable.Empty<string>().ToArray());
         }
 
     }
