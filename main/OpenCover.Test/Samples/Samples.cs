@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 
 namespace OpenCover.Test.Samples
@@ -95,6 +96,17 @@ namespace OpenCover.Test.Samples
                     return true;
                 default:
                     return false;
+            }
+        }
+
+        public int HasUsing(int param)
+        {
+            byte[] buffer = BitConverter.GetBytes(param);
+            using (var someDisposable = new MemoryStream(buffer))
+            {                
+                byte[] readBytes = new byte[sizeof(int)];
+                someDisposable.Read(readBytes, 0, readBytes.Length);
+                return BitConverter.ToInt32(readBytes, 0);
             }
         }
     }
