@@ -109,6 +109,27 @@ namespace OpenCover.Test.Samples
                 return BitConverter.ToInt32(readBytes, 0);
             }
         }
+
+        public bool HasTryFinallyWithTernary(int param)
+        {
+            bool returnValue;
+            int readValue = -2;
+            byte[] buffer = BitConverter.GetBytes(param);
+            var someDisposable = new MemoryStream(buffer);
+            
+            try
+            {
+                byte[] readBytes = new byte[sizeof(int)];
+                someDisposable.Read(readBytes, 0, readBytes.Length);
+                readValue = BitConverter.ToInt32(readBytes, 0);
+            }
+            finally
+            {
+                returnValue = readValue > 0 ? true : false;
+            }
+
+            return returnValue;
+        }
     }
 
     class DeclaredMethodClass

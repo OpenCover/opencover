@@ -359,6 +359,30 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForMethodToken_WithFinallyAndSwitch()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasTryFinallyWithTernary")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(128, points[0].StartLine);
+            Assert.AreEqual(128, points[1].StartLine);
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreNotEqual(points[0].Path, points[1].Path);
+        }
+
+        [Test]
         public void GetBranchPointsForMethodToken_AssignsNegativeLineNumberToBranchesInMethodsThatHaveNoInstrumentablePoints()
         {
             /* 
