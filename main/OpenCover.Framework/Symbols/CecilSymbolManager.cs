@@ -8,9 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security;
-using System.Text;
-using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Pdb;
@@ -193,9 +190,8 @@ namespace OpenCover.Framework.Symbols
             if (definition.HasBody && definition.Body.Instructions!=null)
             {
                 var filePath = definition.Body.Instructions
-                    .Where(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
-                    .Select(x => x.SequencePoint.Document.Url)
-                    .FirstOrDefault();
+                    .FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
+                    .Maybe(x => x.SequencePoint.Document.Url);
                 return filePath;
             }
             return null;
@@ -359,6 +355,8 @@ namespace OpenCover.Framework.Symbols
                 if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
                     continue;
 
+                if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
+
                 pathCounter = 0;
 
                 // store branch origin offset
@@ -469,6 +467,21 @@ namespace OpenCover.Framework.Symbols
                     }
                 }
             }
+        }
+
+        private static bool BranchIsInGeneratedFinallyBlock(Instruction branchInstruction, MethodDefinition methodDefinition)
+        {
+            if (!methodDefinition.Body.HasExceptionHandlers) 
+                return false;
+
+            // a generated finally block will have no sequence points in its range
+            return methodDefinition.Body.ExceptionHandlers
+                .Where(e => e.HandlerType == ExceptionHandlerType.Finally)
+                .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset && branchInstruction.Offset < e.HandlerEnd.Offset)
+                .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
+                .Any(eh => !methodDefinition.Body.Instructions
+                    .Where(i => i.SequencePoint != null && i.SequencePoint.StartLine != StepOverLineCode)
+                    .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Offset));
         }
 
         private List<int> GetBranchPath(Instruction instruction)

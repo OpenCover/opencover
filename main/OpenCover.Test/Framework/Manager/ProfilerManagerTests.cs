@@ -414,7 +414,7 @@ namespace OpenCover.Test.Framework.Manager
 
                 doExtraWork();
 
-            }, Enumerable.Empty<string>());
+            }, Enumerable.Empty<string>().ToArray());
 
         }
     }
