@@ -305,6 +305,7 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(73, points[3].StartLine);
         }
 
+        [Test]
         public void GetBranchPointsForMethodToken_SwitchWithMultipleCases()
         {
             // arrange
@@ -321,9 +322,10 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(3, points.Count());
+            Assert.AreEqual(4, points.Count()); // there's one branch generated for missing case = 2
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(points[0].Offset, points[3].Offset);
             Assert.AreEqual(3, points[3].Path);
 
             Assert.AreEqual(91, points[0].StartLine);
