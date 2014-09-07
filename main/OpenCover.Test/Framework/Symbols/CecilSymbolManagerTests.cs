@@ -346,10 +346,10 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(points[0].Offset, points[3].Offset);
             Assert.AreEqual(3, points[3].Path);
 
-            Assert.AreEqual(91, points[0].StartLine);
-            Assert.AreEqual(91, points[1].StartLine);
-            Assert.AreEqual(91, points[2].StartLine);
-            Assert.AreEqual(91, points[3].StartLine);
+            Assert.AreEqual(92, points[0].StartLine);
+            Assert.AreEqual(92, points[1].StartLine);
+            Assert.AreEqual(92, points[2].StartLine);
+            Assert.AreEqual(92, points[3].StartLine);
         }
 
         [Test]
