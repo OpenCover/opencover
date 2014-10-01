@@ -24,7 +24,7 @@
 	<include buildfile="${build.folder}/nuget_package.build" />
 	<include buildfile="${build.folder}/metrics.build" />
 
-	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number" />
+	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number, generate-release-notes" />
 
 	<target name="rebuild" depends="build-environment, clean, build, test" >
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
@@ -44,5 +44,14 @@
 		<call target="test-bdd" />
 				
 	</target>
-		
+	
+  <target name="generate-release-notes" depends="get-version-number" >
+    <delete file="ReleaseNotes.txt" />
+    <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+	</target>
+	
 </project>
