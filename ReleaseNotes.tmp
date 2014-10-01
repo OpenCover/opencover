@@ -1,4 +1,7 @@
 Version [[version]]
+#218 Auto tag release notes (prj-mgmt)
+
+Version 4.5.3207
 #209 The number of WaitHandles must be less than or equal to 64 (fix)
 #208 Line Number for Branch Points (feature)
 #207 "using" statement causes incorrect Branch Coverage (fix)
