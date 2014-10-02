@@ -2,7 +2,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 
 ### Master 
 
-The primary repo for the project is [over here](https://github.com/sawilde/opencover/).
+The primary repo for the project is [over here](https://github.com/opencover/opencover/).
 Alternatively why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
 ### Licence
