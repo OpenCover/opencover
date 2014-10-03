@@ -77,6 +77,7 @@ namespace OpenCover.Framework
             EnablePerformanceCounters = false;
             TraceByTest = false;
             ServiceEnvironment = ServiceEnvironment.None;
+            RegExFilters = false;
         }
 
         /// <summary>
@@ -95,6 +96,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [[\"]-filter:<space separated filters>[\"]]");
             builder.AppendLine("    [[\"]-filterfile:<path to file>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
+            builder.AppendLine("    [-regex]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
@@ -161,6 +163,9 @@ namespace OpenCover.Framework
                         break;
                     case "mergebyhash":
                         MergeByHash = true;
+                        break;
+                    case "regex":
+                        RegExFilters = true;
                         break;
                     case "showunvisited":
                         ShowUnvisited = true;
@@ -421,6 +426,12 @@ namespace OpenCover.Framework
         /// Enable the performance counters
         /// </summary>
         public bool EnablePerformanceCounters { get; private set; }
+
+        /// <summary>
+        /// Filters are to use regular expressions rather than wild cards
+        /// </summary>
+        public bool RegExFilters { get; set; }
+
     }
 
 }

@@ -30,6 +30,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.EnablePerformanceCounters);
             Assert.IsFalse(parser.TraceByTest);
             Assert.IsFalse(parser.SkipAutoImplementedProperties);
+            Assert.IsFalse(parser.RegExFilters);
 
         }
 
@@ -645,6 +646,19 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(2, parser.Filters.Count);
             Assert.AreEqual("+[XY Z]ABC", parser.Filters[0]);
             Assert.AreEqual("-[XY Z*]ABC", parser.Filters[1]);
+        }
+
+        [Test]
+        public void HandlesRegExArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-regex", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.RegExFilters);
         }
     }
 }

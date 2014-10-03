@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.ServiceModel.Syndication;
 using System.Text;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Collections.Generic;
 using Moq;
@@ -575,6 +577,70 @@ namespace OpenCover.Test.Framework
                 Assert.IsFalse(filter.IsAutoImplementedProperty(methodDefinition));
             }
             Assert.IsTrue(wasTested);
+        }
+
+        [Test]
+        [TestCase("A1.B1", false)]
+        [TestCase("A1.B2", true)]
+        [TestCase("A1.B3", true)]
+        [TestCase("A2.B3", false)]
+        [TestCase("A.B", false)]
+        public void CanHandle_AssemblyFilters_ExpressedAs_RegularExpressions(string assembly, bool canUse)
+        {
+            // arrange
+            var filter = new Filter {RegExFilters = true};
+            filter.AddFilter(@"+[(A1\.B[23])]([CD]1.*)");
+
+            // act
+
+            // assert
+            Assert.AreEqual(canUse, filter.UseAssembly(assembly));
+        }
+
+        [Test]
+        [TestCase("A1", false)]
+        [TestCase("C1", true)]
+        [TestCase("D1", true)]
+        [TestCase("D1234.ABC.Hope", true)]
+        public void CanHandle_AssemblyClassFilters_ExpressedAs_RegularExpressions(string namespaceClass, bool canInstrument)
+        {
+            // arrange
+            var filter = new Filter { RegExFilters = true };
+            filter.AddFilter(@"+[(A1\.B[23])]([CD]1.*)");
+
+            // act
+
+            // assert
+            Assert.AreEqual(canInstrument, filter.InstrumentClass("A1.B2", namespaceClass));
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_Methods_UsingRegularExpressions()
+        {
+            // arrange
+            var filter = new Filter { RegExFilters = true };
+            filter.AddAttributeExclusionFilters(new[] { ".*ExcludeMethodAttribute" });
+
+            // act
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Concrete).FullName);
+
+            // assert
+            foreach (var methodDefinition in type.Methods.Where(methodDefinition => !methodDefinition.IsSetter && !methodDefinition.IsGetter))
+            {
+                Assert.True(filter.ExcludeByAttribute(methodDefinition));
+            }
+        }
+
+        [Test]
+        public void File_Is_Excluded_If_Matches_Filter_UsingRegularExpressions()
+        {
+            // arrange
+            var filter = new Filter{RegExFilters = true};
+            filter.AddFileExclusionFilters(new[] { @"XXX\..*" });
+
+            // act, assert
+            Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
         }
     }
 }

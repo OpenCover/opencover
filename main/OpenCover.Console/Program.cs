@@ -398,6 +398,7 @@ namespace OpenCover.Console
             filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
             filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
             filter.AddTestFileFilters(parser.TestFilters.ToArray());
+            filter.RegExFilters = parser.RegExFilters;
 
             return filter;
         }
