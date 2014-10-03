@@ -5,10 +5,8 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 
@@ -268,43 +266,41 @@ namespace OpenCover.Framework
         /// <returns></returns>
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
-            if (ExcludedAttributes.Count == 0) 
-                return false;
-            
-            if (!entity.HasCustomAttributes)
-                return false;
-
-            foreach (var excludeAttribute in ExcludedAttributes)
+            while (true)
             {
-                foreach (var customAttribute in entity.CustomAttributes)
+                if (ExcludedAttributes.Count == 0)
+                    return false;
+
+                if (entity ==null || !entity.HasCustomAttributes)
+                    return false;
+
+                if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success select excludeAttribute).Any())
                 {
-                    if (excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success) 
-                        return true;
+                    return true;
                 }
-            }
 
-            if (entity.DeclaringType != null && entity.Name.StartsWith("<"))
-            {
+                if (entity.DeclaringType == null || !entity.Name.StartsWith("<")) 
+                    return false;
+
                 var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
                 if (match.Groups["name"] == null) return false;
                 var name = match.Groups["name"].Value;
                 var target = entity.DeclaringType.Methods.FirstOrDefault(m => m.Name == name);
-                if (target != null)
+                if (target == null) return false;
+                if (target.IsGetter)
                 {
-                    if (target.IsGetter)
-                    {
-                        var getMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target);
-                        return ExcludeByAttribute(getMethod);
-                    }
-                    if (target.IsSetter)
-                    {
-                        var setMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.SetMethod == target);
-                        return ExcludeByAttribute(setMethod);
-                    }
-                    return ExcludeByAttribute(target);
+                    var getMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target);
+                    entity = getMethod;
+                    continue;
                 }
+                if (target.IsSetter)
+                {
+                    var setMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.SetMethod == target);
+                    entity = setMethod;
+                    continue;
+                }
+                entity = target;
             }
-            return false;
         }
 
         public bool ExcludeByFile(string fileName)
@@ -312,12 +308,7 @@ namespace OpenCover.Framework
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
                 return false;
 
-            foreach (var excludeFile in ExcludedFiles)
-            {
-                if (excludeFile.Value.Match(fileName).Success)
-                    return true;
-            }
-            return false;
+            return ExcludedFiles.Any(excludeFile => excludeFile.Value.Match(fileName).Success);
         }
 
         public void AddFileExclusionFilters(string[] exclusionFilters)
@@ -340,12 +331,7 @@ namespace OpenCover.Framework
             if (TestFiles.Count == 0 || string.IsNullOrWhiteSpace(assemblyName))
                 return false;
 
-            foreach (var file in TestFiles)
-            {
-                if (file.Value.Match(assemblyName).Success)
-                    return true;
-            }
-            return false;
+            return TestFiles.Any(file => file.Value.Match(assemblyName).Success);
         }
 
         public void AddTestFileFilters(string[] testFilters)
