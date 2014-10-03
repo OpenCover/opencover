@@ -218,6 +218,10 @@
       <Link>dogfood_path32.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\dogfood_regex.cmd">
+      <Link>dogfood_regex.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\dogfood_shadow.cmd">
       <Link>dogfood_shadow.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

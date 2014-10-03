@@ -583,7 +583,7 @@ namespace OpenCover.Test.Framework
         public void CanHandle_AssemblyFilters_ExpressedAs_RegularExpressions(string assembly, bool canUse)
         {
             // arrange
-            var filter = new Filter {RegExFilters = true};
+            var filter = new Filter(true);
             filter.AddFilter(@"+[(A1\.B[23])]([CD]1.*)");
 
             // act
@@ -600,7 +600,7 @@ namespace OpenCover.Test.Framework
         public void CanHandle_AssemblyClassFilters_ExpressedAs_RegularExpressions(string namespaceClass, bool canInstrument)
         {
             // arrange
-            var filter = new Filter { RegExFilters = true };
+            var filter = new Filter(true);
             filter.AddFilter(@"+[(A1\.B[23])]([CD]1.*)");
 
             // act
@@ -613,7 +613,7 @@ namespace OpenCover.Test.Framework
         public void Can_Identify_Excluded_Methods_UsingRegularExpressions()
         {
             // arrange
-            var filter = new Filter { RegExFilters = true };
+            var filter = new Filter(true);
             filter.AddAttributeExclusionFilters(new[] { ".*ExcludeMethodAttribute" });
 
             // act
@@ -631,11 +631,24 @@ namespace OpenCover.Test.Framework
         public void File_Is_Excluded_If_Matches_Filter_UsingRegularExpressions()
         {
             // arrange
-            var filter = new Filter{RegExFilters = true};
+            var filter = new Filter(true);
             filter.AddFileExclusionFilters(new[] { @"XXX\..*" });
 
             // act, assert
             Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
+        }
+
+        [Test]
+        [TestCase(new[] { "-target:t" }, false)]
+        [TestCase(new[] { "-target:t", "-nodefaultfilters" }, false)]
+        [TestCase(new[] { "-target:t", "-nodefaultfilters", "-filter:+[*]*" }, true)]
+        [TestCase(new[] { "-target:t", "-regex" }, false)]
+        [TestCase(new[] { "-target:t", "-nodefaultfilters", "-regex", "-filter:+[(.*)](.*)" }, true)]
+        public void Can_BuildFilter_From_CommandLine(string[] commandLine, bool matchAssembly)
+        {
+            var filter = Filter.BuildFilter(new CommandLineParser(commandLine).Do(_ => _.ExtractAndValidateArguments()));
+            Assert.IsNotNull(filter);
+            Assert.AreEqual(matchAssembly, filter.UseAssembly("System"));
         }
     }
 }

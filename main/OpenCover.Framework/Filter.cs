@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -90,7 +91,7 @@ namespace OpenCover.Framework
         /// <summary>
         /// filters should be treated as regular expressions rather than wildcard
         /// </summary>
-        bool RegExFilters { get; set; }
+        bool RegExFilters { get; }
     }  
 
     internal static class FilterHelper
@@ -138,18 +139,19 @@ namespace OpenCover.Framework
         internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
         internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
         internal IList<Lazy<Regex>> TestFiles { get; set; }
-        public bool RegExFilters { get; set; }
+        public bool RegExFilters { get; private set; }
 
         /// <summary>
         /// Standard constructor
         /// </summary>
-        public Filter()
+        public Filter(bool useRegexFilters = false)
         {
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
             TestFiles = new List<Lazy<Regex>>();
+            RegExFilters = useRegexFilters;
         }
         
         public bool UseAssembly(string assemblyName)
@@ -356,6 +358,48 @@ namespace OpenCover.Framework
                 return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Create a filter entity from parser parameters
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <returns></returns>
+        public static IFilter BuildFilter(CommandLineParser parser)
+        {
+            var filter = new Filter(parser.RegExFilters);
+
+            // apply filters
+            if (!parser.NoDefaultFilters)
+            {
+                if (parser.RegExFilters)
+                {
+                    filter.AddFilter(@"-[(mscorlib)](.*)");
+                    filter.AddFilter(@"-[(mscorlib\..*)](.*)");
+                    filter.AddFilter(@"-[(System)](.*)");
+                    filter.AddFilter(@"-[(System\..*)](.*)");
+                    filter.AddFilter(@"-[(Microsoft.VisualBasic)](.*)");
+                }
+                else
+                {
+                    filter.AddFilter("-[mscorlib]*");
+                    filter.AddFilter("-[mscorlib.*]*");
+                    filter.AddFilter("-[System]*");
+                    filter.AddFilter("-[System.*]*");
+                    filter.AddFilter("-[Microsoft.VisualBasic]*");
+                }
+            }
+
+            if (parser.Filters.Count > 0)
+            {
+                parser.Filters.ForEach(filter.AddFilter);
+            }
+
+            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
+            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
+            filter.AddTestFileFilters(parser.TestFilters.ToArray());
+
+            return filter;
         }
     }
 }
