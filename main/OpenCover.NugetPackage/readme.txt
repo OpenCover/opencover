@@ -14,4 +14,4 @@ Currently OpenCover has no visualization of its results and we recommend that
 your use ReportGenerator (1.9 and above) to view the results against your code.
 
 If you have any issues or feature requests with OpenCover please raise them 
-with the project owners on https://github.com/sawilde/opencover.
+with the project owners on https://github.com/opencover/opencover.
