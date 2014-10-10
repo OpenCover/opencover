@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
@@ -298,7 +299,7 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
-        public void BuildModuleModel_Gets_BranchPoints_From_SymbolReader()
+        public void BuildModuleModel_Gets_BranchPoints_WhenHaveSequencePoints()
         {
             // arrange
             var @class = new Class();
@@ -332,5 +333,37 @@ namespace OpenCover.Test.Framework.Model
             Assert.AreSame(seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
             Assert.AreSame(brPoint, module.Classes[0].Methods[0].BranchPoints[0]);
         }
+
+        [Test]
+        public void BuildModuleModel_Gets_NoBranchPoints_WhenNoSequencePoints()
+        {
+            // arrange
+            var @class = new Class();
+            var @method = new Method { MetadataToken = 101 };
+            var brPoint = new BranchPoint();
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Returns(new[] { @method });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetBranchPointsForToken(101))
+                .Returns(new[] { brPoint });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.IsFalse(module.Classes[0].Methods[0].SequencePoints.Any());
+            Assert.IsFalse(module.Classes[0].Methods[0].BranchPoints.Any());
+        }
+
     }
 }
