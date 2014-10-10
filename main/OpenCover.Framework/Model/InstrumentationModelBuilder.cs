@@ -4,7 +4,6 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -90,11 +89,12 @@ namespace OpenCover.Framework.Model
                 if (!method.ShouldSerializeSkippedDueTo())
                 {
                     method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
-                    method.MethodPoint = (method.SequencePoints != null)
-                                             ? method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0)
-                                             : null;
+                    if (method.SequencePoints.Maybe(_ => _.Any()))
+                    {
+                        method.MethodPoint = method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0);
+                        method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
+                    }
                     method.MethodPoint = method.MethodPoint ?? new InstrumentationPoint();
-                    method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
                 }
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
