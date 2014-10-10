@@ -27,13 +27,21 @@ namespace OpenCover.Framework.Model
     public class File : FileRef
     {
         private static int _uId;
-        
+
+        static readonly List<File> Files = new List<File>();
+
+        internal static void ResetAfterLoading()
+        {
+            _uId = (int)Files.Max(x => x.UniqueId);
+        }
+
         /// <summary>
         /// A standard constructor
         /// </summary>
         public File()
         {
             UniqueId = (UInt32)Interlocked.Increment(ref _uId);
+            Files.Add(this);
         }
 
         /// <summary>

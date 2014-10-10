@@ -660,5 +660,18 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.IsTrue(parser.RegExFilters);
         }
+
+        [Test]
+        public void HandlesMergeOutputArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-mergeoutput", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.MergeExistingOutputFile);
+        }
     }
 }

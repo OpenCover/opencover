@@ -64,7 +64,7 @@ namespace OpenCover.Console
                 {
                     var persistance = new FilePersistance(parser, logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile);
+                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
                     var registered = false;
 
                     try

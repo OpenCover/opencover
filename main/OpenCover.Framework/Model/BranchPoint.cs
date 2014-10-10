@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -18,11 +19,22 @@ namespace OpenCover.Framework.Model
         /// </summary>
         [XmlAttribute("path")]
         public int Path { get; set; }
+
         /// <summary>
         /// List of OffsetPoints between Offset and EndOffset (exclusive)
         /// </summary>
         [XmlAttribute("offsetchain")]
         public System.Collections.Generic.List<int> OffsetPoints { get; set; }
+        
+        /// <summary>
+        /// Should offset points be serialized
+        /// </summary>
+        /// <returns></returns>
+        public bool ShouldSerializeOffsetPoints()
+        {
+            return OffsetPoints.Maybe(_ => _.Any());
+        }
+
         /// <summary>
         /// Last Offset == EndOffset.
         /// Can be same as Offset

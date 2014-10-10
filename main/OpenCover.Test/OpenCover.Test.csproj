@@ -245,6 +245,10 @@
       <Link>opencovertests64.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="..\cmdline\opencover_merge.cmd">
+      <Link>opencover_merge.cmd</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="..\cmdline\partcover.cmd">
       <Link>partcover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

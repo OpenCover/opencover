@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
 
@@ -17,7 +18,7 @@ namespace OpenCover.Framework.Model
         static InstrumentationPoint()
         {
             _instrumentPoint = 0;
-            InstrumentPoints = new List<InstrumentationPoint>() {null};
+            InstrumentPoints = new List<InstrumentationPoint>(8192) {null};
         }
 
         static internal void Clear()
@@ -25,6 +26,34 @@ namespace OpenCover.Framework.Model
             InstrumentPoints.Clear();
             InstrumentPoints.Add(null);
             _instrumentPoint = 0;
+        }
+
+        static internal void ResetAfterLoading()
+        {
+            var points = InstrumentPoints
+                .Where(x => x != null)
+                .GroupBy(x => x.UniqueSequencePoint)
+                .Select(g => g.OrderBy(x => x.OrigSequencePoint).First())
+                .ToList();
+
+            var max = (int)points.Max(x => x.UniqueSequencePoint);
+            
+            InstrumentPoints.Clear();
+            InstrumentPoints.Add(null);
+
+            for (var i = 1; i <= max; i++)
+            {
+                var point = new SequencePoint();
+                InstrumentPoints[i] = point;
+                point.UniqueSequencePoint = (uint)i;
+            }
+
+            foreach (var instrumentationPoint in points)
+            {
+                InstrumentPoints[(int)instrumentationPoint.UniqueSequencePoint] = instrumentationPoint;
+            }
+
+            _instrumentPoint = max;
         }
 
         /// <summary>
@@ -63,7 +92,7 @@ namespace OpenCover.Framework.Model
                     var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
                     if (tracked == null)
                     {
-                        tracked = new TrackedMethodRef() {UniqueId = trackedMethodId, VisitCount = sum};
+                        tracked = new TrackedMethodRef {UniqueId = trackedMethodId, VisitCount = sum};
                         point._tracked.Add(tracked);
                     }
                     else
@@ -85,8 +114,9 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public InstrumentationPoint()
         {
-                UniqueSequencePoint = (uint)Interlocked.Increment(ref _instrumentPoint);
-                InstrumentPoints.Add(this);
+            UniqueSequencePoint = (uint)Interlocked.Increment(ref _instrumentPoint);
+            InstrumentPoints.Add(this);
+            OrigSequencePoint = UniqueSequencePoint;
         } 
 
         /// <summary>
@@ -135,5 +165,11 @@ namespace OpenCover.Framework.Model
                 _tracked = new List<TrackedMethodRef>(value);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnore]
+        public UInt32 OrigSequencePoint { get; set; }
     }
 }
