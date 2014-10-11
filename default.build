@@ -35,14 +35,27 @@
 		<call target="build-all-platforms" />
 	</target>
 	
+  <target name="copy-artefacts" >
+    <move file="${solution.folder}/OpenCover.Installer/bin/Release/opencover.installer.msi" 
+        tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
+    <move file="${solution.folder}/bin/zip/opencover.zip" 
+        tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
+  </target>
+  
 	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, nuget-package, create-zip-package">
-        <move file="${solution.folder}/OpenCover.Installer/bin/Release/opencover.installer.msi" 
-            tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
-        <move file="${solution.folder}/bin/zip/opencover.zip" 
-            tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
-			
+		<call target="copy-artefacts" />
 		<call target="test-bdd" />
-				
+	</target>
+  
+  <target name="set-rc-property" >
+  
+    <property name="buildnumber.rc" value="-rc${bamboo.buildNumber}" if="${environment::variable-exists('bamboo.buildNumber')}" />
+    <property name="buildnumber.rc" value="-rc${buildnumber.revision}" unless="${property::exists('buildnumber.rc')}" />
+  </target>
+  
+  <target name="create-release-candidate" depends="build-environment, build-release-platforms, test, test-cpp, set-rc-property, nuget-package, create-zip-package">
+		<call target="copy-artefacts" />
+		<call target="test-bdd" />
 	</target>
 	
   <target name="generate-release-notes" depends="get-version-number" >

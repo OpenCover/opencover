@@ -31,10 +31,10 @@ namespace OpenCover.Specs.Steps
         {
             var files = Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, @"..\..\..\bin", folder), string.Format("*.{0}", ext));
 
-            var target = files.Select(f => Regex.Match(f, string.Format(@".*\.(?<version>\d+\.\d+\.\d+)\.{0}", ext)))
-                 .Select(m => new { File = m.Value, Version = m.Groups["version"].Value })
+            var target = files.Select(f => Regex.Match(f, string.Format(@".*\.(?<version>\d+\.\d+\.\d+)(-rc(?<revision>\d+))?\.{0}", ext)))
+                 .Select(m => new { File = m.Value, Version = m.Groups["version"].Value, Revision = m.Groups["revision"].Value })
                  .Where(v => !string.IsNullOrEmpty(v.Version))
-                 .OrderBy(v => new Version(v.Version))
+                 .OrderBy(v => new Version(string.Format("{0}.{1}", v.Version, string.IsNullOrEmpty(v.Revision) ? "0" : v.Revision)))
                  .LastOrDefault();
 
             return target;
