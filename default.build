@@ -50,7 +50,7 @@
   
   <target name="set-rc-property" >
   
-    <property name="buildnumber.rc" value="-rc${bamboo.buildNumber}" if="${environment::variable-exists('bamboo.buildNumber')}" />
+    <property name="buildnumber.rc" value="-rc${bamboo.buildNumber}" if="${property::exists('bamboo.buildNumber')}" />
     <property name="buildnumber.rc" value="-rc${buildnumber.revision}" unless="${property::exists('buildnumber.rc')}" />
   </target>
   
