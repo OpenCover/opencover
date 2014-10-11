@@ -14,6 +14,7 @@
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework" if="${directory::exists(netfx.folder + '/Framework')}" />
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework64" if="${directory::exists(netfx.folder + '/Framework64')}" />
 	<property name="netfx4.folder" value="${netfx.framework.folder}/v4.0.30319" />
+	<property name="bamboo.buildNumber" value="${environment::get-variable('bamboo_buildNumber')}" if="${environment::variable-exists('bamboo_buildNumber')}"/>
 	
 	<loadtasks assembly="${build.folder}/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
 
