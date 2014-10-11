@@ -12,5 +12,13 @@ namespace OpenCover.Framework
         {
             return (value != null) ? action(value) : defValue;
         }
+
+        public static T Do<T>(this T value, Action<T> action)
+            where T : class
+        {
+            if (value != null) 
+                action(value);
+            return value;
+        }
     }
 }

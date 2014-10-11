@@ -64,7 +64,7 @@ namespace OpenCover.Console
                 {
                     var persistance = new FilePersistance(parser, logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile);
+                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
                     var registered = false;
 
                     try
@@ -360,44 +360,22 @@ namespace OpenCover.Console
 
         private static IFilter BuildFilter(CommandLineParser parser)
         {
-            var filter = new Filter();
-
-            // apply filters
-            if (!parser.NoDefaultFilters)
+            var filter = Filter.BuildFilter(parser);
+            if (!string.IsNullOrWhiteSpace(parser.FilterFile))
             {
-                filter.AddFilter("-[mscorlib]*");
-                filter.AddFilter("-[mscorlib.*]*");
-                filter.AddFilter("-[System]*");
-                filter.AddFilter("-[System.*]*");
-                filter.AddFilter("-[Microsoft.VisualBasic]*");
-            }
-
-
-            if (parser.Filters.Count == 0 && string.IsNullOrEmpty(parser.FilterFile))
-            {
-                filter.AddFilter("+[*]*");
+                if (!File.Exists(parser.FilterFile.Trim()))
+                    System.Console.WriteLine("FilterFile '{0}' cannot be found - have you specified your arguments correctly?", parser.FilterFile);
+                else
+                {
+                    var filters = File.ReadAllLines(parser.FilterFile);
+                    filters.ToList().ForEach(filter.AddFilter);
+                }
             }
             else
             {
-                if (!string.IsNullOrEmpty(parser.FilterFile))
-                {
-                    if (!File.Exists(parser.FilterFile))
-                        System.Console.WriteLine("FilterFile '{0}' cannot be found - have you specified your arguments correctly?", parser.FilterFile);
-                    else
-                    {
-                        var filters = File.ReadAllLines(parser.FilterFile);
-                        filters.ToList().ForEach(filter.AddFilter);
-                    }
-                }
-                if (parser.Filters.Count > 0)
-                {
-                    parser.Filters.ForEach(filter.AddFilter);
-                }
+                if (parser.Filters.Count == 0)
+                    filter.AddFilter("+[*]*");
             }
-
-            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
-            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
-            filter.AddTestFileFilters(parser.TestFilters.ToArray());
 
             return filter;
         }

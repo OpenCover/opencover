@@ -14,6 +14,7 @@
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework" if="${directory::exists(netfx.folder + '/Framework')}" />
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework64" if="${directory::exists(netfx.folder + '/Framework64')}" />
 	<property name="netfx4.folder" value="${netfx.framework.folder}/v4.0.30319" />
+	<property name="bamboo.buildNumber" value="${environment::get-variable('bamboo_buildNumber')}" if="${environment::variable-exists('bamboo_buildNumber')}"/>
 	
 	<loadtasks assembly="${build.folder}/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
 
@@ -24,7 +25,7 @@
 	<include buildfile="${build.folder}/nuget_package.build" />
 	<include buildfile="${build.folder}/metrics.build" />
 
-	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number, generate-release-notes" />
+	<target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number, generate-release-notes, prepare-sample-project" />
 
 	<target name="rebuild" depends="build-environment, clean, build, test" >
 		<call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
@@ -35,14 +36,27 @@
 		<call target="build-all-platforms" />
 	</target>
 	
+  <target name="copy-artefacts" >
+    <move file="${solution.folder}/OpenCover.Installer/bin/Release/opencover.installer.msi" 
+        tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
+    <move file="${solution.folder}/bin/zip/opencover.zip" 
+        tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
+  </target>
+  
 	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, nuget-package, create-zip-package">
-        <move file="${solution.folder}/OpenCover.Installer/bin/Release/opencover.installer.msi" 
-            tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
-        <move file="${solution.folder}/bin/zip/opencover.zip" 
-            tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
-			
+		<call target="copy-artefacts" />
 		<call target="test-bdd" />
-				
+	</target>
+  
+  <target name="set-rc-property" >
+  
+    <property name="buildnumber.rc" value="-rc${bamboo.buildNumber}" if="${property::exists('bamboo.buildNumber')}" />
+    <property name="buildnumber.rc" value="-rc${buildnumber.revision}" unless="${property::exists('buildnumber.rc')}" />
+  </target>
+  
+  <target name="create-release-candidate" depends="build-environment, build-release-platforms, test, test-cpp, set-rc-property, nuget-package, create-zip-package">
+		<call target="copy-artefacts" />
+		<call target="test-bdd" />
 	</target>
 	
   <target name="generate-release-notes" depends="get-version-number" >
@@ -53,5 +67,26 @@
       </filterchain>
     </copy>
 	</target>
+
+  <target name="prepare-sample-project" depends="get-version-number" >
+    <delete file="samples\SampleSln\coverage.bat" />
+    <copy file="samples\SampleSln\coverage.bat.tmp" tofile="samples\SampleSln\coverage.bat" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="samples\SampleSln\.nuget\packages.config" />
+    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\.nuget\packages.config" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="samples\SampleSln\nuget\packages.config" />
+    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\nuget\packages.config" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    </target>
 	
 </project>

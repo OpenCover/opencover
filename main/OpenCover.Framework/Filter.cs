@@ -5,10 +5,9 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 
@@ -88,13 +87,18 @@ namespace OpenCover.Framework
         /// <param name="method"></param>
         /// <returns></returns>
         bool IsAutoImplementedProperty(MethodDefinition method);
+
+        /// <summary>
+        /// filters should be treated as regular expressions rather than wildcard
+        /// </summary>
+        bool RegExFilters { get; }
     }  
 
     internal static class FilterHelper
     {
         internal static string WrapWithAnchors(this string data)
         {
-            return String.Format("^{0}$", data);
+            return String.Format("^({0})$", data);
         }
 
         internal static string ValidateAndEscape(this string match, string notAllowed = @"\[]")
@@ -135,17 +139,19 @@ namespace OpenCover.Framework
         internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
         internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
         internal IList<Lazy<Regex>> TestFiles { get; set; }
+        public bool RegExFilters { get; private set; }
 
         /// <summary>
         /// Standard constructor
         /// </summary>
-        public Filter()
+        public Filter(bool useRegexFilters = false)
         {
             InclusionFilter = new List<KeyValuePair<string, string>>();
             ExclusionFilter = new List<KeyValuePair<string, string>>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
             TestFiles = new List<Lazy<Regex>>();
+            RegExFilters = useRegexFilters;
         }
         
         public bool UseAssembly(string assemblyName)
@@ -203,10 +209,13 @@ namespace OpenCover.Framework
             string assemblyName;
             string className;
             FilterType filterType;
-            GetAssemblyClassName(assemblyClassName, out filterType, out assemblyName, out className);
+            GetAssemblyClassName(assemblyClassName, RegExFilters, out filterType, out assemblyName, out className);
 
-            assemblyName = assemblyName.ValidateAndEscape();
-            className = className.ValidateAndEscape();
+            if (!RegExFilters)
+            {
+                assemblyName = assemblyName.ValidateAndEscape();
+                className = className.ValidateAndEscape();
+            }
 
             if (filterType == FilterType.Inclusion) 
                 InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
@@ -215,11 +224,14 @@ namespace OpenCover.Framework
                 ExclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
         }
 
-        private static void GetAssemblyClassName(string assemblyClassName, out FilterType filterType, out string assemblyName, out string className)
+        private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)
         {
             className = string.Empty;
             assemblyName = string.Empty;
             var regEx = new Regex(@"^(?<type>([+-]))(\[(?<assembly>(.+))\])(?<class>(.*))?$");
+            if (useRegEx)
+                regEx = new Regex(@"^(?<type>([+-]))(\[\((?<assembly>(.+))\)\])(\((?<class>(.*))\))?$");
+
             var match = regEx.Match(assemblyClassName);
             if (match.Success)
             {
@@ -242,7 +254,9 @@ namespace OpenCover.Framework
                 return;
             foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
-                var filter = exlusionFilter.ValidateAndEscape().WrapWithAnchors();
+                var filter = exlusionFilter;
+                if (!RegExFilters) 
+                    filter = filter.ValidateAndEscape().WrapWithAnchors();
                 ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }
@@ -254,61 +268,62 @@ namespace OpenCover.Framework
         /// <returns></returns>
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
-            if (ExcludedAttributes.Count == 0) 
-                return false;
-            if (!entity.HasCustomAttributes)
-                return false;
-            foreach (var excludeAttribute in ExcludedAttributes)
+            while (true)
             {
-                foreach (var customAttribute in entity.CustomAttributes)
+                if (ExcludedAttributes.Count == 0)
+                    return false;
+
+                if (entity ==null || !entity.HasCustomAttributes)
+                    return false;
+
+                if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success select excludeAttribute).Any())
                 {
-                    if (excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success) 
-                        return true;
+                    return true;
                 }
-            }
-            if (entity.DeclaringType != null && entity.Name.StartsWith("<"))
-            {
+
+                if (entity.DeclaringType == null || !entity.Name.StartsWith("<")) 
+                    return false;
+
                 var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
                 if (match.Groups["name"] == null) return false;
                 var name = match.Groups["name"].Value;
                 var target = entity.DeclaringType.Methods.FirstOrDefault(m => m.Name == name);
-                if (target != null)
+                if (target == null) return false;
+                if (target.IsGetter)
                 {
-                    if (target.IsGetter)
-                    {
-                        var getMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target);
-                        return ExcludeByAttribute(getMethod);
-                    }
-                    if (target.IsSetter)
-                    {
-                        var setMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.SetMethod == target);
-                        return ExcludeByAttribute(setMethod);
-                    }
-                    return ExcludeByAttribute(target);
+                    var getMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target);
+                    entity = getMethod;
+                    continue;
                 }
+                if (target.IsSetter)
+                {
+                    var setMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.SetMethod == target);
+                    entity = setMethod;
+                    continue;
+                }
+                entity = target;
             }
-            return false;
         }
 
         public bool ExcludeByFile(string fileName)
         {
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
                 return false;
-            foreach (var excludeFile in ExcludedFiles)
-            {
-                if (excludeFile.Value.Match(fileName).Success)
-                    return true;
-            }
-            return false;
+
+            return ExcludedFiles.Any(excludeFile => excludeFile.Value.Match(fileName).Success);
         }
 
         public void AddFileExclusionFilters(string[] exclusionFilters)
         {
             if (exclusionFilters == null)
                 return;
+
             foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
-                var filter = exlusionFilter.ValidateAndEscape(@"[]").WrapWithAnchors();
+                var filter = exlusionFilter;
+                if (!RegExFilters) 
+                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors();
+                
                 ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }
@@ -317,21 +332,21 @@ namespace OpenCover.Framework
         {
             if (TestFiles.Count == 0 || string.IsNullOrWhiteSpace(assemblyName))
                 return false;
-            foreach (var file in TestFiles)
-            {
-                if (file.Value.Match(assemblyName).Success)
-                    return true;
-            }
-            return false;
+
+            return TestFiles.Any(file => file.Value.Match(assemblyName).Success);
         }
 
         public void AddTestFileFilters(string[] testFilters)
         {
             if (testFilters == null)
                 return;
+
             foreach (var testFilter in testFilters.Where(x => x != null))
             {
-                var filter = testFilter.ValidateAndEscape(@"[]").WrapWithAnchors();
+                var filter = testFilter;
+                if (!RegExFilters)
+                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors(); 
+                
                 TestFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }
@@ -343,6 +358,48 @@ namespace OpenCover.Framework
                 return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Create a filter entity from parser parameters
+        /// </summary>
+        /// <param name="parser"></param>
+        /// <returns></returns>
+        public static IFilter BuildFilter(CommandLineParser parser)
+        {
+            var filter = new Filter(parser.RegExFilters);
+
+            // apply filters
+            if (!parser.NoDefaultFilters)
+            {
+                if (parser.RegExFilters)
+                {
+                    filter.AddFilter(@"-[(mscorlib)](.*)");
+                    filter.AddFilter(@"-[(mscorlib\..*)](.*)");
+                    filter.AddFilter(@"-[(System)](.*)");
+                    filter.AddFilter(@"-[(System\..*)](.*)");
+                    filter.AddFilter(@"-[(Microsoft.VisualBasic)](.*)");
+                }
+                else
+                {
+                    filter.AddFilter("-[mscorlib]*");
+                    filter.AddFilter("-[mscorlib.*]*");
+                    filter.AddFilter("-[System]*");
+                    filter.AddFilter("-[System.*]*");
+                    filter.AddFilter("-[Microsoft.VisualBasic]*");
+                }
+            }
+
+            if (parser.Filters.Count > 0)
+            {
+                parser.Filters.ForEach(filter.AddFilter);
+            }
+
+            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
+            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
+            filter.AddTestFileFilters(parser.TestFilters.ToArray());
+
+            return filter;
         }
     }
 }
