@@ -52,7 +52,7 @@ To build a release package including installer, zip and nuget packages use
 > build create-release
 
 ### Build Server
-The OpenCover team is trying out using [Atlassian Bamboo](https://opencover.atlassian.net/builds/browse/OPC-DEF/latest) for automated building. It runs a staged equivalent of
+The OpenCover team is trying out using [Atlassian Bamboo](https://opencover.atlassian.net/builds/telemetry.action) for automated building. It runs a staged equivalent of
 
 > build create-release
 
