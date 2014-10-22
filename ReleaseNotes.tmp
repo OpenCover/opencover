@@ -1,9 +1,9 @@
 Version [[version]]
+#228 add MDB support (feature)
 #226 remove branch points on methods without sequence points (fix)
 #225 Enable filters to use regular expressions (feature)
 #218 Auto tag release notes (prj-mgmt)
 #116 output results to accumulate with previous coverage file activate by -mergeoutput (feature)
-
 
 Version 4.5.3207
 #209 The number of WaitHandles must be less than or equal to 64 (fix)

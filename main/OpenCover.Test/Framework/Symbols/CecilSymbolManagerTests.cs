@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,7 +12,6 @@ using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
 using File = OpenCover.Framework.Model.File;
-using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 
 namespace OpenCover.Test.Framework.Symbols
 {
@@ -626,7 +624,6 @@ namespace OpenCover.Test.Framework.Symbols
                 .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
-            var token = typeof(Concrete).GetMethod("Method").MetadataToken;
             _mockFilter
                 .Setup(x => x.ExcludeByFile(It.Is<string>(y => !string.IsNullOrWhiteSpace(y) && y.EndsWith("Samples.cs"))))
                 .Returns(true);
@@ -740,6 +737,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetTrackedMethods();
 
             // assert
+            Assert.IsNotNull(methods);
             _mockManager.Verify(x => x.GetTrackedMethods(@"c:\temp\OpenCover.Test.dll"));
         }
 
