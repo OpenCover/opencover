@@ -147,6 +147,7 @@
     <Compile Include="Extensions\Strategy\TrackNUnitTestMethodsTests.cs" />
     <Compile Include="Extensions\Strategy\TrackXUnitTestMethodsTests.cs" />
     <Compile Include="Framework\Strategy\TrackedMethodStrategyManagerTests.cs" />
+    <Compile Include="Framework\Symbols\CecilSymbolManagerMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />

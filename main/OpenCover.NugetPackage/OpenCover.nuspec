@@ -24,6 +24,7 @@
     <file src="main\bin\Release\Autofac.Configuration.dll"/>
     <file src="main\bin\Release\Mono.Cecil.dll"/>
     <file src="main\bin\Release\Mono.Cecil.Pdb.dll"/>
+    <file src="main\bin\Release\Mono.Cecil.Mdb.dll"/>
     <file src="License.rtf"/>
     <file src="main\OpenCover.NugetPackage\readme.txt"/>
     <file src="main\bin\Release\OpenCover.Console.exe"/>

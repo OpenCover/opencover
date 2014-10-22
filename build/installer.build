@@ -1,65 +1,66 @@
 <?xml version="1.0"?>
 <project name="OpenCover" >
-	    
-    <target name="create-zip-package">
-    
-        <zip zipfile="${solution.folder}\bin\zip\opencover.zip">
-            <fileset basedir="${solution.folder}\bin\Release">
-                <include name="OpenCover.Console.exe" />
-                <include name="OpenCover.Console.pdb" />
-                <include name="OpenCover.Console.exe.config" />
-                <include name="OpenCover.Framework.dll" />
-                <include name="OpenCover.Framework.pdb" />
-				<include name="OpenCover.Extensions.dll" />
-				<include name="OpenCover.Extensions.pdb" />
-                <include name="Autofac.dll" />
-                <include name="Autofac.Configuration.dll" />
-                <include name="Mono.Cecil.dll" />
-                <include name="Mono.Cecil.Pdb.dll" />
-                <include name="Gendarme.Framework.dll" />
-                <include name="Gendarme.Rules.Maintainability.dll" />
-                <include name="log4net.dll" />
-                <include name="log4net.config" />
-            </fileset>
-            <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
-                <include name="OpenCover.Profiler.dll" />
-                <include name="OpenCover.Profiler.pdb" />
-            </fileset>
-            <fileset basedir="${solution.folder}\bin\Release\x64" prefix="x64">
-                <include name="OpenCover.Profiler.dll" />
-                <include name="OpenCover.Profiler.pdb" />
-            </fileset>
-            <fileset basedir="${solution.folder}\..">
-                <include name="License.rtf" />
-            </fileset>
-            <fileset basedir="${solution.folder}\.." prefix="docs">
-                <include name="ReleaseNotes.txt" />
-            </fileset>
-            <fileset basedir="${solution.folder}\OpenCover.Documentation" prefix="docs">
-                <include name="Usage.rtf" />
-            </fileset>
-            <fileset basedir="${solution.folder}\OpenCover.Installer\Assets">
-                <include name="Sample.cmd" />
-                <include name="Sample64.cmd" />
-            </fileset>
-            <fileset basedir="${solution.folder}\bin\Release\x86" prefix="Samples\x86">
-                <include name="OpenCover.Simple.Target.exe" />
-                <include name="OpenCover.Simple.Target.pdb" />
-            </fileset>
-            <fileset basedir="${solution.folder}\bin\Release\x64" prefix="Samples\x64">
-                <include name="OpenCover.Simple.Target.exe" />
-                <include name="OpenCover.Simple.Target.pdb" />
-            </fileset>
-            <fileset basedir="${solution.folder}\bin\Release" prefix="MSBuild">
-                <include name="OpenCover.MSBuild.dll" />
-                <include name="OpenCover.targets" />
-            </fileset>
-            <fileset basedir="${solution.folder}\transform" prefix="transform">
-                <include name="simple_report.xslt" />
-                <include name="transform.ps1" />
-            </fileset>
-        </zip>
-        
-    </target>
-	
+
+  <target name="create-zip-package">
+
+    <zip zipfile="${solution.folder}\bin\zip\opencover.zip">
+      <fileset basedir="${solution.folder}\bin\Release">
+        <include name="OpenCover.Console.exe" />
+        <include name="OpenCover.Console.pdb" />
+        <include name="OpenCover.Console.exe.config" />
+        <include name="OpenCover.Framework.dll" />
+        <include name="OpenCover.Framework.pdb" />
+        <include name="OpenCover.Extensions.dll" />
+        <include name="OpenCover.Extensions.pdb" />
+        <include name="Autofac.dll" />
+        <include name="Autofac.Configuration.dll" />
+        <include name="Mono.Cecil.dll" />
+        <include name="Mono.Cecil.Pdb.dll" />
+        <include name="Mono.Cecil.Mdb.dll" />
+        <include name="Gendarme.Framework.dll" />
+        <include name="Gendarme.Rules.Maintainability.dll" />
+        <include name="log4net.dll" />
+        <include name="log4net.config" />
+      </fileset>
+      <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
+        <include name="OpenCover.Profiler.dll" />
+        <include name="OpenCover.Profiler.pdb" />
+      </fileset>
+      <fileset basedir="${solution.folder}\bin\Release\x64" prefix="x64">
+        <include name="OpenCover.Profiler.dll" />
+        <include name="OpenCover.Profiler.pdb" />
+      </fileset>
+      <fileset basedir="${solution.folder}\..">
+        <include name="License.rtf" />
+      </fileset>
+      <fileset basedir="${solution.folder}\.." prefix="docs">
+        <include name="ReleaseNotes.txt" />
+      </fileset>
+      <fileset basedir="${solution.folder}\OpenCover.Documentation" prefix="docs">
+        <include name="Usage.rtf" />
+      </fileset>
+      <fileset basedir="${solution.folder}\OpenCover.Installer\Assets">
+        <include name="Sample.cmd" />
+        <include name="Sample64.cmd" />
+      </fileset>
+      <fileset basedir="${solution.folder}\bin\Release\x86" prefix="Samples\x86">
+        <include name="OpenCover.Simple.Target.exe" />
+        <include name="OpenCover.Simple.Target.pdb" />
+      </fileset>
+      <fileset basedir="${solution.folder}\bin\Release\x64" prefix="Samples\x64">
+        <include name="OpenCover.Simple.Target.exe" />
+        <include name="OpenCover.Simple.Target.pdb" />
+      </fileset>
+      <fileset basedir="${solution.folder}\bin\Release" prefix="MSBuild">
+        <include name="OpenCover.MSBuild.dll" />
+        <include name="OpenCover.targets" />
+      </fileset>
+      <fileset basedir="${solution.folder}\transform" prefix="transform">
+        <include name="simple_report.xslt" />
+        <include name="transform.ps1" />
+      </fileset>
+    </zip>
+
+  </target>
+
 </project>

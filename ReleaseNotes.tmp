@@ -1,4 +1,5 @@
 Version [[version]]
+#228 add MDB support (feature)
 #226 remove branch points on methods without sequence points (fix)
 #225 Enable filters to use regular expressions (feature)
 #218 Auto tag release notes (prj-mgmt)
