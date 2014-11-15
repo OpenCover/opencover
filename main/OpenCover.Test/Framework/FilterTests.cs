@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -106,11 +107,11 @@ namespace OpenCover.Test.Framework
                 filter.InclusionFilter[0].ClassName : filter.ExclusionFilter[0].ClassName);
         }
 
-        #region Test Data or UseAssembly tests
+        #region Test Data for UseAssembly tests
 
         public class UseAssemblyData
         {
-            public string[] Filters { get; set; }
+            public List<string> Filters { get; set; }
             public string Assembly { get; set; }
             public bool ExpectedResult { get; set; }
         }
@@ -119,43 +120,43 @@ namespace OpenCover.Test.Framework
                                                          {
                                                              new UseAssemblyData
                                                                  {
-                                                                     Filters = new string[0],
+                                                                     Filters = new List<string>(0),
                                                                      Assembly = "System.Debug",
                                                                      ExpectedResult = false
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"-[System.*]R*"},
+                                                                     Filters = new List<string> {"-[System.*]R*"},
                                                                      Assembly = "System.Debug",
                                                                      ExpectedResult = true
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"-[System.*]*"},
+                                                                     Filters = new List<string> {"-[System.*]*"},
                                                                      Assembly = "System.Debug",
                                                                      ExpectedResult = false
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"+[System.*]*"},
+                                                                     Filters = new List<string> {"+[System.*]*"},
                                                                      Assembly = "System.Debug",
                                                                      ExpectedResult = true
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"-[mscorlib]*", "-[System.*]*", "+[*]*"},
+                                                                     Filters = new List<string> {"-[mscorlib]*", "-[System.*]*", "+[*]*"},
                                                                      Assembly = "mscorlib",
                                                                      ExpectedResult = false
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"+[XYZ]*"},
+                                                                     Filters = new List<string> {"+[XYZ]*"},
                                                                      Assembly = "XYZ",
                                                                      ExpectedResult = true
                                                                  },
                                                                  new UseAssemblyData
                                                                  {
-                                                                     Filters = new [] {"+[XYZ]*"},
+                                                                     Filters = new List<string> {"+[XYZ]*"},
                                                                      Assembly = "XYZA",
                                                                      ExpectedResult = false
                                                                  }
@@ -168,7 +169,7 @@ namespace OpenCover.Test.Framework
         {
             // arrange
             var filter = new Filter();
-            data.Filters.ToList().ForEach(filter.AddFilter);
+            data.Filters.ForEach(filter.AddFilter);
 
             // act
             var result = filter.UseAssembly(data.Assembly);
@@ -183,7 +184,7 @@ namespace OpenCover.Test.Framework
 
         public class InstrumentClassData
         {
-            public string[] Filters { get; set; }
+            public List<string> Filters { get; set; }
             public string Assembly { get; set; }
             public string Class { get; set; }
             public bool ExpectedResult { get; set; }
@@ -193,105 +194,105 @@ namespace OpenCover.Test.Framework
                                                                  {
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]*"},
+                                                                             Filters = new List<string> {"+[XYZ]*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = true
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]A*"},
+                                                                             Filters = new List<string> {"+[XYZ]A*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ*]A*"},
+                                                                             Filters = new List<string> {"+[XYZ*]A*"},
                                                                              Assembly = "XYZA",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]A*"},
+                                                                             Filters = new List<string> {"+[XYZ]A*"},
                                                                              Assembly = "XYZA",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]*Class"},
+                                                                             Filters = new List<string> {"+[XYZ]*Class"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = true
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]*Name"},
+                                                                             Filters = new List<string> {"+[XYZ]*Name"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[XYZ]*space.C*"},
+                                                                             Filters = new List<string> {"+[XYZ]*space.C*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = true
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[XYZ*]*"},
+                                                                             Filters = new List<string> {"-[XYZ*]*"},
                                                                              Assembly = "XYZA",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[XYZ]*"},
+                                                                             Filters = new List<string> {"-[XYZ]*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[*]*"},
+                                                                             Filters = new List<string> {"-[*]*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[X*Z]*"},
+                                                                             Filters = new List<string> {"-[X*Z]*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[XYZ]*Class"},
+                                                                             Filters = new List<string> {"-[XYZ]*Class"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"-[XYZ]*Unknown"},
+                                                                             Filters = new List<string> {"-[XYZ]*Unknown"},
                                                                              Assembly = "XYZ",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[*]*"},
+                                                                             Filters = new List<string> {"+[*]*"},
                                                                              Assembly = "",
                                                                              Class = "Namespace.Class",
                                                                              ExpectedResult = false
                                                                          },
                                                                      new InstrumentClassData
                                                                          {
-                                                                             Filters = new[] {"+[*]*"},
+                                                                             Filters = new List<string> {"+[*]*"},
                                                                              Assembly = "XYZ",
                                                                              Class = "",
                                                                              ExpectedResult = false
@@ -306,7 +307,7 @@ namespace OpenCover.Test.Framework
         {
             //// arrange
             var filter = new Filter();
-            data.Filters.ToList().ForEach(filter.AddFilter);
+            data.Filters.ForEach(filter.AddFilter);
 
             // act
             var result = filter.InstrumentClass(data.Assembly, data.Class);
