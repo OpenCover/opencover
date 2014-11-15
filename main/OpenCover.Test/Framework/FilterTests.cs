@@ -100,10 +100,10 @@ namespace OpenCover.Test.Framework
                 filter.InclusionFilter.Count : filter.ExclusionFilter.Count);
 
             Assert.AreEqual(assemblyClassPair.AssemblyResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilter[0].Key : filter.ExclusionFilter[0].Key);
+                filter.InclusionFilter[0].AssemblyName : filter.ExclusionFilter[0].AssemblyName);
 
             Assert.AreEqual(assemblyClassPair.ClassResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilter[0].Value : filter.ExclusionFilter[0].Value);
+                filter.InclusionFilter[0].ClassName : filter.ExclusionFilter[0].ClassName);
         }
 
         #region Test Data or UseAssembly tests

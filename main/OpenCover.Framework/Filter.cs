@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -128,14 +127,43 @@ namespace OpenCover.Framework
         /// </summary>
         Exclusion
     }
-    
+
+    internal class InternalFilter
+    {
+        internal Lazy<Regex> AssemblyNameRegex { get; private set; }
+        
+        internal Lazy<Regex> ClassNameRegex { get; private set; }
+
+        internal string AssemblyName { get; private set; }
+
+        internal string ClassName { get; private set; }
+
+        internal InternalFilter(string assemblyName, string className)
+        {
+            AssemblyName = assemblyName;
+            ClassName = className;
+            AssemblyNameRegex = new Lazy<Regex>(() => new Regex(assemblyName.WrapWithAnchors()));
+            ClassNameRegex = new Lazy<Regex>(() => new Regex(className.WrapWithAnchors()));
+        }
+
+        internal bool IsMatchingAssemblyName(string assemblyName)
+        {
+            return AssemblyNameRegex.Value.IsMatch(assemblyName);
+        }
+
+        internal bool IsMatchingClassName(string className)
+        {
+            return ClassNameRegex.Value.IsMatch(className);
+        }
+    }
+
     /// <summary>
     ///  A filter that is used to decide whether an assembly/class pair is instrumented
     /// </summary>
     public class Filter : IFilter
     {
-        internal IList<KeyValuePair<string, string>> InclusionFilter { get; set; }
-        internal IList<KeyValuePair<string, string>> ExclusionFilter { get; set; }
+        internal IList<InternalFilter> InclusionFilter { get; set; }
+        internal IList<InternalFilter> ExclusionFilter { get; set; }
         internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
         internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
         internal IList<Lazy<Regex>> TestFiles { get; set; }
@@ -146,8 +174,8 @@ namespace OpenCover.Framework
         /// </summary>
         public Filter(bool useRegexFilters = false)
         {
-            InclusionFilter = new List<KeyValuePair<string, string>>();
-            ExclusionFilter = new List<KeyValuePair<string, string>>();
+            InclusionFilter = new List<InternalFilter>();
+            ExclusionFilter = new List<InternalFilter>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
             TestFiles = new List<Lazy<Regex>>();
@@ -156,17 +184,17 @@ namespace OpenCover.Framework
         
         public bool UseAssembly(string assemblyName)
         {
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
+            if (ExclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName == ".*"))
             {
                 return false;
             }
 
-            if (ExclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value != ".*"))
+            if (ExclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName != ".*"))
             {
                 return true;
             }
 
-            if (InclusionFilter.Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success))
+            if (InclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName)))
             {
                 return true;
             }
@@ -182,21 +210,21 @@ namespace OpenCover.Framework
             }
 
             if (ExclusionFilter
-                .Any(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value == ".*"))
+                .Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName == ".*"))
             {
                 return false;
             }
 
             if (ExclusionFilter
-                .Where(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success && keyValuePair.Value != ".*")
-                .Any(keyValuePair => Regex.Match(className, keyValuePair.Value.WrapWithAnchors()).Success))
+                .Where(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName != ".*")
+                .Any(keyValuePair => keyValuePair.IsMatchingClassName(className)))
             {
                 return false;
             }
 
             if (InclusionFilter
-                .Where(keyValuePair => Regex.Match(assemblyName, keyValuePair.Key.WrapWithAnchors()).Success)
-                .Any(keyValuePair => Regex.Match(className, keyValuePair.Value.WrapWithAnchors()).Success))
+                .Where(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName))
+                .Any(keyValuePair => keyValuePair.IsMatchingClassName(className)))
             {
                 return true;
             }
@@ -218,10 +246,10 @@ namespace OpenCover.Framework
             }
 
             if (filterType == FilterType.Inclusion) 
-                InclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
+                InclusionFilter.Add(new InternalFilter(assemblyName, className));
 
             if (filterType == FilterType.Exclusion) 
-                ExclusionFilter.Add(new KeyValuePair<string, string>(assemblyName, className));
+                ExclusionFilter.Add(new InternalFilter(assemblyName, className));
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)
