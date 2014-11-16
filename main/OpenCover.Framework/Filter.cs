@@ -184,17 +184,17 @@ namespace OpenCover.Framework
         
         public bool UseAssembly(string assemblyName)
         {
-            if (ExclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName == ".*"))
+            if (ExclusionFilter.Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName == ".*"))
             {
                 return false;
             }
 
-            if (ExclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName != ".*"))
+            if (ExclusionFilter.Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName != ".*"))
             {
                 return true;
             }
 
-            if (InclusionFilter.Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName)))
+            if (InclusionFilter.Any(inclusionFilter => inclusionFilter.IsMatchingAssemblyName(assemblyName)))
             {
                 return true;
             }
@@ -210,21 +210,21 @@ namespace OpenCover.Framework
             }
 
             if (ExclusionFilter
-                .Any(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName == ".*"))
+                .Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName == ".*"))
             {
                 return false;
             }
 
             if (ExclusionFilter
-                .Where(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName) && keyValuePair.ClassName != ".*")
-                .Any(keyValuePair => keyValuePair.IsMatchingClassName(className)))
+                .Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName != ".*")
+                .Any(exclusionFilter => exclusionFilter.IsMatchingClassName(className)))
             {
                 return false;
             }
 
             if (InclusionFilter
-                .Where(keyValuePair => keyValuePair.IsMatchingAssemblyName(assemblyName))
-                .Any(keyValuePair => keyValuePair.IsMatchingClassName(className)))
+                .Where(inclusionFilter => inclusionFilter.IsMatchingAssemblyName(assemblyName))
+                .Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className)))
             {
                 return true;
             }
