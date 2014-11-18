@@ -360,9 +360,9 @@ namespace OpenCover.Framework.Symbols
 
                 // store branch origin offset
                 var branchOffset = instruction.Offset;
-                var branchingInstructionLine =
-                    FindClosestSequencePoints(methodDefinition.Body, instruction)
-                        .Maybe(sp => sp.SequencePoint.StartLine, -1);
+                var closestSeqPt = FindClosestSequencePoints(methodDefinition.Body, instruction);
+                var branchingInstructionLine = closestSeqPt.Maybe(sp => sp.SequencePoint.StartLine, -1);
+                var document = closestSeqPt.Maybe(sp => sp.SequencePoint.Document.Url);
 
                 if (null == instruction.Next)
                     return;
@@ -378,6 +378,7 @@ namespace OpenCover.Framework.Symbols
                 var path0 = new BranchPoint
                 {
                     StartLine = branchingInstructionLine,
+                    Document = document,
                     Offset = branchOffset,
                     Ordinal = ordinal++,
                     Path = pathCounter++,
@@ -403,6 +404,7 @@ namespace OpenCover.Framework.Symbols
                     var path1 = new BranchPoint
                     {
                         StartLine = branchingInstructionLine,
+                        Document = document,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
                         Path = pathCounter,
@@ -430,6 +432,7 @@ namespace OpenCover.Framework.Symbols
                         var path1ToN = new BranchPoint
                         {
                             StartLine = branchingInstructionLine,
+                            Document = document,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
                             Path = pathCounter++,

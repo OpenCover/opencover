@@ -232,9 +232,9 @@ namespace OpenCover.Framework.Persistance
                 #region Module File/FileID Dictionary
 
                 var filesDictionary = new Dictionary<string,uint>();
-                foreach (var file in module.Files ?? new File[0]) {
-                    if (!filesDictionary.ContainsKey(file.FullPath?? ""))
-                        filesDictionary.Add(file.FullPath?? "", file.UniqueId);
+                foreach (var file in (module.Files ?? new File[0]).Where(file => !filesDictionary.ContainsKey(file.FullPath ?? "")))
+                {
+                    filesDictionary.Add(file.FullPath ?? "", file.UniqueId);
                 }
 
                 #endregion
@@ -252,12 +252,25 @@ namespace OpenCover.Framework.Persistance
                         foreach (var sp in sequencePoints)
                         {
                             uint fileid;
-                            filesDictionary.TryGetValue (sp.Document?? "", out fileid);
+                            filesDictionary.TryGetValue (sp.Document ?? "", out fileid);
                             sp.FileId = fileid;
                             // clear document if FileId is found
                             sp.Document = sp.FileId != 0 ? null : sp.Document;
                         }
                         
+                        #endregion
+
+                        #region BranchPoint FileID
+
+                        foreach (var sp in branchPoints)
+                        {
+                            uint fileid;
+                            filesDictionary.TryGetValue(sp.Document ?? "", out fileid);
+                            sp.FileId = fileid;
+                            // clear document if FileId is found
+                            sp.Document = sp.FileId != 0 ? null : sp.Document;
+                        }
+
                         #endregion
 
                         #region Merge branch-exits

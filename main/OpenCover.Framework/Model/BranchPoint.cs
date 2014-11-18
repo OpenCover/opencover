@@ -41,5 +41,17 @@ namespace OpenCover.Framework.Model
         /// </summary>
         [XmlAttribute("offsetend")]
         public int EndOffset { get; set; }
+
+        /// <summary>
+        /// The file associated with the supplied startline 
+        /// </summary>
+        [XmlAttribute("fileid")]
+        public uint FileId { get; set; }
+
+        /// <summary>
+        /// The url to the document if an entry was not mapped to an id
+        /// </summary>
+        [XmlAttribute("url")]
+        public string Document { get; set; }
     }
 }
