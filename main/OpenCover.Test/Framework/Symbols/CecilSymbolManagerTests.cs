@@ -170,6 +170,8 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(1, points[1].Path);
             Assert.AreEqual(19, points[0].StartLine);
             Assert.AreEqual(19, points[1].StartLine);
+            Assert.NotNull(points[1].Document);
+            Assert.AreEqual(points[0].Document, points[1].Document);
         }
 
         [Test]

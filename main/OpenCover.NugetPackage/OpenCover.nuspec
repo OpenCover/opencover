@@ -28,9 +28,12 @@
     <file src="License.rtf"/>
     <file src="main\OpenCover.NugetPackage\readme.txt"/>
     <file src="main\bin\Release\OpenCover.Console.exe"/>
+    <file src="main\bin\Release\OpenCover.Console.pdb"/>
     <file src="main\bin\Release\OpenCover.Console.exe.config"/>
     <file src="main\bin\Release\OpenCover.Framework.dll"/>
+    <file src="main\bin\Release\OpenCover.Framework.pdb"/>
     <file src="main\bin\Release\OpenCover.Extensions.dll"/>
+    <file src="main\bin\Release\OpenCover.Extensions.pdb"/>
     <file src="main\bin\Release\log4net.config"/>
     <file src="main\bin\Release\log4net.dll"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
