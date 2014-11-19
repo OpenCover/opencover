@@ -101,6 +101,7 @@
     <Compile Include="Communication\Messages.cs" />
     <Compile Include="Manager\IProfilerManager.cs" />
     <Compile Include="Model\BranchPoint.cs" />
+    <Compile Include="Model\IDocumentReference.cs" />
     <Compile Include="Model\IInstrumentationModelBuilder.cs" />
     <Compile Include="Model\IInstrumentationModelBuilderFactory.cs" />
     <Compile Include="Model\InstrumentationModelBuilderFactory.cs" />

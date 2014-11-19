@@ -12,7 +12,7 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// a sequence point
     /// </summary>
-    public class SequencePoint : InstrumentationPoint
+    public class SequencePoint : InstrumentationPoint, IDocumentReference
     {        
         /// <summary>
         /// The start line of the sequence point
