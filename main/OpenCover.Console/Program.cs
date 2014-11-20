@@ -19,6 +19,7 @@ using OpenCover.Framework.Service;
 using OpenCover.Framework.Utility;
 using log4net;
 using log4net.Core;
+using System.Management;
 
 namespace OpenCover.Console
 {
@@ -31,6 +32,7 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
+
             var returnCode = 0;
             var returnCodeOffset = 0;
             var logger = LogManager.GetLogger(typeof (Bootstrapper));
@@ -126,6 +128,34 @@ namespace OpenCover.Console
             return returnCode;
         }
 
+        private static void TerminateAndRestartCurrentW3SvcHost(ILog logger)
+        {
+            var processName = "svchost.exe";
+            string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmiQuery);
+            ManagementObjectCollection retObjectCollection = searcher.Get();
+            foreach (ManagementObject retObject in retObjectCollection)
+            {
+                var cmdLine = (string)retObject["CommandLine"];
+                if (cmdLine.EndsWith("-k iissvcs"))
+                {
+                    var proc = (uint)retObject["ProcessId"];
+
+                    // Terminate, the restart is done automatically
+                    logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
+                    try
+                    {
+                        Process.GetProcessById((int)proc).Kill();
+                        logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.InfoFormat("Unable to stop svchost with pid '{0}' IIS profiling may not work: {1}", proc, e.Message);
+                    }
+                }
+            }
+        }
+
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
             if (ServiceEnvironmentManagementEx.IsServiceDisabled(parser.Target))
@@ -159,13 +189,17 @@ namespace OpenCover.Console
                     parser.Target,
                         parser.ServiceEnvironment,
                     (from string key in profilerEnvironment.Keys
-                        select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                     select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
 
                 // now start the service
-                    var old = service;
+                var old = service;
                 service = new ServiceController(parser.Target);
-                    old.Dispose();
-                service.Start();
+                old.Dispose();
+
+                if (parser.Target.ToLower().Equals("w3svc"))
+                    TerminateAndRestartCurrentW3SvcHost(logger);
+                else
+                    service.Start();
                 logger.InfoFormat("Service starting '{0}'", parser.Target);
                 service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
                 logger.InfoFormat("Service started '{0}'", parser.Target);

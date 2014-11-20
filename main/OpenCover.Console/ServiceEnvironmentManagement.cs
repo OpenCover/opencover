@@ -75,6 +75,10 @@ namespace OpenCover.Console
             {
                 serviceAccountName = Environment.MachineName + serviceAccountName.Substring(1);
             }
+            else if (serviceAccountName.ToLower().Contains("localsystem"))
+            {
+                serviceAccountName = "NT Authority\\SYSTEM";
+            }
 
             return serviceAccountName;
         }
@@ -146,7 +150,14 @@ namespace OpenCover.Console
             Process servicesProcess = servicesProcesses[0];
             IntPtr processHandle = OpenProcess(0x20400, false, servicesProcess.Id);
             if (processHandle == IntPtr.Zero)
-                return new string[0];
+            {
+                // Seems that there will be a problem with anything but windows XP/2003 here
+                // using PROCESS_QUERY_LIMITED_INFORMATION (0x1000) instead
+                //http://msdn.microsoft.com/en-us/library/windows/desktop/ms684880%28v=vs.85%29.aspx
+                processHandle = OpenProcess(0x1000, false, servicesProcess.Id);
+                if (processHandle == IntPtr.Zero)
+                    return new string[0];
+            }
             IntPtr tokenHandle = IntPtr.Zero;
             if (!OpenProcessToken(processHandle, 0x20008, ref tokenHandle))
                 return new string[0];
