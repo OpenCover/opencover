@@ -15,10 +15,8 @@ using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Service;
 using OpenCover.Framework.Utility;
 using log4net;
-using log4net.Core;
 using System.Management;
 
 namespace OpenCover.Console
@@ -84,7 +82,7 @@ namespace OpenCover.Console
                                 ? new[] { ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target) }
                                 : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
-                        harness.RunProcess((environment) =>
+                        harness.RunProcess(environment =>
                                                {
                                                    returnCode = 0;
                                                    if (parser.Service)
@@ -132,10 +130,11 @@ namespace OpenCover.Console
         {
             var processName = "svchost.exe";
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher(wmiQuery);
+            var searcher = new ManagementObjectSearcher(wmiQuery);
             ManagementObjectCollection retObjectCollection = searcher.Get();
-            foreach (ManagementObject retObject in retObjectCollection)
+            foreach (var o in retObjectCollection)
             {
+                var retObject = (ManagementObject) o;
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
                 {
@@ -266,7 +265,7 @@ namespace OpenCover.Console
         {
             if (!logger.IsInfoEnabled) return;
  
-            var CoverageSession = persistance.CoverageSession;
+            var coverageSession = persistance.CoverageSession;
 
             var totalClasses = 0;
             var visitedClasses = 0;
@@ -283,10 +282,10 @@ namespace OpenCover.Console
             var unvisitedClasses = new List<string>();
             var unvisitedMethods = new List<string>();
 
-            if (CoverageSession.Modules != null)
+            if (coverageSession.Modules != null)
             {
                 foreach (var @class in
-                    from module in CoverageSession.Modules.Where(x=>x.Classes != null)
+                    from module in coverageSession.Modules.Where(x=>x.Classes != null)
                     from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
@@ -341,10 +340,10 @@ namespace OpenCover.Console
                                   totalClasses, Math.Round(visitedClasses * 100.0 / totalClasses, 2));
                 logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
                                   totalMethods, Math.Round(visitedMethods * 100.0 / totalMethods, 2));
-                logger.InfoFormat("Visited Points {0} of {1} ({2})", CoverageSession.Summary.VisitedSequencePoints,
-                                  CoverageSession.Summary.NumSequencePoints, CoverageSession.Summary.SequenceCoverage);
-                logger.InfoFormat("Visited Branches {0} of {1} ({2})", CoverageSession.Summary.VisitedBranchPoints,
-                                  CoverageSession.Summary.NumBranchPoints, CoverageSession.Summary.BranchCoverage);
+                logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
+                                  coverageSession.Summary.NumSequencePoints, coverageSession.Summary.SequenceCoverage);
+                logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
+                                  coverageSession.Summary.NumBranchPoints, coverageSession.Summary.BranchCoverage);
 
                 logger.InfoFormat("");
                 logger.InfoFormat(
@@ -448,8 +447,8 @@ namespace OpenCover.Console
                     {
                         using (var service = new ServiceController(parser.Target))
                         {
-                        var name = service.DisplayName;
-                    }
+                            var name = service.DisplayName;
+                        }
                     }
                     catch (Exception)
                     {
