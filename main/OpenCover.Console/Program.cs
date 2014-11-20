@@ -15,10 +15,9 @@ using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Service;
 using OpenCover.Framework.Utility;
 using log4net;
-using log4net.Core;
+using System.Management;
 
 namespace OpenCover.Console
 {
@@ -31,6 +30,7 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
+
             var returnCode = 0;
             var returnCodeOffset = 0;
             var logger = LogManager.GetLogger(typeof (Bootstrapper));
@@ -82,7 +82,7 @@ namespace OpenCover.Console
                                 ? new[] { ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target) }
                                 : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
-                        harness.RunProcess((environment) =>
+                        harness.RunProcess(environment =>
                                                {
                                                    returnCode = 0;
                                                    if (parser.Service)
@@ -126,6 +126,35 @@ namespace OpenCover.Console
             return returnCode;
         }
 
+        private static void TerminateAndRestartCurrentW3SvcHost(ILog logger)
+        {
+            var processName = "svchost.exe";
+            string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
+            var searcher = new ManagementObjectSearcher(wmiQuery);
+            ManagementObjectCollection retObjectCollection = searcher.Get();
+            foreach (var o in retObjectCollection)
+            {
+                var retObject = (ManagementObject) o;
+                var cmdLine = (string)retObject["CommandLine"];
+                if (cmdLine.EndsWith("-k iissvcs"))
+                {
+                    var proc = (uint)retObject["ProcessId"];
+
+                    // Terminate, the restart is done automatically
+                    logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
+                    try
+                    {
+                        Process.GetProcessById((int)proc).Kill();
+                        logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.InfoFormat("Unable to stop svchost with pid '{0}' IIS profiling may not work: {1}", proc, e.Message);
+                    }
+                }
+            }
+        }
+
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
             if (ServiceEnvironmentManagementEx.IsServiceDisabled(parser.Target))
@@ -159,13 +188,17 @@ namespace OpenCover.Console
                     parser.Target,
                         parser.ServiceEnvironment,
                     (from string key in profilerEnvironment.Keys
-                        select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                     select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
 
                 // now start the service
-                    var old = service;
+                var old = service;
                 service = new ServiceController(parser.Target);
-                    old.Dispose();
-                service.Start();
+                old.Dispose();
+
+                if (parser.Target.ToLower().Equals("w3svc"))
+                    TerminateAndRestartCurrentW3SvcHost(logger);
+                else
+                    service.Start();
                 logger.InfoFormat("Service starting '{0}'", parser.Target);
                 service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
                 logger.InfoFormat("Service started '{0}'", parser.Target);
@@ -232,7 +265,7 @@ namespace OpenCover.Console
         {
             if (!logger.IsInfoEnabled) return;
  
-            var CoverageSession = persistance.CoverageSession;
+            var coverageSession = persistance.CoverageSession;
 
             var totalClasses = 0;
             var visitedClasses = 0;
@@ -249,10 +282,10 @@ namespace OpenCover.Console
             var unvisitedClasses = new List<string>();
             var unvisitedMethods = new List<string>();
 
-            if (CoverageSession.Modules != null)
+            if (coverageSession.Modules != null)
             {
                 foreach (var @class in
-                    from module in CoverageSession.Modules.Where(x=>x.Classes != null)
+                    from module in coverageSession.Modules.Where(x=>x.Classes != null)
                     from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
@@ -307,10 +340,10 @@ namespace OpenCover.Console
                                   totalClasses, Math.Round(visitedClasses * 100.0 / totalClasses, 2));
                 logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
                                   totalMethods, Math.Round(visitedMethods * 100.0 / totalMethods, 2));
-                logger.InfoFormat("Visited Points {0} of {1} ({2})", CoverageSession.Summary.VisitedSequencePoints,
-                                  CoverageSession.Summary.NumSequencePoints, CoverageSession.Summary.SequenceCoverage);
-                logger.InfoFormat("Visited Branches {0} of {1} ({2})", CoverageSession.Summary.VisitedBranchPoints,
-                                  CoverageSession.Summary.NumBranchPoints, CoverageSession.Summary.BranchCoverage);
+                logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
+                                  coverageSession.Summary.NumSequencePoints, coverageSession.Summary.SequenceCoverage);
+                logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
+                                  coverageSession.Summary.NumBranchPoints, coverageSession.Summary.BranchCoverage);
 
                 logger.InfoFormat("");
                 logger.InfoFormat(
@@ -414,8 +447,8 @@ namespace OpenCover.Console
                     {
                         using (var service = new ServiceController(parser.Target))
                         {
-                        var name = service.DisplayName;
-                    }
+                            var name = service.DisplayName;
+                        }
                     }
                     catch (Exception)
                     {
