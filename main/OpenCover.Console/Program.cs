@@ -128,7 +128,8 @@ namespace OpenCover.Console
             return returnCode;
         }
 
-        private static void TerminateAndRestartCurrentW3SvcHost(ILog logger)
+
+        private static void TerminateCurrentW3SvcHost(ILog logger)
         {
             var processName = "svchost.exe";
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
@@ -154,7 +155,26 @@ namespace OpenCover.Console
                     }
                 }
             }
+
+            // Wait for successfull restart of the svchost
+            bool found = false;
+            do
+            {
+                retObjectCollection = searcher.Get();
+                foreach (ManagementObject retObject in retObjectCollection)
+                {
+                    var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
+                    if (cmdLine.EndsWith("-k iissvcs"))
+                    {
+                        var proc = (uint)retObject["ProcessId"];
+                        logger.InfoFormat("New svchost for w3svc with pid '{0}' was started", proc);
+                        found = true;
+                        break;
+                    }
+                }
+            } while (!found);
         }
+        
 
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
@@ -169,55 +189,76 @@ namespace OpenCover.Console
             try
             {
 
-            if (service.Status != ServiceControllerStatus.Stopped)
-            {
+                if (service.Status != ServiceControllerStatus.Stopped)
+                {
                     logger.ErrorFormat(
                         "The service '{0}' is already running. The profiler cannot attach to an already running service.",
                     parser.Target);
-                return;
-            }
+                    return;
+                }
 
-            // now to set the environment variables
-            var profilerEnvironment = new StringDictionary();
-            environment(profilerEnvironment);
+                // now to set the environment variables
+                var profilerEnvironment = new StringDictionary();
+                environment(profilerEnvironment);
 
-            var serviceEnvironment = new ServiceEnvironmentManagement();
+                var serviceEnvironment = new ServiceEnvironmentManagement();
 
-            try
-            {
-                serviceEnvironment.PrepareServiceEnvironment(
-                    parser.Target,
-                        parser.ServiceEnvironment,
-                    (from string key in profilerEnvironment.Keys
-                     select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                try
+                {
+                    serviceEnvironment.PrepareServiceEnvironment(
+                        parser.Target,
+                            parser.ServiceEnvironment,
+                        (from string key in profilerEnvironment.Keys
+                         select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
 
-                // now start the service
-                var old = service;
-                service = new ServiceController(parser.Target);
-                old.Dispose();
+                    // now start the service
+                    var old = service;
+                    service = new ServiceController(parser.Target);
+                    old.Dispose();
 
+                    if (parser.Target.ToLower().Equals("w3svc"))
+                    {
+                        TerminateCurrentW3SvcHost(logger);
+
+                        // Service will not automatically start
+                        if (!ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
+                        {
+                            service.Start();
+                        }
+                    }
+                    else
+                    {
+                        service.Start();
+                    }
+                    logger.InfoFormat("Service starting '{0}'", parser.Target);
+                    service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+                    logger.InfoFormat("Service started '{0}'", parser.Target);
+                }
+                catch (InvalidOperationException fault)
+                {
+                    logger.FatalFormat("Service launch failed with '{0}'", fault);
+                }
+                finally
+                {
+                    // once the serice has started set the environment variables back - just in case
+                    serviceEnvironment.ResetServiceEnvironment();
+                }
+
+                // and wait for it to stop
+                service.WaitForStatus(ServiceControllerStatus.Stopped);
+                logger.InfoFormat("Service stopped '{0}'", parser.Target);
+
+                // Stopping w3svc host
                 if (parser.Target.ToLower().Equals("w3svc"))
-                    TerminateAndRestartCurrentW3SvcHost(logger);
-                else
-                    service.Start();
-                logger.InfoFormat("Service starting '{0}'", parser.Target);
-                service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
-                logger.InfoFormat("Service started '{0}'", parser.Target);
+                {
+                    logger.InfoFormat("Stopping svchost to clean up environment variables for w3svc", parser.Target);
+                    if (ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
+                    {
+                        logger.InfoFormat("Please note that the '{0}' service will automatically start");
+                    }
+                    TerminateCurrentW3SvcHost(logger);
+                }
             }
-            catch (InvalidOperationException fault)
-            {
-                logger.FatalFormat("Service launch failed with '{0}'", fault);
-            }
-            finally 
-            {
-                // once the serice has started set the environment variables back - just in case
-                serviceEnvironment.ResetServiceEnvironment();
-            }
-
-            // and wait for it to stop
-            service.WaitForStatus(ServiceControllerStatus.Stopped);
-            logger.InfoFormat("Service stopped '{0}'", parser.Target);
-        }
             finally
             {
                 service.Dispose();
