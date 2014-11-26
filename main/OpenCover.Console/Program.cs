@@ -128,8 +128,12 @@ namespace OpenCover.Console
             return returnCode;
         }
 
-
-        private static void TerminateCurrentW3SvcHost(ILog logger)
+        /// <summary>
+        /// Terminates current W3SVC hosting process (svchost.exe -k iissvcs)
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns>Returns wether the svchost.exe was restarted by the services.exe process or not</returns>
+        private static bool TerminateCurrentW3SvcHost(ILog logger)
         {
             var processName = "svchost.exe";
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
@@ -156,9 +160,15 @@ namespace OpenCover.Console
                 }
             }
 
+            // Wait three seconds for the svchost to start
+            // TODO, make this configurable
+            var secondstowait = 3;
+
             // Wait for successfull restart of the svchost
+            Stopwatch s = new Stopwatch();
+            s.Start();
             bool found = false;
-            do
+            while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
                 retObjectCollection = searcher.Get();
                 foreach (ManagementObject retObject in retObjectCollection)
@@ -172,7 +182,13 @@ namespace OpenCover.Console
                         break;
                     }
                 }
-            } while (!found);
+                if (found)
+                    break;
+            }
+            s.Stop();
+
+            // Return the found state
+            return found;
         }
         
 
@@ -218,10 +234,9 @@ namespace OpenCover.Console
 
                     if (parser.Target.ToLower().Equals("w3svc"))
                     {
-                        TerminateCurrentW3SvcHost(logger);
-
                         // Service will not automatically start
-                        if (!ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
+                        if (! TerminateCurrentW3SvcHost(logger) ||
+                            !ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
                         {
                             service.Start();
                         }
@@ -254,7 +269,7 @@ namespace OpenCover.Console
                     logger.InfoFormat("Stopping svchost to clean up environment variables for w3svc", parser.Target);
                     if (ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
                     {
-                        logger.InfoFormat("Please note that the '{0}' service will automatically start");
+                        logger.InfoFormat("Please note that the 'w3svc' service may automatically start");
                     }
                     TerminateCurrentW3SvcHost(logger);
                 }
