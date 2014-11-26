@@ -23,6 +23,8 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 using OpenCover.Framework;
+using System.ServiceProcess;
+using System.ComponentModel;
 
 namespace OpenCover.Console
 {
@@ -32,6 +34,12 @@ namespace OpenCover.Console
         {
             var entry = GetServiceKey(serviceName);
             return (int)entry.GetValue("Start") == 4;
+        }
+
+        public static bool IsServiceStartAutomatic(string serviceName)
+        {
+            var entry = GetServiceKey(serviceName);
+            return (int)entry.GetValue("Start") == 2;
         }
     }
 
