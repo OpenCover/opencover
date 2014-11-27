@@ -1,4 +1,6 @@
 Version [[version]]
+#234 improved IIS support (fix)
+#237 handle multiple files for a method e.g. during code contract re-writes (fix)
 #228 add MDB support (feature)
 #226 remove branch points on methods without sequence points (fix)
 #225 Enable filters to use regular expressions (feature)

@@ -162,20 +162,13 @@ namespace OpenCover.Framework.Symbols
                 var list = new List<string>();
                 if (!@class.ShouldSerializeSkippedDueTo())
                 {
-                    foreach (var methodDefinition in typeDefinition.Methods)
-                    {
-                        if (methodDefinition.Body != null && methodDefinition.Body.Instructions != null)
-                        {
-                            foreach (var instruction in methodDefinition.Body.Instructions)
-                            {
-                                if (instruction.SequencePoint != null)
-                                {
-                                    list.Add(instruction.SequencePoint.Document.Url);
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    var files = from methodDefinition in typeDefinition.Methods
+                        where methodDefinition.Body != null && methodDefinition.Body.Instructions != null
+                        from instruction in methodDefinition.Body.Instructions
+                        where instruction.SequencePoint != null
+                        select instruction.SequencePoint.Document.Url;
+
+                    list.AddRange(files.Distinct());
                 }
 
                 // only instrument types that are not structs and have instrumentable points

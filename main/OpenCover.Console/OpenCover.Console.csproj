@@ -92,6 +92,7 @@
       <HintPath>..\packages\Unity.2.1.505.2\lib\NET35\Microsoft.Practices.Unity.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Management" />
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
