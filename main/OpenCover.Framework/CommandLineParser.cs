@@ -42,6 +42,9 @@ namespace OpenCover.Framework
         Path64
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public enum ServiceEnvironment
     {
         /// <summary>
@@ -77,6 +80,8 @@ namespace OpenCover.Framework
             EnablePerformanceCounters = false;
             TraceByTest = false;
             ServiceEnvironment = ServiceEnvironment.None;
+            RegExFilters = false;
+            Registration = Registration.Normal;
         }
 
         /// <summary>
@@ -92,9 +97,11 @@ namespace OpenCover.Framework
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
+            builder.AppendLine("    [-mergeoutput");
             builder.AppendLine("    [[\"]-filter:<space separated filters>[\"]]");
             builder.AppendLine("    [[\"]-filterfile:<path to file>[\"]]");
             builder.AppendLine("    [-nodefaultfilters]");
+            builder.AppendLine("    [-regex]");
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
@@ -140,7 +147,7 @@ namespace OpenCover.Framework
                 {
                     case "register":
                         Register = true;
-                        var registration = Registration.Normal;
+                        Registration registration;
                         Enum.TryParse(GetArgumentValue("register"), true, out registration);
                         Registration = registration;
                         break;
@@ -156,11 +163,17 @@ namespace OpenCover.Framework
                     case "output":
                         OutputFile = GetArgumentValue("output");
                         break;
+                    case "mergeoutput":
+                        MergeExistingOutputFile = true;
+                        break;
                     case "nodefaultfilters":
                         NoDefaultFilters = true;
                         break;
                     case "mergebyhash":
                         MergeByHash = true;
+                        break;
+                    case "regex":
+                        RegExFilters = true;
                         break;
                     case "showunvisited":
                         ShowUnvisited = true;
@@ -200,7 +213,7 @@ namespace OpenCover.Framework
                     case "service":
                         Service = true;
                         ServiceEnvironment val;
-                        if (Enum.TryParse(this.GetArgumentValue("service"), true, out val))
+                        if (Enum.TryParse(GetArgumentValue("service"), true, out val))
                         {
                             ServiceEnvironment = val;
                         }
@@ -421,6 +434,16 @@ namespace OpenCover.Framework
         /// Enable the performance counters
         /// </summary>
         public bool EnablePerformanceCounters { get; private set; }
+
+        /// <summary>
+        /// Filters are to use regular expressions rather than wild cards
+        /// </summary>
+        public bool RegExFilters { get; private set; }
+
+        /// <summary>
+        /// If an existing output exists then load it and allow merging of test runs
+        /// </summary>
+        public bool MergeExistingOutputFile { get; private set; }
     }
 
 }

@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Xml.Serialization;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using log4net;
-using log4net.Core;
 
 namespace OpenCover.Framework.Persistance
 {
@@ -20,6 +17,11 @@ namespace OpenCover.Framework.Persistance
         private uint _trackedMethodId;
         private readonly Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>(); 
 
+        /// <summary>
+        /// constructor
+        /// </summary>
+        /// <param name="commandLine"></param>
+        /// <param name="logger"></param>
         protected BasePersistance(ICommandLine commandLine, ILog logger)
         {
             CommandLine = commandLine;
@@ -47,24 +49,82 @@ namespace OpenCover.Framework.Persistance
                     return;
                 }
             }
+
             _moduleMethodMap[module] = new Dictionary<int, KeyValuePair<Class, Method>>();
-            foreach(var @class in module.Classes)
-            {
-                foreach (var method in @class.Methods)
-                {
-                    _moduleMethodMap[module][method.MetadataToken] = new KeyValuePair<Class, Method>(@class, method);        
-                }
-            }
+            BuildMethodMapForModule(module);
             var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
             CoverageSession.Modules = list.ToArray();
         }
 
+        protected void ClearCoverageSession()
+        {
+            _moduleMethodMap.Clear();
+            CoverageSession = new CoverageSession();
+            InstrumentationPoint.Clear();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        protected void ReassignCoverageSession(CoverageSession session)
+        {
+            _moduleMethodMap.Clear(); 
+            CoverageSession = session;
+            CoverageSession.Summary = new Summary();
+            foreach (var module in CoverageSession.Modules)
+            {
+                BuildMethodMapForModule(module);
+                module.Summary = new Summary();
+                foreach (var @class in module.Classes)
+                {
+                    @class.Summary = new Summary();
+                    foreach (var method in @class.Methods)
+                    {
+                        method.Summary = new Summary();
+                        if (method.SequencePoints != null && method.SequencePoints.Any() && method.SequencePoints[0].Offset == method.MethodPoint.Offset)
+                        {
+                            var point = new[] { method.SequencePoints[0], (SequencePoint)method.MethodPoint }
+                                .OrderBy(x => x.OrigSequencePoint)
+                                .First();
+
+                            method.MethodPoint = point;
+                            method.SequencePoints[0] = point;
+                        }
+                    }
+                }
+            }
+
+            InstrumentationPoint.ResetAfterLoading();
+            File.ResetAfterLoading();
+        }
+
+        private void BuildMethodMapForModule(Module module)
+        {
+            _moduleMethodMap[module] = new Dictionary<int, KeyValuePair<Class, Method>>();
+            foreach (var @class in module.Classes)
+            {
+                foreach (var method in @class.Methods)
+                {
+                    _moduleMethodMap[module][method.MetadataToken] = new KeyValuePair<Class, Method>(@class, method);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Is the module being tracked
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
             return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
                     !x.ShouldSerializeSkippedDueTo());
         }
 
+        /// <summary>
+        /// we are done and the data needs one last clean up
+        /// </summary>
         public virtual void Commit()
         {
             PopulateInstrumentedPoints();
@@ -158,7 +218,7 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        protected void PopulateInstrumentedPoints()
+        private void PopulateInstrumentedPoints()
         {
             if (CoverageSession.Modules == null) return;
 
@@ -180,9 +240,9 @@ namespace OpenCover.Framework.Persistance
                 #region Module File/FileID Dictionary
 
                 var filesDictionary = new Dictionary<string,uint>();
-                foreach (var file in module.Files ?? new File[0]) {
-                    if (!filesDictionary.ContainsKey(file.FullPath?? ""))
-                        filesDictionary.Add(file.FullPath?? "", file.UniqueId);
+                foreach (var file in (module.Files ?? new File[0]).Where(file => !filesDictionary.ContainsKey(file.FullPath ?? "")))
+                {
+                    filesDictionary.Add(file.FullPath ?? "", file.UniqueId);
                 }
 
                 #endregion
@@ -195,18 +255,8 @@ namespace OpenCover.Framework.Persistance
                         var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
                         var branchPoints = method.BranchPoints ?? new BranchPoint[0];
 
-                        #region SequencePoint FileID
-
-                        foreach (var sp in sequencePoints)
-                        {
-                            uint fileid = 0;
-                            filesDictionary.TryGetValue (sp.Document?? "", out fileid);
-                            sp.FileId = fileid;
-                            // clear document if FileId is found
-                            sp.Document = sp.FileId != 0 ? null : sp.Document;
-                        }
-                        
-                        #endregion
+                        MapFileReferences(sequencePoints, filesDictionary);
+                        MapFileReferences(branchPoints, filesDictionary);
 
                         #region Merge branch-exits
 
@@ -215,20 +265,14 @@ namespace OpenCover.Framework.Persistance
 
                             #region Join Sequences and Branches
 
-                            int index = 0;
-                            int nextOffset = 0;
-                            
+                            var index = 0;
+
                             // get first sequencePoint and prepare list for Add(branchPoint)
                             var parent = sequencePoints[index];
                             parent.BranchPoints = new List<BranchPoint>();
 
                             // get nextOffset
-                            if (index + 1 < sequencePoints.Length) {
-                                nextOffset = sequencePoints[index + 1].Offset;
-                            }
-                            else {
-                                nextOffset = int.MaxValue;
-                            }
+                            int nextOffset = index + 1 < sequencePoints.Length ? sequencePoints[index + 1].Offset : int.MaxValue;
                             
                             foreach (var branchPoint in branchPoints) {
                                 
@@ -345,6 +389,18 @@ namespace OpenCover.Framework.Persistance
             }
 
             CalculateCoverage(CoverageSession.Summary);
+        }
+
+        private static void MapFileReferences(IEnumerable<IDocumentReference> points, IDictionary<string, uint> filesDictionary)
+        {
+            foreach (var pt in points)
+            {
+                uint fileid;
+                filesDictionary.TryGetValue(pt.Document ?? "", out fileid);
+                pt.FileId = fileid;
+                // clear document if FileId is found
+                pt.Document = pt.FileId != 0 ? null : pt.Document;
+            }
         }
 
         private static void CalculateCoverage(Summary summary)

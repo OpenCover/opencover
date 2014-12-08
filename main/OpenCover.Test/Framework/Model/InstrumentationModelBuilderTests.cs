@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Mono.Cecil;
 using Moq;
 using NUnit.Framework;
@@ -134,19 +135,19 @@ namespace OpenCover.Test.Framework.Model
         {
             // arrange
             var @class = new Class();
-            var @method = new Method(){MetadataToken = 101};
-            var @seqPoint = new SequencePoint();
+            var method = new Method{MetadataToken = 101};
+            var seqPoint = new SequencePoint();
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetInstrumentableTypes())
                 .Returns(new[] { @class });
 
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
-                .Returns(new[] { @method });
+                .Returns(new[] { method });
 
             Container.GetMock<ISymbolManager>()
                 .Setup(x => x.GetSequencePointsForToken(101))
-                .Returns(new[] { @seqPoint });
+                .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
                 .Setup(x => x.UseAssembly(It.IsAny<string>()))
@@ -157,7 +158,7 @@ namespace OpenCover.Test.Framework.Model
 
             // assert
             Assert.AreEqual(1, module.Classes[0].Methods[0].SequencePoints.GetLength(0));
-            Assert.AreSame(@seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
+            Assert.AreSame(seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
         }
 
         [Test]
@@ -233,6 +234,135 @@ namespace OpenCover.Test.Framework.Model
             Assert.AreEqual(0, module.TrackedMethods.GetLength(0));
             Container.GetMock<ISymbolManager>().Verify(x => x.GetTrackedMethods(), Times.Once());
 
+        }
+
+        [Test]
+        public void BuildModuleModel_MethodPoint_WhenOffsetZero()
+        {
+            // arrange
+            var @class = new Class();
+            var method = new Method { MetadataToken = 101 };
+            var seqPoint = new SequencePoint();
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Returns(new[] { method });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetSequencePointsForToken(101))
+                .Returns(new[] { seqPoint });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.AreSame(seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
+            Assert.AreSame(seqPoint, module.Classes[0].Methods[0].MethodPoint);
+        }
+
+        [Test]
+        public void BuildModuleModel_MethodPoint_WhenOffsetGreaterThanZero()
+        {
+            // arrange
+            var @class = new Class();
+            var method = new Method { MetadataToken = 101 };
+            var seqPoint = new SequencePoint {Offset = 1};
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Returns(new[] { method });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetSequencePointsForToken(101))
+                .Returns(new[] { seqPoint });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.AreSame(seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
+            Assert.AreNotSame(seqPoint, module.Classes[0].Methods[0].MethodPoint);
+        }
+
+        [Test]
+        public void BuildModuleModel_Gets_BranchPoints_WhenHaveSequencePoints()
+        {
+            // arrange
+            var @class = new Class();
+            var @method = new Method { MetadataToken = 101 };
+            var seqPoint = new SequencePoint();
+            var brPoint = new BranchPoint();
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Returns(new[] { @method });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetSequencePointsForToken(101))
+                .Returns(new[] { seqPoint });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetBranchPointsForToken(101))
+                .Returns(new[] { brPoint });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.AreSame(seqPoint, module.Classes[0].Methods[0].SequencePoints[0]);
+            Assert.AreSame(brPoint, module.Classes[0].Methods[0].BranchPoints[0]);
+        }
+
+        [Test]
+        public void BuildModuleModel_Gets_NoBranchPoints_WhenNoSequencePoints()
+        {
+            // arrange
+            var @class = new Class();
+            var @method = new Method { MetadataToken = 101 };
+            var brPoint = new BranchPoint();
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetInstrumentableTypes())
+                .Returns(new[] { @class });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetMethodsForType(@class, It.IsAny<File[]>()))
+                .Returns(new[] { @method });
+
+            Container.GetMock<ISymbolManager>()
+                .Setup(x => x.GetBranchPointsForToken(101))
+                .Returns(new[] { brPoint });
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            // act
+            var module = Instance.BuildModuleModel(true);
+
+            // assert
+            Assert.IsFalse(module.Classes[0].Methods[0].SequencePoints.Any());
+            Assert.IsFalse(module.Classes[0].Methods[0].BranchPoints.Any());
         }
 
     }

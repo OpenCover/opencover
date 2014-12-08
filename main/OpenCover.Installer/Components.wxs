@@ -27,9 +27,10 @@
         <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" KeyPath="yes" />
         <File Id="AUTOFAC_CONFIGURATION_DLL" Source="..\bin\Release\Autofac.Configuration.dll" />
       </Component>
-      <Component Id="MonoCecil_3rdParty" Guid="{99006183-6952-46C2-92FE-07158A5249F7}">
+      <Component Id="MonoCecil_3rdParty" Guid="{6DF69995-B4D4-47CD-96EF-FD224A95A4F8}">
         <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" KeyPath="yes" />
         <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
+        <File Id="MONO_CECIL_MDB_DLL" Source="..\bin\Release\Mono.Cecil.Mdb.dll" />
       </Component>
       <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
         <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />

@@ -6,9 +6,9 @@
     <title>OpenCover - an open source code coverage tool for .NET</title>
     <authors>sawilde</authors>
     <owners />
-    <licenseUrl>https://github.com/sawilde/opencover/blob/master/License.md</licenseUrl>
-    <iconUrl>https://github.com/sawilde/opencover/blob/master/main/Icons/128.png?raw=true</iconUrl>
-    <projectUrl>https://github.com/sawilde/opencover</projectUrl>
+    <licenseUrl>https://github.com/opencover/opencover/blob/master/License.md</licenseUrl>
+    <iconUrl>https://github.com/opencover/opencover/blob/master/main/Icons/128.png?raw=true</iconUrl>
+    <projectUrl>https://github.com/opencover/opencover</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above (including Silverlight). Also capable of handling 32 and 64 bit processes. Use ReportGenerator 1.9 for best viewing results (also available via Nuget).</description>
     <summary>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above. Also capable of handling 32 and 64 bit processes.</summary>
@@ -24,12 +24,16 @@
     <file src="main\bin\Release\Autofac.Configuration.dll"/>
     <file src="main\bin\Release\Mono.Cecil.dll"/>
     <file src="main\bin\Release\Mono.Cecil.Pdb.dll"/>
+    <file src="main\bin\Release\Mono.Cecil.Mdb.dll"/>
     <file src="License.rtf"/>
     <file src="main\OpenCover.NugetPackage\readme.txt"/>
     <file src="main\bin\Release\OpenCover.Console.exe"/>
+    <file src="main\bin\Release\OpenCover.Console.pdb"/>
     <file src="main\bin\Release\OpenCover.Console.exe.config"/>
     <file src="main\bin\Release\OpenCover.Framework.dll"/>
+    <file src="main\bin\Release\OpenCover.Framework.pdb"/>
     <file src="main\bin\Release\OpenCover.Extensions.dll"/>
+    <file src="main\bin\Release\OpenCover.Extensions.pdb"/>
     <file src="main\bin\Release\log4net.config"/>
     <file src="main\bin\Release\log4net.dll"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
@@ -42,5 +46,19 @@
     <file src="main\bin\Release\x86\OpenCover.Simple.Target.pdb" target="Samples\x86"/>
     <file src="main\bin\Release\x64\OpenCover.Simple.Target.exe" target="Samples\x64"/>
     <file src="main\bin\Release\x64\OpenCover.Simple.Target.pdb" target="Samples\x64"/>
+    
+    <!-- a sample solution using opencover, nunit and reportgenerator -->
+    <file src="samples\SampleSln\coverage.bat" target="SampleSln"/>
+    <file src="samples\SampleSln\BomSample.sln" target="SampleSln"/>
+    <file src="samples\SampleSln\nuget\packages.config" target="SampleSln\.nuget"/>
+    <file src="samples\SampleSln\packages\repositories.config" target="SampleSln\packages"/>
+    <file src="samples\SampleSln\Bom\Bom.csproj" target="SampleSln\Bom"/>
+    <file src="samples\SampleSln\Bom\BomManager.cs" target="SampleSln\Bom"/>
+    <file src="samples\SampleSln\Bom\Properties\AssemblyInfo.cs" target="SampleSln\Bom\Properties"/>
+    <file src="samples\SampleSln\BomTest\BomTest.csproj" target="SampleSln\BomTest"/>
+    <file src="samples\SampleSln\BomTest\BomManagerTests.cs" target="SampleSln\BomTest"/>
+    <file src="samples\SampleSln\BomTest\packages.config" target="SampleSln\BomTest"/>
+    <file src="samples\SampleSln\BomTest\Properties\AssemblyInfo.cs" target="SampleSln\BomTest\Properties"/>  
+    
   </files>
 </package>

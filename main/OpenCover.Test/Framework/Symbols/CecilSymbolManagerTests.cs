@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,7 +12,6 @@ using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
 using File = OpenCover.Framework.Model.File;
-using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 
 namespace OpenCover.Test.Framework.Symbols
 {
@@ -170,6 +168,28 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(0, points[0].Path);
             Assert.AreEqual(1, points[1].Path);
+            Assert.AreEqual(19, points[0].StartLine);
+            Assert.AreEqual(19, points[1].StartLine);
+            Assert.NotNull(points[1].Document);
+            Assert.AreEqual(points[0].Document, points[1].Document);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_Using_Where_GeneratedBranchesIgnored()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof (DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSimpleUsingStatement")).MetadataToken);
+
+            Assert.AreEqual(2, points.Length);
         }
 
         [Test]
@@ -192,7 +212,32 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(4, points.Count());
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[2].Offset, points[3].Offset);
+            Assert.AreEqual(25, points[0].StartLine);
+            Assert.AreEqual(26, points[2].StartLine);
         }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_CompleteIf()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasCompleteIf")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(32, points[0].StartLine);
+            Assert.AreEqual(32, points[1].StartLine);
+        }        
 
         [Test]
         public void GetBranchPointsForMethodToken_Switch()
@@ -213,8 +258,123 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.IsNotNull(points);
             Assert.AreEqual(4, points.Count());
             Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);            
+            Assert.AreEqual(3, points[3].Path);
+            
+            Assert.AreEqual(44, points[0].StartLine);
+            Assert.AreEqual(44, points[1].StartLine);
+            Assert.AreEqual(44, points[2].StartLine);
+            Assert.AreEqual(44, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_SwitchWithDefault()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithDefault")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
+            
+            Assert.AreEqual(58, points[0].StartLine);
+            Assert.AreEqual(58, points[1].StartLine);
+            Assert.AreEqual(58, points[2].StartLine);
+            Assert.AreEqual(58, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_SwitchWithBreaks()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithBreaks")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(3, points[3].Path);
+
+            Assert.AreEqual(74, points[0].StartLine);
+            Assert.AreEqual(74, points[1].StartLine);
+            Assert.AreEqual(74, points[2].StartLine);
+            Assert.AreEqual(74, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_SwitchWithMultipleCases()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithMultipleCases")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(4, points.Count()); // there's one branch generated for missing case = 2
+            Assert.AreEqual(points[0].Offset, points[1].Offset);
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
+            Assert.AreEqual(points[0].Offset, points[3].Offset);
+            Assert.AreEqual(3, points[3].Path);
+
+            Assert.AreEqual(92, points[0].StartLine);
+            Assert.AreEqual(92, points[1].StartLine);
+            Assert.AreEqual(92, points[2].StartLine);
+            Assert.AreEqual(92, points[3].StartLine);
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_AssignsNegativeLineNumberToBranchesInMethodsThatHaveNoInstrumentablePoints()
+        {
+            /* 
+             * Yes these actually exist - the compiler is very inventive
+             * in this case for an anonymous class the compiler will dynamically create an Equals 'utility' method. 
+             */
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName.Contains("f__AnonymousType"));
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::Equals")).MetadataToken);
+
+            // assert
+            Assert.IsNotNull(points);
+            foreach (var branchPoint in points)
+                Assert.AreEqual(-1, branchPoint.StartLine);
         }
 
         [Test]
@@ -466,7 +626,6 @@ namespace OpenCover.Test.Framework.Symbols
                 .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
-            var token = typeof(Concrete).GetMethod("Method").MetadataToken;
             _mockFilter
                 .Setup(x => x.ExcludeByFile(It.Is<string>(y => !string.IsNullOrWhiteSpace(y) && y.EndsWith("Samples.cs"))))
                 .Returns(true);
@@ -580,6 +739,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetTrackedMethods();
 
             // assert
+            Assert.IsNotNull(methods);
             _mockManager.Verify(x => x.GetTrackedMethods(@"c:\temp\OpenCover.Test.dll"));
         }
 

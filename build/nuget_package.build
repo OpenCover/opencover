@@ -6,9 +6,10 @@
 	<property name="out.folder" value="${solution.folder}\bin\nugetpackage" />
 
 	<target name="nuget-package" depends="get-version-number" >
+   	<property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
 		<mkdir dir="${out.folder}" />
 		<exec program="${nuget.exe}" 
-			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${out.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${out.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
 	</target>
 	
 </project>

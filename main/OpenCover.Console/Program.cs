@@ -15,10 +15,9 @@ using System.ServiceProcess;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Service;
 using OpenCover.Framework.Utility;
 using log4net;
-using log4net.Core;
+using System.Management;
 
 namespace OpenCover.Console
 {
@@ -31,6 +30,7 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
+
             var returnCode = 0;
             var returnCodeOffset = 0;
             var logger = LogManager.GetLogger(typeof (Bootstrapper));
@@ -64,7 +64,7 @@ namespace OpenCover.Console
                 {
                     var persistance = new FilePersistance(parser, logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile);
+                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
                     var registered = false;
 
                     try
@@ -82,7 +82,7 @@ namespace OpenCover.Console
                                 ? new[] { ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target) }
                                 : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
 
-                        harness.RunProcess((environment) =>
+                        harness.RunProcess(environment =>
                                                {
                                                    returnCode = 0;
                                                    if (parser.Service)
@@ -126,6 +126,71 @@ namespace OpenCover.Console
             return returnCode;
         }
 
+        /// <summary>
+        /// Terminates current W3SVC hosting process (svchost.exe -k iissvcs)
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <returns>Returns wether the svchost.exe was restarted by the services.exe process or not</returns>
+        private static bool TerminateCurrentW3SvcHost(ILog logger)
+        {
+            var processName = "svchost.exe";
+            string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
+            var searcher = new ManagementObjectSearcher(wmiQuery);
+            ManagementObjectCollection retObjectCollection = searcher.Get();
+            foreach (var o in retObjectCollection)
+            {
+                var retObject = (ManagementObject) o;
+                var cmdLine = (string)retObject["CommandLine"];
+                if (cmdLine.EndsWith("-k iissvcs"))
+                {
+                    var proc = (uint)retObject["ProcessId"];
+
+                    // Terminate, the restart is done automatically
+                    logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
+                    try
+                    {
+                        Process.GetProcessById((int)proc).Kill();
+                        logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
+                    }
+                    catch (Exception e)
+                    {
+                        logger.InfoFormat("Unable to stop svchost with pid '{0}' IIS profiling may not work: {1}", proc, e.Message);
+                    }
+                }
+            }
+
+            // Wait three seconds for the svchost to start
+            // TODO, make this configurable
+            var secondstowait = 3;
+
+            // Wait for successfull restart of the svchost
+            Stopwatch s = new Stopwatch();
+            s.Start();
+            bool found = false;
+            while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
+            {
+                retObjectCollection = searcher.Get();
+                foreach (ManagementObject retObject in retObjectCollection)
+                {
+                    var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
+                    if (cmdLine.EndsWith("-k iissvcs"))
+                    {
+                        var proc = (uint)retObject["ProcessId"];
+                        logger.InfoFormat("New svchost for w3svc with pid '{0}' was started", proc);
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    break;
+            }
+            s.Stop();
+
+            // Return the found state
+            return found;
+        }
+        
+
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
             if (ServiceEnvironmentManagementEx.IsServiceDisabled(parser.Target))
@@ -139,51 +204,75 @@ namespace OpenCover.Console
             try
             {
 
-            if (service.Status != ServiceControllerStatus.Stopped)
-            {
+                if (service.Status != ServiceControllerStatus.Stopped)
+                {
                     logger.ErrorFormat(
                         "The service '{0}' is already running. The profiler cannot attach to an already running service.",
                     parser.Target);
-                return;
-            }
+                    return;
+                }
 
-            // now to set the environment variables
-            var profilerEnvironment = new StringDictionary();
-            environment(profilerEnvironment);
+                // now to set the environment variables
+                var profilerEnvironment = new StringDictionary();
+                environment(profilerEnvironment);
 
-            var serviceEnvironment = new ServiceEnvironmentManagement();
+                var serviceEnvironment = new ServiceEnvironmentManagement();
 
-            try
-            {
-                serviceEnvironment.PrepareServiceEnvironment(
-                    parser.Target,
-                        parser.ServiceEnvironment,
-                    (from string key in profilerEnvironment.Keys
-                        select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                try
+                {
+                    serviceEnvironment.PrepareServiceEnvironment(
+                        parser.Target,
+                            parser.ServiceEnvironment,
+                        (from string key in profilerEnvironment.Keys
+                         select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
 
-                // now start the service
+                    // now start the service
                     var old = service;
-                service = new ServiceController(parser.Target);
+                    service = new ServiceController(parser.Target);
                     old.Dispose();
-                service.Start();
-                logger.InfoFormat("Service starting '{0}'", parser.Target);
-                service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
-                logger.InfoFormat("Service started '{0}'", parser.Target);
-            }
-            catch (InvalidOperationException fault)
-            {
-                logger.FatalFormat("Service launch failed with '{0}'", fault);
-            }
-            finally 
-            {
-                // once the serice has started set the environment variables back - just in case
-                serviceEnvironment.ResetServiceEnvironment();
-            }
 
-            // and wait for it to stop
-            service.WaitForStatus(ServiceControllerStatus.Stopped);
-            logger.InfoFormat("Service stopped '{0}'", parser.Target);
-        }
+                    if (parser.Target.ToLower().Equals("w3svc"))
+                    {
+                        // Service will not automatically start
+                        if (! TerminateCurrentW3SvcHost(logger) ||
+                            !ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
+                        {
+                            service.Start();
+                        }
+                    }
+                    else
+                    {
+                        service.Start();
+                    }
+                    logger.InfoFormat("Service starting '{0}'", parser.Target);
+                    service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+                    logger.InfoFormat("Service started '{0}'", parser.Target);
+                }
+                catch (InvalidOperationException fault)
+                {
+                    logger.FatalFormat("Service launch failed with '{0}'", fault);
+                }
+                finally
+                {
+                    // once the serice has started set the environment variables back - just in case
+                    serviceEnvironment.ResetServiceEnvironment();
+                }
+
+                // and wait for it to stop
+                service.WaitForStatus(ServiceControllerStatus.Stopped);
+                logger.InfoFormat("Service stopped '{0}'", parser.Target);
+
+                // Stopping w3svc host
+                if (parser.Target.ToLower().Equals("w3svc"))
+                {
+                    logger.InfoFormat("Stopping svchost to clean up environment variables for w3svc", parser.Target);
+                    if (ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
+                    {
+                        logger.InfoFormat("Please note that the 'w3svc' service may automatically start");
+                    }
+                    TerminateCurrentW3SvcHost(logger);
+                }
+            }
             finally
             {
                 service.Dispose();
@@ -232,7 +321,7 @@ namespace OpenCover.Console
         {
             if (!logger.IsInfoEnabled) return;
  
-            var CoverageSession = persistance.CoverageSession;
+            var coverageSession = persistance.CoverageSession;
 
             var totalClasses = 0;
             var visitedClasses = 0;
@@ -249,10 +338,10 @@ namespace OpenCover.Console
             var unvisitedClasses = new List<string>();
             var unvisitedMethods = new List<string>();
 
-            if (CoverageSession.Modules != null)
+            if (coverageSession.Modules != null)
             {
                 foreach (var @class in
-                    from module in CoverageSession.Modules.Where(x=>x.Classes != null)
+                    from module in coverageSession.Modules.Where(x=>x.Classes != null)
                     from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
@@ -307,10 +396,10 @@ namespace OpenCover.Console
                                   totalClasses, Math.Round(visitedClasses * 100.0 / totalClasses, 2));
                 logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
                                   totalMethods, Math.Round(visitedMethods * 100.0 / totalMethods, 2));
-                logger.InfoFormat("Visited Points {0} of {1} ({2})", CoverageSession.Summary.VisitedSequencePoints,
-                                  CoverageSession.Summary.NumSequencePoints, CoverageSession.Summary.SequenceCoverage);
-                logger.InfoFormat("Visited Branches {0} of {1} ({2})", CoverageSession.Summary.VisitedBranchPoints,
-                                  CoverageSession.Summary.NumBranchPoints, CoverageSession.Summary.BranchCoverage);
+                logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
+                                  coverageSession.Summary.NumSequencePoints, coverageSession.Summary.SequenceCoverage);
+                logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
+                                  coverageSession.Summary.NumBranchPoints, coverageSession.Summary.BranchCoverage);
 
                 logger.InfoFormat("");
                 logger.InfoFormat(
@@ -360,44 +449,22 @@ namespace OpenCover.Console
 
         private static IFilter BuildFilter(CommandLineParser parser)
         {
-            var filter = new Filter();
-
-            // apply filters
-            if (!parser.NoDefaultFilters)
+            var filter = Filter.BuildFilter(parser);
+            if (!string.IsNullOrWhiteSpace(parser.FilterFile))
             {
-                filter.AddFilter("-[mscorlib]*");
-                filter.AddFilter("-[mscorlib.*]*");
-                filter.AddFilter("-[System]*");
-                filter.AddFilter("-[System.*]*");
-                filter.AddFilter("-[Microsoft.VisualBasic]*");
-            }
-
-
-            if (parser.Filters.Count == 0 && string.IsNullOrEmpty(parser.FilterFile))
-            {
-                filter.AddFilter("+[*]*");
+                if (!File.Exists(parser.FilterFile.Trim()))
+                    System.Console.WriteLine("FilterFile '{0}' cannot be found - have you specified your arguments correctly?", parser.FilterFile);
+                else
+                {
+                    var filters = File.ReadAllLines(parser.FilterFile);
+                    filters.ToList().ForEach(filter.AddFilter);
+                }
             }
             else
             {
-                if (!string.IsNullOrEmpty(parser.FilterFile))
-                {
-                    if (!File.Exists(parser.FilterFile))
-                        System.Console.WriteLine("FilterFile '{0}' cannot be found - have you specified your arguments correctly?", parser.FilterFile);
-                    else
-                    {
-                        var filters = File.ReadAllLines(parser.FilterFile);
-                        filters.ToList().ForEach(filter.AddFilter);
-                    }
-                }
-                if (parser.Filters.Count > 0)
-                {
-                    parser.Filters.ForEach(filter.AddFilter);
-                }
+                if (parser.Filters.Count == 0)
+                    filter.AddFilter("+[*]*");
             }
-
-            filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
-            filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
-            filter.AddTestFileFilters(parser.TestFilters.ToArray());
 
             return filter;
         }
@@ -436,8 +503,8 @@ namespace OpenCover.Console
                     {
                         using (var service = new ServiceController(parser.Target))
                         {
-                        var name = service.DisplayName;
-                    }
+                            var name = service.DisplayName;
+                        }
                     }
                     catch (Exception)
                     {

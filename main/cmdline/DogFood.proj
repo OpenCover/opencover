@@ -12,8 +12,8 @@
   -->
 
   <ItemGroup>
-    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.2\tools\nunit-console-x86.exe" />
-    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.2\tools\nunit-console.exe" />
+    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.3\tools\nunit-console-x86.exe" />
+    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe" />
   </ItemGroup>
 
   <Target Name="All"

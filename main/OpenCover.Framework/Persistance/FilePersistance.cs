@@ -3,15 +3,14 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using OpenCover.Framework.Model;
 using log4net;
+using File = System.IO.File;
 
 namespace OpenCover.Framework.Persistance
 {
@@ -33,14 +32,40 @@ namespace OpenCover.Framework.Persistance
         }
 
         private string _fileName;
-        
+
         /// <summary>
         /// Initialise the file persistence
         /// </summary>
         /// <param name="fileName">The filename to save to</param>
-        public void Initialise(string fileName)
+        /// <param name="loadExisting"></param>
+        public void Initialise(string fileName, bool loadExisting)
         {
             _fileName = fileName;
+            if (loadExisting && File.Exists(fileName))
+            {
+                LoadCoverageFile();
+            }
+        }
+
+        private void LoadCoverageFile()
+        {
+            try
+            {
+                _logger.Info(string.Format("Loading coverage file {0}", _fileName));
+                ClearCoverageSession();
+                var serializer = new XmlSerializer(typeof(CoverageSession),
+                                                    new[] { typeof(Module), typeof(Model.File), typeof(Class) });
+                var fs = new FileStream(_fileName, FileMode.Open);
+                var reader = new StreamReader(fs, new UTF8Encoding());
+                var session = (CoverageSession)serializer.Deserialize(reader);
+                reader.Close();
+                ReassignCoverageSession(session);
+            }
+            catch(Exception ex)
+            {
+                _logger.Info(string.Format("Failed to load coverage file {0}", _fileName), ex);
+                ClearCoverageSession();
+            }
         }
 
         public override void Commit()

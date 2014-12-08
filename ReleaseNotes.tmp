@@ -1,3 +1,28 @@
+Version [[version]]
+#234 improved IIS support (fix)
+#237 handle multiple files for a method e.g. during code contract re-writes (fix)
+#228 add MDB support (feature)
+#226 remove branch points on methods without sequence points (fix)
+#225 Enable filters to use regular expressions (feature)
+#218 Auto tag release notes (prj-mgmt)
+#116 output results to accumulate with previous coverage file activate by -mergeoutput (feature)
+
+Version 4.5.3207
+#209 The number of WaitHandles must be less than or equal to 64 (fix)
+#208 Line Number for Branch Points (feature)
+#207 "using" statement causes incorrect Branch Coverage (fix)
+#201 NETWORK SERVICE support (feature)
+
+Version 4.5.2506
+#188 Bring back COR_PRF_DISABLE_ALL_NGEN_IMAGES
+#190 Compiler generated "Empty" Branch Points feature high close on next release
+#191 SequencePoint FileID [CodeContractClass/For]
+
+Version 4.5.2316
+#170 - Overflow fixed
+#188 - re-introduced COR_PRF_DISABLE_ALL_NGEN_IMAGES
+#174 / #176 - pass arguments as multiple variable
+
 Version 4.5.1923
 #168 - skip auto implemented properties
 #164 - allow registryless loading

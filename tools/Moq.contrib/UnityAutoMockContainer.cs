@@ -35,14 +35,14 @@ namespace Moq
             /// Same as calling <code>new UnityAutoMockContainer(new MockFactory(MockBehavior.Loose))</code>
             /// </summary>
             public UnityAutoMockContainer()
-                : this(new MockFactory(MockBehavior.Loose))
+                : this(new MockRepository(MockBehavior.Loose))
             {
             }
 
             /// <summary>
             /// Allows you to specify the MockFactory that will be used when creating mocked items.
             /// </summary>
-            public UnityAutoMockContainer(MockFactory factory)
+            public UnityAutoMockContainer(MockRepository factory)
             {
                 _container = new UnityAutoMockerBackingContainer(factory);
             }
@@ -109,7 +109,7 @@ namespace Moq
             {
                 private readonly IUnityContainer _unityContainer = new UnityContainer();
 
-                public UnityAutoMockerBackingContainer(MockFactory factory)
+                public UnityAutoMockerBackingContainer(MockRepository factory)
                 {
                     _unityContainer.AddExtension(new MockFactoryContainerExtension(factory, this));
                 }
@@ -143,10 +143,10 @@ namespace Moq
 
                 private class MockFactoryContainerExtension : UnityContainerExtension
                 {
-                    private readonly MockFactory _mockFactory;
+                    private readonly MockRepository _mockFactory;
                     private readonly IAutoMockerBackingContainer _container;
 
-                    public MockFactoryContainerExtension(MockFactory mockFactory, IAutoMockerBackingContainer container)
+                    public MockFactoryContainerExtension(MockRepository mockFactory, IAutoMockerBackingContainer container)
                     {
                         _mockFactory = mockFactory;
                         _container = container;
@@ -160,13 +160,13 @@ namespace Moq
 
                 private class MockExtensibilityStrategy : BuilderStrategy
                 {
-                    private readonly MockFactory _factory;
+                    private readonly MockRepository _factory;
                     private readonly IAutoMockerBackingContainer _container;
                     private readonly MethodInfo _createMethod;
                     private readonly Dictionary<Type, Mock> _alreadyCreatedMocks = new Dictionary<Type, Mock>();
                     private MethodInfo _createMethodWithParameters;
 
-                    public MockExtensibilityStrategy(MockFactory factory, IAutoMockerBackingContainer container)
+                    public MockExtensibilityStrategy(MockRepository factory, IAutoMockerBackingContainer container)
                     {
                         _factory = factory;
                         _container = container;
@@ -176,7 +176,7 @@ namespace Moq
 
                     public override void PreBuildUp(IBuilderContext context)
                     {
-                        NamedTypeBuildKey buildKey = (NamedTypeBuildKey)context.BuildKey;
+                        var buildKey = context.BuildKey;
                         bool isToBeAMockedClassInstance = buildKey.Name == NameForMocking;
                         Type mockServiceType = buildKey.Type;
 
@@ -243,7 +243,7 @@ namespace Moq
                         {
                             // Unit constructor selector doesn't seem to want to find abstract class protected constructors
                             // quickly find one here...
-                            var buildKey = (NamedTypeBuildKey)context.BuildKey;
+                            var buildKey = context.BuildKey;
                             var largestConstructor = buildKey.Type.GetConstructors(
                             BindingFlags.Public |
                             BindingFlags.NonPublic |
@@ -280,7 +280,7 @@ namespace Moq
        
         public class UnityAutoMockContainerFixture
         {
-            protected UnityAutoMockContainer GetAutoMockContainer(MockFactory factory)
+            protected UnityAutoMockContainer GetAutoMockContainer(MockRepository factory)
             {
                 return new UnityAutoMockContainer(factory);
             }
@@ -339,7 +339,7 @@ namespace Moq
             [Test]
             public void CreatesLooseMocksIfFactoryIsMockBehaviorLoose()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 var component = factory.Resolve<TestComponent>();
 
                 component.RunAll();
@@ -348,7 +348,7 @@ namespace Moq
             [Test]
             public void CanRegisterImplementationAndResolveIt()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 factory.Register<ITestComponent, TestComponent>();
 
                 var testComponent = factory.Resolve<ITestComponent>();
@@ -360,7 +360,7 @@ namespace Moq
             [Test]
             public void ResolveUnregisteredInterfaceReturnsMock()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
 
                 var service = factory.Resolve<IServiceA>();
 
@@ -371,7 +371,7 @@ namespace Moq
             [Test]
             public void DefaultConstructorWorksWithAllTests()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 var a = false;
                 var b = false;
 
@@ -390,7 +390,7 @@ namespace Moq
             [Test]
             public void ThrowsIfStrictMockWithoutExpectation()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Strict));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Strict));
                 factory.GetMock<IServiceB>().Setup(x => x.RunB());
 
                 var component = factory.Resolve<TestComponent>();
@@ -402,7 +402,7 @@ namespace Moq
             [Test]
             public void StrictWorksWithAllExpectationsMet()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Strict));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Strict));
                 factory.GetMock<IServiceA>().Setup(x => x.RunA());
                 factory.GetMock<IServiceB>().Setup(x => x.RunB());
 
@@ -413,7 +413,7 @@ namespace Moq
             [Test]
             public void GetMockedInstanceOfConcreteClass()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 var mockedInstance = factory.GetMock<TestComponent>();
 
                 Assert.IsNotNull(mockedInstance);
@@ -424,7 +424,7 @@ namespace Moq
             [Test]
             public void GetMockedInstanceOfConcreteClassWithInterfaceConstructorParameter()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 var mockedInstance = factory.GetMock<TestComponent>();
                 Assert.IsNotNull(mockedInstance);
             }
@@ -432,7 +432,7 @@ namespace Moq
             [Test]
             public void WhenMockedInstanceIsRetrievedAnyFutureResolvesOfTheSameConcreteClassShouldReturnedTheMockedInstance()
             {
-                var factory = GetAutoMockContainer(new MockFactory(MockBehavior.Loose));
+                var factory = GetAutoMockContainer(new MockRepository(MockBehavior.Loose));
                 var mockedInstance = factory.GetMock<TestComponent>();
 
                 var resolvedInstance = factory.Resolve<TestComponent>();
