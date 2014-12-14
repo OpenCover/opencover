@@ -326,118 +326,142 @@ namespace OpenCover.Framework.Symbols
         {
             var methodDefinition = GetMethodDefinition(token);
             if (methodDefinition == null) return;
-            UInt32 ordinal = 0;
-            list.AddRange(from instruction in methodDefinition.Body.Instructions
-                where instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode
-                let sp = instruction.SequencePoint
-                select new SequencePoint
-                {
-                    EndColumn = sp.EndColumn, EndLine = sp.EndLine, Offset = instruction.Offset, Ordinal = ordinal++, StartColumn = sp.StartColumn, StartLine = sp.StartLine, Document = sp.Document.Url,
-                });
+            try
+            {
+                UInt32 ordinal = 0;
+                list.AddRange(from instruction in methodDefinition.Body.Instructions
+                    where instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode
+                    let sp = instruction.SequencePoint
+                    select new SequencePoint
+                    {
+                        EndColumn = sp.EndColumn,
+                        EndLine = sp.EndLine,
+                        Offset = instruction.Offset,
+                        Ordinal = ordinal++,
+                        StartColumn = sp.StartColumn,
+                        StartLine = sp.StartLine,
+                        Document = sp.Document.Url,
+                    });
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    string.Format("An error occurred with 'GetSequencePointsForToken' for method '{0}'",
+                        methodDefinition.FullName), ex);
+            }
         }
 
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
             if (methodDefinition == null) return;
-            UInt32 ordinal = 0;
-
-            foreach (var instruction in methodDefinition.Body.Instructions)
+            try
             {
-                if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
-                    continue;
+                UInt32 ordinal = 0;
 
-                if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
-
-                var pathCounter = 0;
-
-                // store branch origin offset
-                var branchOffset = instruction.Offset;
-                var closestSeqPt = FindClosestSequencePoints(methodDefinition.Body, instruction);
-                var branchingInstructionLine = closestSeqPt.Maybe(sp => sp.SequencePoint.StartLine, -1);
-                var document = closestSeqPt.Maybe(sp => sp.SequencePoint.Document.Url);
-
-                if (null == instruction.Next)
-                    return;
-
-                // Add Default branch (Path=0)
-
-                // Follow else/default instruction
-                var @else = instruction.Next;
-
-                var pathOffsetList = GetBranchPath(@else);
-
-                // add Path 0
-                var path0 = new BranchPoint
+                foreach (var instruction in methodDefinition.Body.Instructions)
                 {
-                    StartLine = branchingInstructionLine,
-                    Document = document,
-                    Offset = branchOffset,
-                    Ordinal = ordinal++,
-                    Path = pathCounter++,
-                    OffsetPoints =
-                        pathOffsetList.Count > 1
-                            ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
-                            : new List<int>(),
-                    EndOffset = pathOffsetList.Last()
-                };
-                list.Add(path0);
+                    if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
+                        continue;
 
-                // Add Conditional Branch (Path=1)
-                if (instruction.OpCode.Code != Code.Switch)
-                {
-                    // Follow instruction at operand
-                    var @then = instruction.Operand as Instruction;
-                    if (@then == null)
+                    if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
+
+                    var pathCounter = 0;
+
+                    // store branch origin offset
+                    var branchOffset = instruction.Offset;
+                    var closestSeqPt = FindClosestSequencePoints(methodDefinition.Body, instruction);
+                    var branchingInstructionLine = closestSeqPt.Maybe(sp => sp.SequencePoint.StartLine, -1);
+                    var document = closestSeqPt.Maybe(sp => sp.SequencePoint.Document.Url);
+
+                    if (null == instruction.Next)
                         return;
 
-                    pathOffsetList = GetBranchPath(@then);
+                    // Add Default branch (Path=0)
 
-                    // Add path 1
-                    var path1 = new BranchPoint
+                    // Follow else/default instruction
+                    var @else = instruction.Next;
+
+                    var pathOffsetList = GetBranchPath(@else);
+
+                    // add Path 0
+                    var path0 = new BranchPoint
                     {
                         StartLine = branchingInstructionLine,
                         Document = document,
                         Offset = branchOffset,
                         Ordinal = ordinal++,
-                        Path = pathCounter,
+                        Path = pathCounter++,
                         OffsetPoints =
                             pathOffsetList.Count > 1
                                 ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
                                 : new List<int>(),
                         EndOffset = pathOffsetList.Last()
                     };
-                    list.Add(path1);
-                }
-                else // instruction.OpCode.Code == Code.Switch
-                {
-                    var branchInstructions = instruction.Operand as Instruction[];
-                    if (branchInstructions == null || branchInstructions.Length == 0)
-                        return;
+                    list.Add(path0);
 
-                    // Add Conditional Branches (Path>0)
-                    foreach (var @case in branchInstructions)
+                    // Add Conditional Branch (Path=1)
+                    if (instruction.OpCode.Code != Code.Switch)
                     {
-                        // Follow operand istruction
-                        pathOffsetList = GetBranchPath(@case);
-            
-                        // add paths 1..n
-                        var path1ToN = new BranchPoint
+                        // Follow instruction at operand
+                        var @then = instruction.Operand as Instruction;
+                        if (@then == null)
+                            return;
+
+                        pathOffsetList = GetBranchPath(@then);
+
+                        // Add path 1
+                        var path1 = new BranchPoint
                         {
                             StartLine = branchingInstructionLine,
                             Document = document,
                             Offset = branchOffset,
                             Ordinal = ordinal++,
-                            Path = pathCounter++,
+                            Path = pathCounter,
                             OffsetPoints =
                                 pathOffsetList.Count > 1
                                     ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
                                     : new List<int>(),
                             EndOffset = pathOffsetList.Last()
                         };
-                        list.Add(path1ToN);
+                        list.Add(path1);
+                    }
+                    else // instruction.OpCode.Code == Code.Switch
+                    {
+                        var branchInstructions = instruction.Operand as Instruction[];
+                        if (branchInstructions == null || branchInstructions.Length == 0)
+                            return;
+
+                        // Add Conditional Branches (Path>0)
+                        foreach (var @case in branchInstructions)
+                        {
+                            // Follow operand istruction
+                            pathOffsetList = GetBranchPath(@case);
+
+                            // add paths 1..n
+                            var path1ToN = new BranchPoint
+                            {
+                                StartLine = branchingInstructionLine,
+                                Document = document,
+                                Offset = branchOffset,
+                                Ordinal = ordinal++,
+                                Path = pathCounter++,
+                                OffsetPoints =
+                                    pathOffsetList.Count > 1
+                                        ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
+                                        : new List<int>(),
+                                EndOffset = pathOffsetList.Last()
+                            };
+                            list.Add(path1ToN);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException(
+                    string.Format("An error occurred with 'GetBranchPointsForToken' for method '{0}'",
+                        methodDefinition.FullName), ex);
             }
         }
 
