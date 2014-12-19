@@ -117,6 +117,13 @@ namespace OpenCover.Test.Samples
             return value;
         }
 
+        public string UsingWithException_Issue243()
+        {
+            using (var ms = new MemoryStream()) // IL generates a finally block for using to dispose the stream
+            {
+                throw new Exception();
+            }
+        }
     }
 
     class DeclaredMethodClass

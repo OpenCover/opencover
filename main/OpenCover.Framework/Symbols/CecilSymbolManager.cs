@@ -469,15 +469,25 @@ namespace OpenCover.Framework.Symbols
         {
             if (!methodDefinition.Body.HasExceptionHandlers) 
                 return false;
-
+            
             // a generated finally block will have no sequence points in its range
-            return methodDefinition.Body.ExceptionHandlers
+            var handlers = methodDefinition.Body.ExceptionHandlers
                 .Where(e => e.HandlerType == ExceptionHandlerType.Finally)
-                .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset && branchInstruction.Offset < e.HandlerEnd.Offset)
+                .ToList();
+
+            return handlers
+                .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset)
+                .Where( e =>branchInstruction.Offset < e.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, e.HandlerStart.Offset)))
                 .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
                 .Any(eh => !methodDefinition.Body.Instructions
                     .Where(i => i.SequencePoint != null && i.SequencePoint.StartLine != StepOverLineCode)
-                    .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Offset));
+                    .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset))));
+        }
+
+        private static int GetOffsetOfNextEndfinally(MethodBody body, int startOffset)
+        {
+            var lastOffset = body.Instructions.LastOrDefault().Maybe(i => i.Offset, int.MaxValue);
+            return body.Instructions.FirstOrDefault(i => i.Offset >= startOffset && i.OpCode.Code == Code.Endfinally).Maybe(i => i.Offset, lastOffset);
         }
 
         private List<int> GetBranchPath(Instruction instruction)
