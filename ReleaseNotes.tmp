@@ -1,4 +1,6 @@
 Version [[version]]
+
+Version 4.5.3522
 #243 null reference exception when excluding branch point in using finally block (fix)
 
 Version 4.5.3427
