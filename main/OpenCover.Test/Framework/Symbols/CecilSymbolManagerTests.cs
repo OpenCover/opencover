@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -759,5 +760,36 @@ namespace OpenCover.Test.Framework.Symbols
             _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
         }
 
+        [Test]
+        public void GetBranchPointsForMethodToken_UsingWithException_Issue243_IgnoresBranchInFinallyBlock()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+            var token = methods.First(x => x.Name.Contains("::UsingWithException_Issue243")).MetadataToken;
+            var assembly = AssemblyDefinition.ReadAssembly(_location);
+            var md = assembly.MainModule.GetTypes()
+                .SelectMany(s => s.Methods)
+                .First(m => m.MetadataToken.ToInt32() == token);
+
+            // check that the method is laid out the way we discovered it t be during the defect
+            Assert.AreEqual(1, md.Body.ExceptionHandlers.Count);
+            Assert.NotNull(md.Body.ExceptionHandlers[0].HandlerStart);
+            Assert.Null(md.Body.ExceptionHandlers[0].HandlerEnd);
+            Assert.AreEqual(1, md.Body.Instructions.Count(i => i.OpCode.FlowControl == FlowControl.Cond_Branch), "There should only be one branch and that should be in the finally block");
+            Assert.IsTrue(md.Body.Instructions.First(i => i.OpCode.FlowControl == FlowControl.Cond_Branch).Offset > md.Body.ExceptionHandlers[0].HandlerStart.Offset, "There should only be one branch and that should be in the finally block");
+
+            // act
+            var points = _reader.GetBranchPointsForToken(token);
+
+            // assert
+            Assert.IsNotNull(points);
+            Assert.AreEqual(0, points.Count(), "The branch point in the 'generated' finally block should be ignored");
+        }
     }
 }
