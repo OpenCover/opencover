@@ -38,7 +38,7 @@ Dropbox is very useful for sharing files [Dropbox](http://db.tt/VanqFDn)
 You will need:
 
 1. Visual Studio VS2012 or later with C# and C++
-2. WiX 3.7 or later (http://wix.codeplex.com/releases/view/99514)
+2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/99514)
 3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
 
 All other software should be included with this repository. 
