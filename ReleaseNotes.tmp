@@ -1,4 +1,5 @@
 Version [[version]]
+#248 address issue with Mono.Cecil and latest PDB (.NET 4.6) version
 
 Version 4.5.3522
 #243 null reference exception when excluding branch point in using finally block (fix)
