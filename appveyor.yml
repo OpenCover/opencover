@@ -1,0 +1,21 @@
+version: 1.0.{build}
+os: Unstable
+shallow_clone: true
+cache:
+- build/Version/opencover.snk
+- build/Version/opencover.public.snk
+- build/Version/build.number
+nuget:
+  disable_publish_on_pr: true
+build_script:
+- build create-release
+test: off
+artifacts:
+- path: main/bin/installer/*.msi
+  name: Installer
+- path: main/bin/nugetpackage/*.nupkg
+  name: Nuget
+- path: main/bin/zip/*.zip
+  name: ZipArchive
+- path: main/bin/nugetpackage-rc/*.nupkg
+  name: NugetCandidate

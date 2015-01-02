@@ -5,11 +5,15 @@
 	<property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
 	<property name="out.folder" value="${solution.folder}\bin\nugetpackage" />
 
-	<target name="nuget-package" depends="get-version-number" >
+	<target name="nuget-package" >
+   	<property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
    	<property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
-		<mkdir dir="${out.folder}" />
+    <property name="nugetpackage.folder" value="${out.folder}" />
+    <property name="nugetpackage.folder" value="${out.folder}-rc" if="${buildnumber.rc != ''}"/>
+    
+		<mkdir dir="${nugetpackage.folder}" />
 		<exec program="${nuget.exe}" 
-			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${out.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
+			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
 	</target>
 	
 </project>

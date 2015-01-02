@@ -14,7 +14,8 @@
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework" if="${directory::exists(netfx.folder + '/Framework')}" />
 	<property name="netfx.framework.folder" value="${netfx.folder}/Framework64" if="${directory::exists(netfx.folder + '/Framework64')}" />
 	<property name="netfx4.folder" value="${netfx.framework.folder}/v4.0.30319" />
-	<property name="bamboo.buildNumber" value="${environment::get-variable('bamboo_buildNumber')}" if="${environment::variable-exists('bamboo_buildNumber')}"/>
+	<property name="ci.buildNumber" value="${environment::get-variable('bamboo_buildNumber')}" if="${environment::variable-exists('bamboo_buildNumber')}"/>
+	<property name="ci.buildNumber" value="${environment::get-variable('APPVEYOR_BUILD_NUMBER')}" if="${environment::variable-exists('APPVEYOR_BUILD_NUMBER')}"/>
 	
 	<loadtasks assembly="${build.folder}/nantcontrib-0.85/bin/NAnt.Contrib.Tasks.dll" />
 
@@ -43,15 +44,17 @@
         tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
   </target>
   
-	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, nuget-package, create-zip-package">
+	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, create-zip-package">
+		<call target="nuget-package" />
+		<call target="set-rc-property" />
+		<call target="nuget-package" />
 		<call target="copy-artefacts" />
 		<call target="test-bdd" />
 	</target>
   
   <target name="set-rc-property" >
-  
-    <property name="buildnumber.rc" value="-rc${bamboo.buildNumber}" if="${property::exists('bamboo.buildNumber')}" />
-    <property name="buildnumber.rc" value="-rc${buildnumber.revision}" unless="${property::exists('buildnumber.rc')}" />
+    <property name="buildnumber.ci" value="-rc${ci.buildNumber}" if="${property::exists('ci.buildNumber')}" />
+    <property name="buildnumber.ci" value="-rc${buildnumber.revision}" unless="${property::exists('buildnumber.ci')}" />
   </target>
   
   <target name="create-release-candidate" depends="build-environment, build-release-platforms, test, test-cpp, set-rc-property, nuget-package, create-zip-package">
