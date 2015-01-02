@@ -54,10 +54,10 @@
 
   <target name="build-release-platforms" description="Build all release platform flavours">
     <property name="configuration" value="release" />
-    <property name="platform" value="x86" />
+    <property name="platform" value="x64" />
     <call target="build.opencover" />
     <property name="configuration" value="release" />
-    <property name="platform" value="x64" />
+    <property name="platform" value="x86" />
     <call target="build.opencover" />
   </target>
 
