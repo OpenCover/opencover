@@ -12,5 +12,5 @@ build_script:
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
-- path: main/binnugetpackage/*.nupkg
+- path: main/bin/nugetpackage/*.nupkg
 - path: main/bin/zip/*.zip
