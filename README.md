@@ -1,5 +1,7 @@
 The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads).
 
+[![Build status](https://ci.appveyor.com/api/projects/status/ifmos1arte2im9b8?svg=true)](https://ci.appveyor.com/project/sawilde/opencover)
+
 ### Master 
 
 The primary repo for the project is [over here](https://github.com/opencover/opencover/).
@@ -37,7 +39,7 @@ Dropbox is very useful for sharing files [Dropbox](http://db.tt/VanqFDn)
 ### Building
 You will need:
 
-1. Visual Studio VS2012 or later with C# and C++
+1. Visual Studio VS2013 (Community Edition) or later with C# and C++
 2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/99514)
 3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
 
@@ -52,11 +54,11 @@ To build a release package including installer, zip and nuget packages use
 > build create-release
 
 ### Build Server
-The OpenCover team is trying out using [Atlassian Bamboo](https://opencover.atlassian.net/builds/telemetry.action) for automated building. It runs a staged equivalent of
+The OpenCover team is trying out using [Appveyor](http://www.appveyor.com/) for automated building. It runs a staged equivalent of
 
 > build create-release
 
-and stores all the information about tests, coverage and other build artefacts; you can use these builds if you want to be 'cutting' edge but support will be limited.
+and stores all the information about tests, coverage and other build artefacts; you can use these [builds](https://ci.appveyor.com/project/sawilde/opencover/build/artifacts) if you want to be 'cutting' edge but support will be limited.
 
 ### Coverage
 The current OpenCover coverage (found by [dogfooding](http://en.wikipedia.org/wiki/Eating_your_own_dog_food) OpenCover on its own tests) can be viewed here
