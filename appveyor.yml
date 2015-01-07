@@ -12,5 +12,10 @@ build_script:
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
+  name: Installer
 - path: main/bin/nugetpackage/*.nupkg
+  name: Nuget
 - path: main/bin/zip/*.zip
+  name: ZipArchive
+- path: main/bin/nugetpackage-rc/*.nupkg
+  name: NugetCandidate
