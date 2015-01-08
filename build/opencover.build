@@ -14,6 +14,9 @@
   	
 	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
 	
+	<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
+    <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+	
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
             <fileset>
@@ -99,9 +102,6 @@
     <target name="test" description="Run unit tests" >
         
 		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin==''}" />
-		
-        <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
-        <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
         
 		<echo message="test: ${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
 		
@@ -117,9 +117,6 @@
     <target name="test-bdd" description="Run BDD tests" >
         
 		<call target="copy-teamcity-nunit-plugin" unless="${teamcity.dotnet.nunitaddin==''}" />
-		
-        <property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
-        <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
 
 		<echo message="test-bdd: ${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
         
