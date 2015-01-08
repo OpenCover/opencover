@@ -14,8 +14,16 @@
   	
 	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
 	
-	<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
-    <property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+	<choose>
+		<when test="${nunit-in-path}">
+			<property name="nunit-console" value="nunit-console" if="${platform=='x64'}" />
+			<property name="nunit-console" value="nunit-console-x86" if="${platform=='x86'}" />
+		</when>
+		<otherwise>
+			<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
+			<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+		</otherwise>
+	</choose>
 	
     <target name="clean" description="Delete all previously compiled binaries.">
         <delete>
