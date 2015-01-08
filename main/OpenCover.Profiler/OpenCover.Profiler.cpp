@@ -63,28 +63,6 @@ STDAPI DllUnregisterServer(void)
 		return hr;
 }
 
-STDAPI SetPerUserRegistration()
-{
-	OaEnablePerUserTLibRegistration();
-
-	HKEY key; 
-	ATLTRACE(_T("::SetPerUserRegistration - Enter"));
-	if ( ERROR_SUCCESS != ::RegOpenKeyW(HKEY_CURRENT_USER, L"Software\\Classes", &key) )
-	{ 
-		ATLTRACE(_T("::SetPerUserRegistration"));
-		return E_FAIL; 
-	} 
-	if ( ERROR_SUCCESS != ::RegOverridePredefKey(HKEY_CLASSES_ROOT, key) )
-	{ 
-		ATLTRACE(_T("::SetPerUserRegistration"));
-		::RegCloseKey(key); 
-		return E_FAIL; 
-	}
-	ATLTRACE(_T("::SetPerUserRegistration - Exit"));
-	::RegCloseKey(key); 
-	return S_OK; 
-}
-
 // DllInstall - Adds/Removes entries to the system registry per user per machine.
 STDAPI DllInstall(BOOL bInstall, _In_opt_ LPCWSTR pszCmdLine)
 {
@@ -95,7 +73,6 @@ STDAPI DllInstall(BOOL bInstall, _In_opt_ LPCWSTR pszCmdLine)
 		if (_wcsnicmp(pszCmdLine, szUserSwitch, _countof(szUserSwitch)) == 0)
 		{
 			ATL::AtlSetPerUserRegistration(true);
-			//SetPerUserRegistration();
 		}
 	}
 
