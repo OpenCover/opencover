@@ -9,7 +9,8 @@
     <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
     <property name="curl.exe" value="${solution.folder}/packages/curl.7.30.0.2/tools/native/v110/Win32/Release/static/curl.exe" />
     
-	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" />
+	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/12.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/12.0/Bin')}" />
+	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
   	
 	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
 	
@@ -53,9 +54,9 @@
           description="Build all flavours i.e. all configurations and all platforms" />
 
   <target name="build-release-platforms" description="Build all release platform flavours">
-      <property name="configuration" value="release" />
-      <property name="platform" value="x64" />
-      <call target="build.opencover" />
+    <property name="configuration" value="release" />
+    <property name="platform" value="x64" />
+    <call target="build.opencover" />
     <property name="configuration" value="release" />
     <property name="platform" value="x86" />
     <call target="build.opencover" />
@@ -82,7 +83,6 @@
 		    <arg value="${solution.folder}/opencover.sln" />
 		    <arg value="/t:Clean,Rebuild" />
 		    <arg value="/p:Configuration=${configuration},Platform=${platform}" />
-			<arg value="/p:VisualStudioVersion=11.0" />
 		</exec>
       
         <property name="expected.output" value="${solution.folder}/bin/${configuration}/OpenCover.Console.exe"/>
