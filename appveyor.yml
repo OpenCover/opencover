@@ -1,6 +1,9 @@
 version: 1.0.{build}
 os: Unstable
 shallow_clone: true
+environment:
+  COVERALLS_REPO_TOKEN:
+    secure: BBBH4QgZXCnE6nFrux34cLWWO5GXrnMU9OZJGJdNePovxJZFzBcm3FsaESNA6zWj
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
@@ -19,3 +22,5 @@ artifacts:
   name: ZipArchive
 - path: main/bin/nugetpackage-rc/*.nupkg
   name: NugetCandidate
+on_success:
+- build dogfood-release

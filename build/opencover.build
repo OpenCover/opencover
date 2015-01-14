@@ -8,6 +8,7 @@
     <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
     <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
     <property name="curl.exe" value="${solution.folder}/packages/curl.7.30.0.2/tools/native/v110/Win32/Release/static/curl.exe" />
+    <property name="coveralls.exe" value="${solution.folder}/packages/coveralls.io.1.1.81/tools/coveralls.net.exe"/>
     
 	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/12.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/12.0/Bin')}" />
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
@@ -162,6 +163,34 @@
             <arg value="/s" />
             <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />	
         </exec>
+    </target>
+    
+    <target name="dogfood">
+
+      <exec program="${solution.folder}/bin/${configuration}/dogfood.cmd" 
+          workingdir="${solution.folder}/bin/${configuration}"	/>
+
+      <exec program="${coveralls.exe}" 
+          workingdir="${solution.folder}/bin/${configuration}">      
+        <arg value="--opencover" />
+        <arg value="opencovertests.xml" />
+      </exec>
+        
+    </target>
+
+    <target name="dogfood-release">
+
+      <property name="configuration" value="release" />
+    
+      <exec program="${solution.folder}/bin/${configuration}/dogfood.cmd" 
+          workingdir="${solution.folder}/bin/${configuration}"	/>
+
+      <exec program="${coveralls.exe}" 
+          workingdir="${solution.folder}/bin/${configuration}">      
+        <arg value="--opencover" />
+        <arg value="opencovertests.xml" />
+      </exec>
+        
     </target>
     
 </project>
