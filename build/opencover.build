@@ -10,7 +10,7 @@
     <property name="curl.exe" value="${solution.folder}/packages/curl.7.30.0.2/tools/native/v110/Win32/Release/static/curl.exe" />
     <property name="coveralls.exe" value="${solution.folder}/packages/coveralls.io.1.1.86/tools/coveralls.net.exe"/>
     
-	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/12.0/Bin/MSBuild.exe" if="${irectory::exists(program.files.x86 + '/MSBuild/12.0/Bin')}" />
+	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/12.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/12.0/Bin')}" />
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
   	
 	<property name="teamcity.dotnet.nunitaddin" value="" unless="${property::exists('teamcity.dotnet.nunitaddin')}" />
