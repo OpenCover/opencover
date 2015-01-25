@@ -71,7 +71,8 @@ namespace OpenCover.Framework.Manager
             {
                 var handles = new List<WaitHandle> { processMgmt, _mcb.ProfilerRequestsInformation };
 
-                ThreadPool.QueueUserWorkItem(SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
+                ThreadPool.QueueUserWorkItem(
+                    SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
                 ThreadPool.QueueUserWorkItem(SaveVisitData(queueMgmt));
 
                 // wait for the environment key to be read
@@ -83,7 +84,8 @@ namespace OpenCover.Framework.Manager
             }
         }
 
-        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
+        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, 
+            string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
         {
             return state =>
             {
