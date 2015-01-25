@@ -27,6 +27,7 @@ namespace OpenCover.Framework.Manager
     {
         const int MaxMsgSize = 65536;
         private const int NumHandlesPerBlock = 32;
+        private const string ProfilerGuid = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
 
         private readonly ICommunicationManager _communicationManager;
         private readonly IPersistance _persistance;
@@ -73,63 +74,8 @@ namespace OpenCover.Framework.Manager
             {
                 handles.Add(_mcb.ProfilerRequestsInformation);
 
-                ThreadPool.QueueUserWorkItem(state =>
-                {
-                    try
-                    {
-                        process(dictionary =>
-                        {
-                            if (dictionary == null) return;
-                            dictionary[@"OpenCover_Profiler_Key"] = key;
-                            dictionary[@"OpenCover_Profiler_Namespace"] = @namespace;
-                            dictionary[@"OpenCover_Profiler_Threshold"] = _commandLine.Threshold.ToString(CultureInfo.InvariantCulture);
-
-                            if (_commandLine.TraceByTest)
-                                dictionary[@"OpenCover_Profiler_TraceByTest"] = "1";
-
-                            dictionary["Cor_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
-                            dictionary["Cor_Enable_Profiling"] = "1";
-                            dictionary["CoreClr_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
-                            dictionary["CoreClr_Enable_Profiling"] = "1";
-
-                            if (_commandLine.Registration == Registration.Path32)
-                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
-                            if (_commandLine.Registration == Registration.Path64)
-                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
-
-                            environmentKeyRead.Set();
-                        });
-                    }
-                    finally
-                    {
-                        processMgmt.Set();
-                    }
-                });
-
-                ThreadPool.QueueUserWorkItem(state =>
-                {
-                    while (true)
-                    {
-                        //// use this block to introduce a delay in to the queue processing
-                        //if (_messageQueue.Count < 100)
-                        //  Thread.Sleep(10);
-
-                        byte[] data;
-                        while (!_messageQueue.TryDequeue(out data))
-                            Thread.Yield();
-
-                        _perfCounters.CurrentMemoryQueueSize = _messageQueue.Count;
-                        _perfCounters.IncrementBlocksReceived();
-
-                        if (data.Length == 0)
-                        {
-                            _communicationManager.Complete();
-                            queueMgmt.Set();
-                            return;
-                        }
-                        _persistance.SaveVisitData(data);
-                    }
-                });
+                ThreadPool.QueueUserWorkItem(SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
+                ThreadPool.QueueUserWorkItem(SaveVisitData(queueMgmt));
 
                 // wait for the environment key to be read
                 if (WaitHandle.WaitAny(new WaitHandle[] {environmentKeyRead}, new TimeSpan(0, 0, 0, 10)) != -1)
@@ -138,6 +84,76 @@ namespace OpenCover.Framework.Manager
                     queueMgmt.WaitOne();
                 }
             }
+        }
+
+        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
+        {
+            return state =>
+            {
+                try
+                {
+                    process(dictionary =>
+                    {
+                        if (dictionary == null) return;
+                        SetProfilerAttributesOnDictionary(profilerKey, profilerNamespace, dictionary);
+
+                        environmentKeyRead.Set();
+                    });
+                }
+                finally
+                {
+                    processMgmt.Set();
+                }
+            };
+        }
+
+        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace, StringDictionary dictionary)
+        {
+            dictionary[@"OpenCover_Profiler_Key"] = profilerKey;
+            dictionary[@"OpenCover_Profiler_Namespace"] = profilerNamespace;
+            dictionary[@"OpenCover_Profiler_Threshold"] = _commandLine.Threshold.ToString(CultureInfo.InvariantCulture);
+
+            if (_commandLine.TraceByTest)
+                dictionary[@"OpenCover_Profiler_TraceByTest"] = "1";
+
+            dictionary["Cor_Profiler"] = ProfilerGuid;
+            dictionary["Cor_Enable_Profiling"] = "1";
+            dictionary["CoreClr_Profiler"] = ProfilerGuid;
+            dictionary["CoreClr_Enable_Profiling"] = "1";
+           
+            switch (_commandLine.Registration)
+            {
+                case Registration.Path32:
+                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
+                    break;
+                case Registration.Path64:
+                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
+                    break;                
+            }
+        }
+
+        private WaitCallback SaveVisitData(EventWaitHandle queueMgmt)
+        {
+            return state =>
+            {
+                while (true)
+                {
+                    byte[] data;
+                    while (!_messageQueue.TryDequeue(out data))
+                        Thread.Yield();
+
+                    _perfCounters.CurrentMemoryQueueSize = _messageQueue.Count;
+                    _perfCounters.IncrementBlocksReceived();
+
+                    if (data.Length == 0)
+                    {
+                        _communicationManager.Complete();
+                        queueMgmt.Set();
+                        return;
+                    }
+                    _persistance.SaveVisitData(data);
+                }
+            };
         }
 
         private bool _continueWait = true;
