@@ -125,7 +125,7 @@ namespace OpenCover.Framework.Manager
                     break;
                 case Registration.Path64:
                     dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
-                    break;                
+                    break;
             }
         }
 
@@ -199,19 +199,31 @@ namespace OpenCover.Framework.Manager
 
         private Tuple<ManualResetEvent, ManualResetEvent> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
         {
-            var threadActivated = new AutoResetEvent(false);
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
 
-            ThreadPool.QueueUserWorkItem(state =>
+            using (var threadActivated = new AutoResetEvent(false))
+            {
+                ThreadPool.QueueUserWorkItem(ProcessBlock(communicationBlock, memoryBlock, terminateThread,
+                    threadActivated, threadTerminated));
+                threadActivated.WaitOne();
+            }
+            return new Tuple<ManualResetEvent, ManualResetEvent>(terminateThread, threadTerminated);
+        }
+
+        private WaitCallback ProcessBlock(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock,
+            WaitHandle terminateThread, EventWaitHandle threadActivated, EventWaitHandle threadTerminated)
+        {
+            return state =>
             {
                 var processEvents = new WaitHandle[]
-                                    {
-                                        communicationBlock.ProfilerRequestsInformation,
-                                        memoryBlock.ProfilerHasResults,
-                                        terminateThread
-                                    };
+                {
+                    communicationBlock.ProfilerRequestsInformation,
+                    memoryBlock.ProfilerHasResults,
+                    terminateThread
+                };
                 threadActivated.Set();
+                
                 while(true)
                 {
                     switch (WaitHandle.WaitAny(processEvents))
@@ -219,23 +231,16 @@ namespace OpenCover.Framework.Manager
                         case 0:
                             _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
                             break;
-
                         case 1:
-                            {
-                                var data = _communicationManager.HandleMemoryBlock(memoryBlock);
-                                _messageQueue.Enqueue(data);
-                            }
+                            var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                            _messageQueue.Enqueue(data);                        
                             break;
-
                         case 2:
                             threadTerminated.Set();
                             return;
-
                     }
                 }
-            });
-            threadActivated.WaitOne();
-            return new Tuple<ManualResetEvent, ManualResetEvent>(terminateThread, threadTerminated);
+            };
         }
     }
 }
