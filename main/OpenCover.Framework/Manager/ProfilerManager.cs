@@ -159,7 +159,7 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(WaitHandle[] handles)
         {
-            var threadHandles = new List<Tuple<ManualResetEvent, ManualResetEvent>>();
+            var threadHandles = new List<Tuple<EventWaitHandle, EventWaitHandle>>();
             do
             {
                 switch (WaitHandle.WaitAny(handles))
@@ -191,7 +191,7 @@ namespace OpenCover.Framework.Manager
                     .Select(g => Task.Factory.StartNew(() =>
                     {
                         g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                        WaitHandle.WaitAll(g.Select(h => h.Item2).Cast<WaitHandle>().ToArray(), new TimeSpan(0, 0, 20));
+                        WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray(), new TimeSpan(0, 0, 20));
                     })).ToArray();
                 Task.WaitAll(tasks);
             }
@@ -199,7 +199,7 @@ namespace OpenCover.Framework.Manager
             _messageQueue.Enqueue(new byte[0]);
         }
 
-        private Tuple<ManualResetEvent, ManualResetEvent> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
+        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
         {
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
@@ -210,7 +210,7 @@ namespace OpenCover.Framework.Manager
                     threadActivated, threadTerminated));
                 threadActivated.WaitOne();
             }
-            return new Tuple<ManualResetEvent, ManualResetEvent>(terminateThread, threadTerminated);
+            return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
         }
 
         private WaitCallback ProcessBlock(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock,
