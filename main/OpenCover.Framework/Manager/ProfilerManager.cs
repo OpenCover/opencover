@@ -59,20 +59,17 @@ namespace OpenCover.Framework.Manager
         public void RunProcess(Action<Action<StringDictionary>> process, string[] servicePrincipal)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
-            var processMgmt = new AutoResetEvent(false);
-            var queueMgmt = new AutoResetEvent(false);
-            var environmentKeyRead = new AutoResetEvent(false);
-            var handles = new List<WaitHandle> { processMgmt };
-
             string @namespace = servicePrincipal.Any() ? "Global" : "Local";
 
             _memoryManager.Initialise(@namespace, key, servicePrincipal);
-
             _messageQueue = new ConcurrentQueue<byte[]>();
 
             using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal))
+            using (var processMgmt = new AutoResetEvent(false))
+            using (var queueMgmt = new AutoResetEvent(false))
+            using (var environmentKeyRead = new AutoResetEvent(false))
             {
-                handles.Add(_mcb.ProfilerRequestsInformation);
+                var handles = new List<WaitHandle> { processMgmt, _mcb.ProfilerRequestsInformation };
 
                 ThreadPool.QueueUserWorkItem(SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
                 ThreadPool.QueueUserWorkItem(SaveVisitData(queueMgmt));
