@@ -27,6 +27,7 @@ namespace OpenCover.Framework.Manager
     {
         const int MaxMsgSize = 65536;
         private const int NumHandlesPerBlock = 32;
+        private const string ProfilerGuid = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
 
         private readonly ICommunicationManager _communicationManager;
         private readonly IPersistance _persistance;
@@ -58,78 +59,21 @@ namespace OpenCover.Framework.Manager
         public void RunProcess(Action<Action<StringDictionary>> process, string[] servicePrincipal)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
-            var processMgmt = new AutoResetEvent(false);
-            var queueMgmt = new AutoResetEvent(false);
-            var environmentKeyRead = new AutoResetEvent(false);
-            var handles = new List<WaitHandle> { processMgmt };
-
             string @namespace = servicePrincipal.Any() ? "Global" : "Local";
 
             _memoryManager.Initialise(@namespace, key, servicePrincipal);
-
             _messageQueue = new ConcurrentQueue<byte[]>();
 
             using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal))
+            using (var processMgmt = new AutoResetEvent(false))
+            using (var queueMgmt = new AutoResetEvent(false))
+            using (var environmentKeyRead = new AutoResetEvent(false))
             {
-                handles.Add(_mcb.ProfilerRequestsInformation);
+                var handles = new List<WaitHandle> { processMgmt, _mcb.ProfilerRequestsInformation };
 
-                ThreadPool.QueueUserWorkItem(state =>
-                {
-                    try
-                    {
-                        process(dictionary =>
-                        {
-                            if (dictionary == null) return;
-                            dictionary[@"OpenCover_Profiler_Key"] = key;
-                            dictionary[@"OpenCover_Profiler_Namespace"] = @namespace;
-                            dictionary[@"OpenCover_Profiler_Threshold"] = _commandLine.Threshold.ToString(CultureInfo.InvariantCulture);
-
-                            if (_commandLine.TraceByTest)
-                                dictionary[@"OpenCover_Profiler_TraceByTest"] = "1";
-
-                            dictionary["Cor_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
-                            dictionary["Cor_Enable_Profiling"] = "1";
-                            dictionary["CoreClr_Profiler"] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
-                            dictionary["CoreClr_Enable_Profiling"] = "1";
-
-                            if (_commandLine.Registration == Registration.Path32)
-                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
-                            if (_commandLine.Registration == Registration.Path64)
-                                dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
-
-                            environmentKeyRead.Set();
-                        });
-                    }
-                    finally
-                    {
-                        processMgmt.Set();
-                    }
-                });
-
-                ThreadPool.QueueUserWorkItem(state =>
-                {
-                    while (true)
-                    {
-                        //// use this block to introduce a delay in to the queue processing
-                        //if (_messageQueue.Count < 100)
-                        //  Thread.Sleep(10);
-
-                        byte[] data;
-                        while (!_messageQueue.TryDequeue(out data))
-                            Thread.Yield();
-
-                        _perfCounters.CurrentMemoryQueueSize = _messageQueue.Count;
-                        _perfCounters.IncrementBlocksReceived();
-
-                        if (data.Length == 0)
-                        {
-                            _communicationManager.Complete();
-                            queueMgmt.Set();
-                            return;
-                        }
-                        _persistance.SaveVisitData(data);
-                    }
-                });
+                ThreadPool.QueueUserWorkItem(
+                    SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
+                ThreadPool.QueueUserWorkItem(SaveVisitData(queueMgmt));
 
                 // wait for the environment key to be read
                 if (WaitHandle.WaitAny(new WaitHandle[] {environmentKeyRead}, new TimeSpan(0, 0, 0, 10)) != -1)
@@ -140,11 +84,82 @@ namespace OpenCover.Framework.Manager
             }
         }
 
+        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, 
+            string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
+        {
+            return state =>
+            {
+                try
+                {
+                    process(dictionary =>
+                    {
+                        if (dictionary == null) return;
+                        SetProfilerAttributesOnDictionary(profilerKey, profilerNamespace, dictionary);
+
+                        environmentKeyRead.Set();
+                    });
+                }
+                finally
+                {
+                    processMgmt.Set();
+                }
+            };
+        }
+
+        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace, StringDictionary dictionary)
+        {
+            dictionary[@"OpenCover_Profiler_Key"] = profilerKey;
+            dictionary[@"OpenCover_Profiler_Namespace"] = profilerNamespace;
+            dictionary[@"OpenCover_Profiler_Threshold"] = _commandLine.Threshold.ToString(CultureInfo.InvariantCulture);
+
+            if (_commandLine.TraceByTest)
+                dictionary[@"OpenCover_Profiler_TraceByTest"] = "1";
+
+            dictionary["Cor_Profiler"] = ProfilerGuid;
+            dictionary["Cor_Enable_Profiling"] = "1";
+            dictionary["CoreClr_Profiler"] = ProfilerGuid;
+            dictionary["CoreClr_Enable_Profiling"] = "1";
+           
+            switch (_commandLine.Registration)
+            {
+                case Registration.Path32:
+                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
+                    break;
+                case Registration.Path64:
+                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
+                    break;
+            }
+        }
+
+        private WaitCallback SaveVisitData(EventWaitHandle queueMgmt)
+        {
+            return state =>
+            {
+                while (true)
+                {
+                    byte[] data;
+                    while (!_messageQueue.TryDequeue(out data))
+                        Thread.Yield();
+
+                    _perfCounters.CurrentMemoryQueueSize = _messageQueue.Count;
+                    _perfCounters.IncrementBlocksReceived();
+
+                    if (data.Length == 0)
+                    {
+                        _communicationManager.Complete();
+                        queueMgmt.Set();
+                        return;
+                    }
+                    _persistance.SaveVisitData(data);
+                }
+            };
+        }
+
         private bool _continueWait = true;
 
         private void ProcessMessages(WaitHandle[] handles)
         {
-            var threadHandles = new List<Tuple<ManualResetEvent, ManualResetEvent>>();
+            var threadHandles = new List<Tuple<EventWaitHandle, EventWaitHandle>>();
             do
             {
                 switch (WaitHandle.WaitAny(handles))
@@ -176,29 +191,48 @@ namespace OpenCover.Framework.Manager
                     .Select(g => Task.Factory.StartNew(() =>
                     {
                         g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                        WaitHandle.WaitAll(g.Select(h => h.Item2).Cast<WaitHandle>().ToArray(), new TimeSpan(0, 0, 20));
+                        WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray(), new TimeSpan(0, 0, 20));
                     })).ToArray();
                 Task.WaitAll(tasks);
+
+                foreach(var threadHandle in threadHandles)
+                {
+                    threadHandle.Item1.Dispose();
+                    threadHandle.Item2.Dispose();
+                }
+                threadHandles.Clear();
             }
 
             _messageQueue.Enqueue(new byte[0]);
         }
 
-        private Tuple<ManualResetEvent, ManualResetEvent> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
+        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
         {
-            var threadActivated = new AutoResetEvent(false);
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
 
-            ThreadPool.QueueUserWorkItem(state =>
+            using (var threadActivated = new AutoResetEvent(false))
+            {
+                ThreadPool.QueueUserWorkItem(ProcessBlock(communicationBlock, memoryBlock, terminateThread,
+                    threadActivated, threadTerminated));
+                threadActivated.WaitOne();
+            }
+            return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
+        }
+
+        private WaitCallback ProcessBlock(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock,
+            WaitHandle terminateThread, EventWaitHandle threadActivated, EventWaitHandle threadTerminated)
+        {
+            return state =>
             {
                 var processEvents = new WaitHandle[]
-                                    {
-                                        communicationBlock.ProfilerRequestsInformation,
-                                        memoryBlock.ProfilerHasResults,
-                                        terminateThread
-                                    };
+                {
+                    communicationBlock.ProfilerRequestsInformation,
+                    memoryBlock.ProfilerHasResults,
+                    terminateThread
+                };
                 threadActivated.Set();
+                
                 while(true)
                 {
                     switch (WaitHandle.WaitAny(processEvents))
@@ -206,23 +240,16 @@ namespace OpenCover.Framework.Manager
                         case 0:
                             _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
                             break;
-
                         case 1:
-                            {
-                                var data = _communicationManager.HandleMemoryBlock(memoryBlock);
-                                _messageQueue.Enqueue(data);
-                            }
+                            var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                            _messageQueue.Enqueue(data);                        
                             break;
-
                         case 2:
                             threadTerminated.Set();
                             return;
-
                     }
                 }
-            });
-            threadActivated.WaitOne();
-            return new Tuple<ManualResetEvent, ManualResetEvent>(terminateThread, threadTerminated);
+            };
         }
     }
 }
