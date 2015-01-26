@@ -194,6 +194,13 @@ namespace OpenCover.Framework.Manager
                         WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray(), new TimeSpan(0, 0, 20));
                     })).ToArray();
                 Task.WaitAll(tasks);
+
+                foreach(var threadHandle in threadHandles)
+                {
+                    threadHandle.Item1.Dispose();
+                    threadHandle.Item2.Dispose();
+                }
+                threadHandles.Clear();
             }
 
             _messageQueue.Enqueue(new byte[0]);
