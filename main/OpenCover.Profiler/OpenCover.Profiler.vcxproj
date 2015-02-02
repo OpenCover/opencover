@@ -244,6 +244,7 @@
   <ItemGroup>
     <ClCompile Include="CodeCoverage.cpp" />
     <ClCompile Include="CodeCoverage_Callback.cpp" />
+    <ClCompile Include="CodeCoverage_FakesSupport.cpp" />
     <ClCompile Include="CodeCoverage_ProfilerInfo.cpp" />
     <ClCompile Include="CoverageInstrumentation.cpp" />
     <ClCompile Include="dllmain.cpp">
@@ -280,6 +281,7 @@
     </ClCompile>
     <ClCompile Include="ProfilerCommunication.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
+    <ClCompile Include="ProfilerInfo.cpp" />
     <ClCompile Include="SharedMemory.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -315,6 +317,8 @@
     <ClInclude Include="OpenCoverProfiler_i.h" />
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ProfilerCommunication.h" />
+    <ClInclude Include="ProfilerInfo.h" />
+    <ClInclude Include="ProfilerInfoBase.h" />
     <ClInclude Include="ReleaseTrace.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="ExceptionHandler.h" />
@@ -329,6 +333,7 @@
     <ResourceCompile Include="OpenCover.Profiler.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\Common\OpenCover.FakesSupport.dll" />
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />

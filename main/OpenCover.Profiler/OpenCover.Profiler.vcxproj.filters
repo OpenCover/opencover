@@ -70,6 +70,12 @@
     <ClCompile Include="CodeCoverage_Callback.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProfilerInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CodeCoverage_FakesSupport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -132,6 +138,12 @@
     <ClInclude Include="ReleaseTrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ProfilerInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfilerInfoBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenCover.Profiler.rc">
@@ -148,6 +160,7 @@
     <None Include="CodeCoverage.rgs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\bin\Common\OpenCover.FakesSupport.dll" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl">

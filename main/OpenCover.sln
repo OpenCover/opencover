@@ -2,8 +2,14 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0} = {31B0FAA6-A63F-46FC-96EE-697235DA2BB0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCover.Console\OpenCover.Console.csproj", "{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EE9B358A-335C-43E9-BC35-853807C5E776} = {EE9B358A-335C-43E9-BC35-853807C5E776}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
 	ProjectSection(SolutionItems) = preProject
@@ -55,6 +61,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCover.Specs\OpenCover.Specs.csproj", "{5A908D9D-617E-408F-ACED-9E505693DE96}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Extensions", "OpenCover.Extensions\OpenCover.Extensions.csproj", "{EE9B358A-335C-43E9-BC35-853807C5E776}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.FakesSupport", "OpenCover.FakesSupport\OpenCover.FakesSupport.csproj", "{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -155,6 +163,14 @@ Global
 		{EE9B358A-335C-43E9-BC35-853807C5E776}.Release|x64.Build.0 = Release|Any CPU
 		{EE9B358A-335C-43E9-BC35-853807C5E776}.Release|x86.ActiveCfg = Release|Any CPU
 		{EE9B358A-335C-43E9-BC35-853807C5E776}.Release|x86.Build.0 = Release|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Debug|x64.Build.0 = Debug|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Debug|x86.Build.0 = Debug|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x64.ActiveCfg = Release|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x64.Build.0 = Release|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.ActiveCfg = Release|Any CPU
+		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
