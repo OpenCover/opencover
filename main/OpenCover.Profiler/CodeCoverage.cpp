@@ -13,18 +13,21 @@
 #define CUCKOO_SAFE_METHOD_NAME L"SafeVisited"
 #define CUCKOO_CRITICAL_METHOD_NAME L"VisitedCritical"
 #define CUCKOO_NEST_TYPE_NAME L"System.CannotUnloadAppDomainException"
-#define MSCORLIB_NAME L"mscorlib"
 
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
 
 /// <summary>Handle <c>ICorProfilerCallback::Initialize</c></summary>
 /// <remarks>Initialize the profiling environment and establish connection to the host</remarks>
-HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize( 
-    /* [in] */ IUnknown *pICorProfilerInfoUnk) 
+HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
+	/* [in] */ IUnknown *pICorProfilerInfoUnk)
 {
-    ATLTRACE(_T("::Initialize"));
-    
+	return OpenCoverInitialise(pICorProfilerInfoUnk);
+}
+
+HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
+	ATLTRACE(_T("::OpenCoverInitialise"));
+
     OLECHAR szGuid[40]={0};
     int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
     RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
@@ -87,8 +90,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 
     TCHAR tracebyTest[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_TraceByTest"), tracebyTest, 1024);
-    bool tracingEnabled = _tcslen(tracebyTest) != 0;
-    ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), tracingEnabled ? _T("true") : _T("false"), tracebyTest);
+    m_tracingEnabled = _tcslen(tracebyTest) != 0;
+	ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), m_tracingEnabled ? _T("true") : _T("false"), tracebyTest);
 
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
@@ -99,28 +102,14 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
         return E_FAIL;
     }
 
-    DWORD dwMask = 0;
-    dwMask |= COR_PRF_MONITOR_MODULE_LOADS;			// Controls the ModuleLoad, ModuleUnload, and ModuleAttachedToAssembly callbacks.
-    dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	    // Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
-    dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
-    dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
-    dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Causes the native image search to look for profiler-enhanced images
-    
-    if (tracingEnabled)
-        dwMask |= COR_PRF_MONITOR_ENTERLEAVE;       // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
+	FakesInitialize(pICorProfilerInfoUnk);
 
-    if (m_useOldStyle)
-       dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
+	if (m_chainedProfiler == NULL){
+		DWORD dwMask = AppendProfilerEventMask(0);
 
-#ifndef _TOOLSETV71
-    if (m_profilerInfo4 != NULL)
-    {
-        ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
-        dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
-    }
-#endif
-    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask), 
-        _T("    ::Initialize(...) => SetEventMask => 0x%X"));
+		COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask),
+			_T("    ::Initialize(...) => SetEventMask => 0x%X"));
+	}
 
     if(m_profilerInfo3 != NULL)
     {
@@ -145,9 +134,38 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
     return S_OK; 
 }
 
+DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
+{
+	DWORD dwMask = currentEventMask;
+	dwMask |= COR_PRF_MONITOR_MODULE_LOADS;			// Controls the ModuleLoad, ModuleUnload, and ModuleAttachedToAssembly callbacks.
+	dwMask |= COR_PRF_MONITOR_JIT_COMPILATION;	    // Controls the JITCompilation, JITFunctionPitched, and JITInlining callbacks.
+	dwMask |= COR_PRF_DISABLE_INLINING;				// Disables all inlining.
+	dwMask |= COR_PRF_DISABLE_OPTIMIZATIONS;		// Disables all code optimizations.
+	dwMask |= COR_PRF_USE_PROFILE_IMAGES;           // Causes the native image search to look for profiler-enhanced images
+
+	if (m_tracingEnabled)
+		dwMask |= COR_PRF_MONITOR_ENTERLEAVE;       // Controls the FunctionEnter, FunctionLeave, and FunctionTailcall callbacks.
+
+	if (m_useOldStyle)
+		dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
+
+#ifndef _TOOLSETV71
+	if (m_profilerInfo4 != NULL)
+	{
+		ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
+		dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
+	}
+#endif
+
+	return dwMask;
+}
+
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
+	if (m_chainedProfiler != NULL)
+		m_chainedProfiler->Shutdown();
+
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(NULL, szExeName, MAX_PATH);
     RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), szExeName);
@@ -189,6 +207,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
         /* [in] */ ModuleID moduleId,
         /* [in] */ HRESULT hrStatus) 
 {
+	if (m_chainedProfiler != NULL)
+		m_chainedProfiler->ModuleLoadFinished(moduleId, hrStatus);
+
     CComPtr<IMetaDataEmit> metaDataEmit;
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
         ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 
@@ -302,11 +323,16 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
+	if (m_chainedProfiler != NULL)
+		m_chainedProfiler->ModuleAttachedToAssembly(moduleId, assemblyId);
+
+	FakesModulesAttachedToAssembly(moduleId, assemblyId);
+
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
-    ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
+    /*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
         moduleId, W2CT(modulePath.c_str()), 
-        assemblyId, W2CT(assemblyName.c_str()));
+        assemblyId, W2CT(assemblyName.c_str()));*/
     m_allowModules[modulePath] = m_host.TrackAssembly((LPWSTR)modulePath.c_str(), (LPWSTR)assemblyName.c_str());
     m_allowModulesAssemblyMap[modulePath] = assemblyName;
 
@@ -418,6 +444,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock)
 {
+	if (m_chainedProfiler != NULL)
+		m_chainedProfiler->JITCompilationStarted(functionId, fIsSafeToBlock);
+
     std::wstring modulePath;
     mdToken functionToken;
     ModuleID moduleId;
@@ -425,6 +454,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
     if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
+		FakesSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
+
         // add the bodies for our cuckoo methods when required
         if (MSCORLIB_NAME == GetAssemblyName(assemblyId))
         {

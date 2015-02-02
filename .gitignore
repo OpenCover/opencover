@@ -52,3 +52,4 @@ ReleaseNotes.txt
 /samples/SampleSln/packages
 !samples/SampleSln/packages/repositories.config
 /main/OpenCover.Profiler/OpenCover.Profiler.aps
+/main/OpenCover.Test/FakesAssemblies

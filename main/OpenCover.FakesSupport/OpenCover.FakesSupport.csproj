@@ -49,7 +49,9 @@
     <Compile Include="..\..\build\Version\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Class1.cs" />
+    <Compile Include="FakesHelper.cs" />
+    <Compile Include="FakesDomainHelper.cs" />
+    <Compile Include="IFakesDomainHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

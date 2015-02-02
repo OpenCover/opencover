@@ -231,7 +231,7 @@ void Method::ReadBody()
 
     SetBuffer(NULL); 
 
-    DumpIL();
+    //DumpIL();
 
     ResolveBranches();
     
@@ -239,7 +239,7 @@ void Method::ReadBody()
 
     RecalculateOffsets();
 
-    DumpIL();
+    //DumpIL();
 }
 
 /// <summary>Read the section handler section.</summary>
