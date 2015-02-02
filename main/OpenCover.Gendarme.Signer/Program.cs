@@ -11,18 +11,23 @@ namespace OpenCover.Gendarme.Signer
 {
     class Program
     {
-        private const string TargetFolder = @"..\tools\GendarmeSigned";
-        private const string SourceFolder = @"packages\Mono.Gendarme.2.11.0.20121120\tools";
-        private const string StrongNameKey = @"..\build\Version\opencover.gendarme.snk";
+		private const string GendarmeVersion = "2.11.0.20121120";
+
+		private static readonly string GendarmeAssemblyName = string.Format("Mono.Gendarme.{0}", GendarmeVersion);
+
+        private static readonly string TargetFolder = Path.Combine("..", "tools", "GendarmeSigned");
+        private static readonly string SourceFolder = Path.Combine("packages", GendarmeAssemblyName, "tools");
+        private static readonly string StrongNameKey = Path.Combine("..", "build", "Version", "opencover.gendarme.snk");
 
         static void Main(string[] args)
         {
+			var assemblyLocation = Assembly.GetAssembly (typeof(Program)).Location;
+			var assemblyFolder = Path.GetDirectoryName(assemblyLocation);
+            var baseFolder = Path.Combine(assemblyFolder, "..", "..", "..");
 
-
-            var baseFolder = Path.Combine(Assembly.GetAssembly(typeof(Program)).Location, @"..\..\..\..");
-
-            if (!Directory.Exists(Path.Combine(baseFolder, TargetFolder))) 
-                Directory.CreateDirectory(Path.Combine(baseFolder, TargetFolder));
+			var targetDirectory = Path.Combine (baseFolder, TargetFolder);
+            if (!Directory.Exists(targetDirectory)) 
+				Directory.CreateDirectory (targetDirectory);
 
             if (AlreadySigned(baseFolder))
             {
@@ -39,7 +44,7 @@ namespace OpenCover.Gendarme.Signer
 
         private static bool AlreadySigned(string baseFolder)
         {
-            var frameworkAssembly = Path.Combine(baseFolder, TargetFolder + @"\Gendarme.Framework.dll");
+            var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
             if (File.Exists(frameworkAssembly))
             {
                 try
@@ -56,13 +61,13 @@ namespace OpenCover.Gendarme.Signer
 
         private static void SignGendarmeRulesMaintainability(string baseFolder)
         {
-            var frameworkAssembly = Path.Combine(baseFolder, TargetFolder + @"\Gendarme.Framework.dll");
+            var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
             var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly);
             var frameworkAssemblyRef = AssemblyNameReference.Parse(frameworkDefinition.Name.ToString());
 
             var key = Path.Combine(baseFolder, StrongNameKey);
-            var assembly = Path.Combine(baseFolder, SourceFolder + @"\Gendarme.Rules.Maintainability.dll");
-            var newAssembly = Path.Combine(baseFolder, TargetFolder + @"\Gendarme.Rules.Maintainability.dll");
+            var assembly = Path.Combine(baseFolder, SourceFolder, "Gendarme.Rules.Maintainability.dll");
+            var newAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Rules.Maintainability.dll");
 
             assembly = Path.GetFullPath(assembly);
             newAssembly = Path.GetFullPath(newAssembly);
@@ -95,8 +100,8 @@ namespace OpenCover.Gendarme.Signer
         private static void SignGendarmeFramework(string baseFolder)
         {
             var key = Path.Combine(baseFolder, StrongNameKey);
-            var assembly = Path.Combine(baseFolder, SourceFolder + @"\Gendarme.Framework.dll");
-            var newAssembly = Path.Combine(baseFolder, TargetFolder + @"\Gendarme.Framework.dll");
+            var assembly = Path.Combine(baseFolder, SourceFolder, "Gendarme.Framework.dll");
+            var newAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
 
             assembly = Path.GetFullPath(assembly);
             newAssembly = Path.GetFullPath(newAssembly);
