@@ -70,12 +70,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
-  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
-    <PostBuildEvent>cd $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)
+  <PropertyGroup>
+    <PostBuildEvent Condition=" '$(OS)' == 'Windows_NT' ">cd $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)
 $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)\OpenCover.Gendarme.Signer.exe</PostBuildEvent>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
-    <PostBuildEvent>mono $(SolutionDir)\OpenCover.Gendarme.Signer\bin\$(ConfigurationName)\OpenCover.Gendarme.Signer.exe</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Windows_NT' ">mono OpenCover.Gendarme.Signer.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
