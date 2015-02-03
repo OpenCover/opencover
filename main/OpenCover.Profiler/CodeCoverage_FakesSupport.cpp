@@ -403,28 +403,5 @@ mdMethodDef CCodeCoverage::Get_CurrentDomainMethod(ModuleID moduleID)
 	return getCurrentDomain;
 }
 
-HRESULT CCodeCoverage::InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, InstructionList &instructions){
 
-	LPCBYTE pMethodHeader = NULL;
-	ULONG iMethodSize = 0;
-	COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize),
-		_T("    ::InstrumentMethodWith(...) => GetILFunctionBody => 0x%X"));
-
-	IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
-	Method instumentedMethod(pMethod);
-
-	instumentedMethod.InsertInstructionsAtOriginalOffset(0, instructions);
-
-	instumentedMethod.DumpIL();
-
-	// now to write the method back
-	CComPtr<IMethodMalloc> methodMalloc;
-	COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
-		_T("    ::InstrumentMethodWith(...) => GetILFunctionBodyAllocator=> 0x%X"));
-
-	IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
-	instumentedMethod.WriteMethod(pNewMethod);
-	COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->SetILFunctionBody(moduleId, functionToken, (LPCBYTE)pNewMethod),
-		_T("    ::InstrumentMethodWith(...) => SetILFunctionBody => 0x%X"));
-}
 
