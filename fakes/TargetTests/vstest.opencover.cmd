@@ -1,0 +1,1 @@
+..\..\..\..\main\bin\debug\OpenCover.Console.exe -register:user -target:"C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow\vstest.console.exe" -targetargs:"TargetTests.dll" -filter:"+[Target*]* -[TargetTests*]*" -output:opencovertests.xml -mergebyhash

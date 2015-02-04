@@ -30,6 +30,8 @@ using namespace ATL;
 
 #include "CoverageInstrumentation.h"
 
+typedef void(__fastcall *ipv)(ULONG);
+
 // CCodeCoverage
 
 /// <summary>The main profiler COM object</summary>
@@ -95,6 +97,8 @@ private:
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
 	DWORD AppendProfilerEventMask(DWORD currentEventMask);
 
+	ipv static GetInstrumentPointVisit();
+
 private:
     static UINT_PTR _stdcall FunctionMapper2(FunctionID functionId, void* clientData, BOOL* pbHookFunction);
     static UINT_PTR _stdcall FunctionMapper(FunctionID functionId, BOOL* pbHookFunction);
@@ -137,12 +141,17 @@ private:
     HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
 
 private:
+	HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId);
     mdMethodDef m_cuckooSafeToken;
     mdMethodDef m_cuckooCriticalToken;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
     mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId);
     void InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
+	HRESULT CuckooSupportCompilation(
+		AssemblyID assemblyId,
+		mdToken functionToken,
+		ModuleID moduleId);
 
 private:
 	HRESULT FakesInitialize(IUnknown *pICorProfilerInfoUnk);

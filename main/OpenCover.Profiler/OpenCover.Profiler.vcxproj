@@ -244,6 +244,7 @@
   <ItemGroup>
     <ClCompile Include="CodeCoverage.cpp" />
     <ClCompile Include="CodeCoverage_Callback.cpp" />
+    <ClCompile Include="CodeCoverage_Cuckoo.cpp" />
     <ClCompile Include="CodeCoverage_FakesSupport.cpp" />
     <ClCompile Include="CodeCoverage_ProfilerInfo.cpp" />
     <ClCompile Include="CoverageInstrumentation.cpp" />

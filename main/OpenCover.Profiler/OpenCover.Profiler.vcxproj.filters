@@ -76,6 +76,9 @@
     <ClCompile Include="CodeCoverage_FakesSupport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CodeCoverage_Cuckoo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
