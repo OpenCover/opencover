@@ -225,9 +225,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock)
 {
-	if (m_chainedProfiler != NULL)
-		m_chainedProfiler->JITCompilationStarted(functionId, fIsSafeToBlock);
-
     std::wstring modulePath;
     mdToken functionToken;
     ModuleID moduleId;
@@ -235,70 +232,75 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
     if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
-		FakesSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
+        FakesSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
 
-		CuckooSupportCompilation(assemblyId, functionToken, moduleId);
+        CuckooSupportCompilation(assemblyId, functionToken, moduleId);
 
-        if (!m_allowModules[modulePath]) return S_OK;
-
-        ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
-
-        std::vector<SequencePoint> seqPoints;
-        std::vector<BranchPoint> brPoints;
-        
-        if (m_host.GetPoints(functionToken, (LPWSTR)modulePath.c_str(), 
-            (LPWSTR)m_allowModulesAssemblyMap[modulePath].c_str(), seqPoints, brPoints))
+        if (m_allowModules[modulePath])
         {
-            if (seqPoints.size()==0) return S_OK;
+            ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
 
-            LPCBYTE pMethodHeader = NULL;
-            ULONG iMethodSize = 0;
-            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize),
-                _T("    ::JITCompilationStarted(...) => GetILFunctionBody => 0x%X"));
+            std::vector<SequencePoint> seqPoints;
+            std::vector<BranchPoint> brPoints;
 
-            IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
-            
-            Method instumentedMethod(pMethod);
-            instumentedMethod.IncrementStackSize(2);
-
-            ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting..."));
-            //seqPoints.clear();
-            //brPoints.clear();
-
-            // Instrument method
-            InstrumentMethod(moduleId, instumentedMethod, seqPoints, brPoints);
-
-            instumentedMethod.DumpIL();
-
-            CComPtr<IMethodMalloc> methodMalloc;
-            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
-                _T("    ::JITCompilationStarted(...) => GetILFunctionBodyAllocator=> 0x%X"));
-            IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
-            instumentedMethod.WriteMethod(pNewMethod);
-            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE) pNewMethod), 
-                _T("    ::JITCompilationStarted(...) => SetILFunctionBody => 0x%X"));
-
-            ULONG mapSize = instumentedMethod.GetILMapSize();
-            COR_IL_MAP * pMap = (COR_IL_MAP *)CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP));
-            instumentedMethod.PopulateILMap(mapSize, pMap);
-            COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap), 
-                _T("    ::JITCompilationStarted(...) => SetILInstrumentedCodeMap => 0x%X"));
-
-            // only do this for .NET4 and above as there are issues with earlier runtimes (Access Violations)
-            if (m_runtimeVersion.usMajorVersion >= 4)
-                CoTaskMemFree(pMap);
-
-            // resize the threshold array 
-            if (m_threshold != 0)
+            if (m_host.GetPoints(functionToken, (LPWSTR)modulePath.c_str(),
+                (LPWSTR)m_allowModulesAssemblyMap[modulePath].c_str(), seqPoints, brPoints))
             {
-                if (seqPoints.size() > 0) 
-                    m_host.Resize(seqPoints.back().UniqueId + 1);
-                if (brPoints.size() > 0) 
-                    m_host.Resize(brPoints.back().UniqueId + 1);
+                if (seqPoints.size() != 0)
+                {
+                    LPCBYTE pMethodHeader = NULL;
+                    ULONG iMethodSize = 0;
+                    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, &pMethodHeader, &iMethodSize),
+                        _T("    ::JITCompilationStarted(...) => GetILFunctionBody => 0x%X"));
+
+                    IMAGE_COR_ILMETHOD* pMethod = (IMAGE_COR_ILMETHOD*)pMethodHeader;
+
+                    Method instumentedMethod(pMethod);
+                    instumentedMethod.IncrementStackSize(2);
+
+                    ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting..."));
+                    //seqPoints.clear();
+                    //brPoints.clear();
+
+                    // Instrument method
+                    InstrumentMethod(moduleId, instumentedMethod, seqPoints, brPoints);
+
+                    instumentedMethod.DumpIL();
+
+                    CComPtr<IMethodMalloc> methodMalloc;
+                    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
+                        _T("    ::JITCompilationStarted(...) => GetILFunctionBodyAllocator=> 0x%X"));
+                    IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
+                    instumentedMethod.WriteMethod(pNewMethod);
+                    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE)pNewMethod),
+                        _T("    ::JITCompilationStarted(...) => SetILFunctionBody => 0x%X"));
+
+                    ULONG mapSize = instumentedMethod.GetILMapSize();
+                    COR_IL_MAP * pMap = (COR_IL_MAP *)CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP));
+                    instumentedMethod.PopulateILMap(mapSize, pMap);
+                    COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILInstrumentedCodeMap(functionId, TRUE, mapSize, pMap),
+                        _T("    ::JITCompilationStarted(...) => SetILInstrumentedCodeMap => 0x%X"));
+
+                    // only do this for .NET4 and above as there are issues with earlier runtimes (Access Violations)
+                    if (m_runtimeVersion.usMajorVersion >= 4)
+                        CoTaskMemFree(pMap);
+
+                    // resize the threshold array 
+                    if (m_threshold != 0)
+                    {
+                        if (seqPoints.size() > 0)
+                            m_host.Resize(seqPoints.back().UniqueId + 1);
+                        if (brPoints.size() > 0)
+                            m_host.Resize(brPoints.back().UniqueId + 1);
+                    }
+                }
             }
         }
     }
     
+    if (m_chainedProfiler != NULL)
+        return m_chainedProfiler->JITCompilationStarted(functionId, fIsSafeToBlock);
+
     return S_OK; 
 }
 
