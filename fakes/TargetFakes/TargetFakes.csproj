@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{986D7A12-1BD8-4C38-9009-0815B2A5A160}</ProjectGuid>
+    <ProjectGuid>{CC7F634E-8568-47C2-BD4D-5298494B3B8B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Target</RootNamespace>
-    <AssemblyName>Target</AssemblyName>
+    <RootNamespace>TargetFakes</RootNamespace>
+    <AssemblyName>TargetFakes</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -39,16 +39,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MyInstanceClassCaller.cs" />
-    <Compile Include="MyStaticClassCaller.cs" />
-    <Compile Include="TimeWrapper.cs" />
+    <Compile Include="MyInstanceClass.cs" />
+    <Compile Include="MyStaticClass.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\TargetFakes\TargetFakes.csproj">
-      <Project>{CC7F634E-8568-47C2-BD4D-5298494B3B8B}</Project>
-      <Name>TargetFakes</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
