@@ -7,7 +7,6 @@
 // CProfilerInfo
 HRESULT STDMETHODCALLTYPE CProfilerInfo::SetEventMask(
 	/* [in] */ DWORD dwEvents){
-	ATLTRACE(_T("CProfilerInfo::SetEventMask(0x%X)"), dwEvents);
 
 	DWORD expected = COR_PRF_DISABLE_ALL_NGEN_IMAGES;
 	expected |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;
@@ -17,9 +16,10 @@ HRESULT STDMETHODCALLTYPE CProfilerInfo::SetEventMask(
 	expected |= COR_PRF_MONITOR_APPDOMAIN_LOADS;
 	expected |= COR_PRF_MONITOR_ASSEMBLY_LOADS;
 	expected |= COR_PRF_MONITOR_MODULE_LOADS;
+    expected |= COR_PRF_ENABLE_REJIT; // VS2012 only
 
-	//ATLTRACE(_T("::SetEventMask => expected 0x%X"), expected);
-	ATLASSERT(expected == dwEvents);
+	ATLTRACE(_T("CProfilerInfo::SetEventMask => received => 0x%X, expected 0x%X"), dwEvents, expected);
+    ATLASSERT(expected == (dwEvents | expected)); // assert that nothing new has been added that we haven't already tested against
 
 	if (m_pProfilerHook!=NULL)
 		dwEvents = m_pProfilerHook->AppendProfilerEventMask(dwEvents);

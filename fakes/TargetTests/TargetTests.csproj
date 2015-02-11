@@ -44,6 +44,9 @@
     <Reference Include="System.4.0.0.0.Fakes">
       <HintPath>FakesAssemblies\System.4.0.0.0.Fakes.dll</HintPath>
     </Reference>
+    <Reference Include="TargetFakes.Fakes">
+      <HintPath>FakesAssemblies\TargetFakes.Fakes.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -58,10 +61,15 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="ShimedClassTests.cs" />
     <Compile Include="TimeWrapperTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\TargetFakes\TargetFakes.csproj">
+      <Project>{cc7f634e-8568-47c2-bd4d-5298494b3b8b}</Project>
+      <Name>TargetFakes</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Target\Target.csproj">
       <Project>{986D7A12-1BD8-4C38-9009-0815B2A5A160}</Project>
       <Name>Target</Name>
@@ -74,6 +82,7 @@
     <Fakes Include="Fakes\mscorlib.fakes" />
   </ItemGroup>
   <ItemGroup>
+    <Fakes Include="Fakes\TargetFakes.fakes" />
     <None Include="vstest.opencover.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

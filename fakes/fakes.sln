@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Target", "Target\Target.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TargetTests", "TargetTests\TargetTests.csproj", "{5E1EC6E6-20AC-42E3-B5E1-789A61EA8E6A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TargetFakes", "TargetFakes\TargetFakes.csproj", "{CC7F634E-8568-47C2-BD4D-5298494B3B8B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D5C1EF3A-806F-4909-89FB-ECD5F8250106}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +46,16 @@ Global
 		{5E1EC6E6-20AC-42E3-B5E1-789A61EA8E6A}.Release|ARM.ActiveCfg = Release|Any CPU
 		{5E1EC6E6-20AC-42E3-B5E1-789A61EA8E6A}.Release|x64.ActiveCfg = Release|Any CPU
 		{5E1EC6E6-20AC-42E3-B5E1-789A61EA8E6A}.Release|x86.ActiveCfg = Release|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Release|ARM.ActiveCfg = Release|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Release|x64.ActiveCfg = Release|Any CPU
+		{CC7F634E-8568-47C2-BD4D-5298494B3B8B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -56,3 +56,5 @@ ReleaseNotes.txt
 /fakes/**/bin/**/*
 /fakes/**/obj/**/*
 /fakes/**/FakesAssemblies/**/*
+/fakes/packages
+!fakes/packages/repositories.config

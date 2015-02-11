@@ -14,33 +14,37 @@ namespace OpenCover.FakesSupport
         public static void LoadOpenCoverProfilerInstead(object data)
         {
             var dict = data as IDictionary<string, string>;
-            if (dict == null) return;
+            if (dict == null) 
+                return;
 
-            if (!dict.ContainsKey(CorEnableProfiling) || dict[CorEnableProfiling] != "1") return;
+            if (!dict.ContainsKey(CorEnableProfiling) || dict[CorEnableProfiling] != "1") 
+                return;
 
-            dict[ChainExternalProfiler] = dict[CorProfiler];
-            dict[CorProfiler] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
+            var currentProfiler = dict[CorProfiler];
+            var key = Registry.ClassesRoot.OpenSubKey(string.Format("CLSID\\{0}\\InprocServer32", currentProfiler));
+            if (key == null)
+                return;
 
-            var key = Registry.ClassesRoot.OpenSubKey(string.Format("CLSID\\{0}\\InprocServer32",
-                dict[ChainExternalProfiler]));
-
-            if (key == null) return;
             var location = key.GetValue(null) as string;
             dict[ChainExternalProfilerLocation] = location;
+
+            dict[ChainExternalProfiler] = currentProfiler;
+            dict[CorProfiler] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
         }
 
         public static void PretendWeLoadedFakesProfiler(object data)
         {
-            var args = data as string[];
-            foreach (var arg in args ?? new string[0])
-            {
-                Console.WriteLine(arg);
-            }
+            //var args = data as string[];
+            //foreach (var arg in args ?? new string[0])
+            //{
+            //    Console.WriteLine(arg);
+            //}
 
             var enabled = Environment.GetEnvironmentVariable(CorEnableProfiling);
             if (enabled == "1")
             {
-                Environment.SetEnvironmentVariable(CorProfiler, "{44250666-1751-4368-a29c-31caf4ccf3f5}");
+                var external = Environment.GetEnvironmentVariable(ChainExternalProfiler);
+                Environment.SetEnvironmentVariable(CorProfiler, external);
             }
         }
     }
