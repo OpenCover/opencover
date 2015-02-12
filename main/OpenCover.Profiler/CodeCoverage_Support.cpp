@@ -21,7 +21,7 @@ extern COpenCoverProfilerModule _AtlModule;
 
 namespace {
 	struct __declspec(uuid("2180EC45-CF11-456E-9A76-389A4521A4BE"))
-	IFakesDomainHelper : IUnknown
+	IDomainHelper : IUnknown
 	{
 		virtual HRESULT __stdcall AddResolveEventHandler() = 0;
 	};
@@ -30,7 +30,7 @@ namespace {
 LPSAFEARRAY GetInjectedDllAsSafeArray()
 {
 	HINSTANCE hInst = _AtlModule.m_hModule;
-	HRSRC hClrHookDllRes = FindResource(hInst, MAKEINTRESOURCE(IDR_FAKESSUPPORT), L"ASSEMBLY");
+	HRSRC hClrHookDllRes = FindResource(hInst, MAKEINTRESOURCE(IDR_SUPPORT), L"ASSEMBLY");
 	ATLASSERT(hClrHookDllRes != NULL);
 
 	HGLOBAL hClrHookDllHGlb = LoadResource(hInst, hClrHookDllRes);
@@ -56,7 +56,7 @@ LPSAFEARRAY GetInjectedDllAsSafeArray()
 	return lpAsmblyData;
 }
 
-EXTERN_C HRESULT STDAPICALLTYPE LoadFakesSupportAssembly(IUnknown *pUnk)
+EXTERN_C HRESULT STDAPICALLTYPE LoadOpenCoverSupportAssembly(IUnknown *pUnk)
 {
 	ATLTRACE(_T("****LoadInjectorAssembly - Start****"));
 
@@ -73,28 +73,28 @@ EXTERN_C HRESULT STDAPICALLTYPE LoadFakesSupportAssembly(IUnknown *pUnk)
 	SafeArrayDestroy(lpAsmblyData);
 
 	CComVariant variant;
-	hr = pAssembly->CreateInstance(W2BSTR(L"OpenCover.FakesSupport.FakesDomainHelper"), &variant);
+	hr = pAssembly->CreateInstance(W2BSTR(L"OpenCover.Support.DomainHelper"), &variant);
 	ATLASSERT(hr == S_OK);
 
-	CComPtr<IFakesDomainHelper> pFakesDomainHelper;
-	hr = variant.punkVal->QueryInterface(__uuidof(IFakesDomainHelper), (void**)&pFakesDomainHelper);
+	CComPtr<IDomainHelper> pDomainHelper;
+    hr = variant.punkVal->QueryInterface(__uuidof(IDomainHelper), (void**)&pDomainHelper);
 	ATLASSERT(hr == S_OK);
 
-	hr = pFakesDomainHelper->AddResolveEventHandler();
+    hr = pDomainHelper->AddResolveEventHandler();
 	ATLASSERT(hr == S_OK);
 	ATLTRACE(_T("****LoadInjectorAssembly - End****"));
 
 	return S_OK;
 }
 
-HRESULT CCodeCoverage::FakesInitialize(
+HRESULT CCodeCoverage::OpenCoverSupportInitialize(
 	/* [in] */ IUnknown *pICorProfilerInfoUnk)
 {
 	TCHAR ext[1024] = { 0 };
 	::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER"), ext, 1024);
 	if (ext[0] != 0)
 	{
-		ATLTRACE(_T("::FakesInitialize"));
+		ATLTRACE(_T("::OpenCoverSupportInitialize"));
 
 		ATLTRACE(_T("    ::Initialize(...) => ext = %s"), ext);
 
@@ -130,13 +130,13 @@ HRESULT CCodeCoverage::FakesInitialize(
 
 		hr = m_chainedProfiler->Initialize(m_infoHook);
 
-		ATLTRACE(_T("  ::Initialize => fakes = 0x%X"), hr);
+		ATLTRACE(_T("  ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
 	}
 	
 	return S_OK;
 }
 
-HRESULT CCodeCoverage::GetFakesSupportRef(ModuleID moduleId, mdModuleRef &fakesSupportRef)
+HRESULT CCodeCoverage::GetOpenCoverSupportRef(ModuleID moduleId, mdModuleRef &supportRef)
 {
 	// get interfaces
 	CComPtr<IMetaDataEmit2> metaDataEmit;
@@ -158,13 +158,13 @@ HRESULT CCodeCoverage::GetFakesSupportRef(ModuleID moduleId, mdModuleRef &fakesS
 	assembly.usRevisionNumber = 0;
 	const BYTE pubToken[] = { 0xe1, 0x91, 0x8c, 0xac, 0x69, 0xeb, 0x73, 0xf4 };
 	hr = metaDataAssemblyEmit->DefineAssemblyRef(pubToken,
-		sizeof(pubToken), L"OpenCover.FakesSupport", &assembly, NULL, 0, 0,
-		&fakesSupportRef);
+		sizeof(pubToken), L"OpenCover.Support", &assembly, NULL, 0, 0,
+		&supportRef);
 	ATLASSERT(hr == S_OK);
 	return hr;
 }
 
-HRESULT CCodeCoverage::FakesModulesAttachedToAssembly(
+HRESULT CCodeCoverage::OpenCoverSupportModulesAttachedToAssembly(
 	/* [in] */ ModuleID moduleId,
 	/* [in] */ AssemblyID assemblyId)
 {
@@ -181,7 +181,7 @@ HRESULT CCodeCoverage::FakesModulesAttachedToAssembly(
 		m_targetLoadOpenCoverProfilerInsteadRef = 0;
 		// get reference to injected
 		mdModuleRef injectedRef;
-		HRESULT hr = GetFakesSupportRef(moduleId, injectedRef);
+		HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
 		ATLASSERT(hr == S_OK);
 
 		// get interfaces
@@ -201,7 +201,7 @@ HRESULT CCodeCoverage::FakesModulesAttachedToAssembly(
 		// get method to call
 		mdTypeRef classTypeRef;
 		hr = metaDataEmit->DefineTypeRefByName(injectedRef,
-			L"OpenCover.FakesSupport.FakesHelper", &classTypeRef);
+			L"OpenCover.Support.Fakes.FakesHelper", &classTypeRef);
 		ATLASSERT(hr == S_OK);
 
 		hr = metaDataEmit->DefineMemberRef(classTypeRef,
@@ -231,7 +231,7 @@ HRESULT CCodeCoverage::FakesModulesAttachedToAssembly(
 		m_targetPretendWeLoadedFakesProfilerRef = 0;
 		// get reference to injected
 		mdModuleRef injectedRef;
-		HRESULT hr = GetFakesSupportRef(moduleId, injectedRef);
+		HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
 		ATLASSERT(hr == S_OK);
 
 		// get interfaces
@@ -251,7 +251,7 @@ HRESULT CCodeCoverage::FakesModulesAttachedToAssembly(
 		// get method to call
 		mdTypeRef classTypeRef;
 		hr = metaDataEmit->DefineTypeRefByName(injectedRef,
-			L"OpenCover.FakesSupport.FakesHelper", &classTypeRef);
+			L"OpenCover.Support.Fakes.FakesHelper", &classTypeRef);
 		ATLASSERT(hr == S_OK);
 
 		hr = metaDataEmit->DefineMemberRef(classTypeRef,
@@ -294,7 +294,7 @@ mdMethodDef CCodeCoverage::CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit){
 	ATLASSERT(hr == S_OK);
 
 	mdMethodDef	tkAttachDomain;
-	pMetaDataEmit->DefineMethod(tkInjClass, L"LoadFakesSupportAssembly",
+	pMetaDataEmit->DefineMethod(tkInjClass, L"LoadOpenCoverSupportAssembly",
 		mdStatic | mdPinvokeImpl,
 		sg_sigPLoadInjectorAssembly, sizeof(sg_sigPLoadInjectorAssembly),
 		0, 0, &tkAttachDomain
@@ -303,7 +303,7 @@ mdMethodDef CCodeCoverage::CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit){
 
 	BYTE tiunk = NATIVE_TYPE_IUNKNOWN;
 	mdParamDef paramDef;
-	hr = pMetaDataEmit->DefinePinvokeMap(tkAttachDomain, 0, L"LoadFakesSupportAssembly", tkRefClrProbe);
+	hr = pMetaDataEmit->DefinePinvokeMap(tkAttachDomain, 0, L"LoadOpenCoverSupportAssembly", tkRefClrProbe);
 	ATLASSERT(hr == S_OK);
 
 	hr = pMetaDataEmit->DefineParam(tkAttachDomain, 1, L"appDomain",
@@ -316,7 +316,7 @@ mdMethodDef CCodeCoverage::CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit){
 	return tkAttachDomain;
 }
 
-HRESULT CCodeCoverage::FakesSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath)
+HRESULT CCodeCoverage::OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath)
 {
 	if (TESTPLATFORM_UTILITIES_ASSEMBLY == GetAssemblyName(assemblyId))
 	{

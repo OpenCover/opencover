@@ -100,7 +100,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
         return E_FAIL;
     }
 
-	FakesInitialize(pICorProfilerInfoUnk);
+    OpenCoverSupportInitialize(pICorProfilerInfoUnk);
 
 	if (m_chainedProfiler == NULL){
 		DWORD dwMask = AppendProfilerEventMask(0);
@@ -206,7 +206,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 	if (m_chainedProfiler != NULL)
 		m_chainedProfiler->ModuleAttachedToAssembly(moduleId, assemblyId);
 
-	FakesModulesAttachedToAssembly(moduleId, assemblyId);
+    OpenCoverSupportModulesAttachedToAssembly(moduleId, assemblyId);
 
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
@@ -232,7 +232,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
     if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
-        FakesSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
+        OpenCoverSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
 
         CuckooSupportCompilation(assemblyId, functionToken, moduleId);
 

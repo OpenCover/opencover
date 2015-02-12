@@ -73,10 +73,10 @@
     <ClCompile Include="ProfilerInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CodeCoverage_FakesSupport.cpp">
+    <ClCompile Include="CodeCoverage_Cuckoo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CodeCoverage_Cuckoo.cpp">
+    <ClCompile Include="CodeCoverage_Support.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -163,7 +163,7 @@
     <None Include="CodeCoverage.rgs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\bin\Common\OpenCover.FakesSupport.dll" />
+    <None Include="..\bin\Common\OpenCover.Support.dll" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl">

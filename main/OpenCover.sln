@@ -62,7 +62,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCove
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Extensions", "OpenCover.Extensions\OpenCover.Extensions.csproj", "{EE9B358A-335C-43E9-BC35-853807C5E776}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.FakesSupport", "OpenCover.FakesSupport\OpenCover.FakesSupport.csproj", "{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.FakesSupport", "OpenCover.Support\OpenCover.Support.csproj", "{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

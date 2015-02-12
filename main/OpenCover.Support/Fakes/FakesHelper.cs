@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Win32;
 
-namespace OpenCover.FakesSupport
+namespace OpenCover.Support.Fakes
 {
     public class FakesHelper
     {

@@ -154,17 +154,17 @@ private:
 		ModuleID moduleId);
 
 private:
-	HRESULT FakesInitialize(IUnknown *pICorProfilerInfoUnk);
+    HRESULT OpenCoverSupportInitialize(IUnknown *pICorProfilerInfoUnk);
 	CComPtr<ICorProfilerCallback4> m_chainedProfiler;
 	CComObject<CProfilerInfo> *m_infoHook;
-	HRESULT FakesModulesAttachedToAssembly(ModuleID moduleId, AssemblyID assemblyId);
+    HRESULT OpenCoverSupportModulesAttachedToAssembly(ModuleID moduleId, AssemblyID assemblyId);
 	mdMemberRef m_targetLoadOpenCoverProfilerInsteadRef;
 	mdMemberRef m_targetPretendWeLoadedFakesProfilerRef;
-	HRESULT GetFakesSupportRef(ModuleID moduleId, mdModuleRef &fakesSupportRef);
+    HRESULT GetOpenCoverSupportRef(ModuleID moduleId, mdModuleRef &supportRef);
 	mdTypeRef m_objectTypeRef;
 	mdMethodDef m_pinvokeAttach;
 	mdMethodDef CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit);
-	HRESULT FakesSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
+    HRESULT OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
 	mdMethodDef Get_CurrentDomainMethod(ModuleID moduleID);
 	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, InstructionList &instructions);
 

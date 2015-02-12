@@ -9,4 +9,4 @@ EXPORTS
 	DllUnregisterServer	PRIVATE
 	DllInstall		PRIVATE
 
-	LoadFakesSupportAssembly					@10
+	LoadOpenCoverSupportAssembly					@10
