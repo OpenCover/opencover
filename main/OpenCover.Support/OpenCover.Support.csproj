@@ -53,6 +53,7 @@
     <Compile Include="Fakes\FakesHelper.cs" />
     <Compile Include="IDomainHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UITesting\UITestingHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="OpenCover.Support.snk" />

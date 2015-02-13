@@ -14,6 +14,10 @@
 #define TESTEXECUTORMAIN_RUN L"Microsoft.VisualStudio.TestPlatform.TestExecutor.TestExecutorMain::Run"
 #define TESTEXECUTORMAIN_CTOR L"Microsoft.VisualStudio.TestPlatform.TestExecutor.TestExecutorMain::.ctor"
 
+#define TESTTOOLS_UITESTING_ASSEMBLY L"Microsoft.VisualStudio.TestTools.UITesting"
+#define APPLICATIONUNDERTEST_START L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::Start"
+#define APPLICATIONUNDERTEST_CCTOR L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::.cctor"
+
 #import <mscorlib.tlb> raw_interfaces_only
 using namespace mscorlib;
 
@@ -136,6 +140,83 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
 	return S_OK;
 }
 
+mdMethodDef CCodeCoverage::CreatePInvokeHook(ModuleID moduleId){
+
+    mdTypeDef	tkInjClass;
+
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    HRESULT hr = m_profilerInfo->GetModuleMetaData(moduleId,
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit);
+    ATLASSERT(hr == S_OK);
+
+    mdModuleRef mscorlibRef;
+    hr = GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef);
+    COM_FAIL_MSG_RETURN_ERROR(hr, _T("    ::CreatePInvokeHook(...) => GetModuleRef => 0x%X"));
+
+    mdTypeRef objectTypeRef;
+    hr = metaDataEmit->DefineTypeRefByName(mscorlibRef,
+        L"System.Object", &objectTypeRef);
+    COM_FAIL_MSG_RETURN_ERROR(hr, _T("    ::CreatePInvokeHook(...) => DefineTypeRefByName => 0x%X"));
+
+    hr = metaDataEmit->DefineTypeDef(L"__OpenCoverSupportInjection__", tdAbstract | tdSealed, objectTypeRef, NULL, &tkInjClass);
+    ATLASSERT(hr == S_OK);
+
+    static BYTE sg_sigPLoadInjectorAssembly[] = {
+        0, // IMAGE_CEE_CS_CALLCONV_DEFAULT
+        1, // argument count
+        ELEMENT_TYPE_VOID, // ret = ELEMENT_TYPE_VOID
+        ELEMENT_TYPE_OBJECT
+    };
+
+    mdModuleRef	tkRefClrProbe;
+    hr = metaDataEmit->DefineModuleRef(L"OPENCOVER.PROFILER.DLL", &tkRefClrProbe);
+    ATLASSERT(hr == S_OK);
+
+    mdMethodDef	tkAttachDomain;
+    metaDataEmit->DefineMethod(tkInjClass, L"LoadOpenCoverSupportAssembly",
+        mdStatic | mdPinvokeImpl,
+        sg_sigPLoadInjectorAssembly, sizeof(sg_sigPLoadInjectorAssembly),
+        0, 0, &tkAttachDomain
+        );
+    ATLASSERT(hr == S_OK);
+
+    BYTE tiunk = NATIVE_TYPE_IUNKNOWN;
+    mdParamDef paramDef;
+    hr = metaDataEmit->DefinePinvokeMap(tkAttachDomain, 0, L"LoadOpenCoverSupportAssembly", tkRefClrProbe);
+    ATLASSERT(hr == S_OK);
+
+    hr = metaDataEmit->DefineParam(tkAttachDomain, 1, L"appDomain",
+        pdIn | pdHasFieldMarshal, 0, NULL, 0, &paramDef);
+    ATLASSERT(hr == S_OK);
+
+    hr = metaDataEmit->SetFieldMarshal(paramDef, &tiunk, 1);
+    ATLASSERT(hr == S_OK);
+
+    return tkAttachDomain;
+}
+
+mdMethodDef CCodeCoverage::Get_CurrentDomainMethod(ModuleID moduleID)
+{
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    COM_FAIL_MSG_RETURN_OTHER(m_profilerInfo->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 0,
+        _T("    ::Get_CurrentDomainMethod(ModuleID) => GetModuleMetaData => 0x%X"));
+
+    mdModuleRef mscorlibRef;
+    HRESULT hr = GetModuleRef(moduleID, MSCORLIB_NAME, mscorlibRef);
+    ATLASSERT(hr == S_OK);
+
+    mdMethodDef getCurrentDomain;
+    mdTypeDef tkAppDomain;
+    hr = metaDataEmit->DefineTypeRefByName(mscorlibRef, L"System.AppDomain", &tkAppDomain);
+    ATLASSERT(hr == S_OK);
+
+    BYTE importSig[] = { IMAGE_CEE_CS_CALLCONV_DEFAULT, 0 /*<no args*/, 0x12 /*< ret class*/, 0, 0, 0, 0, 0 };
+    ULONG l = CorSigCompressToken(tkAppDomain, importSig + 3);	//< Add the System.AppDomain token ref
+    hr = metaDataEmit->DefineMemberRef(tkAppDomain, L"get_CurrentDomain", importSig, 3 + l, &getCurrentDomain);
+    ATLASSERT(hr == S_OK);
+    return getCurrentDomain;
+}
+
 HRESULT CCodeCoverage::GetOpenCoverSupportRef(ModuleID moduleId, mdModuleRef &supportRef)
 {
 	// get interfaces
@@ -164,244 +245,219 @@ HRESULT CCodeCoverage::GetOpenCoverSupportRef(ModuleID moduleId, mdModuleRef &su
 	return hr;
 }
 
-HRESULT CCodeCoverage::OpenCoverSupportModulesAttachedToAssembly(
-	/* [in] */ ModuleID moduleId,
-	/* [in] */ AssemblyID assemblyId)
-{
-
-	std::wstring assemblyName = GetAssemblyName(assemblyId);
-
-	if (TESTPLATFORM_UTILITIES_ASSEMBLY == GetAssemblyName(assemblyId))
-	{
-		std::wstring modulePath = GetModulePath(moduleId);
-		ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
-			moduleId, W2CT(modulePath.c_str()),
-			assemblyId, W2CT(assemblyName.c_str()));
-
-		m_targetLoadOpenCoverProfilerInsteadRef = 0;
-		// get reference to injected
-		mdModuleRef injectedRef;
-		HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
-		ATLASSERT(hr == S_OK);
-
-		// get interfaces
-		CComPtr<IMetaDataEmit> metaDataEmit;
-		hr = m_profilerInfo->GetModuleMetaData(moduleId,
-			ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit);
-		ATLASSERT(hr == S_OK);
-
-		static COR_SIGNATURE methodCallSignature[] =
-		{
-			IMAGE_CEE_CS_CALLCONV_DEFAULT,
-			0x01,
-			ELEMENT_TYPE_VOID,
-			ELEMENT_TYPE_OBJECT
-		};
-
-		// get method to call
-		mdTypeRef classTypeRef;
-		hr = metaDataEmit->DefineTypeRefByName(injectedRef,
-			L"OpenCover.Support.Fakes.FakesHelper", &classTypeRef);
-		ATLASSERT(hr == S_OK);
-
-		hr = metaDataEmit->DefineMemberRef(classTypeRef,
-			L"LoadOpenCoverProfilerInstead", methodCallSignature,
-			sizeof(methodCallSignature), &m_targetLoadOpenCoverProfilerInsteadRef);
-		ATLASSERT(hr == S_OK);
-
-		// get object ref
-		mdModuleRef mscorlibRef;
-		hr = GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef);
-		ATLASSERT(hr == S_OK);
-
-		hr = metaDataEmit->DefineTypeRefByName(mscorlibRef,
-			L"System.Object", &m_objectTypeRef);
-		ATLASSERT(hr == S_OK);
-
-		m_pinvokeAttach = CreatePInvokeHook(metaDataEmit);
-	}
-
-	if (TESTPLATFORM_TESTEXECUTOR_CORE_ASSEMBLY == GetAssemblyName(assemblyId))
-	{
-		std::wstring modulePath = GetModulePath(moduleId);
-		ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
-			moduleId, W2CT(modulePath.c_str()),
-			assemblyId, W2CT(assemblyName.c_str()));
-
-		m_targetPretendWeLoadedFakesProfilerRef = 0;
-		// get reference to injected
-		mdModuleRef injectedRef;
-		HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
-		ATLASSERT(hr == S_OK);
-
-		// get interfaces
-		CComPtr<IMetaDataEmit> metaDataEmit;
-		hr = m_profilerInfo->GetModuleMetaData(moduleId,
-			ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit);
-		ATLASSERT(hr == S_OK);
-
-		static COR_SIGNATURE methodCallSignature[] =
-		{
-			IMAGE_CEE_CS_CALLCONV_DEFAULT,
-			0x01,
-			ELEMENT_TYPE_VOID,
-			ELEMENT_TYPE_OBJECT
-		};
-
-		// get method to call
-		mdTypeRef classTypeRef;
-		hr = metaDataEmit->DefineTypeRefByName(injectedRef,
-			L"OpenCover.Support.Fakes.FakesHelper", &classTypeRef);
-		ATLASSERT(hr == S_OK);
-
-		hr = metaDataEmit->DefineMemberRef(classTypeRef,
-			L"PretendWeLoadedFakesProfiler", methodCallSignature,
-			sizeof(methodCallSignature), &m_targetPretendWeLoadedFakesProfilerRef);
-		ATLASSERT(hr == S_OK);
-
-		// get object ref
-		mdModuleRef mscorlibRef;
-		hr = GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef);
-		ATLASSERT(hr == S_OK);
-
-		hr = metaDataEmit->DefineTypeRefByName(mscorlibRef,
-			L"System.Object", &m_objectTypeRef);
-		ATLASSERT(hr == S_OK);
-
-		m_pinvokeAttach = CreatePInvokeHook(metaDataEmit);
-
-	}
-
-	return S_OK;
-}
-
-mdMethodDef CCodeCoverage::CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit){
-
-	mdTypeDef	tkInjClass;
-
-	HRESULT hr = pMetaDataEmit->DefineTypeDef(L"__ClrProbeInjection_", tdAbstract | tdSealed, m_objectTypeRef, NULL, &tkInjClass);
-	ATLASSERT(hr == S_OK);
-
-	static BYTE sg_sigPLoadInjectorAssembly[] = {
-		0, // IMAGE_CEE_CS_CALLCONV_DEFAULT
-		1, // argument count
-		ELEMENT_TYPE_VOID, // ret = ELEMENT_TYPE_VOID
-		ELEMENT_TYPE_OBJECT
-	};
-
-	mdModuleRef	tkRefClrProbe;
-	hr = pMetaDataEmit->DefineModuleRef(L"OPENCOVER.PROFILER.DLL", &tkRefClrProbe);
-	ATLASSERT(hr == S_OK);
-
-	mdMethodDef	tkAttachDomain;
-	pMetaDataEmit->DefineMethod(tkInjClass, L"LoadOpenCoverSupportAssembly",
-		mdStatic | mdPinvokeImpl,
-		sg_sigPLoadInjectorAssembly, sizeof(sg_sigPLoadInjectorAssembly),
-		0, 0, &tkAttachDomain
-		);
-	ATLASSERT(hr == S_OK);
-
-	BYTE tiunk = NATIVE_TYPE_IUNKNOWN;
-	mdParamDef paramDef;
-	hr = pMetaDataEmit->DefinePinvokeMap(tkAttachDomain, 0, L"LoadOpenCoverSupportAssembly", tkRefClrProbe);
-	ATLASSERT(hr == S_OK);
-
-	hr = pMetaDataEmit->DefineParam(tkAttachDomain, 1, L"appDomain",
-		pdIn | pdHasFieldMarshal, 0, NULL, 0, &paramDef);
-	ATLASSERT(hr == S_OK);
-
-	hr = pMetaDataEmit->SetFieldMarshal(paramDef, &tiunk, 1);
-	ATLASSERT(hr == S_OK);
-
-	return tkAttachDomain;
-}
-
 HRESULT CCodeCoverage::OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath)
 {
-	if (TESTPLATFORM_UTILITIES_ASSEMBLY == GetAssemblyName(assemblyId))
-	{
-		std::wstring typeMethodName = GetTypeAndMethodName(functionId);
+    InstrumentTestPlatformUtilities(functionId, functionToken, moduleId, assemblyId);
+    InstrumentTestPlatformTestExecutor(functionId, functionToken, moduleId, assemblyId);
+    InstrumentTestToolsUITesting(functionId, functionToken, moduleId, assemblyId);
 
-		if (DEFAULTTESTEXECUTOR_CTOR == typeMethodName)
-		{
-			ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
-
-			InstructionList instructions; 
-
-			mdMethodDef getCurrentDomain = Get_CurrentDomainMethod(moduleId);
-			instructions.push_back(new Instruction(CEE_CALL, getCurrentDomain));
-			instructions.push_back(new Instruction(CEE_CALL, m_pinvokeAttach));
-
-			InstrumentMethodWith(moduleId, functionToken, instructions);
-		}
-
-		if (DEFAULTTESTEXECUTOR_LAUNCHPROCESS == typeMethodName)
-		{
-			ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
-
-			InstructionList instructions; 
-
-			instructions.push_back(new Instruction(CEE_LDARG_S, 4));
-			instructions.push_back(new Instruction(CEE_CALL, m_targetLoadOpenCoverProfilerInsteadRef));
-
-			InstrumentMethodWith(moduleId, functionToken, instructions);
-		}
-
-		return S_OK;
-	}
-
-	if (TESTPLATFORM_TESTEXECUTOR_CORE_ASSEMBLY == GetAssemblyName(assemblyId))
-	{
-		std::wstring typeMethodName = GetTypeAndMethodName(functionId);
-
-		if (TESTEXECUTORMAIN_CTOR == typeMethodName)
-		{
-			ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
-
-			InstructionList instructions;
-
-			mdMethodDef getCurrentDomain = Get_CurrentDomainMethod(moduleId);
-			instructions.push_back(new Instruction(CEE_CALL, getCurrentDomain));
-			instructions.push_back(new Instruction(CEE_CALL, m_pinvokeAttach));
-
-			InstrumentMethodWith(moduleId, functionToken, instructions);
-		}
-
-		if (TESTEXECUTORMAIN_RUN == typeMethodName)
-		{
-			ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
-
-			InstructionList instructions; // NOTE: this IL will be different for an instance method or if the local vars signature is different
-
-			instructions.push_back(new Instruction(CEE_LDARG, 0));
-			instructions.push_back(new Instruction(CEE_CALL, m_targetPretendWeLoadedFakesProfilerRef));
-
-			InstrumentMethodWith(moduleId, functionToken, instructions);
-		}
-	}
+    return S_OK;
 }
 
-mdMethodDef CCodeCoverage::Get_CurrentDomainMethod(ModuleID moduleID)
+bool CCodeCoverage::OpenCoverSupportRequired(AssemblyID assemblyId, FunctionID functionId)
 {
-	CComPtr<IMetaDataEmit> metaDataEmit;
-	COM_FAIL_MSG_RETURN_OTHER(m_profilerInfo->GetModuleMetaData(moduleID, ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit), 0,
-		_T("    ::Get_CurrentDomainMethod(ModuleID) => GetModuleMetaData => 0x%X"));
+    std::wstring assemblyName = GetAssemblyName(assemblyId);
+    if ((TESTPLATFORM_UTILITIES_ASSEMBLY != assemblyName) &&
+        (TESTPLATFORM_TESTEXECUTOR_CORE_ASSEMBLY != assemblyName) &&
+        (TESTTOOLS_UITESTING_ASSEMBLY != assemblyName))
+        return false;
 
-	mdModuleRef mscorlibRef;
-	HRESULT hr = GetModuleRef(moduleID, MSCORLIB_NAME, mscorlibRef);
-	ATLASSERT(hr == S_OK);
+    std::wstring typeMethodName = GetTypeAndMethodName(functionId);
+    if ((TESTPLATFORM_UTILITIES_ASSEMBLY == assemblyName) &&
+        (DEFAULTTESTEXECUTOR_CTOR != typeMethodName) &&
+        (DEFAULTTESTEXECUTOR_LAUNCHPROCESS != typeMethodName))
+        return false;
 
-	mdMethodDef getCurrentDomain;
-	mdTypeDef tkAppDomain;
-	hr = metaDataEmit->DefineTypeRefByName(mscorlibRef, L"System.AppDomain", &tkAppDomain);
-	ATLASSERT(hr == S_OK);
+    if ((TESTPLATFORM_TESTEXECUTOR_CORE_ASSEMBLY == assemblyName) &&
+        (TESTEXECUTORMAIN_CTOR != typeMethodName) &&
+        (TESTEXECUTORMAIN_RUN != typeMethodName))
+        return false;
 
-	BYTE importSig[] = { IMAGE_CEE_CS_CALLCONV_DEFAULT, 0 /*<no args*/, 0x12 /*< ret class*/, 0, 0, 0, 0, 0 };
-	ULONG l = CorSigCompressToken(tkAppDomain, importSig + 3);	//< Add the System.AppDomain token ref
-	hr = metaDataEmit->DefineMemberRef(tkAppDomain, L"get_CurrentDomain", importSig, 3 + l, &getCurrentDomain);
-	ATLASSERT(hr == S_OK);
-	return getCurrentDomain;
+    if ((TESTTOOLS_UITESTING_ASSEMBLY == assemblyName) &&
+        (APPLICATIONUNDERTEST_CCTOR != typeMethodName) &&
+        (APPLICATIONUNDERTEST_START != typeMethodName))
+        return false;
+
+    return true;
 }
+
+mdMethodDef CCodeCoverage::GetFakesHelperMethodRef(TCHAR* methodName, ModuleID moduleId){
+    // get reference to injected
+    mdModuleRef injectedRef;
+    HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
+    ATLASSERT(hr == S_OK);
+
+    // get interfaces
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    hr = m_profilerInfo->GetModuleMetaData(moduleId,
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit);
+    ATLASSERT(hr == S_OK);
+
+    static COR_SIGNATURE methodCallSignature[] =
+    {
+        IMAGE_CEE_CS_CALLCONV_DEFAULT,
+        0x01,
+        ELEMENT_TYPE_VOID,
+        ELEMENT_TYPE_OBJECT
+    };
+
+    // get method to call
+    mdTypeRef classTypeRef;
+    hr = metaDataEmit->DefineTypeRefByName(injectedRef,
+        L"OpenCover.Support.Fakes.FakesHelper", &classTypeRef);
+    ATLASSERT(hr == S_OK);
+
+    // L"LoadOpenCoverProfilerInstead"
+    mdMemberRef memberRef;
+    hr = metaDataEmit->DefineMemberRef(classTypeRef,
+        T2W(methodName), methodCallSignature,
+        sizeof(methodCallSignature), &memberRef);
+    ATLASSERT(hr == S_OK);
+
+    return memberRef;
+}
+
+mdMethodDef CCodeCoverage::GetUITestingHelperMethodRef(TCHAR* methodName, ModuleID moduleId){
+    // get reference to injected
+    mdModuleRef injectedRef;
+    HRESULT hr = GetOpenCoverSupportRef(moduleId, injectedRef);
+    ATLASSERT(hr == S_OK);
+
+    // get interfaces
+    CComPtr<IMetaDataEmit> metaDataEmit;
+    hr = m_profilerInfo->GetModuleMetaData(moduleId,
+        ofRead | ofWrite, IID_IMetaDataEmit, (IUnknown**)&metaDataEmit);
+    ATLASSERT(hr == S_OK);
+
+    static COR_SIGNATURE methodCallSignature[] =
+    {
+        IMAGE_CEE_CS_CALLCONV_DEFAULT,
+        0x01,
+        ELEMENT_TYPE_VOID,
+        ELEMENT_TYPE_OBJECT
+    };
+
+    // get method to call
+    mdTypeRef classTypeRef;
+    hr = metaDataEmit->DefineTypeRefByName(injectedRef,
+        L"OpenCover.Support.UITesting.UITestingHelper", &classTypeRef);
+    ATLASSERT(hr == S_OK);
+
+    mdMemberRef memberRef;
+    hr = metaDataEmit->DefineMemberRef(classTypeRef,
+        T2W(methodName), methodCallSignature,
+        sizeof(methodCallSignature), &memberRef);
+    ATLASSERT(hr == S_OK);
+
+    return memberRef;
+}
+
+void CCodeCoverage::InstrumentTestToolsUITesting(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId)
+{
+    if (TESTTOOLS_UITESTING_ASSEMBLY == GetAssemblyName(assemblyId))
+    {
+        std::wstring typeMethodName = GetTypeAndMethodName(functionId);
+
+        if (APPLICATIONUNDERTEST_CCTOR == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
+            InstructionList instructions;
+
+            mdMethodDef getCurrentDomain = Get_CurrentDomainMethod(moduleId);
+            instructions.push_back(new Instruction(CEE_CALL, getCurrentDomain));
+            instructions.push_back(new Instruction(CEE_CALL, invokeAttach));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+
+        if (APPLICATIONUNDERTEST_START == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMemberRef memberRef = GetUITestingHelperMethodRef(_T("PropagateRequiredEnvironmentVariables"), moduleId);
+            InstructionList instructions;
+
+            instructions.push_back(new Instruction(CEE_LDARG, 1));
+            instructions.push_back(new Instruction(CEE_CALL, memberRef));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+    }
+}
+
+void CCodeCoverage::InstrumentTestPlatformUtilities(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId)
+{
+    if (TESTPLATFORM_UTILITIES_ASSEMBLY == GetAssemblyName(assemblyId))
+    {
+        std::wstring typeMethodName = GetTypeAndMethodName(functionId);
+
+        if (DEFAULTTESTEXECUTOR_CTOR == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
+            InstructionList instructions;
+
+            mdMethodDef getCurrentDomain = Get_CurrentDomainMethod(moduleId);
+            instructions.push_back(new Instruction(CEE_CALL, getCurrentDomain));
+            instructions.push_back(new Instruction(CEE_CALL, invokeAttach));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+
+        if (DEFAULTTESTEXECUTOR_LAUNCHPROCESS == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMemberRef memberRef = GetFakesHelperMethodRef(_T("LoadOpenCoverProfilerInstead"), moduleId);
+            InstructionList instructions;
+
+            instructions.push_back(new Instruction(CEE_LDARG_S, 4));
+            instructions.push_back(new Instruction(CEE_CALL, memberRef));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+    }
+}
+
+void CCodeCoverage::InstrumentTestPlatformTestExecutor(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId)
+{
+    if (TESTPLATFORM_TESTEXECUTOR_CORE_ASSEMBLY == GetAssemblyName(assemblyId))
+    {
+        std::wstring typeMethodName = GetTypeAndMethodName(functionId);
+
+        if (TESTEXECUTORMAIN_CTOR == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
+
+            InstructionList instructions;
+
+            mdMethodDef getCurrentDomain = Get_CurrentDomainMethod(moduleId);
+            instructions.push_back(new Instruction(CEE_CALL, getCurrentDomain));
+            instructions.push_back(new Instruction(CEE_CALL, invokeAttach));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+
+        if (TESTEXECUTORMAIN_RUN == typeMethodName)
+        {
+            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+
+            mdMemberRef memberRef = GetFakesHelperMethodRef(_T("PretendWeLoadedFakesProfiler"), moduleId);
+            InstructionList instructions;
+
+            instructions.push_back(new Instruction(CEE_LDARG, 0));
+            instructions.push_back(new Instruction(CEE_CALL, memberRef));
+
+            InstrumentMethodWith(moduleId, functionToken, instructions);
+        }
+    }
+}
+
 
 
 

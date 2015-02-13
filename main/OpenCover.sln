@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0} = {31B0FAA6-A63F-46FC-96EE-697235DA2BB0}
@@ -62,7 +64,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCove
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Extensions", "OpenCover.Extensions\OpenCover.Extensions.csproj", "{EE9B358A-335C-43E9-BC35-853807C5E776}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.FakesSupport", "OpenCover.Support\OpenCover.Support.csproj", "{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Support", "OpenCover.Support\OpenCover.Support.csproj", "{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.UITest", "OpenCover.UITest\OpenCover.UITest.csproj", "{E8513153-6298-411D-9BD9-0DB0CC708D34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{27AD5F08-0625-4093-8782-F7936737FAB7} = {27AD5F08-0625-4093-8782-F7936737FAB7}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -171,6 +178,12 @@ Global
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x64.Build.0 = Release|Any CPU
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.ActiveCfg = Release|Any CPU
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.Build.0 = Release|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x86.Build.0 = Debug|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

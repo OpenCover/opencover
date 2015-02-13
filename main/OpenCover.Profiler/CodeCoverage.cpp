@@ -10,8 +10,6 @@
 #include "NativeCallback.h"
 #include "dllmain.h"
 
-
-
 CCodeCoverage* CCodeCoverage::g_pProfiler = NULL;
 // CCodeCoverage
 
@@ -103,7 +101,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     OpenCoverSupportInitialize(pICorProfilerInfoUnk);
 
 	if (m_chainedProfiler == NULL){
-		DWORD dwMask = AppendProfilerEventMask(0);
+		DWORD dwMask = AppendProfilerEventMask(0); 
 
 		COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask),
 			_T("    ::Initialize(...) => SetEventMask => 0x%X"));
@@ -206,8 +204,6 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 	if (m_chainedProfiler != NULL)
 		m_chainedProfiler->ModuleAttachedToAssembly(moduleId, assemblyId);
 
-    OpenCoverSupportModulesAttachedToAssembly(moduleId, assemblyId);
-
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
     /*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
@@ -232,7 +228,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
     if (GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
-        OpenCoverSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
+        if (OpenCoverSupportRequired(assemblyId, functionId))
+            OpenCoverSupportCompilation(functionId, functionToken, moduleId, assemblyId, modulePath);
 
         CuckooSupportCompilation(assemblyId, functionToken, moduleId);
 
@@ -270,6 +267,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                     CComPtr<IMethodMalloc> methodMalloc;
                     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
                         _T("    ::JITCompilationStarted(...) => GetILFunctionBodyAllocator=> 0x%X"));
+
                     IMAGE_COR_ILMETHOD* pNewMethod = (IMAGE_COR_ILMETHOD*)methodMalloc->Alloc(instumentedMethod.GetMethodSize());
                     instumentedMethod.WriteMethod(pNewMethod);
                     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetILFunctionBody(moduleId, functionToken, (LPCBYTE)pNewMethod),
