@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 
 namespace OpenCover.Support
 {
@@ -6,8 +7,13 @@ namespace OpenCover.Support
     {
         public void AddResolveEventHandler()
         {
-            AppDomain.CurrentDomain.AssemblyResolve +=
-                (sender, args) => args.Name.StartsWith("OpenCover.Support, Version=1.0.0.0") ? System.Reflection.Assembly.GetExecutingAssembly() : null;
+            AppDomain.CurrentDomain.AssemblyResolve -= CurrentDomain_AssemblyResolve;
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+        }
+
+        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            return args.Name.StartsWith("OpenCover.Support, Version=1.0.0.0") ? Assembly.GetExecutingAssembly() : null;
         }
     }
 }
