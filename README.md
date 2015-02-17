@@ -12,7 +12,7 @@ The primary repo for the project is [on GitHub](https://github.com/opencover/ope
 
 ### Slack
 
-Team communications can be done via [slack](http://slack.com) just visit the [team page](https://opencover.slack.com/) to sign up. 
+Team communications can be done via [slack](http://slack.com) just visit the [team page](https://opencover.slack.com/) to sign up and join the conversation.
 
 ### Licence
 All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
