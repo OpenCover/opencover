@@ -154,19 +154,24 @@ private:
 		ModuleID moduleId);
 
 private:
-	HRESULT FakesInitialize(IUnknown *pICorProfilerInfoUnk);
-	CComPtr<ICorProfilerCallback4> m_chainedProfiler;
-	CComObject<CProfilerInfo> *m_infoHook;
-	HRESULT FakesModulesAttachedToAssembly(ModuleID moduleId, AssemblyID assemblyId);
-	mdMemberRef m_targetLoadOpenCoverProfilerInsteadRef;
-	mdMemberRef m_targetPretendWeLoadedFakesProfilerRef;
-	HRESULT GetFakesSupportRef(ModuleID moduleId, mdModuleRef &fakesSupportRef);
-	mdTypeRef m_objectTypeRef;
-	mdMethodDef m_pinvokeAttach;
-	mdMethodDef CreatePInvokeHook(IMetaDataEmit* pMetaDataEmit);
-	HRESULT FakesSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
+    CComPtr<ICorProfilerCallback4> m_chainedProfiler;
+    CComObject<CProfilerInfo> *m_infoHook;
+
+    HRESULT OpenCoverSupportInitialize(IUnknown *pICorProfilerInfoUnk);
+    HRESULT GetOpenCoverSupportRef(ModuleID moduleId, mdModuleRef &supportRef);
+    mdMethodDef CreatePInvokeHook(ModuleID moduleId);
+    HRESULT OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
 	mdMethodDef Get_CurrentDomainMethod(ModuleID moduleID);
 	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, InstructionList &instructions);
+
+    bool OpenCoverSupportRequired(AssemblyID assemblyId, FunctionID functionId);
+
+    mdMethodDef GetFakesHelperMethodRef(TCHAR* methodName, ModuleID moduleId);
+    void InstrumentTestPlatformUtilities(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId);
+    void InstrumentTestPlatformTestExecutor(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId);
+
+    mdMethodDef GetUITestingHelperMethodRef(TCHAR* methodName, ModuleID moduleId);
+    void InstrumentTestToolsUITesting(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId);
 
 	friend class CProfilerInfo;
 

@@ -245,8 +245,8 @@
     <ClCompile Include="CodeCoverage.cpp" />
     <ClCompile Include="CodeCoverage_Callback.cpp" />
     <ClCompile Include="CodeCoverage_Cuckoo.cpp" />
-    <ClCompile Include="CodeCoverage_FakesSupport.cpp" />
     <ClCompile Include="CodeCoverage_ProfilerInfo.cpp" />
+    <ClCompile Include="CodeCoverage_Support.cpp" />
     <ClCompile Include="CoverageInstrumentation.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -334,7 +334,7 @@
     <ResourceCompile Include="OpenCover.Profiler.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\Common\OpenCover.FakesSupport.dll" />
+    <None Include="..\bin\Common\OpenCover.Support.dll" />
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />

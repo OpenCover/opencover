@@ -213,7 +213,11 @@ HRESULT CCodeCoverage::CuckooSupportCompilation(
 	mdToken functionToken,
 	ModuleID moduleId)
 {
-	// add the bodies for our cuckoo methods when required
+    // early escape if token is not one we want
+    if ((m_cuckooCriticalToken != functionToken) && (m_cuckooSafeToken != functionToken))
+        return S_OK;
+
+	// check that we have the right module
 	if (MSCORLIB_NAME == GetAssemblyName(assemblyId))
 	{
 		if (m_cuckooCriticalToken == functionToken)
