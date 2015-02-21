@@ -10,6 +10,10 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
 
+### Team communication
+
+Team communications can be done via [slack](http://slack.com), raise an issue to request access (include your email - obfuscated if you wish) and we will send you an invite then just visit the [team page](https://opencover.slack.com/) to sign up and join the conversation.
+
 ### Licence
 All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
