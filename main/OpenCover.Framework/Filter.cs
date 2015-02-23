@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using Mono.Cecil;
 
 namespace OpenCover.Framework
-{    
+{
     internal static class FilterHelper
     {
         internal static string WrapWithAnchors(this string data)
@@ -26,6 +26,13 @@ namespace OpenCover.Framework
             match = match.Replace(@".", @"\.");
             match = match.Replace(@"*", @".*");
             return match;
+        }
+
+        internal static IList<InternalFilter> GetMatchingFiltersForAssemblyName(this IEnumerable<InternalFilter> filters, string assemblyName)
+        {
+            var matchingFilters =
+                filters.Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName)).ToList();
+            return matchingFilters;
         }
     }
 
@@ -103,7 +110,7 @@ namespace OpenCover.Framework
 
         public bool UseAssembly(string assemblyName)
         {
-            var matchingExclusionFilters = GetMatchingFiltersForAssemblyName(ExclusionFilters, assemblyName);
+            var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
             if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
             {
                 return false;
@@ -114,20 +121,13 @@ namespace OpenCover.Framework
                 return true;
             }
 
-            var matchingInclusionFilters = GetMatchingFiltersForAssemblyName(InclusionFilters, assemblyName);
+            var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
             if (matchingInclusionFilters.Any())
             {
                 return true;
             }
 
             return false;
-        }
-
-        private IList<InternalFilter> GetMatchingFiltersForAssemblyName(IList<InternalFilter> filters, string assemblyName)
-        {
-            var matchingExclusionFilters =
-                filters.Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName)).ToList();
-            return matchingExclusionFilters;
         }
 
         public bool InstrumentClass(string assemblyName, string className)
@@ -137,7 +137,7 @@ namespace OpenCover.Framework
                 return false;
             }
 
-            var matchingExclusionFilters = GetMatchingFiltersForAssemblyName(ExclusionFilters, assemblyName);
+            var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
             if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
             {
                 return false;
@@ -150,7 +150,7 @@ namespace OpenCover.Framework
                 return false;
             }
 
-            var matchingInclusionFilters = GetMatchingFiltersForAssemblyName(InclusionFilters, assemblyName);
+            var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
             if (matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className)))
             {
                 return true;
