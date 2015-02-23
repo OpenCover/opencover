@@ -91,7 +91,7 @@ namespace OpenCover.Framework
         /// filters should be treated as regular expressions rather than wildcard
         /// </summary>
         bool RegExFilters { get; }
-    }  
+    }
 
     internal static class FilterHelper
     {
@@ -130,9 +130,9 @@ namespace OpenCover.Framework
 
     internal class InternalFilter
     {
-        internal Lazy<Regex> AssemblyNameRegex { get; private set; }
-        
-        internal Lazy<Regex> ClassNameRegex { get; private set; }
+        private Lazy<Regex> AssemblyNameRegex { get; set; }
+
+        private Lazy<Regex> ClassNameRegex { get; set; }
 
         internal string AssemblyName { get; private set; }
 
@@ -162,11 +162,11 @@ namespace OpenCover.Framework
     /// </summary>
     public class Filter : IFilter
     {
-        internal IList<InternalFilter> InclusionFilter { get; set; }
-        internal IList<InternalFilter> ExclusionFilter { get; set; }
-        internal IList<Lazy<Regex>> ExcludedAttributes { get; set; }
-        internal IList<Lazy<Regex>> ExcludedFiles { get; set; }
-        internal IList<Lazy<Regex>> TestFiles { get; set; }
+        internal IList<InternalFilter> InclusionFilters { get; private set; }
+        internal IList<InternalFilter> ExclusionFilters { get; private set; }
+        internal IList<Lazy<Regex>> ExcludedAttributes { get; private set; }
+        internal IList<Lazy<Regex>> ExcludedFiles { get; private set; }
+        internal IList<Lazy<Regex>> TestFiles { get; private set; }
         public bool RegExFilters { get; private set; }
 
         /// <summary>
@@ -174,32 +174,41 @@ namespace OpenCover.Framework
         /// </summary>
         public Filter(bool useRegexFilters = false)
         {
-            InclusionFilter = new List<InternalFilter>();
-            ExclusionFilter = new List<InternalFilter>();
+            InclusionFilters = new List<InternalFilter>();
+            ExclusionFilters = new List<InternalFilter>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
             TestFiles = new List<Lazy<Regex>>();
             RegExFilters = useRegexFilters;
         }
-        
+
         public bool UseAssembly(string assemblyName)
         {
-            if (ExclusionFilter.Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName == ".*"))
+            var matchingExclusionFilters = GetMatchingFiltersForAssemblyName(ExclusionFilters, assemblyName);
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
             {
                 return false;
             }
 
-            if (ExclusionFilter.Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName != ".*"))
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName != ".*"))
             {
                 return true;
             }
 
-            if (InclusionFilter.Any(inclusionFilter => inclusionFilter.IsMatchingAssemblyName(assemblyName)))
+            var matchingInclusionFilters = GetMatchingFiltersForAssemblyName(InclusionFilters, assemblyName);
+            if (matchingInclusionFilters.Any())
             {
                 return true;
             }
 
             return false;
+        }
+
+        private IList<InternalFilter> GetMatchingFiltersForAssemblyName(IList<InternalFilter> filters, string assemblyName)
+        {
+            var matchingExclusionFilters =
+                filters.Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName)).ToList();
+            return matchingExclusionFilters;
         }
 
         public bool InstrumentClass(string assemblyName, string className)
@@ -209,22 +218,21 @@ namespace OpenCover.Framework
                 return false;
             }
 
-            if (ExclusionFilter
-                .Any(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName == ".*"))
+            var matchingExclusionFilters = GetMatchingFiltersForAssemblyName(ExclusionFilters, assemblyName);
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
             {
                 return false;
             }
 
-            if (ExclusionFilter
-                .Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName) && exclusionFilter.ClassName != ".*")
+            if (matchingExclusionFilters
+                .Where(exclusionFilter => exclusionFilter.ClassName != ".*")
                 .Any(exclusionFilter => exclusionFilter.IsMatchingClassName(className)))
             {
                 return false;
             }
 
-            if (InclusionFilter
-                .Where(inclusionFilter => inclusionFilter.IsMatchingAssemblyName(assemblyName))
-                .Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className)))
+            var matchingInclusionFilters = GetMatchingFiltersForAssemblyName(InclusionFilters, assemblyName);
+            if (matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className)))
             {
                 return true;
             }
@@ -245,11 +253,11 @@ namespace OpenCover.Framework
                 className = className.ValidateAndEscape();
             }
 
-            if (filterType == FilterType.Inclusion) 
-                InclusionFilter.Add(new InternalFilter(assemblyName, className));
+            if (filterType == FilterType.Inclusion)
+                InclusionFilters.Add(new InternalFilter(assemblyName, className));
 
-            if (filterType == FilterType.Exclusion) 
-                ExclusionFilter.Add(new InternalFilter(assemblyName, className));
+            if (filterType == FilterType.Exclusion)
+                ExclusionFilters.Add(new InternalFilter(assemblyName, className));
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)
@@ -278,12 +286,12 @@ namespace OpenCover.Framework
 
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            if (exclusionFilters == null) 
+            if (exclusionFilters == null)
                 return;
             foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
                 var filter = exlusionFilter;
-                if (!RegExFilters) 
+                if (!RegExFilters)
                     filter = filter.ValidateAndEscape().WrapWithAnchors();
                 ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
@@ -301,7 +309,7 @@ namespace OpenCover.Framework
                 if (ExcludedAttributes.Count == 0)
                     return false;
 
-                if (entity ==null || !entity.HasCustomAttributes)
+                if (entity == null || !entity.HasCustomAttributes)
                     return false;
 
                 if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success select excludeAttribute).Any())
@@ -309,7 +317,7 @@ namespace OpenCover.Framework
                     return true;
                 }
 
-                if (entity.DeclaringType == null || !entity.Name.StartsWith("<")) 
+                if (entity.DeclaringType == null || !entity.Name.StartsWith("<"))
                     return false;
 
                 var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
@@ -349,9 +357,9 @@ namespace OpenCover.Framework
             foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
             {
                 var filter = exlusionFilter;
-                if (!RegExFilters) 
+                if (!RegExFilters)
                     filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors();
-                
+
                 ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }
@@ -373,8 +381,8 @@ namespace OpenCover.Framework
             {
                 var filter = testFilter;
                 if (!RegExFilters)
-                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors(); 
-                
+                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors();
+
                 TestFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
             }
         }

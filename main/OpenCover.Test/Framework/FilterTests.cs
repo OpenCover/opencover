@@ -98,13 +98,13 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual(1, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ? 
-                filter.InclusionFilter.Count : filter.ExclusionFilter.Count);
+                filter.InclusionFilters.Count : filter.ExclusionFilters.Count);
 
             Assert.AreEqual(assemblyClassPair.AssemblyResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilter[0].AssemblyName : filter.ExclusionFilter[0].AssemblyName);
+                filter.InclusionFilters[0].AssemblyName : filter.ExclusionFilters[0].AssemblyName);
 
             Assert.AreEqual(assemblyClassPair.ClassResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilter[0].ClassName : filter.ExclusionFilter[0].ClassName);
+                filter.InclusionFilters[0].ClassName : filter.ExclusionFilters[0].ClassName);
         }
 
         #region Test Data for UseAssembly tests
