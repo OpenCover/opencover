@@ -90,6 +90,7 @@
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Communication\MarshalWapper.cs" />
     <Compile Include="Communication\CommunicationManager.cs" />
+    <Compile Include="IFilter.cs" />
     <Compile Include="Manager\IManagedCommunicationBlock.cs" />
     <Compile Include="Manager\IManagedMemoryBlock.cs" />
     <Compile Include="Manager\IMemoryManager.cs" />
