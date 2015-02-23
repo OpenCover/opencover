@@ -1,4 +1,6 @@
-﻿namespace OpenCover.Framework.Filtering
+﻿using System;
+
+namespace OpenCover.Framework.Filtering
 {
     /// <summary>
     /// The type of filter, an exclusion filter takes precedence over inclusion filter
@@ -16,5 +18,21 @@
         /// matches the filter then it is excluded for instrumentation
         /// </summary>
         Exclusion
+    }
+
+    public static class FilterTypeExtensions
+    {
+        public static FilterType ParseFilterType(this string type)
+        {
+            switch (type)
+            {
+                case "+":
+                    return FilterType.Inclusion;
+                case "-":
+                    return FilterType.Exclusion;
+                default:
+                    throw new ArgumentException("unhandled FilterType: " + type);
+            }
+        }
     }
 }

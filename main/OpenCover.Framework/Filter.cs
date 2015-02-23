@@ -15,28 +15,28 @@ namespace OpenCover.Framework
 {
     internal class AssemblyAndClassFilter
     {
-        private RegexFilter AssemblyNameFilter { get; set; }
+        private readonly RegexFilter assemblyNameFilter;
+
+        private readonly RegexFilter classNameFilter;
         
-        internal string AssemblyName { get { return AssemblyNameFilter.FilterExpression; } }
+        internal string AssemblyName { get { return assemblyNameFilter.FilterExpression; } }
 
-        private RegexFilter ClassNameFilter { get; set; }
-
-        internal string ClassName { get { return ClassNameFilter.FilterExpression; } }
+        internal string ClassName { get { return classNameFilter.FilterExpression; } }
 
         internal AssemblyAndClassFilter(string assemblyName, string className)
         {
-            AssemblyNameFilter = new RegexFilter(assemblyName);
-            ClassNameFilter = new RegexFilter(className);
+            assemblyNameFilter = new RegexFilter(assemblyName);
+            classNameFilter = new RegexFilter(className);
         }
 
         internal bool IsMatchingAssemblyName(string assemblyName)
         {
-            return AssemblyNameFilter.IsMatchingExpression(assemblyName);
+            return assemblyNameFilter.IsMatchingExpression(assemblyName);
         }
 
         internal bool IsMatchingClassName(string className)
         {
-            return ClassNameFilter.IsMatchingExpression(className);
+            return classNameFilter.IsMatchingExpression(className);
         }
     }
 
@@ -147,7 +147,7 @@ namespace OpenCover.Framework
             var match = regEx.Match(assemblyClassName);
             if (match.Success)
             {
-                filterType = match.Groups["type"].Value == "+" ? FilterType.Inclusion : FilterType.Exclusion;
+                filterType = match.Groups["type"].Value.ParseFilterType();
                 assemblyName = match.Groups["assembly"].Value;
                 className = match.Groups["class"].Value;
 
