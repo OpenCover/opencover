@@ -72,7 +72,7 @@ namespace OpenCover.Test.Framework
                                                                           FilterTypeResult = FilterType.Exclusion, 
                                                                       }
                                                               };
-#pragma warning restore 169   
+#pragma warning restore 169
         #endregion
 
         [Test]
@@ -83,8 +83,8 @@ namespace OpenCover.Test.Framework
             var filter = new Filter();
 
             // act/assert
-            Assert.Catch<InvalidOperationException>(() => filter.AddFilter(assemblyClassPair), 
-                "'{0}' should be invalid", assemblyClassPair);     
+            Assert.Catch<InvalidOperationException>(() => filter.AddFilter(assemblyClassPair),
+                "'{0}' should be invalid", assemblyClassPair);
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace OpenCover.Test.Framework
             filter.AddFilter(assemblyClassPair.AssemblyClass);
 
             // assert
-            Assert.AreEqual(1, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ? 
+            Assert.AreEqual(1, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
                 filter.InclusionFilters.Count : filter.ExclusionFilters.Count);
 
             Assert.AreEqual(assemblyClassPair.AssemblyResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
@@ -176,8 +176,8 @@ namespace OpenCover.Test.Framework
             var result = filter.UseAssembly(data.Assembly);
 
             // result
-            Assert.AreEqual(data.ExpectedResult, result, 
-                "Filter: '{0}' Assembly: {1} => Expected: {2}", 
+            Assert.AreEqual(data.ExpectedResult, result,
+                "Filter: '{0}' Assembly: {1} => Expected: {2}",
                 string.Join(",", data.Filters), data.Assembly, data.ExpectedResult);
         }
 
@@ -315,7 +315,7 @@ namespace OpenCover.Test.Framework
 
             // result
             Assert.AreEqual(data.ExpectedResult, result,
-               "Filter: '{0}' Assembly: {1} Class: {2} => Expected: {3}", 
+               "Filter: '{0}' Assembly: {1} Class: {2} => Expected: {3}",
                string.Join(",", data.Filters), data.Assembly, data.Class, data.ExpectedResult);
         }
 
@@ -334,7 +334,7 @@ namespace OpenCover.Test.Framework
         {
             var filter = new Filter();
 
-            filter.AddAttributeExclusionFilters(new []{ null, "" });
+            filter.AddAttributeExclusionFilters(new[] { null, "" });
 
             Assert.AreEqual(1, filter.ExcludedAttributes.Count);
         }
@@ -403,7 +403,7 @@ namespace OpenCover.Test.Framework
         {
             var filter = new Filter();
 
-            filter.AddTestFileFilters(new []{"A*"});
+            filter.AddTestFileFilters(new[] { "A*" });
 
             Assert.IsTrue(filter.UseTestAssembly("ABC.dll"));
             Assert.IsFalse(filter.UseTestAssembly("XYZ.dll"));
@@ -430,6 +430,43 @@ namespace OpenCover.Test.Framework
             Assert.IsTrue(filter.TestFiles[0].Value.Match(".ABC").Success);
         }
 
+
+        [Test]
+        public void AddAttributeExclustionFilters_DoesNotWrap_ForRegexFilters()
+        {
+            var filter = new Filter(true);
+            const string stringToMatch = "some string on the line before EXPRESSION some string after the expression";
+
+            filter.AddAttributeExclusionFilters(new[] { "EXPRESSION" });
+
+            var excludedAttributeRegex = filter.ExcludedAttributes[0].Value;
+            Assert.IsTrue(excludedAttributeRegex.Match(stringToMatch).Success);
+        }
+
+        [Test]
+        public void AddFileExclustionFilters_DoesNotWrap_ForRegexFilters()
+        {
+            var filter = new Filter(true);
+            const string stringToMatch = "some string on the line before EXPRESSION some string after the expression";
+
+            filter.AddFileExclusionFilters(new[] { "EXPRESSION" });
+
+            var excludedFileRegex = filter.ExcludedFiles[0].Value;
+            Assert.IsTrue(excludedFileRegex.Match(stringToMatch).Success);
+        }
+
+        [Test]
+        public void AddTestFileFilters_DoesNotWrap_ForRegexFilters()
+        {
+            var filter = new Filter(true);
+            const string stringToMatch = "some string on the line before EXPRESSION some string after the expression";
+
+            filter.AddTestFileFilters(new[] { "EXPRESSION" });
+
+            var excludedTestFileRegex = filter.TestFiles[0].Value;
+            Assert.IsTrue(excludedTestFileRegex.Match(stringToMatch).Success);
+        }
+
         [Test]
         public void File_Is_Not_Excluded_If_No_Filters_Set()
         {
@@ -450,7 +487,7 @@ namespace OpenCover.Test.Framework
         public void File_Is_Not_Excluded_If_Does_Not_Match_Filter()
         {
             var filter = new Filter();
-            filter.AddFileExclusionFilters(new[]{"XXX.*"});
+            filter.AddFileExclusionFilters(new[] { "XXX.*" });
 
             Assert.IsFalse(filter.ExcludeByFile("YYY.cs"));
         }
@@ -469,7 +506,7 @@ namespace OpenCover.Test.Framework
         {
             var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
 
-            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof (Samples.Concrete).FullName);
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Concrete).FullName);
 
             var filter = new Filter();
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
@@ -477,7 +514,7 @@ namespace OpenCover.Test.Framework
             foreach (var methodDefinition in type.Methods)
             {
                 if (methodDefinition.IsSetter || methodDefinition.IsGetter) continue;
-                Assert.True(filter.ExcludeByAttribute(methodDefinition));                
+                Assert.True(filter.ExcludeByAttribute(methodDefinition));
             }
 
         }
@@ -508,7 +545,7 @@ namespace OpenCover.Test.Framework
             var filter = new Filter();
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
-            foreach (var methodDefinition in type.Methods.Where(x=>x.Name.Contains("EXCLUDE")))
+            foreach (var methodDefinition in type.Methods.Where(x => x.Name.Contains("EXCLUDE")))
             {
                 if (methodDefinition.IsSetter || methodDefinition.IsGetter || methodDefinition.IsConstructor) continue;
                 Assert.True(filter.ExcludeByAttribute(methodDefinition), "failed to execlude {0}", methodDefinition.Name);
@@ -543,7 +580,7 @@ namespace OpenCover.Test.Framework
             mockDefinition.SetupGet(x => x.HasCustomAttributes).Returns(true);
             mockDefinition.SetupGet(x => x.CustomAttributes).Returns(new Collection<CustomAttribute>());
             mockDefinition.SetupGet(x => x.Name).Returns("<>f_ddd");
-            mockDefinition.SetupGet(x => x.DeclaringType).Returns(new TypeDefinition("","f_ddd", TypeAttributes.Public));
+            mockDefinition.SetupGet(x => x.DeclaringType).Returns(new TypeDefinition("", "f_ddd", TypeAttributes.Public));
 
             Assert.DoesNotThrow(() => filter.ExcludeByAttribute(mockDefinition.Object));
         }
