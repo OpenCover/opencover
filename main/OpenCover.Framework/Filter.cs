@@ -9,77 +9,34 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
+using OpenCover.Framework.Filtering;
 
 namespace OpenCover.Framework
 {
-    internal static class FilterHelper
+    internal class AssemblyAndClassFilter
     {
-        internal static string WrapWithAnchors(this string data)
+        private RegexFilter AssemblyNameFilter { get; set; }
+        
+        internal string AssemblyName { get { return AssemblyNameFilter.FilterExpression; } }
+
+        private RegexFilter ClassNameFilter { get; set; }
+
+        internal string ClassName { get { return ClassNameFilter.FilterExpression; } }
+
+        internal AssemblyAndClassFilter(string assemblyName, string className)
         {
-            return String.Format("^({0})$", data);
-        }
-
-        internal static string ValidateAndEscape(this string match, string notAllowed = @"\[]")
-        {
-            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
-            match = match.Replace(@"\", @"\\");
-            match = match.Replace(@".", @"\.");
-            match = match.Replace(@"*", @".*");
-            return match;
-        }
-
-        internal static IList<InternalFilter> GetMatchingFiltersForAssemblyName(this IEnumerable<InternalFilter> filters, string assemblyName)
-        {
-            var matchingFilters =
-                filters.Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName)).ToList();
-            return matchingFilters;
-        }
-    }
-
-    /// <summary>
-    /// The type of filter, an exclusion filter takes precedence over inclusion filter
-    /// </summary>
-    public enum FilterType
-    {
-        /// <summary>
-        /// The filter is an inclusion type, i.e. if a assembly/class pair 
-        /// matches the filter then it is included for instrumentation
-        /// </summary>
-        Inclusion,
-
-        /// <summary>
-        /// The filter is an exclusion type, i.e. if a assembly/class pair 
-        /// matches the filter then it is excluded for instrumentation
-        /// </summary>
-        Exclusion
-    }
-
-    internal class InternalFilter
-    {
-        private Lazy<Regex> AssemblyNameRegex { get; set; }
-
-        private Lazy<Regex> ClassNameRegex { get; set; }
-
-        internal string AssemblyName { get; private set; }
-
-        internal string ClassName { get; private set; }
-
-        internal InternalFilter(string assemblyName, string className)
-        {
-            AssemblyName = assemblyName;
-            ClassName = className;
-            AssemblyNameRegex = new Lazy<Regex>(() => new Regex(assemblyName.WrapWithAnchors()));
-            ClassNameRegex = new Lazy<Regex>(() => new Regex(className.WrapWithAnchors()));
+            AssemblyNameFilter = new RegexFilter(assemblyName);
+            ClassNameFilter = new RegexFilter(className);
         }
 
         internal bool IsMatchingAssemblyName(string assemblyName)
         {
-            return AssemblyNameRegex.Value.IsMatch(assemblyName);
+            return AssemblyNameFilter.IsMatchingExpression(assemblyName);
         }
 
         internal bool IsMatchingClassName(string className)
         {
-            return ClassNameRegex.Value.IsMatch(className);
+            return ClassNameFilter.IsMatchingExpression(className);
         }
     }
 
@@ -88,8 +45,8 @@ namespace OpenCover.Framework
     /// </summary>
     public class Filter : IFilter
     {
-        internal IList<InternalFilter> InclusionFilters { get; private set; }
-        internal IList<InternalFilter> ExclusionFilters { get; private set; }
+        internal IList<AssemblyAndClassFilter> InclusionFilters { get; private set; }
+        internal IList<AssemblyAndClassFilter> ExclusionFilters { get; private set; }
         internal IList<Lazy<Regex>> ExcludedAttributes { get; private set; }
         internal IList<Lazy<Regex>> ExcludedFiles { get; private set; }
         internal IList<Lazy<Regex>> TestFiles { get; private set; }
@@ -100,8 +57,8 @@ namespace OpenCover.Framework
         /// </summary>
         public Filter(bool useRegexFilters = false)
         {
-            InclusionFilters = new List<InternalFilter>();
-            ExclusionFilters = new List<InternalFilter>();
+            InclusionFilters = new List<AssemblyAndClassFilter>();
+            ExclusionFilters = new List<AssemblyAndClassFilter>();
             ExcludedAttributes = new List<Lazy<Regex>>();
             ExcludedFiles = new List<Lazy<Regex>>();
             TestFiles = new List<Lazy<Regex>>();
@@ -173,10 +130,10 @@ namespace OpenCover.Framework
             }
 
             if (filterType == FilterType.Inclusion)
-                InclusionFilters.Add(new InternalFilter(assemblyName, className));
+                InclusionFilters.Add(new AssemblyAndClassFilter(assemblyName, className));
 
             if (filterType == FilterType.Exclusion)
-                ExclusionFilters.Add(new InternalFilter(assemblyName, className));
+                ExclusionFilters.Add(new AssemblyAndClassFilter(assemblyName, className));
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)

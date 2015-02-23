@@ -6,6 +6,7 @@ using Mono.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
+using OpenCover.Framework.Filtering;
 
 namespace OpenCover.Test.Framework
 {
