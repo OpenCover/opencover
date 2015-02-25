@@ -153,12 +153,17 @@ namespace OpenCover.Framework
                 className = match.Groups["class"].Value;
 
                 if (string.IsNullOrWhiteSpace(assemblyName))
-                    throw new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
+                    throw InvalidFilterFormatException(assemblyClassName);
             }
             else
             {
-                throw new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
+                throw InvalidFilterFormatException(assemblyClassName);
             }
+        }
+
+        private static InvalidOperationException InvalidFilterFormatException(string assemblyClassName)
+        {
+            return new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
         }
 
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
