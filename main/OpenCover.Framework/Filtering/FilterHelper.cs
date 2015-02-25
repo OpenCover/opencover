@@ -23,7 +23,7 @@ namespace OpenCover.Framework.Filtering
         internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForAssemblyName(this IEnumerable<AssemblyAndClassFilter> filters, string assemblyName)
         {
             var matchingFilters =
-                filters.Where(exclusionFilter => exclusionFilter.IsMatchingAssemblyName(assemblyName)).ToList();
+                filters.Where(filter => filter.IsMatchingAssemblyName(assemblyName)).ToList();
             return matchingFilters;
         }
     }

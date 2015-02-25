@@ -129,11 +129,12 @@ namespace OpenCover.Framework
                 className = className.ValidateAndEscape();
             }
 
+            var filter = new AssemblyAndClassFilter(assemblyName, className);
             if (filterType == FilterType.Inclusion)
-                InclusionFilters.Add(new AssemblyAndClassFilter(assemblyName, className));
+                InclusionFilters.Add(filter);
 
             if (filterType == FilterType.Exclusion)
-                ExclusionFilters.Add(new AssemblyAndClassFilter(assemblyName, className));
+                ExclusionFilters.Add(filter);
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)

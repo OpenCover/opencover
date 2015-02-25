@@ -6,12 +6,18 @@ namespace OpenCover.Framework.Filtering
     internal class RegexFilter
     {
         private readonly Lazy<Regex> regex;
+
         internal string FilterExpression { get; private set; }
 
-        public RegexFilter(string filterExpression)
+        public RegexFilter(string filterExpression, bool shouldWrapExpression = true)
         {
             FilterExpression = filterExpression;
-            regex = new Lazy<Regex>(() => new Regex(filterExpression.WrapWithAnchors()));
+            if (shouldWrapExpression)
+            {
+                filterExpression = filterExpression.WrapWithAnchors();
+            }
+
+            regex = new Lazy<Regex>(() => new Regex(filterExpression));
         }
 
         public bool IsMatchingExpression(string input)
