@@ -346,7 +346,7 @@ namespace OpenCover.Test.Framework
 
             filter.AddAttributeExclusionFilters(new[] { ".*" });
 
-            Assert.IsTrue(filter.ExcludedAttributes[0].Value.Match(".ABC").Success);
+            Assert.IsTrue(filter.ExcludedAttributes[0].IsMatchingExpression(".ABC"));
         }
 
         [Test]
@@ -385,7 +385,7 @@ namespace OpenCover.Test.Framework
 
             filter.AddFileExclusionFilters(new[] { ".*" });
 
-            Assert.IsTrue(filter.ExcludedFiles[0].Value.Match(".ABC").Success);
+            Assert.IsTrue(filter.ExcludedFiles[0].IsMatchingExpression(".ABC"));
         }
 
         [Test]
@@ -427,7 +427,7 @@ namespace OpenCover.Test.Framework
 
             filter.AddTestFileFilters(new[] { ".*" });
 
-            Assert.IsTrue(filter.TestFiles[0].Value.Match(".ABC").Success);
+            Assert.IsTrue(filter.TestFiles[0].IsMatchingExpression(".ABC"));
         }
 
 
@@ -439,8 +439,8 @@ namespace OpenCover.Test.Framework
 
             filter.AddAttributeExclusionFilters(new[] { "EXPRESSION" });
 
-            var excludedAttributeRegex = filter.ExcludedAttributes[0].Value;
-            Assert.IsTrue(excludedAttributeRegex.Match(stringToMatch).Success);
+            var excludedAttributeRegexFilter = filter.ExcludedAttributes[0];
+            Assert.IsTrue(excludedAttributeRegexFilter.IsMatchingExpression(stringToMatch));
         }
 
         [Test]
@@ -451,8 +451,8 @@ namespace OpenCover.Test.Framework
 
             filter.AddFileExclusionFilters(new[] { "EXPRESSION" });
 
-            var excludedFileRegex = filter.ExcludedFiles[0].Value;
-            Assert.IsTrue(excludedFileRegex.Match(stringToMatch).Success);
+            var excludedFileRegexFilter = filter.ExcludedFiles[0];
+            Assert.IsTrue(excludedFileRegexFilter.IsMatchingExpression(stringToMatch));
         }
 
         [Test]
@@ -463,8 +463,8 @@ namespace OpenCover.Test.Framework
 
             filter.AddTestFileFilters(new[] { "EXPRESSION" });
 
-            var excludedTestFileRegex = filter.TestFiles[0].Value;
-            Assert.IsTrue(excludedTestFileRegex.Match(stringToMatch).Success);
+            var excludedTestFileRegex = filter.TestFiles[0];
+            Assert.IsTrue(excludedTestFileRegex.IsMatchingExpression(stringToMatch));
         }
 
         [Test]

@@ -47,9 +47,9 @@ namespace OpenCover.Framework
     {
         internal IList<AssemblyAndClassFilter> InclusionFilters { get; private set; }
         internal IList<AssemblyAndClassFilter> ExclusionFilters { get; private set; }
-        internal IList<Lazy<Regex>> ExcludedAttributes { get; private set; }
-        internal IList<Lazy<Regex>> ExcludedFiles { get; private set; }
-        internal IList<Lazy<Regex>> TestFiles { get; private set; }
+        internal IList<RegexFilter> ExcludedAttributes { get; private set; }
+        internal IList<RegexFilter> ExcludedFiles { get; private set; }
+        internal IList<RegexFilter> TestFiles { get; private set; }
         public bool RegExFilters { get; private set; }
 
         /// <summary>
@@ -59,9 +59,9 @@ namespace OpenCover.Framework
         {
             InclusionFilters = new List<AssemblyAndClassFilter>();
             ExclusionFilters = new List<AssemblyAndClassFilter>();
-            ExcludedAttributes = new List<Lazy<Regex>>();
-            ExcludedFiles = new List<Lazy<Regex>>();
-            TestFiles = new List<Lazy<Regex>>();
+            ExcludedAttributes = new List<RegexFilter>();
+            ExcludedFiles = new List<RegexFilter>();
+            TestFiles = new List<RegexFilter>();
             RegExFilters = useRegexFilters;
         }
 
@@ -163,15 +163,7 @@ namespace OpenCover.Framework
 
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            if (exclusionFilters == null)
-                return;
-            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
-            {
-                var filter = exlusionFilter;
-                if (!RegExFilters)
-                    filter = filter.ValidateAndEscape().WrapWithAnchors();
-                ExcludedAttributes.Add(new Lazy<Regex>(() => new Regex(filter)));
-            }
+            ExcludedAttributes.AddFilters(exclusionFilters, RegExFilters);
         }
 
         /// <summary>
@@ -189,7 +181,7 @@ namespace OpenCover.Framework
                 if (entity == null || !entity.HasCustomAttributes)
                     return false;
 
-                if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.Value.Match(customAttribute.AttributeType.FullName).Success select excludeAttribute).Any())
+                if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.IsMatchingExpression(customAttribute.AttributeType.FullName) select excludeAttribute).Any())
                 {
                     return true;
                 }
@@ -223,22 +215,12 @@ namespace OpenCover.Framework
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
                 return false;
 
-            return ExcludedFiles.Any(excludeFile => excludeFile.Value.Match(fileName).Success);
+            return ExcludedFiles.Any(excludeFile => excludeFile.IsMatchingExpression(fileName));
         }
 
         public void AddFileExclusionFilters(string[] exclusionFilters)
         {
-            if (exclusionFilters == null)
-                return;
-
-            foreach (var exlusionFilter in exclusionFilters.Where(x => x != null))
-            {
-                var filter = exlusionFilter;
-                if (!RegExFilters)
-                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors();
-
-                ExcludedFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
-            }
+            ExcludedFiles.AddFilters(exclusionFilters, RegExFilters);
         }
 
         public bool UseTestAssembly(string assemblyName)
@@ -246,22 +228,12 @@ namespace OpenCover.Framework
             if (TestFiles.Count == 0 || string.IsNullOrWhiteSpace(assemblyName))
                 return false;
 
-            return TestFiles.Any(file => file.Value.Match(assemblyName).Success);
+            return TestFiles.Any(file => file.IsMatchingExpression(assemblyName));
         }
 
         public void AddTestFileFilters(string[] testFilters)
         {
-            if (testFilters == null)
-                return;
-
-            foreach (var testFilter in testFilters.Where(x => x != null))
-            {
-                var filter = testFilter;
-                if (!RegExFilters)
-                    filter = filter.ValidateAndEscape(@"[]").WrapWithAnchors();
-
-                TestFiles.Add(new Lazy<Regex>(() => new Regex(filter)));
-            }
+            TestFiles.AddFilters(testFilters, RegExFilters);
         }
 
         public bool IsAutoImplementedProperty(MethodDefinition method)

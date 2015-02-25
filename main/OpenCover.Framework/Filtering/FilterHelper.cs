@@ -26,5 +26,26 @@ namespace OpenCover.Framework.Filtering
                 filters.Where(filter => filter.IsMatchingAssemblyName(assemblyName)).ToList();
             return matchingFilters;
         }
+
+        internal static void AddFilters(this ICollection<RegexFilter> target, IEnumerable<string> filters, bool isRegexFilter)
+        {
+            if (filters == null)
+                return;
+
+            foreach (var filter in filters.Where(x => x != null))
+            {
+                RegexFilter regexFilter;
+                if (isRegexFilter)
+                {
+                    regexFilter = new RegexFilter(filter, false);
+                }
+                else
+                {
+                    regexFilter = new RegexFilter(filter.ValidateAndEscape(@"[]"));
+                }
+
+                target.Add(regexFilter);
+            }
+        }
     }
 }
