@@ -13,33 +13,6 @@ using OpenCover.Framework.Filtering;
 
 namespace OpenCover.Framework
 {
-    internal class AssemblyAndClassFilter
-    {
-        private readonly RegexFilter assemblyNameFilter;
-
-        private readonly RegexFilter classNameFilter;
-        
-        internal string AssemblyName { get { return assemblyNameFilter.FilterExpression; } }
-
-        internal string ClassName { get { return classNameFilter.FilterExpression; } }
-
-        internal AssemblyAndClassFilter(string assemblyName, string className)
-        {
-            assemblyNameFilter = new RegexFilter(assemblyName);
-            classNameFilter = new RegexFilter(className);
-        }
-
-        internal bool IsMatchingAssemblyName(string assemblyName)
-        {
-            return assemblyNameFilter.IsMatchingExpression(assemblyName);
-        }
-
-        internal bool IsMatchingClassName(string className)
-        {
-            return classNameFilter.IsMatchingExpression(className);
-        }
-    }
-
     /// <summary>
     ///  A filter that is used to decide whether an assembly/class pair is instrumented
     /// </summary>
@@ -171,11 +144,6 @@ namespace OpenCover.Framework
             ExcludedAttributes.AddFilters(exclusionFilters, RegExFilters);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
             while (true)
