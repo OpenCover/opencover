@@ -85,11 +85,16 @@
       <Link>Properties\Version.cs</Link>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="Filtering\AssemblyAndClassFilter.cs" />
+    <Compile Include="Filtering\FilterHelper.cs" />
+    <Compile Include="Filtering\FilterType.cs" />
+    <Compile Include="Filtering\RegexFilter.cs" />
     <Compile Include="HelperExtensions.cs" />
     <Compile Include="CommandLineParser.cs" />
     <Compile Include="CommandLineParserBase.cs" />
     <Compile Include="Communication\MarshalWapper.cs" />
     <Compile Include="Communication\CommunicationManager.cs" />
+    <Compile Include="IFilter.cs" />
     <Compile Include="Manager\IManagedCommunicationBlock.cs" />
     <Compile Include="Manager\IManagedMemoryBlock.cs" />
     <Compile Include="Manager\IMemoryManager.cs" />

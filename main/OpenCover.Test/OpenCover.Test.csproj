@@ -131,6 +131,7 @@
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
     <Compile Include="Extensions\RegisterStrategiesModuleTests.cs" />
+    <Compile Include="Filtering\FilterTypeTest.cs" />
     <Compile Include="Framework\Communication\CommunicationManagerTests.cs" />
     <Compile Include="Framework\Communication\MessageHandlerTests.cs" />
     <Compile Include="Framework\BootstrapperTests.cs" />
