@@ -28,6 +28,7 @@ namespace OpenCover.Framework
         /// <summary>
         /// Standard constructor
         /// </summary>
+        /// <param name="useRegexFilters">Indicates if the input strings for this class are already Regular Expressions</param>
         public Filter(bool useRegexFilters = false)
         {
             InclusionFilters = new List<AssemblyAndClassFilter>();

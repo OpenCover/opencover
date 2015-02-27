@@ -20,7 +20,7 @@ namespace OpenCover.Framework.Filtering
         Exclusion
     }
 
-    public static class FilterTypeExtensions
+    internal static class FilterTypeExtensions
     {
         public static FilterType ParseFilterType(this string type)
         {
