@@ -8,6 +8,8 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 
 ### Master 
 
+[![Join the chat at https://gitter.im/OpenCover/opencover](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenCover/opencover?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
 
 ### Team communication
