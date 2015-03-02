@@ -37,5 +37,11 @@ deploy:
   artifact: NugetCandidate
   on:
     branch: rc
+notifications:
+- provider: Webhook
+  url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
 on_success:
 - build dogfood-release
