@@ -29,7 +29,7 @@ namespace OpenCover.Specs.Steps
 
         private static dynamic GetTargetPackage(string folder, string ext)
         {
-            var files = Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, @"..\..\..\bin", folder), string.Format("*.{0}", ext));
+            var files = Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "bin", folder), string.Format("*.{0}", ext));
 
             var target = files.Select(f => Regex.Match(f, string.Format(@".*\.(?<version>\d+\.\d+\.\d+)(-rc(?<revision>\d+))?\.{0}", ext)))
                  .Select(m => new { File = m.Value, Version = m.Groups["version"].Value, Revision = m.Groups["revision"].Value })

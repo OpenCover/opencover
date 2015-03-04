@@ -131,6 +131,7 @@
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
     <Compile Include="Extensions\RegisterStrategiesModuleTests.cs" />
+    <Compile Include="Filtering\FilterTypeTest.cs" />
     <Compile Include="Framework\Communication\CommunicationManagerTests.cs" />
     <Compile Include="Framework\Communication\MessageHandlerTests.cs" />
     <Compile Include="Framework\BootstrapperTests.cs" />
@@ -163,6 +164,8 @@
     <Compile Include="Samples\Samples.cs" />
     <Compile Include="Samples\SimpleMsTest.cs" />
     <Compile Include="Samples\SimpleXUnit.cs" />
+    <Compile Include="Support\FakesHelperTests.cs" />
+    <Compile Include="Support\UITestingHelperTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OpenCover.Extensions\OpenCover.Extensions.csproj">
@@ -172,6 +175,10 @@
     <ProjectReference Include="..\OpenCover.Framework\OpenCover.Framework.csproj">
       <Project>{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}</Project>
       <Name>OpenCover.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenCover.Support\OpenCover.Support.csproj">
+      <Project>{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}</Project>
+      <Name>OpenCover.Support</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -281,8 +288,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

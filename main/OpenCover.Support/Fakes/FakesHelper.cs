@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Win32;
 
-namespace OpenCover.FakesSupport
+namespace OpenCover.Support.Fakes
 {
     public class FakesHelper
     {
@@ -10,6 +10,7 @@ namespace OpenCover.FakesSupport
         private const string CorProfiler = "COR_PROFILER";
         private const string ChainExternalProfiler = "CHAIN_EXTERNAL_PROFILER";
         private const string ChainExternalProfilerLocation = "CHAIN_EXTERNAL_PROFILER_LOCATION";
+        private const string OpenCoverProfilerGuid = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
 
         public static void LoadOpenCoverProfilerInstead(object data)
         {
@@ -18,6 +19,9 @@ namespace OpenCover.FakesSupport
                 return;
 
             if (!dict.ContainsKey(CorEnableProfiling) || dict[CorEnableProfiling] != "1") 
+                return;
+
+            if (!dict.ContainsKey(CorProfiler) || dict[CorProfiler] == OpenCoverProfilerGuid)
                 return;
 
             var currentProfiler = dict[CorProfiler];
@@ -29,21 +33,17 @@ namespace OpenCover.FakesSupport
             dict[ChainExternalProfilerLocation] = location;
 
             dict[ChainExternalProfiler] = currentProfiler;
-            dict[CorProfiler] = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
+            dict[CorProfiler] = OpenCoverProfilerGuid;
         }
 
         public static void PretendWeLoadedFakesProfiler(object data)
         {
-            //var args = data as string[];
-            //foreach (var arg in args ?? new string[0])
-            //{
-            //    Console.WriteLine(arg);
-            //}
-
             var enabled = Environment.GetEnvironmentVariable(CorEnableProfiling);
-            if (enabled == "1")
+            var profiler = Environment.GetEnvironmentVariable(CorEnableProfiling) ?? string.Empty;
+            var external = Environment.GetEnvironmentVariable(ChainExternalProfiler);
+            if (enabled == "1" && !string.IsNullOrEmpty(external) && 
+                !profiler.Equals(OpenCoverProfilerGuid, StringComparison.InvariantCultureIgnoreCase))
             {
-                var external = Environment.GetEnvironmentVariable(ChainExternalProfiler);
                 Environment.SetEnvironmentVariable(CorProfiler, external);
             }
         }

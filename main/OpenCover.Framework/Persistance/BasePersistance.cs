@@ -393,7 +393,7 @@ namespace OpenCover.Framework.Persistance
 
         private static void MapFileReferences(IEnumerable<IDocumentReference> points, IDictionary<string, uint> filesDictionary)
         {
-            foreach (var pt in points)
+            foreach (var pt in points.Where(p => p.FileId == 0))
             {
                 uint fileid;
                 filesDictionary.TryGetValue(pt.Document ?? "", out fileid);
