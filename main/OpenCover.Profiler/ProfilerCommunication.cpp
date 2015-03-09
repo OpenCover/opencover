@@ -14,7 +14,6 @@
 #include <sstream>
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
-#define MAX_MSG_SIZE 65536
 #define COMM_WAIT_SHORT 10000
 #define COMM_WAIT_LONG 60000
 
@@ -103,16 +102,8 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     return hostCommunicationActive;
 }
 
-void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType, ULONG threshold)
+void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType)
 {
-    if (uniqueId == 0) return;
-	if (threshold != 0) 
-	{
-		if (m_thresholds[uniqueId] >= threshold)
-			return;
-		m_thresholds[uniqueId]++;
-	}
-
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
     if (!hostCommunicationActive) return;
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);

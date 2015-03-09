@@ -153,6 +153,8 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 	}
 #endif
 
+    //dwMask |= COR_PRF_MONITOR_THREADS;
+
 	return dwMask;
 }
 
@@ -176,12 +178,28 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 /// </remarks>
 static void __fastcall InstrumentPointVisit(ULONG seq)
 {
-	CCodeCoverage::g_pProfiler->AddVisitPoint(seq);
+    CCodeCoverage::g_pProfiler->AddVisitPoint(seq);
 }
 
-void CCodeCoverage::AddVisitPoint(ULONG uniqueId)
-{
-    m_host.AddVisitPointWithThreshold(uniqueId, m_threshold);
+void __fastcall CCodeCoverage::AddVisitPoint(ULONG uniqueId)
+{ 
+    if (uniqueId == 0) return;
+    if (m_threshold != 0)
+    {
+        ULONG& threshold = m_thresholds.at(uniqueId);
+        if (threshold >= m_threshold)
+            return;
+        threshold++;
+    }
+
+    m_host.AddVisitPoint(uniqueId);
+}
+
+void CCodeCoverage::Resize(ULONG minSize) {
+    if (minSize > m_thresholds.size()){
+        ULONG newSize = ((minSize / BUFFER_SIZE) + 1) * BUFFER_SIZE;
+        m_thresholds.resize(newSize);
+    }
 }
 
 HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
@@ -262,7 +280,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                     // Instrument method
                     InstrumentMethod(moduleId, instumentedMethod, seqPoints, brPoints);
 
-                    instumentedMethod.DumpIL();
+                    //instumentedMethod.DumpIL();
 
                     CComPtr<IMethodMalloc> methodMalloc;
                     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBodyAllocator(moduleId, &methodMalloc),
@@ -287,9 +305,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                     if (m_threshold != 0)
                     {
                         if (seqPoints.size() > 0)
-                            m_host.Resize(seqPoints.back().UniqueId + 1);
+                            Resize(seqPoints.back().UniqueId + 1);
                         if (brPoints.size() > 0)
-                            m_host.Resize(brPoints.back().UniqueId + 1);
+                            Resize(brPoints.back().UniqueId + 1);
                     }
                 }
             }
@@ -314,7 +332,8 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
 		void(__fastcall *pt)(ULONG) = GetInstrumentPointVisit();
 
         InstructionList instructions;
-        CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, seqPoints[0].UniqueId);
+        if (seqPoints.size() > 0)
+            CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, seqPoints[0].UniqueId);
         if (method.IsInstrumented(0, instructions)) return;
   
         CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
@@ -332,7 +351,8 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
         mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
 
         InstructionList instructions;
-        CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, seqPoints[0].UniqueId);
+        if (seqPoints.size() > 0)
+            CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, seqPoints[0].UniqueId);
         if (method.IsInstrumented(0, instructions)) return;
   
         CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
@@ -359,7 +379,7 @@ HRESULT CCodeCoverage::InstrumentMethodWith(ModuleID moduleId, mdToken functionT
 
 	instumentedMethod.InsertInstructionsAtOriginalOffset(0, instructions);
 
-	instumentedMethod.DumpIL();
+	//instumentedMethod.DumpIL();
 
 	// now to write the method back
 	CComPtr<IMethodMalloc> methodMalloc;
@@ -370,4 +390,6 @@ HRESULT CCodeCoverage::InstrumentMethodWith(ModuleID moduleId, mdToken functionT
 	instumentedMethod.WriteMethod(pNewMethod);
 	COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->SetILFunctionBody(moduleId, functionToken, (LPCBYTE)pNewMethod),
 		_T("    ::InstrumentMethodWith(...) => SetILFunctionBody => 0x%X"));
+
+    return S_OK;
 }

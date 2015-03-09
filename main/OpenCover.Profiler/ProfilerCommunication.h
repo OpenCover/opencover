@@ -31,11 +31,10 @@ public:
 	inline void AddTestEnterPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }
 	inline void AddTestLeavePoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }
 	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
-	inline void AddVisitPointWithThreshold(ULONG uniqueId, ULONG threshold) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint, threshold); }
-	inline void Resize(ULONG minSize) { m_thresholds.grow_to_at_least(minSize); }
+	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
 
 private:
-    void AddVisitPointToBuffer(ULONG uniqueId, ULONG msgType, ULONG threshold = 0);
+    void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
     void SendVisitPoints();
     bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
@@ -60,9 +59,6 @@ private:
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
-
-private:
-	Concurrency::concurrent_vector<ULONG> m_thresholds;
 
 private:
     ATL::CComAutoCriticalSection m_critResults;
