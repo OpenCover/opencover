@@ -6,24 +6,35 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Text;
 using System.Threading;
 
 namespace OpenCover.Framework.Manager
 {
+    /// <summary>
+    /// Manages the blocks used for communcation and data between host and profiler
+    /// </summary>
     public class MemoryManager : IMemoryManager
     {
         private string _namespace;
         private string _key;
-        private readonly object lockObject = new object();
+        private readonly object _lockObject = new object();
 
         private readonly IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> _blocks = new List<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>>();
 
+        /// <summary>
+        /// 
+        /// </summary>
         public class ManagedBlock
         {
             protected string Namespace;
             protected string Key;
 
+            /// <summary>
+            /// Create a unique name
+            /// </summary>
+            /// <param name="name"></param>
+            /// <param name="id"></param>
+            /// <returns></returns>
             protected string MakeName(string name, int id)
             {
                 var newName = string.Format("{0}{1}{2}{3}", Namespace, name, Key, id);
@@ -61,17 +72,18 @@ namespace OpenCover.Framework.Manager
                 EventWaitHandleSecurity open = null;
                 MemoryMappedFileSecurity transparent = null;
 
-                if (servicePrincpal.Any())
+                var service = servicePrincpal.FirstOrDefault();
+                var currentIdentity = WindowsIdentity.GetCurrent();
+                if (service != null && currentIdentity != null)
                 {
-                    var service = servicePrincpal.First();
                     open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(WindowsIdentity.GetCurrent().Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
                     // The event handles need more than just EventWaitHandleRights.Modify | EventWaitHandleRights.Synchronize to work
                     open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
                     transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(WindowsIdentity.GetCurrent().Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
                     transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
                 }
 
@@ -143,15 +155,16 @@ namespace OpenCover.Framework.Manager
                 EventWaitHandleSecurity open = null;
                 MemoryMappedFileSecurity transparent = null;
 
-                if (servicePrincpal.Any())
+                var service = servicePrincpal.FirstOrDefault();
+                var currentIdentity = WindowsIdentity.GetCurrent();
+                if (service != null && currentIdentity != null)
                 {
-                    var service = servicePrincpal.First();
                     open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(WindowsIdentity.GetCurrent().Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
                     open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
                     transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(WindowsIdentity.GetCurrent().Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
                     transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
                 }
 
@@ -200,32 +213,48 @@ namespace OpenCover.Framework.Manager
             }
         }
 
-        private bool isIntialised = false;
+        private bool _isIntialised;
 
         private string[] _servicePrincipal;
+        
+        /// <summary>
+        /// Initialise the memory manager
+        /// </summary>
+        /// <param name="namespace"></param>
+        /// <param name="key"></param>
+        /// <param name="servicePrincipal"></param>
         public void Initialise(string @namespace, string key, IEnumerable<string> servicePrincipal)
         {
-            if (isIntialised) return;
+            if (_isIntialised) return;
             _namespace = @namespace;
             _key = key;
-            this._servicePrincipal = servicePrincipal.ToArray();
-            isIntialised = true;
+            _servicePrincipal = servicePrincipal.ToArray();
+            _isIntialised = true;
         }
 
+        /// <summary>
+        /// Allocate a memory buffer
+        /// </summary>
+        /// <param name="bufferSize"></param>
+        /// <param name="bufferId"></param>
+        /// <returns></returns>
         public Tuple<IManagedCommunicationBlock, IManagedMemoryBlock> AllocateMemoryBuffer(int bufferSize, uint bufferId)
         {
-            if (!isIntialised) return null;
+            if (!_isIntialised) return null;
 
-            lock (lockObject)
+            lock (_lockObject)
             {
                 var tuple = new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(
-                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, this._servicePrincipal),
-                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, this._servicePrincipal));
+                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
+                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal));
                 _blocks.Add(tuple);
                 return tuple;
             }
         }
 
+        /// <summary>
+        /// get a pair of communication+memory blocks
+        /// </summary>
         public IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> GetBlocks
         {
             get { return _blocks; }
@@ -234,7 +263,7 @@ namespace OpenCover.Framework.Manager
         public void Dispose()
         {
             //Console.WriteLine("Disposing...");
-            lock (lockObject)
+            lock (_lockObject)
             {
                 foreach(var block in _blocks)
                 {
