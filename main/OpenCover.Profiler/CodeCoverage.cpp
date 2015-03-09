@@ -153,7 +153,7 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 	}
 #endif
 
-    //dwMask |= COR_PRF_MONITOR_THREADS;
+    dwMask |= COR_PRF_MONITOR_THREADS;
 
 	return dwMask;
 }
@@ -163,6 +163,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 { 
 	if (m_chainedProfiler != NULL)
 		m_chainedProfiler->Shutdown();
+
+    if (!m_tracingEnabled){
+        m_host.SendRemainingThreadBuffers();
+    }
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(NULL, szExeName, MAX_PATH);
@@ -192,7 +196,12 @@ void __fastcall CCodeCoverage::AddVisitPoint(ULONG uniqueId)
         threshold++;
     }
 
-    m_host.AddVisitPoint(uniqueId);
+    if (m_tracingEnabled){
+        m_host.AddVisitPoint(uniqueId);
+    }
+    else {
+        m_host.AddVisitPointToThreadBuffer(uniqueId, IT_VisitPoint);
+    }
 }
 
 void CCodeCoverage::Resize(ULONG minSize) {

@@ -124,8 +124,8 @@ public:
     /*[in]*/COR_PRF_FRAME_INFO                  func);
 
 private:
-    std::tr1::unordered_map<std::wstring, bool> m_allowModules;
-    std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
+    std::unordered_map<std::wstring, bool> m_allowModules;
+    std::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
 
     COR_PRF_RUNTIME_TYPE m_runtimeType;
     ASSEMBLYMETADATA m_runtimeVersion;
@@ -137,6 +137,8 @@ private:
 private:
     std::vector<ULONG> m_thresholds;
     void Resize(ULONG minSize);
+
+
 
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 

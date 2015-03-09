@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -37,6 +38,8 @@ namespace OpenCover.Test.Framework.Communication
             {
                 // act
                 byte[] data = null;
+                mcb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                mcb.StreamAccessorResults.Write(BitConverter.GetBytes(24), 0, 4); // count + 24 entries == 100 bytes
                 ThreadPool.QueueUserWorkItem(state =>
                     {
                         data = Instance.HandleMemoryBlock(mcb);

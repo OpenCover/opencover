@@ -187,11 +187,11 @@ namespace OpenCover.Framework.Manager
                 var tasks = threadHandles
                     .Select((e, index) => new {Pair = e, Block = index / NumHandlesPerBlock})
                     .GroupBy(g => g.Block)
-                    .Select(g => g.Select(a => a.Pair))
+                    .Select(g => g.Select(a => a.Pair).ToList())
                     .Select(g => Task.Factory.StartNew(() =>
                     {
                         g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                        WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray(), new TimeSpan(0, 0, 20));
+                        WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
                     })).ToArray();
                 Task.WaitAll(tasks);
 
@@ -225,7 +225,7 @@ namespace OpenCover.Framework.Manager
         {
             return state =>
             {
-                var processEvents = new WaitHandle[]
+                var processEvents = new []
                 {
                     communicationBlock.ProfilerRequestsInformation,
                     memoryBlock.ProfilerHasResults,
@@ -242,7 +242,17 @@ namespace OpenCover.Framework.Manager
                             break;
                         case 1:
                             var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                            // don't let the queue get too big as using too much memory causes 
+                            // problems i.e. the target process closes down but the host takes 
+                            // ages to shutdown; this is a compromise. 
                             _messageQueue.Enqueue(data);                        
+                            if (_messageQueue.Count > 400)
+                            {
+                                do
+                                {
+                                    Thread.Yield();
+                                } while (_messageQueue.Count > 200);
+                            }
                             break;
                         case 2:
                             threadTerminated.Set();

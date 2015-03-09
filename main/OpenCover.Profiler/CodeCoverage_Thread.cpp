@@ -20,6 +20,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadDestroyed(
     if (m_chainedProfiler != NULL)
         m_chainedProfiler->ThreadDestroyed(threadId);
 
+    if (!m_tracingEnabled){
+        m_host.ThreadDestroyed(threadId);
+    }
+
     return S_OK;
 }
 
@@ -30,6 +34,10 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadAssignedToOSThread(
     ATLTRACE(_T("::ThreadAssignedToOSThread(%d, %d)"), managedThreadId, osThreadId);
     if (m_chainedProfiler != NULL)
         m_chainedProfiler->ThreadAssignedToOSThread(managedThreadId, osThreadId);
+
+    if (!m_tracingEnabled){
+        m_host.ThreadCreated(managedThreadId, osThreadId);
+    }
 
     return S_OK;
 }

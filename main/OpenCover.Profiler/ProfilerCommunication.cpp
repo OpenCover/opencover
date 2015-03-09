@@ -102,6 +102,51 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     return hostCommunicationActive;
 }
 
+void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
+    m_threadmap[threadID] = osThreadID;
+    auto p = new MSG_SendVisitPoints_Request();
+    ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
+    m_visitmap[osThreadID] = p;
+}
+
+void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
+    ULONG osThreadId = m_threadmap[threadID];
+    SendThreadVisitPoints(m_visitmap[osThreadId]);
+    delete m_visitmap[osThreadId];
+    m_visitmap[osThreadId] = NULL;
+}
+
+void ProfilerCommunication::SendRemainingThreadBuffers(){
+    for (auto it = m_visitmap.begin(); it != m_visitmap.end(); ++it){
+        if (it->second != NULL)
+            SendThreadVisitPoints(it->second);
+    }
+}
+
+void ProfilerCommunication::AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType)
+{
+    DWORD osThreadId = ::GetCurrentThreadId();
+    auto pVisitPoints = m_visitmap[osThreadId];
+    pVisitPoints->points[pVisitPoints->count].UniqueId = (uniqueId | msgType);
+    if (++pVisitPoints->count == VP_BUFFER_SIZE)
+    {
+        SendThreadVisitPoints(pVisitPoints);
+        //::ZeroMemory(pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
+        pVisitPoints->count = 0;
+    }
+}
+
+void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints){
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
+    if (!hostCommunicationActive) return;
+    memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
+    SendVisitPoints();
+    ::ZeroMemory(m_pVisitPoints, sizeof(MAX_MSG_SIZE));
+    m_pVisitPoints->count = 0;
+}
+
 void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType)
 {
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
@@ -110,7 +155,7 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
-		::ZeroMemory(m_pVisitPoints, MAX_MSG_SIZE);
+        ::ZeroMemory(m_pVisitPoints, sizeof(MAX_MSG_SIZE));
         m_pVisitPoints->count = 0;
     }
 }
