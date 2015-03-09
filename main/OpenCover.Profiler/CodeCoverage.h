@@ -32,6 +32,8 @@ using namespace ATL;
 
 typedef void(__fastcall *ipv)(ULONG);
 
+#define BUFFER_SIZE 16384
+
 // CCodeCoverage
 
 /// <summary>The main profiler COM object</summary>
@@ -90,7 +92,7 @@ public:
     std::wstring GetAssemblyName(AssemblyID assemblyId);
     BOOL GetTokenAndModule(FunctionID funcId, mdToken& functionToken, ModuleID& moduleId, std::wstring &modulePath, AssemblyID *pAssemblyId);
 	std::wstring GetTypeAndMethodName(FunctionID functionId);
-	void AddVisitPoint(ULONG uniqueId);
+    void __fastcall AddVisitPoint(ULONG uniqueId);
 
 private:
     ProfilerCommunication m_host;
@@ -122,8 +124,8 @@ public:
     /*[in]*/COR_PRF_FRAME_INFO                  func);
 
 private:
-    std::tr1::unordered_map<std::wstring, bool> m_allowModules;
-    std::tr1::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
+    std::unordered_map<std::wstring, bool> m_allowModules;
+    std::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
 
     COR_PRF_RUNTIME_TYPE m_runtimeType;
     ASSEMBLYMETADATA m_runtimeVersion;
@@ -131,6 +133,12 @@ private:
     bool m_useOldStyle;
 	ULONG m_threshold;
 	bool m_tracingEnabled;
+
+private:
+    std::vector<ULONG> m_thresholds;
+    void Resize(ULONG minSize);
+
+
 
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
@@ -346,41 +354,21 @@ public:
 	}
 
 	// COR_PRF_MONITOR_THREADS
-	virtual HRESULT STDMETHODCALLTYPE ThreadCreated(
-		/* [in] */ ThreadID threadId)
-	{
-		if (m_chainedProfiler != NULL)
-			return m_chainedProfiler->ThreadCreated(threadId);
-		return S_OK;
-	}
+    virtual HRESULT STDMETHODCALLTYPE ThreadCreated(
+        /* [in] */ ThreadID threadId);
 
-	virtual HRESULT STDMETHODCALLTYPE ThreadDestroyed(
-		/* [in] */ ThreadID threadId)
-	{
-		if (m_chainedProfiler != NULL)
-			return m_chainedProfiler->ThreadDestroyed(threadId);
-		return S_OK;
-	}
+    virtual HRESULT STDMETHODCALLTYPE ThreadDestroyed(
+        /* [in] */ ThreadID threadId);
 
-	virtual HRESULT STDMETHODCALLTYPE ThreadAssignedToOSThread(
-		/* [in] */ ThreadID managedThreadId,
-		/* [in] */ DWORD osThreadId)
-	{
-		if (m_chainedProfiler != NULL)
-			return m_chainedProfiler->ThreadAssignedToOSThread(managedThreadId, osThreadId);
-		return S_OK;
-	}
+    virtual HRESULT STDMETHODCALLTYPE ThreadAssignedToOSThread(
+        /* [in] */ ThreadID managedThreadId,
+        /* [in] */ DWORD osThreadId);
 
-	virtual HRESULT STDMETHODCALLTYPE ThreadNameChanged(
-		/* [in] */ ThreadID threadId,
-		/* [in] */ ULONG cchName,
-		/* [in] */
-		__in_ecount_opt(cchName)  WCHAR name[])
-	{
-		if (m_chainedProfiler != NULL)
-			return m_chainedProfiler->ThreadNameChanged(threadId, cchName, name);
-		return S_OK;
-	}
+    virtual HRESULT STDMETHODCALLTYPE ThreadNameChanged(
+        /* [in] */ ThreadID threadId,
+        /* [in] */ ULONG cchName,
+        /* [in] */
+        __in_ecount_opt(cchName)  WCHAR name[]);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(CodeCoverage), CCodeCoverage)

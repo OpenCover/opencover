@@ -8,6 +8,7 @@
 #define SEQ_BUFFER_SIZE 8000
 #define BRANCH_BUFFER_SIZE 4000
 #define VP_BUFFER_SIZE 16000
+#define MAX_MSG_SIZE 65536
 
 #pragma pack(push)
 #pragma pack(1)
