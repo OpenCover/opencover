@@ -35,6 +35,7 @@ public:
 	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
 	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
     void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
+    void CloseChannel();
 
 public: 
     void ThreadCreated(ThreadID threadID, DWORD osThreadID);
@@ -54,6 +55,8 @@ private:
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
+
+    ULONG m_bufferId;
 
 private:
     CMutex m_mutexCommunication;

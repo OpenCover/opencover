@@ -19,6 +19,7 @@
 
 ProfilerCommunication::ProfilerCommunication() 
 {
+    m_bufferId = 0;
 }
 
 ProfilerCommunication::~ProfilerCommunication()
@@ -64,6 +65,8 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         std::wstringstream stream ;
         stream << bufferId;
         stream >> memoryKey;
+
+        m_bufferId = bufferId;
 
         memoryKey = m_key + memoryKey;
 
@@ -319,6 +322,32 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
         , _T("AllocateBuffer"));
 
     return response;
+}
+
+void ProfilerCommunication::CloseChannel(){
+    if (m_bufferId == 0) return;
+    
+    SendVisitPoints();
+
+    if (!hostCommunicationActive) return;
+
+    bool response = false;
+
+    RequestInformation(
+        [=]()
+        {
+            m_pMSG->closeChannelBufferRequest.type = MSG_CloseChannel;
+            m_pMSG->closeChannelBufferRequest.ulBufferId = m_bufferId;
+        },
+        [=, &response]()->BOOL
+        {
+            response = m_pMSG->allocateBufferResponse.bResponse == TRUE;
+            return FALSE;
+        }
+        , COMM_WAIT_SHORT
+        , _T("CloseChannel"));
+
+    return;
 }
 
 template<class BR, class PR>

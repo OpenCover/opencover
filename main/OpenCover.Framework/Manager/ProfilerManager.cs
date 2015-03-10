@@ -169,12 +169,12 @@ namespace OpenCover.Framework.Manager
                         break;
 
                     case 1:
-                        _communicationManager.HandleCommunicationBlock(_mcb, (mcb, mmb) => threadHandles.Add(StartProcessingThread(mcb, mmb)));
+                        _communicationManager.HandleCommunicationBlock(_mcb, block => threadHandles.Add(StartProcessingThread(block)));
                         break;
                 }
             } while (_continueWait);
 
-            foreach (var block in _memoryManager.GetBlocks.Select(b => b.Item2))
+            foreach (var block in _memoryManager.GetBlocks.Where(b => b.Active).Select(b => b.MemoryBlock))
             {
                 var data = new byte[block.BufferSize];
                 block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
@@ -206,46 +206,46 @@ namespace OpenCover.Framework.Manager
             _messageQueue.Enqueue(new byte[0]);
         }
 
-        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock)
+        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(ManagedBufferBlock block)
         {
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
 
             using (var threadActivated = new AutoResetEvent(false))
             {
-                ThreadPool.QueueUserWorkItem(ProcessBlock(communicationBlock, memoryBlock, terminateThread,
+                ThreadPool.QueueUserWorkItem(ProcessBlock(block, terminateThread,
                     threadActivated, threadTerminated));
                 threadActivated.WaitOne();
             }
             return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
         }
 
-        private WaitCallback ProcessBlock(IManagedCommunicationBlock communicationBlock, IManagedMemoryBlock memoryBlock,
+        private WaitCallback ProcessBlock(ManagedBufferBlock block,
             WaitHandle terminateThread, EventWaitHandle threadActivated, EventWaitHandle threadTerminated)
         {
             return state =>
             {
                 var processEvents = new []
                 {
-                    communicationBlock.ProfilerRequestsInformation,
-                    memoryBlock.ProfilerHasResults,
+                    block.CommunicationBlock.ProfilerRequestsInformation,
+                    block.MemoryBlock.ProfilerHasResults,
                     terminateThread
                 };
                 threadActivated.Set();
                 
-                while(true)
+                while(block.Active)
                 {
                     switch (WaitHandle.WaitAny(processEvents))
                     {
                         case 0:
-                            _communicationManager.HandleCommunicationBlock(communicationBlock, (cB, mB) => { });
+                            _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
                             break;
                         case 1:
-                            var data = _communicationManager.HandleMemoryBlock(memoryBlock);
+                            var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
                             // don't let the queue get too big as using too much memory causes 
                             // problems i.e. the target process closes down but the host takes 
                             // ages to shutdown; this is a compromise. 
-                            _messageQueue.Enqueue(data);                        
+                            _messageQueue.Enqueue(data);
                             if (_messageQueue.Count > 400)
                             {
                                 do
@@ -259,6 +259,8 @@ namespace OpenCover.Framework.Manager
                             return;
                     }
                 }
+                threadTerminated.Set();
+                _memoryManager.RemoveDeactivatedBlocks();
             };
         }
     }

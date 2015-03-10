@@ -14,6 +14,7 @@ namespace OpenCover.Framework.Communication
         MSG_GetBranchPoints = 3,
         MSG_TrackMethod = 4,
         MSG_AllocateMemoryBuffer = 5,
+        MSG_CloseChannel = 6,
     }
 
     public enum MSG_IdType : uint
@@ -130,6 +131,20 @@ namespace OpenCover.Framework.Communication
         [MarshalAs(UnmanagedType.Bool)]
         public bool allocated;
         public uint bufferId;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+    public struct MSG_CloseChannel_Request
+    {
+        public MSG_Type type;
+        public uint bufferId;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_CloseChannel_Response
+    {
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool done;
     }
 
 }
