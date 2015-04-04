@@ -323,14 +323,9 @@ namespace OpenCover.Console
  
             var coverageSession = persistance.CoverageSession;
 
-            var totalClasses = 0;
-            var visitedClasses = 0;
 
             var altTotalClasses = 0;
             var altVisitedClasses = 0;
-
-            var totalMethods = 0;
-            var visitedMethods = 0;
 
             var altTotalMethods = 0;
             var altVisitedMethods = 0;
@@ -349,12 +344,9 @@ namespace OpenCover.Console
 
                     if ((@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
                     {
-                        visitedClasses += 1;
-                        totalClasses += 1;
                     }
                     else if ((@class.Methods.Any(x => x.FileRef != null)))
                     {
-                        totalClasses += 1;
                         unvisitedClasses.Add(@class.FullName);
                     }
 
@@ -372,12 +364,9 @@ namespace OpenCover.Console
                     {
                         if ((method.SequencePoints.Any(x => x.VisitCount > 0)))
                         {
-                            visitedMethods += 1;
-                            totalMethods += 1;
                         }
                         else if (method.FileRef != null)
                         {
-                            totalMethods += 1;
                             unvisitedMethods.Add(string.Format("{0}", method.Name));
                         }
 
@@ -390,12 +379,12 @@ namespace OpenCover.Console
                 }
             }
 
-            if (totalClasses > 0)
-            {           
-                logger.InfoFormat("Visited Classes {0} of {1} ({2})", visitedClasses,
-                                  totalClasses, Math.Round(visitedClasses * 100.0 / totalClasses, 2));
-                logger.InfoFormat("Visited Methods {0} of {1} ({2})", visitedMethods,
-                                  totalMethods, Math.Round(visitedMethods * 100.0 / totalMethods, 2));
+            if (coverageSession.Summary.NumClasses > 0)
+            {
+                logger.InfoFormat("Visited Classes {0} of {1} ({2})", coverageSession.Summary.VisitedClasses,
+                                  coverageSession.Summary.NumClasses, Math.Round(coverageSession.Summary.VisitedClasses * 100.0 / coverageSession.Summary.NumClasses, 2));
+                logger.InfoFormat("Visited Methods {0} of {1} ({2})", coverageSession.Summary.VisitedMethods,
+                                  coverageSession.Summary.NumMethods, Math.Round(coverageSession.Summary.VisitedMethods * 100.0 / coverageSession.Summary.NumMethods, 2));
                 logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
                                   coverageSession.Summary.NumSequencePoints, coverageSession.Summary.SequenceCoverage);
                 logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
