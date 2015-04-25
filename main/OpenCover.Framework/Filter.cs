@@ -147,18 +147,16 @@ namespace OpenCover.Framework
 
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
+            if (ExcludedAttributes.Count == 0)
+                return false;
+
             while (true)
             {
-                if (ExcludedAttributes.Count == 0)
-                    return false;
-
                 if (entity == null || !entity.HasCustomAttributes)
                     return false;
 
-                if ((from excludeAttribute in ExcludedAttributes from customAttribute in entity.CustomAttributes where excludeAttribute.IsMatchingExpression(customAttribute.AttributeType.FullName) select excludeAttribute).Any())
-                {
+                if (ExcludeByAttribute((ICustomAttributeProvider) entity))
                     return true;
-                }
 
                 if (entity.DeclaringType == null || !entity.Name.StartsWith("<"))
                     return false;
@@ -182,6 +180,22 @@ namespace OpenCover.Framework
                 }
                 entity = target;
             }
+        }
+
+        private bool ExcludeByAttribute(ICustomAttributeProvider entity)
+        {
+            return (from excludeAttribute in ExcludedAttributes
+                from customAttribute in entity.CustomAttributes
+                where excludeAttribute.IsMatchingExpression(customAttribute.AttributeType.FullName)
+                select excludeAttribute).Any();
+        }
+
+        public bool ExcludeByAttribute(AssemblyDefinition entity)
+        {
+            if (ExcludedAttributes.Count == 0)
+                return false;
+
+            return ExcludeByAttribute((ICustomAttributeProvider)entity);
         }
 
         public bool ExcludeByFile(string fileName)

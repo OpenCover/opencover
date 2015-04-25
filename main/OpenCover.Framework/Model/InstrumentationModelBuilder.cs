@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using Mono.Cecil;
 using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Model
@@ -76,6 +77,10 @@ namespace OpenCover.Framework.Model
         public bool CanInstrument
         {
             get { return _symbolManager.SourceAssembly != null; }
+        }
+
+        public AssemblyDefinition GetAssemblyDefinition {
+            get { return _symbolManager.SourceAssembly; }
         }
 
         private void BuildClassModel(Class @class, File[] files)

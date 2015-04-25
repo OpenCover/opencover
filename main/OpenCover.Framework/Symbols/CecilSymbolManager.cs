@@ -19,6 +19,26 @@ using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
 namespace OpenCover.Framework.Symbols
 {
+    internal static class CecilSymbolManageExtensions
+    {
+        public static MethodBody SafeGetMethodBody(this MethodDefinition methodDefinition)
+        {
+            try
+            {
+                if (methodDefinition.HasBody)
+                {
+                    return methodDefinition.Body;
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Exception whilst trying to get the body of method {0}", methodDefinition.FullName);
+            }
+            return null;
+        }
+       
+    }
+
     internal class CecilSymbolManager : ISymbolManager
     {
         private const int StepOverLineCode = 0xFEEFEE;
@@ -163,7 +183,7 @@ namespace OpenCover.Framework.Symbols
                 if (!@class.ShouldSerializeSkippedDueTo())
                 {
                     var files = from methodDefinition in typeDefinition.Methods
-                        where methodDefinition.Body != null && methodDefinition.Body.Instructions != null
+                        where methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null
                         from instruction in methodDefinition.Body.Instructions
                         where instruction.SequencePoint != null
                         select instruction.SequencePoint.Document.Url;
@@ -182,7 +202,6 @@ namespace OpenCover.Framework.Symbols
             }                                                                                        
         }
 
-       
         public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
@@ -193,7 +212,7 @@ namespace OpenCover.Framework.Symbols
 
         private static string GetFirstFile(MethodDefinition definition)
         {
-            if (definition.HasBody && definition.Body.Instructions!=null)
+            if (definition.SafeGetMethodBody() != null && definition.Body.Instructions != null)
             {
                 var filePath = definition.Body.Instructions
                     .FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
@@ -311,7 +330,7 @@ namespace OpenCover.Framework.Symbols
             foreach (var typeDefinition in typeDefinitions)
             {
                 foreach (var methodDefinition in typeDefinition.Methods
-                    .Where(methodDefinition => methodDefinition.Body != null && methodDefinition.Body.Instructions != null))
+                    .Where(methodDefinition => methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null))
                 {
                     _methodMap.Add(methodDefinition.MetadataToken.ToInt32(), methodDefinition);
                 }
@@ -359,7 +378,7 @@ namespace OpenCover.Framework.Symbols
             {
                 UInt32 ordinal = 0;
 
-                foreach (var instruction in methodDefinition.Body.Instructions)
+                foreach (var instruction in methodDefinition.SafeGetMethodBody().Instructions)
                 {
                     if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
                         continue;
