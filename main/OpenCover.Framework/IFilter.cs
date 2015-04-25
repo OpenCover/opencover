@@ -58,6 +58,20 @@ namespace OpenCover.Framework
         bool ExcludeByAttribute(IMemberDefinition entity);
 
         /// <summary>
+        /// Is this entity excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
+        bool ExcludeByAttribute(TypeDefinition entity);
+
+        /// <summary>
+        /// Is this entity excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
+        bool ExcludeByAttribute(AssemblyDefinition entity);
+
+        /// <summary>
         /// Is this file excluded
         /// </summary>
         /// <param name="fileName">The name of the file to test</param>
