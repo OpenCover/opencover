@@ -1,7 +1,11 @@
 Version [[version]]
-#244 support ApplicationUnderTest.Launch to propagate required OPENCOVER environment variables
-#256 support Microsoft Fakes (feature) - beta support until we bed feature in
-#248 address issue with Mono.Cecil and latest PDB (.NET 4.6) version
+#274 Use thread based buffers for performance improvement (fix)
+#283 Add visited class/method to summary entity (feature)
+ 
+Version 4.5.3723
+#244 support ApplicationUnderTest.Launch to propagate required OPENCOVER environment variables (feature)
+#256 support Microsoft Fakes (feature) - beta support until we bed feature in (feature)
+#248 address issue with Mono.Cecil and latest PDB (.NET 4.6) version (fix)
 #252 use AppVeyor for building code and pull requests (prj-mgmt)
 
 Version 4.5.3522
