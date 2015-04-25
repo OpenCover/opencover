@@ -198,14 +198,6 @@ namespace OpenCover.Framework
             return ExcludeByAttribute((ICustomAttributeProvider)entity);
         }
 
-        public bool ExcludeByAttribute(TypeDefinition entity)
-        {
-            if (ExcludedAttributes.Count == 0)
-                return false;
-
-            return ExcludeByAttribute((ICustomAttributeProvider)entity);
-        }
-
         public bool ExcludeByFile(string fileName)
         {
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))

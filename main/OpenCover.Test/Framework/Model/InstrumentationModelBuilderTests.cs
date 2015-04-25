@@ -179,6 +179,23 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
+        public void CanGetDefinition_If_AssemblyFound()
+        {
+            // arrange 
+            var mockDef = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition("temp", new Version()), "temp", ModuleKind.Dll);
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.SourceAssembly)
+                .Returns(mockDef);
+
+            // act
+            var definition = Instance.GetAssemblyDefinition;
+
+            // assert
+            Assert.AreSame(mockDef, definition);
+        }
+
+        [Test]
         public void CanBuildModelOf_RealAssembly()
         {
             // arrange
