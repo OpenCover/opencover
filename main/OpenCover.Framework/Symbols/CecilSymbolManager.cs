@@ -32,7 +32,7 @@ namespace OpenCover.Framework.Symbols
             }
             catch (Exception)
             {
-                Console.WriteLine("Exception whilst trying to get the body of method {0}", methodDefinition.FullName);
+                //Console.WriteLine("Exception whilst trying to get the body of method {0}", methodDefinition.FullName);
             }
             return null;
         }
@@ -280,6 +280,15 @@ namespace OpenCover.Framework.Symbols
                 IsSetter = methodDefinition.IsSetter,
                 MetadataToken = methodDefinition.MetadataToken.ToInt32()
             };
+
+            if (methodDefinition.SafeGetMethodBody() == null)
+            {
+                if (methodDefinition.IsNative)
+                    method.MarkAsSkipped(SkippedMethod.NativeCode);
+                else
+                    method.MarkAsSkipped(SkippedMethod.Unknown);
+                return method;
+            }
 
             if (alreadySkippedDueToAttr || filter.ExcludeByAttribute(methodDefinition))
                 method.MarkAsSkipped(SkippedMethod.Attribute);
