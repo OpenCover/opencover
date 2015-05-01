@@ -43,22 +43,10 @@ namespace OpenCover.Console
 
                 returnCodeOffset = parser.ReturnCodeOffset;
                 var filter = BuildFilter(parser);
+                var perfCounter = CreatePerformanceCounter(parser);
 
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
-
-                IPerfCounters perfCounter = new NullPerfCounter();
-                if (parser.EnablePerformanceCounters)
-                {
-                    if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
-                    {
-                        perfCounter = new PerfCounters();
-                    }
-                    else
-                    {
-                        throw  new InvalidCredentialException("You must be running as an Administrator to enable performance counters.");
-                    }
-                }
 
                 using (var container = new Bootstrapper(logger))
                 {
@@ -457,6 +445,27 @@ namespace OpenCover.Console
 
             return filter;
         }
+
+        private static IPerfCounters CreatePerformanceCounter(CommandLineParser parser)
+        {
+            if (parser.EnablePerformanceCounters)
+            {
+                if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+                {
+                    return new PerfCounters();
+                }
+                else
+                {
+                    throw new InvalidCredentialException(
+                        "You must be running as an Administrator to enable performance counters.");
+                }
+            }
+            else
+            {
+                return new NullPerfCounter();
+            }
+        }
+
 
         private static bool ParseCommandLine(string[] args, out CommandLineParser parser)
         {
