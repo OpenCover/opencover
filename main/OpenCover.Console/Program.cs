@@ -489,6 +489,22 @@ namespace OpenCover.Console
                     return false;
                 }
 
+
+                if (parser.PrintVersion)
+                {
+                    var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (entryAssembly == null)
+                    {
+                        // logger.Debug("No entry assembly, running from unmanaged application");
+                    }
+                    else
+                    {
+                        var version = entryAssembly.GetName().Version;
+                        System.Console.WriteLine("OpenCover version {0}", version);
+                        return false;
+                    }
+                }
+
                 if (!string.IsNullOrWhiteSpace(parser.TargetDir) && !Directory.Exists(parser.TargetDir))
                 {
                     System.Console.WriteLine("TargetDir '{0}' cannot be found - have you specified your arguments correctly?", parser.TargetDir);
