@@ -119,7 +119,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    -?");
             builder.AppendLine("");
             builder.AppendLine("For further information on the command line please visit the wiki");
-            builder.AppendLine("    https://github.com/sawilde/opencover/wiki/Usage");
+            builder.AppendLine("    https://github.com/OpenCover/opencover/wiki/Usage");
             builder.AppendLine("");
             builder.AppendLine("Filters:");
             builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
