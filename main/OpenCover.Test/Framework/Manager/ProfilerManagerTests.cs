@@ -147,6 +147,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
+            Assert.IsFalse(dict.ContainsKey(@"CorClr_Profiler_Path"));
         }
 
         [Test]
@@ -161,6 +162,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
+            Assert.IsFalse(dict.ContainsKey(@"CorClr_Profiler_Path"));
         }
 
         [Test]
@@ -175,6 +177,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.IsTrue(dict.ContainsKey(@"Cor_Profiler_Path"));
+            Assert.IsTrue(dict.ContainsKey(@"CorClr_Profiler_Path"));
         }
 
         [Test]
@@ -189,6 +192,7 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Assert.IsTrue(dict.ContainsKey(@"Cor_Profiler_Path"));
+            Assert.IsTrue(dict.ContainsKey(@"CorClr_Profiler_Path"));
         }
 
         [Test, RequiresMTA]
