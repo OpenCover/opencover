@@ -502,7 +502,7 @@ namespace OpenCover.Console
                     var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
                     if (entryAssembly == null)
                     {
-                        // logger.Debug("No entry assembly, running from unmanaged application");
+                        Logger.Warn("No entry assembly, running from unmanaged application");
                     }
                     else
                     {
