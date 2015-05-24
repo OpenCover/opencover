@@ -82,6 +82,7 @@ namespace OpenCover.Framework
             ServiceEnvironment = ServiceEnvironment.None;
             RegExFilters = false;
             Registration = Registration.Normal;
+            PrintVersion = false;
         }
 
         /// <summary>
@@ -117,9 +118,11 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-oldStyle]");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
+            builder.AppendLine("or");
+            builder.AppendLine("    -version");
             builder.AppendLine("");
             builder.AppendLine("For further information on the command line please visit the wiki");
-            builder.AppendLine("    https://github.com/sawilde/opencover/wiki/Usage");
+            builder.AppendLine("    https://github.com/OpenCover/opencover/wiki/Usage");
             builder.AppendLine("");
             builder.AppendLine("Filters:");
             builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
@@ -234,17 +237,15 @@ namespace OpenCover.Framework
                     case "?":
                         PrintUsage = true;
                         break;
+                    case "version":
+                        PrintVersion = true;
+                        break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
                 }
             }
 
-            if (PrintUsage) return;
-
-            if (string.IsNullOrWhiteSpace(Target))
-            {
-                throw new InvalidOperationException("The target argument is required");
-            }
+            ValidateArguments();
         }
 
         private T ExtractValue<T>(string argumentName, Action onError)
@@ -303,6 +304,17 @@ namespace OpenCover.Framework
             }
             return list.Distinct().ToList();
         }
+
+        private void ValidateArguments()
+        {
+            if (PrintUsage || PrintVersion) return;
+
+            if (string.IsNullOrWhiteSpace(Target))
+            {
+                throw new InvalidOperationException("The target argument is required");
+            }
+        }
+
 
         /// <summary>
         /// the switch -register was supplied
@@ -444,6 +456,11 @@ namespace OpenCover.Framework
         /// If an existing output exists then load it and allow merging of test runs
         /// </summary>
         public bool MergeExistingOutputFile { get; private set; }
+
+        /// <summary>
+        /// Instructs the console to print its version and exit
+        /// </summary>
+        public bool PrintVersion { get; private set; }
     }
 
 }

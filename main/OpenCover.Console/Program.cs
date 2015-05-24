@@ -23,6 +23,8 @@ namespace OpenCover.Console
 {
     class Program
     {
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper));
+
         /// <summary>
         /// This is the initial console harness - it may become the full thing
         /// </summary>
@@ -30,10 +32,9 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
-
-            var returnCode = 0;
+            int returnCode;
             var returnCodeOffset = 0;
-            var logger = LogManager.GetLogger(typeof (Bootstrapper));
+            
             try
             {
                 CommandLineParser parser;
@@ -43,86 +44,80 @@ namespace OpenCover.Console
 
                 returnCodeOffset = parser.ReturnCodeOffset;
                 var filter = BuildFilter(parser);
+                var perfCounter = CreatePerformanceCounter(parser);
 
                 string outputFile;
                 if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
 
-                IPerfCounters perfCounter = new NullPerfCounter();
-                if (parser.EnablePerformanceCounters)
+                using (var container = new Bootstrapper(Logger))
                 {
-                    if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
-                    {
-                        perfCounter = new PerfCounters();
-                    }
-                    else
-                    {
-                        throw  new InvalidCredentialException("You must be running as an Administrator to enable performance counters.");
-                    }
-                }
-
-                using (var container = new Bootstrapper(logger))
-                {
-                    var persistance = new FilePersistance(parser, logger);
+                    var persistance = new FilePersistance(parser, Logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
                     persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
-                    var registered = false;
-
-                    try
-                    {
-                        if (parser.Register)
-                        {
-                            ProfilerRegistration.Register(parser.Registration);
-                            registered = true;
-                        }
-
-                        var harness = container.Resolve<IProfilerManager>();
-
-                        var servicePrincipal =
-                            (parser.Service
-                                ? new[] { ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target) }
-                                : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
-
-                        harness.RunProcess(environment =>
-                                               {
-                                                   returnCode = 0;
-                                                   if (parser.Service)
-                                                   {
-                                                       RunService(parser, environment, logger);
-                                                   }
-                                                   else
-                                                   {
-                                                       returnCode = RunProcess(parser, environment);
-                                                   }
-                                               }, servicePrincipal);
-
-                        DisplayResults(persistance, parser, logger);
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
-                        throw;
-                    }
-                    finally
-                    {
-                        if (parser.Register && registered)
-                            ProfilerRegistration.Unregister(parser.Registration);
-                    }
+                    returnCode = RunWithContainer(parser, container, persistance);
                 }
 
                 perfCounter.ResetCounters();
             }
             catch (Exception ex)
             {
-                if (logger.IsFatalEnabled)
+                if (Logger.IsFatalEnabled)
                 {
-                    logger.FatalFormat("An exception occured: {0}", ex.Message);
-                    logger.FatalFormat("stack: {0}", ex.StackTrace);
+                    Logger.FatalFormat("An exception occured: {0}", ex.Message);
+                    Logger.FatalFormat("stack: {0}", ex.StackTrace);
                 }
 
                 returnCode = returnCodeOffset + 1;
             }
 
+            return returnCode;
+        }
+
+        private static int RunWithContainer(CommandLineParser parser, Bootstrapper container, IPersistance persistance)
+        {
+            var returnCode = 0;
+            var registered = false;
+
+            try
+            {
+                if (parser.Register)
+                {
+                    ProfilerRegistration.Register(parser.Registration);
+                    registered = true;
+                }
+
+                var harness = container.Resolve<IProfilerManager>();
+
+                var servicePrincipal =
+                    (parser.Service
+                        ? new[] {ServiceEnvironmentManagement.MachineQualifiedServiceAccountName(parser.Target)}
+                        : new string[0]).Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+
+                harness.RunProcess(environment =>
+                {
+                    if (parser.Service)
+                    {
+                        RunService(parser, environment, Logger);
+                        returnCode = 0;
+                    }
+                    else
+                    {
+                        returnCode = RunProcess(parser, environment);
+                    }
+                }, servicePrincipal);
+
+                DisplayResults(persistance, parser, Logger);
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
+                throw;
+            }
+            finally
+            {
+                if (parser.Register && registered)
+                    ProfilerRegistration.Unregister(parser.Registration);
+            }
             return returnCode;
         }
 
@@ -458,6 +453,27 @@ namespace OpenCover.Console
             return filter;
         }
 
+        private static IPerfCounters CreatePerformanceCounter(CommandLineParser parser)
+        {
+            if (parser.EnablePerformanceCounters)
+            {
+                if (new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator))
+                {
+                    return new PerfCounters();
+                }
+                else
+                {
+                    throw new InvalidCredentialException(
+                        "You must be running as an Administrator to enable performance counters.");
+                }
+            }
+            else
+            {
+                return new NullPerfCounter();
+            }
+        }
+
+
         private static bool ParseCommandLine(string[] args, out CommandLineParser parser)
         {
             try
@@ -478,6 +494,22 @@ namespace OpenCover.Console
                 {
                     System.Console.WriteLine(parser.Usage());
                     return false;
+                }
+
+
+                if (parser.PrintVersion)
+                {
+                    var entryAssembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (entryAssembly == null)
+                    {
+                        Logger.Warn("No entry assembly, running from unmanaged application");
+                    }
+                    else
+                    {
+                        var version = entryAssembly.GetName().Version;
+                        System.Console.WriteLine("OpenCover version {0}", version);
+                        return false;
+                    }
                 }
 
                 if (!string.IsNullOrWhiteSpace(parser.TargetDir) && !Directory.Exists(parser.TargetDir))
