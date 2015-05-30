@@ -171,6 +171,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Samples\Samples.cs" />
     <Compile Include="Samples\SimpleMsTest.cs" />
+    <Compile Include="Samples\SimpleNUnit.cs" />
     <Compile Include="Samples\SimpleXUnit.cs" />
     <Compile Include="Support\FakesHelperTests.cs" />
     <Compile Include="Support\UITestingHelperTests.cs" />

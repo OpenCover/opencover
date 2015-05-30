@@ -11,12 +11,19 @@ namespace OpenCover.Extensions.Strategy
     /// </summary>
     public class TrackNUnitTestMethods : ITrackedMethodStrategy
     {
+        private static readonly ISet<string> TrackedAttributeTypeNames = new HashSet<string>
+        {
+            "NUnit.Framework.TestAttribute",
+            "NUnit.Framework.TestCaseAttribute",
+            "NUnit.Framework.TheoryAttribute"
+        };
+
         public IEnumerable<TrackedMethod> GetTrackedMethods(IEnumerable<TypeDefinition> typeDefinitions)
         {
             return (from typeDefinition in typeDefinitions
                     from methodDefinition in typeDefinition.Methods
                     from customAttribute in methodDefinition.CustomAttributes
-                    where customAttribute.AttributeType.FullName == "NUnit.Framework.TestAttribute"
+                    where TrackedAttributeTypeNames.Contains(customAttribute.AttributeType.FullName)
                     select new TrackedMethod()
                     {
                         MetadataToken = methodDefinition.MetadataToken.ToInt32(),
