@@ -110,6 +110,18 @@ void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
     m_visitmap[osThreadID] = p;
 }
 
+MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
+    try {
+        return m_visitmap[osThreadID];
+    }
+    catch (...){
+        auto p = new MSG_SendVisitPoints_Request();
+        ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
+        m_visitmap[osThreadID] = p;
+    }
+    return m_visitmap[osThreadID];
+}
+
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     ULONG osThreadId = m_threadmap[threadID];
@@ -128,7 +140,7 @@ void ProfilerCommunication::SendRemainingThreadBuffers(){
 void ProfilerCommunication::AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType)
 {
     DWORD osThreadId = ::GetCurrentThreadId();
-    auto pVisitPoints = m_visitmap[osThreadId];
+    auto pVisitPoints = GetVisitMapForOSThread(osThreadId);
     pVisitPoints->points[pVisitPoints->count].UniqueId = (uniqueId | msgType);
     if (++pVisitPoints->count == VP_BUFFER_SIZE)
     {
