@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Mono.Cecil;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Model;
@@ -19,6 +20,10 @@ namespace OpenCover.Test.Framework.Service
             Container.GetMock<IFilter>()
                 .Setup(x => x.UseAssembly(It.IsAny<string>()))
                 .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
@@ -105,6 +110,10 @@ namespace OpenCover.Test.Framework.Service
                 .Setup(x => x.UseAssembly(It.IsAny<string>()))
                 .Returns(true);
 
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
+
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
                 .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
@@ -125,6 +134,41 @@ namespace OpenCover.Test.Framework.Service
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
                 .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.MissingPdb)), Times.Once());
+
+        }
+
+        [Test]
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_ExcludedByAttribute()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(true);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(true);
+
+            // act
+            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+
+            // assembly
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.Attribute)), Times.Once());
 
         }
 

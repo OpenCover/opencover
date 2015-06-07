@@ -6,6 +6,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Mono.Cecil;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Symbols;
@@ -41,6 +42,11 @@ namespace OpenCover.Framework.Service
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.MissingPdb);
+            }
+            else if (builder.CanInstrument && _filter.ExcludeByAttribute(builder.GetAssemblyDefinition))
+            {
+                module = builder.BuildModuleModel(false);
+                module.MarkAsSkipped(SkippedMethod.Attribute);
             }
 
             module = module ?? builder.BuildModuleModel(true);

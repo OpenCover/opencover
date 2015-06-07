@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.TraceByTest);
             Assert.IsFalse(parser.SkipAutoImplementedProperties);
             Assert.IsFalse(parser.RegExFilters);
-
+            Assert.IsFalse(parser.PrintVersion);
         }
 
         [Test]
@@ -672,6 +672,33 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.IsTrue(parser.MergeExistingOutputFile);
+        }
+
+        [Test]
+        public void HandlesVersionArgument()
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] {"-version"});
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.PrintVersion);
+        }
+
+        [Test]
+        public void NoArguments_ThrowException()
+        {
+            // arrange
+            var parser = new CommandLineParser(new string[0]);
+            
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("target"));
+            Assert.That(thrownException.Message, Contains.Substring("required"));
         }
     }
 }
