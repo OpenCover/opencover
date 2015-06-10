@@ -32,6 +32,7 @@ namespace OpenCover.Test.Framework
             Assert.IsFalse(parser.SkipAutoImplementedProperties);
             Assert.IsFalse(parser.RegExFilters);
             Assert.IsFalse(parser.PrintVersion);
+            Assert.AreEqual(new TimeSpan(0, 0, 30), parser.ServiceStartTimeout);
         }
 
         [Test]

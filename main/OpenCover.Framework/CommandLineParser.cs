@@ -80,6 +80,7 @@ namespace OpenCover.Framework
             EnablePerformanceCounters = false;
             TraceByTest = false;
             ServiceEnvironment = ServiceEnvironment.None;
+            ServiceStartTimeout = new TimeSpan(0, 0, 30);
             RegExFilters = false;
             Registration = Registration.Normal;
             PrintVersion = false;
@@ -435,6 +436,11 @@ namespace OpenCover.Framework
         /// Gets the value indicating how to apply the service environment
         /// </summary>
         public ServiceEnvironment ServiceEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets the timeout to wait for the service to start up
+        /// </summary>
+        public TimeSpan ServiceStartTimeout { get; private set; }
 
         /// <summary>
         /// Use the old style of instrumentation that even though not APTCA friendly will
