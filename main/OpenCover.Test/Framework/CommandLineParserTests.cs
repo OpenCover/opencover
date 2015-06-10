@@ -701,5 +701,60 @@ namespace OpenCover.Test.Framework
             Assert.That(thrownException.Message, Contains.Substring("target"));
             Assert.That(thrownException.Message, Contains.Substring("required"));
         }
+
+        [Test]
+        public void HandlesServiceStartTimeoutSecondsOnly()
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] {"-servicestarttimeout:10s", RequiredArgs});
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 0, 10)));
+        }
+
+        [Test]
+        public void HandlesServiceStartTimeoutMinutesOnly()
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-servicestarttimeout:20m", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 20, 0)));
+        }
+
+        [Test]
+        public void HandlesServiceStartTimeoutMinutesAndSeconds()
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-servicestarttimeout:20m10s", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 20, 10)));
+        }      
+
+        [TestCase("10")]
+        [TestCase("NaNs")]
+        [TestCase("indifferenttext")]
+        public void InvalidServiceStartTimeoutThrowsException(string invalidTimeout)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-servicestarttimeout:" + invalidTimeout, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<Exception>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
+            Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
+        }
     }
 }
