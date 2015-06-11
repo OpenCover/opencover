@@ -80,6 +80,7 @@ namespace OpenCover.Framework
             EnablePerformanceCounters = false;
             TraceByTest = false;
             ServiceEnvironment = ServiceEnvironment.None;
+            ServiceStartTimeout = new TimeSpan(0, 0, 30);
             RegExFilters = false;
             Registration = Registration.Normal;
             PrintVersion = false;
@@ -112,6 +113,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
+            builder.AppendLine("    [-servicestarttimeout:1m23s");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
@@ -221,6 +223,10 @@ namespace OpenCover.Framework
                             ServiceEnvironment = val;
                         }
                         break;
+                    case "servicestarttimeout":
+                        var timeoutValue = GetArgumentValue("servicestarttimeout");
+                        ServiceStartTimeout = ParseTimeoutValue(timeoutValue);                        
+                        break;
                     case "oldstyle":
                         OldStyleInstrumentation = true;
                         break;
@@ -303,6 +309,43 @@ namespace OpenCover.Framework
                 }
             }
             return list.Distinct().ToList();
+        }
+
+        private TimeSpan ParseTimeoutValue(string timeoutValue)
+        {
+            var match = Regex.Match(timeoutValue, @"((?<minutes>\d+)m)?((?<seconds>\d+)s)?");
+            if (match.Success)
+            {
+                int minutes = 0, seconds = 0;
+
+                var minutesMatch = match.Groups["minutes"];
+                if (minutesMatch.Success)
+                {
+                    minutes = int.Parse(minutesMatch.Value);
+                }
+
+                var secondsMatch = match.Groups["seconds"];
+                if (secondsMatch.Success)
+                {
+                    seconds = int.Parse(secondsMatch.Value);
+                }
+
+                if (minutes == 0 && seconds == 0)
+                {
+                    throw ExceptionForInvalidArgumentValue(timeoutValue, "servicestarttimeout");
+                }
+
+                return new TimeSpan(0, minutes, seconds);
+            }
+            else
+            {
+                throw ExceptionForInvalidArgumentValue(timeoutValue, "servicestarttimeout");
+            }
+        }
+
+        private static Exception ExceptionForInvalidArgumentValue(string argumentName, string argumentValue)
+        {
+            return new Exception(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
         }
 
         private void ValidateArguments()
@@ -435,6 +478,11 @@ namespace OpenCover.Framework
         /// Gets the value indicating how to apply the service environment
         /// </summary>
         public ServiceEnvironment ServiceEnvironment { get; private set; }
+
+        /// <summary>
+        /// Gets the timeout to wait for the service to start up
+        /// </summary>
+        public TimeSpan ServiceStartTimeout { get; private set; }
 
         /// <summary>
         /// Use the old style of instrumentation that even though not APTCA friendly will

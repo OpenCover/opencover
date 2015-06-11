@@ -240,7 +240,7 @@ namespace OpenCover.Console
                         service.Start();
                     }
                     logger.InfoFormat("Service starting '{0}'", parser.Target);
-                    service.WaitForStatus(ServiceControllerStatus.Running, new TimeSpan(0, 0, 30));
+                    service.WaitForStatus(ServiceControllerStatus.Running, parser.ServiceStartTimeout);
                     logger.InfoFormat("Service started '{0}'", parser.Target);
                 }
                 catch (InvalidOperationException fault)
