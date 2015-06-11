@@ -702,44 +702,21 @@ namespace OpenCover.Test.Framework
             Assert.That(thrownException.Message, Contains.Substring("required"));
         }
 
-        [Test]
-        public void HandlesServiceStartTimeoutSecondsOnly()
+        [TestCase("20m", 20, 0, Description = "Minutes only")]
+        [TestCase("10s", 0, 10, Description = "Seconds only")]
+        [TestCase("20m10s", 20, 10, Description = "Minutes and Seconds" )]
+        [TestCase("150s", 2, 30, Description = "Seconds over a minute")]
+        public void HandlesServiceStartTimeout(string timeAsString, int expectedMinutes, int expectedSeconds)
         {
             // arrange
-            var parser = new CommandLineParser(new[] {"-servicestarttimeout:10s", RequiredArgs});
+            var parser = new CommandLineParser(new[] { "-servicestarttimeout:" + timeAsString, RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 0, 10)));
+            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, expectedMinutes, expectedSeconds)));
         }
-
-        [Test]
-        public void HandlesServiceStartTimeoutMinutesOnly()
-        {
-            // arrange
-            var parser = new CommandLineParser(new[] { "-servicestarttimeout:20m", RequiredArgs });
-
-            // act
-            parser.ExtractAndValidateArguments();
-
-            // assert
-            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 20, 0)));
-        }
-
-        [Test]
-        public void HandlesServiceStartTimeoutMinutesAndSeconds()
-        {
-            // arrange
-            var parser = new CommandLineParser(new[] { "-servicestarttimeout:20m10s", RequiredArgs });
-
-            // act
-            parser.ExtractAndValidateArguments();
-
-            // assert
-            Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, 20, 10)));
-        }      
 
         [TestCase("10")]
         [TestCase("NaNs")]
