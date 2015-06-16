@@ -131,7 +131,7 @@ namespace OpenCover.Specs.Steps
 
             if (File.Exists(outputXml)) File.Delete(outputXml);
 
-            var openCover = Path.Combine(folder, "OpenCover.Console.exe");
+            var openCover = Path.Combine(folder, "tools", "OpenCover.Console.exe");
             var target = Path.Combine(folder, string.Format(@"Samples\{0}\OpenCover.Simple.Target.exe", binFolder));
             var startInfo = new ProcessStartInfo(openCover);
             startInfo.Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml);
