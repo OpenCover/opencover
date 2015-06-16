@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -57,7 +57,7 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["targetFolder"] = targetFolder;
             ScenarioContext.Current["targetOutput"] = targetOutput;
         }
-        
+
         [Given(@"I (?:unzip|unpack) that package into a deployment folder")]
         public void GivenIUnzipThatPackageIntoADeploymentFolder()
         {
@@ -66,7 +66,7 @@ namespace OpenCover.Specs.Steps
             var zip = new ZipFile((string)ScenarioContext.Current["targetZip"]);
             zip.ExtractAll(folder);
         }
-        
+
         [Given(@"I have a valid nugetpackage in the output folder")]
         public void GivenIHaveAValidNugetpackageInTheOutputFolder()
         {
@@ -84,7 +84,7 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["targetFolder"] = targetFolder;
             ScenarioContext.Current["targetOutput"] = targetOutput;
         }
-                
+
         [Given(@"I have a valid installer in the output folder")]
         public void GivenIHaveAValidInstallerInTheOutputFolder()
         {
@@ -102,7 +102,7 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["targetFolder"] = targetFolder;
             ScenarioContext.Current["targetOutput"] = targetOutput;
         }
-        
+
         [Given(@"I install that package into a deployment folder")]
         public void GivenIInstallThatPackageIntoADeploymentFolder()
         {
@@ -119,9 +119,10 @@ namespace OpenCover.Specs.Steps
 
             ScenarioContext.Current["targetFolder"] = Path.Combine(folder, "[ApplicationFolderName]");
         }
-        
-        [When(@"I execute the deployed OpenCover against the (x\d\d) target application")]
-        public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplication(string binFolder)
+
+        [When(@"I execute the deployed OpenCover against the (x\d\d) target application(.*)")]
+        [When(@"I execute the deployed OpenCover against the (x\d\d) target application in subfolder (.*)")]
+        public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplication(string binFolder, string subfolder)
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
             var output = (string)ScenarioContext.Current["targetOutput"];
@@ -131,7 +132,7 @@ namespace OpenCover.Specs.Steps
 
             if (File.Exists(outputXml)) File.Delete(outputXml);
 
-            var openCover = Path.Combine(folder, "tools", "OpenCover.Console.exe");
+            var openCover = Path.Combine(folder, subfolder, "OpenCover.Console.exe");
             var target = Path.Combine(folder, string.Format(@"Samples\{0}\OpenCover.Simple.Target.exe", binFolder));
             var startInfo = new ProcessStartInfo(openCover);
             startInfo.Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml);
@@ -140,7 +141,7 @@ namespace OpenCover.Specs.Steps
             process.WaitForExit();
         }
 
-        
+
         [Then(@"the coverage results should be the same")]
         public void ThenTheCoverageResultsShouldBeTheSame()
         {
@@ -153,7 +154,7 @@ namespace OpenCover.Specs.Steps
 
             var outputXml86 = string.Format(@"{0}\{1}_{2}.{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x86", Path.GetExtension(output));
-            
+
             var outputXml64 = string.Format(@"{0}\{1}_{2}.{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x86", Path.GetExtension(output));
 
