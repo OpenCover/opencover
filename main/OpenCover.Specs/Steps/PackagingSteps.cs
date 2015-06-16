@@ -120,9 +120,14 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["targetFolder"] = Path.Combine(folder, "[ApplicationFolderName]");
         }
 
-        [When(@"I execute the deployed OpenCover against the (x\d\d) target application(.*)")]
+        [When(@"I execute the deployed OpenCover against the (x\d\d) target application")]
+        public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplication(string binFolder)
+        {
+            this.WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(binFolder, string.Empty);
+        }
+
         [When(@"I execute the deployed OpenCover against the (x\d\d) target application in subfolder (.*)")]
-        public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplication(string binFolder, string subfolder)
+        public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(string binFolder, string subfolder)
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
             var output = (string)ScenarioContext.Current["targetOutput"];
@@ -140,7 +145,6 @@ namespace OpenCover.Specs.Steps
             var process = Process.Start(startInfo);
             process.WaitForExit();
         }
-
 
         [Then(@"the coverage results should be the same")]
         public void ThenTheCoverageResultsShouldBeTheSame()
