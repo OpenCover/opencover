@@ -1,10 +1,13 @@
 Version [[version]]
-#307 add -version to args
-#305 add corclr_profiler_path support
-#303 support for test cases and theories during track by test
+#315 update nuget package (fix for VS2015)
+#320 update packages (fix for VS2015)
+#304 add switch to control timeout wait (feature)
+#307 add -version to args (feature)
+#305 add corclr_profiler_path support (feature)
+#303 support for test cases and theories during track by test (feature)
 #295 exclude assembly by attribute (feature)
 #288 report (to console) if can't ready body of method (diag)
-#287 fix crash
+#287 fix crash (fix)
 #283 Add visited class/method to summary entity (feature)
 #274 Use thread based buffers for performance improvement (fix)
  

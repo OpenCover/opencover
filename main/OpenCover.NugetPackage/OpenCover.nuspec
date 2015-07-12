@@ -16,26 +16,26 @@
     <tags>Code-Coverage Reporting Testing TDD Utility</tags>
   </metadata>
   <files>
-    <file src="main\bin\Release\x64\OpenCover.Profiler.dll" target="x64"/>
-    <file src="main\bin\Release\x86\OpenCover.Profiler.dll" target="x86"/>
-    <file src="main\bin\Release\Gendarme.Framework.dll"/>
-    <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll"/>
-    <file src="main\bin\Release\Autofac.dll"/>
-    <file src="main\bin\Release\Autofac.Configuration.dll"/>
-    <file src="main\bin\Release\Mono.Cecil.dll"/>
-    <file src="main\bin\Release\Mono.Cecil.Pdb.dll"/>
-    <file src="main\bin\Release\Mono.Cecil.Mdb.dll"/>
+    <file src="main\bin\Release\x64\OpenCover.Profiler.dll" target="tools\x64"/>
+    <file src="main\bin\Release\x86\OpenCover.Profiler.dll" target="tools\x86"/>
+    <file src="main\bin\Release\Gendarme.Framework.dll" target="tools"/>
+    <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
+    <file src="main\bin\Release\Autofac.dll" target="tools"/>
+    <file src="main\bin\Release\Autofac.Configuration.dll" target="tools"/>
+    <file src="main\bin\Release\Mono.Cecil.dll" target="tools"/>
+    <file src="main\bin\Release\Mono.Cecil.Pdb.dll" target="tools"/>
+    <file src="main\bin\Release\Mono.Cecil.Mdb.dll" target="tools"/>
     <file src="License.rtf"/>
     <file src="main\OpenCover.NugetPackage\readme.txt"/>
-    <file src="main\bin\Release\OpenCover.Console.exe"/>
-    <file src="main\bin\Release\OpenCover.Console.pdb"/>
-    <file src="main\bin\Release\OpenCover.Console.exe.config"/>
-    <file src="main\bin\Release\OpenCover.Framework.dll"/>
-    <file src="main\bin\Release\OpenCover.Framework.pdb"/>
-    <file src="main\bin\Release\OpenCover.Extensions.dll"/>
-    <file src="main\bin\Release\OpenCover.Extensions.pdb"/>
-    <file src="main\bin\Release\log4net.config"/>
-    <file src="main\bin\Release\log4net.dll"/>
+    <file src="main\bin\Release\OpenCover.Console.exe" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Console.pdb" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Console.exe.config" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Framework.dll" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Framework.pdb" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Extensions.dll" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Extensions.pdb" target="tools"/>
+    <file src="main\bin\Release\log4net.config" target="tools"/>
+    <file src="main\bin\Release\log4net.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
