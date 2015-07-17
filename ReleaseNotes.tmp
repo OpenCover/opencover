@@ -1,4 +1,5 @@
 Version [[version]]
+#323 push releases and candidates to github via appveyor (prj-mgmt)
 #315 update nuget package (fix for VS2015)
 #320 update packages (fix for VS2015)
 #304 add switch to control timeout wait (feature)
