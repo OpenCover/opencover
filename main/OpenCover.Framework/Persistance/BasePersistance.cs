@@ -353,6 +353,12 @@ namespace OpenCover.Framework.Persistance
                         if (method.Summary.VisitedSequencePoints > 0)
                             method.Summary.VisitedBranchPoints += 1;
 
+                        if (method.FileRef != null)
+                        {
+                            method.Summary.NumMethods = 1;
+                            method.Summary.VisitedMethods = (method.Visited) ? 1 : 0;
+                        }
+
                         AddPoints(@class.Summary, method.Summary);
                         CalculateCoverage(method.Summary);
 
@@ -367,6 +373,9 @@ namespace OpenCover.Framework.Persistance
                         @class.Summary.MinCyclomaticComplexity = Math.Min(@class.Summary.MinCyclomaticComplexity, method.CyclomaticComplexity);
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
+
+                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; ;
+                    @class.Summary.VisitedClasses = (@class.Summary.VisitedMethods > 0) ? 1 : 0;
 
                     AddPoints(module.Summary, @class.Summary);
                     CalculateCoverage(@class.Summary);
@@ -418,6 +427,11 @@ namespace OpenCover.Framework.Persistance
             parent.VisitedBranchPoints += child.VisitedBranchPoints;
             parent.NumSequencePoints += child.NumSequencePoints;
             parent.VisitedSequencePoints += child.VisitedSequencePoints;
+
+            parent.NumClasses += child.NumClasses;
+            parent.VisitedClasses += child.VisitedClasses;
+            parent.NumMethods += child.NumMethods;
+            parent.VisitedMethods += child.VisitedMethods;
         }
 
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)

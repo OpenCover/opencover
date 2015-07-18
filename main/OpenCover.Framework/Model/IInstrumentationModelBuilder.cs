@@ -3,6 +3,9 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
+
+using Mono.Cecil;
+
 namespace OpenCover.Framework.Model
 {
     /// <summary>
@@ -29,5 +32,10 @@ namespace OpenCover.Framework.Model
         /// check if module can be instrumented
         /// </summary>
         bool CanInstrument { get; }
+
+        /// <summary>
+        /// get hold of the underlying assembly definition
+        /// </summary>
+        AssemblyDefinition GetAssemblyDefinition { get; }
     }
 }

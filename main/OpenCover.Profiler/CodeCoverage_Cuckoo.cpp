@@ -177,7 +177,7 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 	instructions.push_back(new Instruction(CEE_CALLI, pvsig));
 
 	criticalMethod.InsertInstructionsAtOffset(0, instructions);
-	criticalMethod.DumpIL();
+	//criticalMethod.DumpIL();
 
 	InstrumentMethodWith(moduleId, m_cuckooCriticalToken, instructions);
 
@@ -199,7 +199,7 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 	instructions.push_back(new Instruction(CEE_CALL, m_cuckooCriticalToken));
 
 	criticalMethod.InsertInstructionsAtOffset(0, instructions);
-	criticalMethod.DumpIL();
+	//criticalMethod.DumpIL();
 
 	InstrumentMethodWith(moduleId, m_cuckooSafeToken, instructions);
 
