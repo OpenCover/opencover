@@ -112,7 +112,13 @@ void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
     try {
-        return m_visitmap[osThreadID];
+        auto result = m_visitmap.find(osThreadID);
+        if (result != m_visitmap.end())
+            return (*result).second;
+        
+        auto p = new MSG_SendVisitPoints_Request();
+        ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
+        m_visitmap[osThreadID] = p;
     }
     catch (...){
         auto p = new MSG_SendVisitPoints_Request();
