@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="..\bin\Debug\test\OpenCover.Simple.Target.exe.config">
+    <None Include="..\bin\test\OpenCover.Simple.Target.exe.config">
       <Link>exe\OpenCover.Simple.Target.exe.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -66,11 +66,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\Debug\test\OpenCover.Simple.Target.exe">
+    <None Include="..\bin\test\OpenCover.Simple.Target.exe">
       <Link>exe\OpenCover.Simple.Target.exe</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\bin\Debug\test\OpenCover.Simple.Target.pdb">
+    <None Include="..\bin\test\OpenCover.Simple.Target.pdb">
       <Link>exe\OpenCover.Simple.Target.pdb</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

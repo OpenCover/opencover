@@ -50,7 +50,7 @@
         tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
   </target>
   
-	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, create-zip-package">
+	<target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
 		<call target="nuget-package" />
 		<call target="set-rc-property" />
 		<call target="nuget-package" />
