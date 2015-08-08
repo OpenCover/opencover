@@ -211,14 +211,17 @@ namespace OpenCover.Test.Framework.Persistance
                                         new Method
                                         {
                                             SequencePoints = new[] {new SequencePoint {VisitCount = 1}},
-                                            CyclomaticComplexity = 1
+                                            CyclomaticComplexity = 1,
+                                            Visited = true,
+                                            FileRef = new FileRef()
                                         },
                                         new Method
                                         {
                                             SequencePoints =
                                                 new[]
                                                 {new SequencePoint {VisitCount = 1}, new SequencePoint {VisitCount = 0}},
-                                            CyclomaticComplexity = 10
+                                            CyclomaticComplexity = 10,
+                                            FileRef = new FileRef()
                                         },
                                         new Method
                                         {
@@ -243,7 +246,11 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedBranchPoints);
             Assert.AreEqual(66.67m, Instance.CoverageSession.Modules[0].Classes[0].Summary.BranchCoverage);
             Assert.AreEqual(10, Instance.CoverageSession.Modules[0].Classes[0].Summary.MaxCyclomaticComplexity);
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumMethods);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedMethods);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumClasses);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedClasses);
+
         }
 
 
@@ -904,7 +911,9 @@ namespace OpenCover.Test.Framework.Persistance
                                         new Method
                                         {
                                             SequencePoints = new[] {new SequencePoint {VisitCount = 1}},
-                                            CyclomaticComplexity = 4
+                                            CyclomaticComplexity = 4,
+                                            Visited = true,
+                                            FileRef = new FileRef()
                                         }
                                     }
                             },
@@ -918,12 +927,16 @@ namespace OpenCover.Test.Framework.Persistance
                                             SequencePoints =
                                                 new[]
                                                 {new SequencePoint {VisitCount = 1}, new SequencePoint {VisitCount = 0}},
-                                            CyclomaticComplexity = 17
+                                            CyclomaticComplexity = 17,
+                                            Visited = true,
+                                            FileRef = new FileRef()
                                         },
                                         new Method
                                         {
                                             SequencePoints = new[] {new SequencePoint {VisitCount = 0}},
-                                            CyclomaticComplexity = 6
+                                            CyclomaticComplexity = 6,
+                                            Visited = true,
+                                            FileRef = new FileRef()
                                         }
                                     }
                             }
@@ -948,6 +961,20 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(6, Instance.CoverageSession.Modules[0].Classes[1].Summary.MinCyclomaticComplexity);
             Assert.AreEqual(17, Instance.CoverageSession.Modules[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(4, Instance.CoverageSession.Modules[0].Summary.MinCyclomaticComplexity);
+            
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumMethods);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedMethods);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumClasses);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedClasses);
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes[1].Summary.NumMethods);
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes[1].Summary.VisitedMethods);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[1].Summary.NumClasses);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[1].Summary.VisitedClasses);
+
+            Assert.AreEqual(3, Instance.CoverageSession.Modules[0].Summary.NumMethods);
+            Assert.AreEqual(3, Instance.CoverageSession.Modules[0].Summary.VisitedMethods);
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Summary.NumClasses);
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Summary.VisitedClasses);
         }
 
         [Test]

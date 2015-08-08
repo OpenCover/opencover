@@ -247,6 +247,7 @@
     <ClCompile Include="CodeCoverage_Cuckoo.cpp" />
     <ClCompile Include="CodeCoverage_ProfilerInfo.cpp" />
     <ClCompile Include="CodeCoverage_Support.cpp" />
+    <ClCompile Include="CodeCoverage_Thread.cpp" />
     <ClCompile Include="CoverageInstrumentation.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>

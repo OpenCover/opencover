@@ -18,9 +18,6 @@
 	</target>
 
 	<target name="get-version-number" >
-		<property name="version.file" value="${build.folder}\Version\build.number" />
-    <echo file="${version.file}" unless="${file::exists(version.file)}">4.5.0.0</echo>
-		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="01/08/2012" />
 		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>

@@ -64,20 +64,27 @@ namespace OpenCover.Framework.Communication
             mcb.StreamAccessorComms.Seek(0, SeekOrigin.Begin);
             mcb.StreamAccessorComms.Write(mcb.DataCommunication, 0, writeSize);
 
-            WaitHandle.SignalAndWait(mcb.InformationReadyForProfiler, mcb.InformationReadByProfiler);
+            WaitHandle.SignalAndWait(mcb.InformationReadyForProfiler, mcb.InformationReadByProfiler, 10000, false);
             mcb.InformationReadByProfiler.Reset();
         }
 
+        private byte[] _data = null;
         public byte[] HandleMemoryBlock(IManagedMemoryBlock mmb)
         {
-            var data = new byte[mmb.BufferSize];
+            _data = _data ?? new byte[mmb.BufferSize];
             mmb.ProfilerHasResults.Reset();
 
             mmb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
-            mmb.StreamAccessorResults.Read(data, 0, mmb.BufferSize);
+            mmb.StreamAccessorResults.Read(_data, 0, mmb.BufferSize);
+
+            var nCount = (int)BitConverter.ToUInt32(_data, 0);
+            var dataSize = (nCount + 1)*sizeof (UInt32);
+            var newData = new byte[dataSize];
+            Buffer.BlockCopy(_data, 0, newData, 0, dataSize);
 
             mmb.ResultsHaveBeenReceived.Set();
-            return data;
+
+            return newData;
         }
 
         public void Complete()

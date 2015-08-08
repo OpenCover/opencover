@@ -18,6 +18,7 @@ namespace OpenCover.UITest
 
         [TestMethod]
         [DeploymentItem(@".\exe\OpenCover.Simple.Target.exe", "exe")]
+        [DeploymentItem(@".\exe\OpenCover.Simple.Target.exe.config", "exe")]
         [DeploymentItem(@".\exe\OpenCover.Simple.Target.pdb", "exe")]
         public void RunApp()
         {
