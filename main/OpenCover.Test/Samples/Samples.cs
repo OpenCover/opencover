@@ -2,12 +2,12 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenCover.Test.Samples
 {
     class ConstructorNotDeclaredClass
-    {
-        
+    {        
     }
 
     class DeclaredConstructorClass
@@ -193,7 +193,32 @@ namespace OpenCover.Test.Samples
         [ExcludeMethodAttribute]
         public override void Method()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();    
+        }
+        
+        protected class InnerConcrete
+        {
+            public InnerConcrete()
+            {
+                
+            }
+
+            public void Method()
+            {
+                var t = new Task(() =>
+                {
+                    Method();
+                    Method();
+                });
+            }
+
+            protected class InnerInnerConcrete
+            {
+                public InnerInnerConcrete()
+                {
+
+                }
+            }
         }
     }
 
