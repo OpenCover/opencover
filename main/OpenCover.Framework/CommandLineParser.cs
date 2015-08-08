@@ -145,6 +145,8 @@ namespace OpenCover.Framework
         /// </summary>
         public void ExtractAndValidateArguments()
         {
+            ParseArguments();
+
             foreach (var key in ParsedArguments.Keys)
             {
                 var lower = key.ToLowerInvariant();
@@ -247,7 +249,7 @@ namespace OpenCover.Framework
                         PrintVersion = true;
                         break;
                     default:
-                        throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
+                        throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
                 }
             }
 
