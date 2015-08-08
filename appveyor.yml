@@ -1,4 +1,5 @@
-version: 1.0.{build}
+version: 4.6.{build}
+skip_tags: true
 os: Unstable
 shallow_clone: true
 environment:
@@ -7,7 +8,6 @@ environment:
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
-- build/Version/build.number
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -37,9 +37,26 @@ deploy:
   artifact: NugetCandidate
   on:
     branch: rc
+- provider: GitHub
+  tag: $(appveyor_build_version)-rc
+  release: OpenCover (Release Candidiate) $(appveyor_build_version)
+  auth_token:
+    secure: bMPwiJusZ78qab84M/zNAxmpMSCW11eaJI3czwnDzl8tK/9u3y4w38+2WOVkNeOg
+  artifact: Installer, ZipArchive
+  prerelease: true
+  on:
+    branch: rc
+- provider: GitHub
+  tag: $(appveyor_build_version)
+  release: OpenCover (Release) $(appveyor_build_version)
+  auth_token:
+    secure: bMPwiJusZ78qab84M/zNAxmpMSCW11eaJI3czwnDzl8tK/9u3y4w38+2WOVkNeOg
+  artifact: Installer, ZipArchive
+  on:
+    branch: release
 notifications:
 - provider: Webhook
-  url: https://webhooks.gitter.im/e/737fbf46970811e6bfa7
+  url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true

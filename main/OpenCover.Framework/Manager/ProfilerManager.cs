@@ -123,10 +123,14 @@ namespace OpenCover.Framework.Manager
             switch (_commandLine.Registration)
             {
                 case Registration.Path32:
-                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(false);
+                    string profilerPath32 = ProfilerRegistration.GetProfilerPath(false);
+                    dictionary["Cor_Profiler_Path"] = profilerPath32;
+                    dictionary["CorClr_Profiler_Path"] = profilerPath32;
                     break;
                 case Registration.Path64:
-                    dictionary["Cor_Profiler_Path"] = ProfilerRegistration.GetProfilerPath(true);
+                    string profilerPath64 = ProfilerRegistration.GetProfilerPath(true);
+                    dictionary["Cor_Profiler_Path"] = profilerPath64;
+                    dictionary["CorClr_Profiler_Path"] = profilerPath64;
                     break;
             }
         }

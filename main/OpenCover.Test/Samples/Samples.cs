@@ -166,6 +166,14 @@ namespace OpenCover.Test.Samples
     {
     }
 
+    [AttributeUsage(AttributeTargets.Assembly)]
+    internal class ExcludeAssemblyAttribute : Attribute
+    {
+        public ExcludeAssemblyAttribute()
+        {
+        }
+    }
+
     [ExcludeClassAttribute]
     public class Concrete : AbstractBase
     {

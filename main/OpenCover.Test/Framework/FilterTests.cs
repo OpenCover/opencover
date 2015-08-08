@@ -586,6 +586,42 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void Can_Identify_Excluded_Assemblies()
+        {
+            // arrange
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+           
+            // act
+            var filter = new Filter();
+            Assert.False(filter.ExcludeByAttribute(sourceAssembly));
+
+            // assert
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeAssemblyAttribute" });
+            Assert.True(filter.ExcludeByAttribute(sourceAssembly));
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_Types()
+        {
+            // arrange
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
+
+            // act
+            var filter = new Filter();
+            foreach (var typeDefinition in sourceAssembly.MainModule.Types.Where(x => x.Name == "Concrete"))
+            {
+                Assert.False(filter.ExcludeByAttribute(typeDefinition));
+            }
+
+            // assert
+            filter.AddAttributeExclusionFilters(new[] { "*ExcludeClassAttribute" });
+            foreach (var typeDefinition in sourceAssembly.MainModule.Types.Where(x => x.Name == "Concrete"))
+            {
+                Assert.True(filter.ExcludeByAttribute(typeDefinition));
+            }
+        }
+
+        [Test]
         public void CanIdentify_AutoImplementedProperties()
         {
             // arrange

@@ -34,5 +34,15 @@ namespace OpenCover.Framework.Model
         /// Entity (method) was skipped as it is an auto-implemented property.
         /// </summary>
         AutoImplementedProperty = 6,
+
+        /// <summary>
+        /// Entity (method) was skipped as it is native code.
+        /// </summary>
+        NativeCode = 7,
+
+        /// <summary>
+        /// Entity (method) was skipped for other reasons.
+        /// </summary>
+        Unknown = 8
     }
 }

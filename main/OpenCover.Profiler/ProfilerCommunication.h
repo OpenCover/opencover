@@ -82,6 +82,8 @@ private:
     std::unordered_map<ThreadID, ULONG> m_threadmap;
     std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> m_visitmap;
 
+    MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
+
 private:
   
     class CommunicationException : std::exception
