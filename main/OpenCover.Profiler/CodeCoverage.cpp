@@ -164,11 +164,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 	if (m_chainedProfiler != NULL)
 		m_chainedProfiler->Shutdown();
 
-    if (!m_tracingEnabled){
-        m_host.SendRemainingThreadBuffers();
-    }
-
-    m_host.CloseChannel();
+    m_host.CloseChannel(m_tracingEnabled);
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(NULL, szExeName, MAX_PATH);
