@@ -194,6 +194,24 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
+        public void GetBranchPointsForMethodToken_GeneratedBranches_DueToCachedAnonymousMethodDelegate_Ignored()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSimpleTaskWithLambda")).MetadataToken);
+
+            Assert.AreEqual(0, points.Length);
+        }
+
+        [Test]
         public void GetBranchPointsForMethodToken_TwoBranch()
         {
             // arrange
@@ -434,11 +452,11 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(DeclaredConstructorClass).FullName).First();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var complexity = _reader.GetCyclomaticComplexityForToken(methods.Where(x => x.Name.Contains("::HasTwoDecisions")).First().MetadataToken);
+            var complexity = _reader.GetCyclomaticComplexityForToken(methods.First(x => x.Name.Contains("::HasTwoDecisions")).MetadataToken);
 
             // assert
             Assert.AreEqual(3, complexity);
@@ -453,7 +471,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+            var type = types.First(x => x.FullName == typeof(AbstractBase).FullName);
 
             // act
             var methods = _reader.GetMethodsForType(type, new File[0]);
@@ -471,7 +489,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+            var type = types.First(x => x.FullName == typeof(AbstractBase).FullName);
 
             // act
             var methods = _reader.GetMethodsForType(type, new File[0]);
@@ -489,7 +507,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(AbstractBase).FullName).First();
+            var type = types.First(x => x.FullName == typeof(AbstractBase).FullName);
 
             // act
             var methods = _reader.GetMethodsForType(type, new File[0]);
@@ -507,7 +525,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.Where(x => x.FullName == typeof(Concrete).FullName).First();
+            var type = types.First(x => x.FullName == typeof(Concrete).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -650,7 +668,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             _mockFilter
                 .Setup(x => x.IsAutoImplementedProperty(It.IsAny<MethodDefinition>()))
-                .Returns<MethodDefinition>(x => filter.IsAutoImplementedProperty(x));
+                .Returns<MethodDefinition>(filter.IsAutoImplementedProperty);
 
             _mockCommandLine.Setup(x => x.SkipAutoImplementedProperties).Returns(true);
 
