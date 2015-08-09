@@ -104,7 +104,7 @@ namespace OpenCover.Test.Samples
             string value;
             try
             {
-
+                
             }
             finally
             {
@@ -115,6 +115,11 @@ namespace OpenCover.Test.Samples
                 }
             }
             return value;
+        }
+
+        public void HasSimpleTaskWithLambda()
+        {
+            var t = new Task(() => { });
         }
 
         public string UsingWithException_Issue243()
