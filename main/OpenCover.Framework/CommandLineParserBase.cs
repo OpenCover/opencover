@@ -21,21 +21,29 @@ namespace OpenCover.Framework
         {
             _arguments = arguments;
             ParsedArguments = new Dictionary<string, string>();
-            ParseArguments();
         }
 
         protected IDictionary<string, string> ParsedArguments { get; private set; }
-
-        private void ParseArguments()
+        
+        /// <summary>
+        /// Parse the arguments
+        /// </summary>
+        protected void ParseArguments()
         {
             if (_arguments == null) return;
+            if (ParsedArguments.Count > 0) return;
 
             foreach (var argument in _arguments)
             {
                 var trimmed = argument.Trim();
-                if (!trimmed.StartsWith("-")) continue;
+                if (string.IsNullOrEmpty(trimmed)) continue;
+                                
+                if (!trimmed.StartsWith("-"))
+                    throw new InvalidOperationException(string.Format("The argument '{0}' is not recognised", argument));
+                
                 trimmed = trimmed.Substring(1);
                 if (string.IsNullOrEmpty(trimmed)) continue;
+                
                 var colonidx = trimmed.IndexOf(':');
                 if (colonidx>0)
                 {

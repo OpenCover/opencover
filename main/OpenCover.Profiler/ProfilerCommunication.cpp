@@ -19,6 +19,7 @@
 
 ProfilerCommunication::ProfilerCommunication() 
 {
+    m_bufferId = 0;
 }
 
 ProfilerCommunication::~ProfilerCommunication()
@@ -65,6 +66,8 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         stream << bufferId;
         stream >> memoryKey;
 
+        m_bufferId = bufferId;
+
         memoryKey = m_key + memoryKey;
 
 		m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
@@ -106,7 +109,8 @@ void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     m_threadmap[threadID] = osThreadID;
     auto p = new MSG_SendVisitPoints_Request();
-    ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
+    p->count = 0;
+    //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
     m_visitmap[osThreadID] = p;
 }
 
@@ -122,7 +126,8 @@ MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG
     }
     catch (...){
         auto p = new MSG_SendVisitPoints_Request();
-        ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
+        p->count = 0;
+        //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
         m_visitmap[osThreadID] = p;
     }
     return m_visitmap[osThreadID];
@@ -131,15 +136,18 @@ MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     ULONG osThreadId = m_threadmap[threadID];
-    SendThreadVisitPoints(m_visitmap[osThreadId]);
+    auto points = m_visitmap[osThreadId];
+    SendThreadVisitPoints(points);
     delete m_visitmap[osThreadId];
     m_visitmap[osThreadId] = NULL;
 }
 
 void ProfilerCommunication::SendRemainingThreadBuffers(){
     for (auto it = m_visitmap.begin(); it != m_visitmap.end(); ++it){
-        if (it->second != NULL)
+        if (it->second != NULL){
             SendThreadVisitPoints(it->second);
+            //::ZeroMemory(pVisitPoints, sizeof(MSG_SendVisitPoints_Request));        
+        }
     }
 }
 
@@ -151,8 +159,7 @@ void ProfilerCommunication::AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdTy
     if (++pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendThreadVisitPoints(pVisitPoints);
-        //::ZeroMemory(pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
-        pVisitPoints->count = 0;
+        //::ZeroMemory(pVisitPoints, sizeof(MSG_SendVisitPoints_Request));        
     }
 }
 
@@ -160,8 +167,9 @@ void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* p
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
     if (!hostCommunicationActive) return;
     memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
+    pVisitPoints->count = 0;
     SendVisitPoints();
-    ::ZeroMemory(m_pVisitPoints, sizeof(MAX_MSG_SIZE));
+    //::ZeroMemory(m_pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
     m_pVisitPoints->count = 0;
 }
 
@@ -173,7 +181,7 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
-        ::ZeroMemory(m_pVisitPoints, sizeof(MAX_MSG_SIZE));
+        //::ZeroMemory(m_pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
         m_pVisitPoints->count = 0;
     }
 }
@@ -337,6 +345,36 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
         , _T("AllocateBuffer"));
 
     return response;
+}
+
+void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
+    if (m_bufferId == 0) return;
+    
+
+    if (sendSingleBuffer)
+        SendVisitPoints();
+    else
+        SendRemainingThreadBuffers();
+
+    if (!hostCommunicationActive) return;
+
+    bool response = false;
+
+    RequestInformation(
+        [=]()
+        {
+            m_pMSG->closeChannelBufferRequest.type = MSG_CloseChannel;
+            m_pMSG->closeChannelBufferRequest.ulBufferId = m_bufferId;
+        },
+        [=, &response]()->BOOL
+        {
+            response = m_pMSG->allocateBufferResponse.bResponse == TRUE;
+            return FALSE;
+        }
+        , COMM_WAIT_SHORT
+        , _T("CloseChannel"));
+
+    return;
 }
 
 template<class BR, class PR>

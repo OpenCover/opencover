@@ -41,6 +41,7 @@ enum MSG_Type : int
     MSG_GetBranchPoints = 3,
     MSG_TrackMethod = 4,
     MSG_AllocateMemoryBuffer = 5,
+    MSG_CloseChannel = 6,
 };
 
 enum MSG_IdType : ULONG
@@ -128,6 +129,17 @@ typedef struct _MSG_AllocateBuffer_Response
     ULONG ulBufferId;
 } MSG_AllocateBuffer_Response;
 
+typedef struct _MSG_CloseChannel_Request
+{
+    MSG_Type type;
+    ULONG ulBufferId;
+} MSG_CloseChannel_Request;
+
+typedef struct _MSG_CloseChannel_Response
+{
+    BOOL bResponse;
+} MSG_CloseChannel_Response;
+
 #pragma pack(pop)
 
 typedef union _MSG_Union
@@ -143,5 +155,7 @@ typedef union _MSG_Union
     MSG_TrackMethod_Response trackMethodResponse;
     MSG_AllocateBuffer_Request allocateBufferRequest;
     MSG_AllocateBuffer_Response allocateBufferResponse;
+    MSG_CloseChannel_Request closeChannelBufferRequest;
+    MSG_CloseChannel_Response closeChannelResponse;
 } MSG_Union;
 

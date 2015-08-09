@@ -56,17 +56,23 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="..\bin\Debug\x86\OpenCover.Simple.Target.exe">
-      <Link>exe\OpenCover.Simple.Target.exe</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="..\bin\Debug\x86\OpenCover.Simple.Target.pdb">
-      <Link>exe\OpenCover.Simple.Target.pdb</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="..\bin\test\OpenCover.Simple.Target.exe.config">
+      <Link>exe\OpenCover.Simple.Target.exe.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\cmdline\uitest.opencover.cmd">
       <Link>uitest.opencover.cmd</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\bin\test\OpenCover.Simple.Target.exe">
+      <Link>exe\OpenCover.Simple.Target.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\bin\test\OpenCover.Simple.Target.pdb">
+      <Link>exe\OpenCover.Simple.Target.pdb</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <Choose>

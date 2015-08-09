@@ -489,6 +489,12 @@ namespace OpenCover.Framework.Persistance
         public void SaveVisitData(byte[] data)
         {
             var nCount = BitConverter.ToUInt32(data, 0);
+            if (nCount > (data.Count()/4) - 1)
+            {
+                _logger.DebugFormat("Failed to process points as count ({0}) exceeded available buffer size ({1})",
+                    nCount, (data.Count()/4) - 1);
+                return;
+            }
             for (int i = 0, idx = 4; i < nCount; i++, idx += 4)
             {
                 var spid = BitConverter.ToUInt32(data, idx);

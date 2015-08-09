@@ -35,11 +35,11 @@ public:
 	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
 	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
     void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
+    void CloseChannel(bool sendSingleBuffer);
 
 public: 
     void ThreadCreated(ThreadID threadID, DWORD osThreadID);
     void ThreadDestroyed(ThreadID threadID);
-    void SendRemainingThreadBuffers();
 
 private:
     void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
@@ -47,6 +47,7 @@ private:
     void SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints);
     bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
+    void SendRemainingThreadBuffers();
 
 private:
     tstring m_key;
@@ -54,6 +55,8 @@ private:
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
+
+    ULONG m_bufferId;
 
 private:
     CMutex m_mutexCommunication;

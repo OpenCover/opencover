@@ -16,7 +16,7 @@ namespace OpenCover.Framework.Communication
 {
     public interface IMessageHandler
     {
-        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
+        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling);
         int ReadSize { get; }
         void Complete();
     }
@@ -38,7 +38,7 @@ namespace OpenCover.Framework.Communication
         }
 
         // TODO: change pinnedMemory to an byte[], pass in mcb as well
-        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
+        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling)
         {
             IntPtr pinnedMemory = mcb.PinnedDataCommunication.AddrOfPinnedObject();
             var writeSize = 0;
@@ -153,7 +153,20 @@ namespace OpenCover.Framework.Communication
                         writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
                         _bufferId++;
 
-                        offloadHandling(block.Item1, block.Item2);
+                        offloadHandling(block);
+                    }
+                    break;
+
+                case MSG_Type.MSG_CloseChannel:
+                    {
+                        var msgCC = _marshalWrapper.PtrToStructure<MSG_CloseChannel_Request>(pinnedMemory);
+                        var bufferId = msgCC.bufferId;
+
+                        var responseCC = new MSG_CloseChannel_Response { done = true };
+                        _marshalWrapper.StructureToPtr(responseCC, pinnedMemory, false);
+                        writeSize = Marshal.SizeOf(typeof(MSG_CloseChannel_Response));
+
+                        _memoryManager.DeactivateMemoryBuffer(bufferId);
                     }
                     break;
             }
@@ -180,6 +193,8 @@ namespace OpenCover.Framework.Communication
                         Marshal.SizeOf(typeof(MSG_TrackMethod_Response)), 
                         Marshal.SizeOf(typeof(MSG_AllocateBuffer_Request)), 
                         Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response)), 
+                        Marshal.SizeOf(typeof(MSG_CloseChannel_Request)), 
+                        Marshal.SizeOf(typeof(MSG_CloseChannel_Response)), 
                     }).Max();
                 }
                 return _readSize;

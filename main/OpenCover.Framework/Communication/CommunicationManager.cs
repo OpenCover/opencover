@@ -16,7 +16,7 @@ namespace OpenCover.Framework.Communication
         /// </summary>
         /// <param name="mcb"></param>
         /// <param name="offloadHandling"></param>
-        void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
+        void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<ManagedBufferBlock> offloadHandling);
 
         /// <summary>
         /// process a results block from the profiler
@@ -46,7 +46,7 @@ namespace OpenCover.Framework.Communication
             _messageHandler = messageHandler;
         }
 
-        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
+        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<ManagedBufferBlock> offloadHandling)
         {
             mcb.ProfilerRequestsInformation.Reset();
 

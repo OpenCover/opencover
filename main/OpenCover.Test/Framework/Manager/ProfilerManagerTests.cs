@@ -203,7 +203,7 @@ namespace OpenCover.Test.Framework.Manager
             EventWaitHandle offloadComplete = new AutoResetEvent(false);
 
             Container.GetMock<ICommunicationManager>()
-                     .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
+                     .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<ManagedBufferBlock>>()))
                      .Callback(() =>
                          {
                              if (standardMessageReady != null) 
@@ -220,8 +220,8 @@ namespace OpenCover.Test.Framework.Manager
 
             // assert
             Container.GetMock<ICommunicationManager>()
-                .Verify(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), 
-                    It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
+                .Verify(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(),
+                    It.IsAny<Action<ManagedBufferBlock>>()), Times.Once());
         }
 
         [Test, RequiresMTA, Repeat(10)]
@@ -246,12 +246,12 @@ namespace OpenCover.Test.Framework.Manager
             using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, -5, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
-                         .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
-                         .Callback<IManagedCommunicationBlock, Action<IManagedCommunicationBlock, IManagedMemoryBlock>>((_, offload) =>
+                         .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<ManagedBufferBlock>>()))
+                         .Callback<IManagedCommunicationBlock, Action<ManagedBufferBlock>>((_, offload) =>
                          {
                              standardMessageReady.Reset();
 
-                             offload(mcb, mmb);
+                             offload(new ManagedBufferBlock { CommunicationBlock = mcb, MemoryBlock = mmb });
                              offloadComplete.Set();
                          });
 
@@ -281,13 +281,13 @@ namespace OpenCover.Test.Framework.Manager
             using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
-                         .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()))
-                         .Callback<IManagedCommunicationBlock, Action<IManagedCommunicationBlock, IManagedMemoryBlock>>((_, offload) =>
+                         .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<ManagedBufferBlock>>()))
+                         .Callback<IManagedCommunicationBlock, Action<ManagedBufferBlock>>((_, offload) =>
                          {
                              standardMessageReady.Reset();
                              mcb.ProfilerRequestsInformation.Reset();
 
-                             offload(mcb, mmb);
+                             offload(new ManagedBufferBlock{CommunicationBlock = mcb, MemoryBlock = mmb});
                              offloadComplete.Set();
                          });
 
@@ -304,7 +304,7 @@ namespace OpenCover.Test.Framework.Manager
             // assert
             Container.GetMock<ICommunicationManager>()
                 .Verify(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(),
-                    It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Exactly(2));
+                    It.IsAny<Action<ManagedBufferBlock>>()), Times.Exactly(2));
         }
 
         [Test]
