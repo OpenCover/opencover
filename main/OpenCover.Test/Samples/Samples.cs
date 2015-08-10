@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,6 @@ namespace OpenCover.Test.Samples
     class ConstructorNotDeclaredClass
     {        
     }
-
     class DeclaredConstructorClass
     {
         DeclaredConstructorClass() { }
@@ -298,5 +298,14 @@ namespace OpenCover.Test.Samples
                 return x;
             }
         }
+    }
+
+    public class Iterator
+    {
+        public IEnumerable<string> Fetch()
+        {
+            yield return "one";
+            yield return "two";
+        } 
     }
 }
