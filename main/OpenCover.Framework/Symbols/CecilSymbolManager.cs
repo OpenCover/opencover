@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Mdb;
@@ -387,10 +388,18 @@ namespace OpenCover.Framework.Symbols
             {
                 UInt32 ordinal = 0;
                 var instructions = methodDefinition.SafeGetMethodBody().Instructions;
-                foreach (var instruction in instructions)
+                
+                // if method is generated MoveNext skip switch if it is the first branch
+                var skipFirstSwitch = Regex.IsMatch(methodDefinition.FullName, @"\<.+\>d__\d+::MoveNext\(\)$");
+
+                foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {
-                    if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
+                    if (instruction.OpCode.Code == Code.Switch && skipFirstSwitch)
+                    {
+                        skipFirstSwitch = false;
                         continue;
+                    }
+                    skipFirstSwitch = false; 
 
                     if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
 

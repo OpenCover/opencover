@@ -795,7 +795,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .SelectMany(s => s.Methods)
                 .First(m => m.MetadataToken.ToInt32() == token);
 
-            // check that the method is laid out the way we discovered it t be during the defect
+            // check that the method is laid out the way we discovered it to be during the defect
             Assert.AreEqual(1, md.Body.ExceptionHandlers.Count);
             Assert.NotNull(md.Body.ExceptionHandlers[0].HandlerStart);
             Assert.Null(md.Body.ExceptionHandlers[0].HandlerEnd);
@@ -808,6 +808,28 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Count(), "The branch point in the 'generated' finally block should be ignored");
+        }
+
+        [Test]
+        public void GetBranchPointsForMethodToken_IgnoresSwitchIn_GeneratedMoveNext()
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var nested = typeof (Iterator).GetNestedTypes(BindingFlags.NonPublic).First();
+            var type = types.First(x => x.FullName.EndsWith(nested.Name));
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+            var method = methods.First(x => x.Name.EndsWith("::MoveNext()"));
+
+            // act
+            var points = _reader.GetBranchPointsForToken(method.MetadataToken);
+
+            // assert
+            Assert.AreEqual(0, points.Count());
+
         }
     }
 }
