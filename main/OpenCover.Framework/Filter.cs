@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -152,10 +153,13 @@ namespace OpenCover.Framework
 
             while (true)
             {
-                if (entity == null || !entity.HasCustomAttributes)
+                if (entity == null)
                     return false;
 
-                if (ExcludeByAttribute((ICustomAttributeProvider) entity))
+                if (ExcludeByAttribute((ICustomAttributeProvider)entity))
+                    return true;
+
+                if (ExcludeByAttribute(entity.DeclaringType))
                     return true;
 
                 if (entity.DeclaringType == null || !entity.Name.StartsWith("<"))

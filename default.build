@@ -50,7 +50,7 @@
         tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
   </target>
   
-	<target name="create-release" depends="build-environment, build-release-platforms, test, test-cpp, create-zip-package">
+	<target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
 		<call target="nuget-package" />
 		<call target="set-rc-property" />
 		<call target="nuget-package" />
@@ -61,12 +61,7 @@
   <target name="set-rc-property" >
     <property name="buildnumber.ci" value="-rc" />
   </target>
-  
-  <target name="create-release-candidate" depends="build-environment, build-release-platforms, test, test-cpp, set-rc-property, nuget-package, create-zip-package">
-		<call target="copy-artefacts" />
-		<call target="test-bdd" />
-	</target>
-	
+  	
   <target name="generate-release-notes" depends="get-version-number" >
     <delete file="ReleaseNotes.txt" />
     <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
@@ -95,6 +90,6 @@
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
       </filterchain>
     </copy>
-    </target>
+  </target>
 	
 </project>

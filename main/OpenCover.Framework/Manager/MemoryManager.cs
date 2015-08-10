@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace OpenCover.Framework.Manager
         private string _key;
         private readonly object _lockObject = new object();
 
-        private readonly IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> _blocks = new List<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>>();
+        private readonly IList<ManagedBufferBlock> _blocks = new List<ManagedBufferBlock>();
 
         /// <summary>
         /// 
@@ -118,6 +119,7 @@ namespace OpenCover.Framework.Manager
 
             public void Dispose()
             {
+                Debug.WriteLine("*** disposing memory block ***");
                 StreamAccessorResults.Dispose();
                 _mmfResults.Dispose();
             }
@@ -207,6 +209,7 @@ namespace OpenCover.Framework.Manager
 
             public void Dispose()
             {
+                Debug.WriteLine("*** disposing communication block ***");
                 StreamAccessorComms.Dispose();
                 _memoryMappedFile.Dispose();
                 PinnedDataCommunication.Free();
@@ -238,26 +241,64 @@ namespace OpenCover.Framework.Manager
         /// <param name="bufferSize"></param>
         /// <param name="bufferId"></param>
         /// <returns></returns>
-        public Tuple<IManagedCommunicationBlock, IManagedMemoryBlock> AllocateMemoryBuffer(int bufferSize, uint bufferId)
+        public ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, uint bufferId)
         {
             if (!_isIntialised) return null;
 
             lock (_lockObject)
             {
-                var tuple = new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(
-                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
-                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal));
+                var tuple = new ManagedBufferBlock
+                {
+                    CommunicationBlock =
+                        new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int) bufferId, _servicePrincipal),
+                    MemoryBlock =
+                        new ManagedMemoryBlock(_namespace, _key, bufferSize, (int) bufferId, _servicePrincipal),
+                    BufferId = bufferId
+                };
                 _blocks.Add(tuple);
                 return tuple;
             }
         }
 
+
         /// <summary>
         /// get a pair of communication+memory blocks
         /// </summary>
-        public IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> GetBlocks
+        public IList<ManagedBufferBlock> GetBlocks
         {
             get { return _blocks; }
+        }
+
+        /// <summary>
+        /// deactivate a memory block
+        /// </summary>
+        /// <param name="bufferId"></param>
+        public void DeactivateMemoryBuffer(uint bufferId)
+        {
+            lock (_lockObject)
+            {
+                var block = _blocks.FirstOrDefault(b => b.BufferId == bufferId);
+                if (block == null) return;
+                block.Active = false;
+            }
+        }
+
+        /// <summary>
+        /// remove deactivated blocks
+        /// </summary>
+        public void RemoveDeactivatedBlocks()
+        {
+            lock (_lockObject)
+            {
+                var list = _blocks.Where(b => !b.Active).ToList();
+                foreach (var b in list)
+                {
+                    Debug.WriteLine("*** removing deactivated ***");
+                    b.CommunicationBlock.Dispose();
+                    b.MemoryBlock.Dispose();
+                    _blocks.RemoveAt(_blocks.IndexOf(b));
+                }
+            }
         }
 
         public void Dispose()
@@ -265,10 +306,10 @@ namespace OpenCover.Framework.Manager
             //Console.WriteLine("Disposing...");
             lock (_lockObject)
             {
-                foreach(var block in _blocks)
+                foreach(var block in _blocks.Where(b => b.Active))
                 {
-                    block.Item1.Dispose();
-                    block.Item2.Dispose();
+                    block.CommunicationBlock.Dispose();
+                    block.MemoryBlock.Dispose();
                 }
                 _blocks.Clear();
             }

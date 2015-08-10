@@ -63,7 +63,7 @@ namespace OpenCover.Test.Framework.Communication
                 // act
                 ThreadPool.QueueUserWorkItem(state =>
                     {
-                        Instance.HandleCommunicationBlock(mcb, (block, memoryBlock) => { });
+                        Instance.HandleCommunicationBlock(mcb, block => { });
                         wait.Set();
                     });
 
@@ -74,7 +74,7 @@ namespace OpenCover.Test.Framework.Communication
 
                 Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb,
                     It.IsAny<Action<int, IManagedCommunicationBlock>>(),
-                    It.IsAny<Action<IManagedCommunicationBlock, IManagedMemoryBlock>>()), Times.Once());
+                    It.IsAny<Action<ManagedBufferBlock>>()), Times.Once());
             }
         }
 

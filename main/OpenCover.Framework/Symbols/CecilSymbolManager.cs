@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Mono.Cecil.Mdb;
@@ -386,11 +387,19 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 UInt32 ordinal = 0;
+                var instructions = methodDefinition.SafeGetMethodBody().Instructions;
+                
+                // if method is generated MoveNext skip switch if it is the first branch
+                var skipFirstSwitch = Regex.IsMatch(methodDefinition.FullName, @"\<.+\>d__\d+::MoveNext\(\)$");
 
-                foreach (var instruction in methodDefinition.SafeGetMethodBody().Instructions)
+                foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {
-                    if (instruction.OpCode.FlowControl != FlowControl.Cond_Branch)
+                    if (instruction.OpCode.Code == Code.Switch && skipFirstSwitch)
+                    {
+                        skipFirstSwitch = false;
                         continue;
+                    }
+                    skipFirstSwitch = false; 
 
                     if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
 
@@ -426,7 +435,6 @@ namespace OpenCover.Framework.Symbols
                                 : new List<int>(),
                         EndOffset = pathOffsetList.Last()
                     };
-                    list.Add(path0);
 
                     // Add Conditional Branch (Path=1)
                     if (instruction.OpCode.Code != Code.Switch)
@@ -452,7 +460,42 @@ namespace OpenCover.Framework.Symbols
                                     : new List<int>(),
                             EndOffset = pathOffsetList.Last()
                         };
-                        list.Add(path1);
+
+                        // only add branch if branch does not match a known sequence 
+                        // e.g. auto generated field assignment
+                        // or encapsulates at least one sequence point
+                        var offsets = new[]
+                        {
+                            path0.Offset,
+                            path0.EndOffset,
+                            path1.Offset,
+                            path1.EndOffset
+                        };
+
+                        var ignoreSequences = new[]
+                        {
+                            new []{ Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Br_S, Code.Ldsfld}, // CachedAnonymousMethodDelegate field allocation - debug
+                            new []{ Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Ldsfld} // CachedAnonymousMethodDelegate field allocation
+                        };
+                       
+                        var bs = offsets.Min();
+                        var be = offsets.Max();
+
+                        var range = instructions.Where(i => (i.Offset >= bs) && (i.Offset <= be)).ToList();
+
+                        var match = ignoreSequences
+                            .Where(ignoreSequence => range.Count() >= ignoreSequence.Count())
+                            .Select(x => x.Zip(range, (code, i1) => new {Code1 = code, Code2 = i1.OpCode.Code}).All(y => y.Code1 == y.Code2))
+                            .Any();
+
+                        var count = range
+                            .Count(i => i.SequencePoint != null);
+
+                        if (!match || count > 0)
+                        {
+                            list.Add(path0);
+                            list.Add(path1);
+                        }
                     }
                     else // instruction.OpCode.Code == Code.Switch
                     {
@@ -460,6 +503,7 @@ namespace OpenCover.Framework.Symbols
                         if (branchInstructions == null || branchInstructions.Length == 0)
                             return;
 
+                        list.Add(path0);
                         // Add Conditional Branches (Path>0)
                         foreach (var @case in branchInstructions)
                         {
@@ -548,7 +592,7 @@ namespace OpenCover.Framework.Symbols
         {
             var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
             if (!sequencePointsInMethod.Any()) return null;
-            var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetCompararer());
+            var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetComparer());
             Instruction prev;
             if (idx < 0)
             {
@@ -570,7 +614,7 @@ namespace OpenCover.Framework.Symbols
             return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
         }
 
-        private class InstructionByOffsetCompararer : IComparer<Instruction>
+        private class InstructionByOffsetComparer : IComparer<Instruction>
         {
             public int Compare(Instruction x, Instruction y)
             {

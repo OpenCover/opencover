@@ -541,7 +541,9 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
+                System.Console.WriteLine("");
                 System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
+                System.Console.WriteLine("");
                 System.Console.WriteLine(parser.Usage());
                 return false;
             }

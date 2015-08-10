@@ -1001,6 +1001,29 @@ namespace OpenCover.Test.Framework.Persistance
         }
 
         [Test]
+        public void SaveVisitPoints_DoesNotProcessBufferWhenCountExceedsAvailableBufferSize()
+        {
+            // arrange
+            var pt1 = new SequencePoint();
+            var pt2 = new SequencePoint();
+
+            var data = new List<byte>();
+
+            var points = new[] { pt1.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint };
+            data.AddRange(BitConverter.GetBytes((UInt32)points.Count() + 1));
+            foreach (uint point in points)
+                data.AddRange(BitConverter.GetBytes(point));
+
+            // act
+            Instance.SaveVisitData(data.ToArray());
+
+            // assert
+            // no counts should exist for these points
+            Assert.AreEqual(0, InstrumentationPoint.GetVisitCount(pt1.UniqueSequencePoint));
+            Assert.AreEqual(0, InstrumentationPoint.GetVisitCount(pt2.UniqueSequencePoint));
+        }
+
+        [Test]
         public void SaveVisitPoints_Aggregates_Visits_ForTrackedMethods()
         {
             // arrange

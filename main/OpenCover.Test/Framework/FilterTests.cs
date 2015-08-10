@@ -600,24 +600,58 @@ namespace OpenCover.Test.Framework
             Assert.True(filter.ExcludeByAttribute(sourceAssembly));
         }
 
+        static IEnumerable<TypeDefinition> AllNestedTypes(TypeDefinition typeDefinition)
+        {
+            if (typeDefinition.NestedTypes == null) yield break;
+            foreach (var nestedTypeDefinition in typeDefinition.NestedTypes)
+            {
+                yield return nestedTypeDefinition;
+                foreach (var allNestedType in AllNestedTypes(nestedTypeDefinition))
+                {
+                    yield return allNestedType;
+                }
+            }
+        }
+
+        static IEnumerable<TypeDefinition> AllTypes(ModuleDefinition module)
+        {
+            foreach (var typeDefinition in module.Types)
+            {
+                yield return typeDefinition;
+                foreach (var allNestedType in AllNestedTypes(typeDefinition))
+                {
+                    yield return allNestedType;
+                }
+            }
+        }
+            
         [Test]
-        public void Can_Identify_Excluded_Types()
+        [TestCase("Concrete")]
+        [TestCase("InnerConcrete")]
+        [TestCase("InnerInnerConcrete")]
+        public void Can_Identify_Excluded_Types(string typeName)
         {
             // arrange
             var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
 
             // act
             var filter = new Filter();
-            foreach (var typeDefinition in sourceAssembly.MainModule.Types.Where(x => x.Name == "Concrete"))
-            {
-                Assert.False(filter.ExcludeByAttribute(typeDefinition));
-            }
+            var allTypes = AllTypes(sourceAssembly.MainModule);
+            var typeDefinition = allTypes.First(x => x.Name == typeName);
+            
+            Assert.False(filter.ExcludeByAttribute(typeDefinition));
 
             // assert
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeClassAttribute" });
-            foreach (var typeDefinition in sourceAssembly.MainModule.Types.Where(x => x.Name == "Concrete"))
+            foreach (var methodDefinition in typeDefinition.Methods)
             {
-                Assert.True(filter.ExcludeByAttribute(typeDefinition));
+                if (methodDefinition.IsSetter || methodDefinition.IsGetter) continue;
+                Assert.True(filter.ExcludeByAttribute(methodDefinition));
+            }
+            Assert.True(filter.ExcludeByAttribute(typeDefinition));
+            foreach (var nestedType in AllNestedTypes(typeDefinition))
+            {
+                Assert.True(filter.ExcludeByAttribute(nestedType));
             }
         }
 

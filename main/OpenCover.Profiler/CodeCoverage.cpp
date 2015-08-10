@@ -164,9 +164,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 	if (m_chainedProfiler != NULL)
 		m_chainedProfiler->Shutdown();
 
-    if (!m_tracingEnabled){
-        m_host.SendRemainingThreadBuffers();
-    }
+    m_host.CloseChannel(m_tracingEnabled);
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(NULL, szExeName, MAX_PATH);
@@ -238,6 +236,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
         assemblyId, W2CT(assemblyName.c_str()));*/
     m_allowModules[modulePath] = m_host.TrackAssembly((LPWSTR)modulePath.c_str(), (LPWSTR)assemblyName.c_str());
     m_allowModulesAssemblyMap[modulePath] = assemblyName;
+
+    if (m_allowModules[modulePath]){
+        ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
+            moduleId, W2CT(modulePath.c_str()),
+            assemblyId, W2CT(assemblyName.c_str()));
+    }
 
     return S_OK; 
 }

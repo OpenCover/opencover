@@ -16,6 +16,7 @@ namespace OpenCover.Test.Framework
             public CommandLineParserStub(string[] arguments)
                 : base(arguments)
             {
+                ParseArguments();
             }
         }
 
@@ -54,6 +55,15 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.AreEqual(1, parser.ArgumentCount);
             Assert.IsTrue(parser.HasArgument("arg"));
+        }
+
+        [Test]
+        public void ThrowsExceptionWhenArgumentDoesNotBeginWithExpectedPrefix()
+        {
+            // arrange
+
+            // act
+            Assert.Throws<InvalidOperationException>(() => new CommandLineParserStub(new[] { "/arg" }));
         }
 
         [Test]
@@ -139,7 +149,7 @@ namespace OpenCover.Test.Framework
             // arrange
 
             // act
-            var parser = new CommandLineParserStub(new[] { "" });
+            var parser = new CommandLineParserStub(new[] { "-arg1" });
 
             // assert
             Assert.AreEqual(String.Empty, parser.GetArgumentValue("xxxx"));
