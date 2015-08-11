@@ -48,6 +48,7 @@ private:
     bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
     void SendRemainingThreadBuffers();
+    MSG_SendVisitPoints_Request* AllocateVisitMap(DWORD osThreadID);
 
 private:
     tstring m_key;
