@@ -108,29 +108,28 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     m_threadmap[threadID] = osThreadID;
+    AllocateVisitMap(osThreadID);
+}
+
+MSG_SendVisitPoints_Request* ProfilerCommunication::AllocateVisitMap(DWORD osThreadID){
     auto p = new MSG_SendVisitPoints_Request();
     p->count = 0;
     //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
     m_visitmap[osThreadID] = p;
+    return p;
 }
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
+    MSG_SendVisitPoints_Request * p = NULL;
     try {
-        auto result = m_visitmap.find(osThreadID);
-        if (result != m_visitmap.end())
-            return (*result).second;
-        
-        auto p = new MSG_SendVisitPoints_Request();
-        ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
-        m_visitmap[osThreadID] = p;
+        p = m_visitmap[osThreadID];
+        if (p == NULL)
+            p = AllocateVisitMap(osThreadID);
     }
     catch (...){
-        auto p = new MSG_SendVisitPoints_Request();
-        p->count = 0;
-        //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
-        m_visitmap[osThreadID] = p;
+        p = AllocateVisitMap(osThreadID);
     }
-    return m_visitmap[osThreadID];
+    return p;
 }
 
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
@@ -143,6 +142,7 @@ void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
 }
 
 void ProfilerCommunication::SendRemainingThreadBuffers(){
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     for (auto it = m_visitmap.begin(); it != m_visitmap.end(); ++it){
         if (it->second != NULL){
             SendThreadVisitPoints(it->second);
