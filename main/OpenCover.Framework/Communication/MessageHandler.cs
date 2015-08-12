@@ -67,19 +67,29 @@ namespace OpenCover.Framework.Communication
                         var chunk = Marshal.SizeOf(typeof (MSG_SequencePoint));
                         do
                         {
-                            writeSize = Marshal.SizeOf(typeof (MSG_GetSequencePoints_Response));
-                            responseCSP.more = num > GSP_BufSize;
-                            responseCSP.count = num > GSP_BufSize ? GSP_BufSize : num;
-                            _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
-                            for (var i = 0; i < responseCSP.count; i++)
+                            try
                             {
-                                var point = new MSG_SequencePoint();
-                                point.offset = origPoints[index].Offset;
-                                point.uniqueId = origPoints[index].UniqueSequencePoint;
+                                writeSize = Marshal.SizeOf(typeof (MSG_GetSequencePoints_Response));
+                                responseCSP.more = num > GSP_BufSize;
+                                responseCSP.count = num > GSP_BufSize ? GSP_BufSize : num;
+                                _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
+                                for (var i = 0; i < responseCSP.count; i++)
+                                {
+                                    var point = new MSG_SequencePoint();
+                                    point.offset = origPoints[index].Offset;
+                                    point.uniqueId = origPoints[index].UniqueSequencePoint;
 
-                                _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
-                                writeSize += chunk;
-                                index++;
+                                    _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
+                                    writeSize += chunk;
+                                    index++;
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("{0}:{1}", ex.GetType(), ex.Message);
+                                responseCSP.more = false;
+                                responseCSP.count = 0;
+                                _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
                             }
 
                             if (responseCSP.more)

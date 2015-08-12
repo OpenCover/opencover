@@ -213,6 +213,16 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
     return ret;
 }
 
+void report_runtime(const std::runtime_error& re, MSG_Union* pMSG){
+    USES_CONVERSION;
+    RELTRACE(_T("Runtime error: %s - %d"), A2T(re.what()), pMSG->getSequencePointsResponse.count);
+}
+
+void report_exception(const std::exception& re, MSG_Union* pMSG){
+    USES_CONVERSION;
+    RELTRACE(_T("Error occurred: %s - %d"), A2T(re.what()), pMSG->getSequencePointsResponse.count);
+}
+
 bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  
     WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
@@ -230,11 +240,33 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         }, 
         [=, &points]()->BOOL
         {
-            for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
-                points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
-            BOOL hasMore = m_pMSG->getSequencePointsResponse.hasMore;
-			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
-			return hasMore;
+            try
+            {
+                for (int i = 0; i < m_pMSG->getSequencePointsResponse.count; i++)
+                    points.push_back(m_pMSG->getSequencePointsResponse.points[i]);
+                BOOL hasMore = m_pMSG->getSequencePointsResponse.hasMore;
+                ::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+                return hasMore;
+            }
+            catch (const std::runtime_error& re)
+            {
+                // specific handling for runtime_error
+                report_runtime(re, m_pMSG);
+                throw;
+            }
+            catch (const std::exception& ex)
+            {
+                // specific handling for all exceptions extending std::exception, except
+                // std::runtime_error which is handled explicitly
+                report_exception(ex, m_pMSG);
+                throw;
+            }
+            catch (...)
+            {
+                // catch any other errors (that we have no information about)
+                RELTRACE(_T("Unknown failure occured. Possible memory corruption - %d"), m_pMSG->getSequencePointsResponse.count);
+                throw;
+            }
         }
         , COMM_WAIT_SHORT
         , _T("GetSequencePoints"));
