@@ -39,7 +39,7 @@ namespace OpenCover.Framework.Manager
             protected string MakeName(string name, int id)
             {
                 var newName = string.Format("{0}{1}{2}{3}", Namespace, name, Key, id);
-                //Console.WriteLine(newName);
+				// DebugOutput.Print(newName);
                 return newName;
             }
         }
@@ -303,7 +303,7 @@ namespace OpenCover.Framework.Manager
 
         public void Dispose()
         {
-            //Console.WriteLine("Disposing...");
+			// DebugOutput.Print("Disposing...");
             lock (_lockObject)
             {
                 foreach(var block in _blocks.Where(b => b.Active))

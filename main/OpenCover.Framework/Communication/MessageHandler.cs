@@ -93,7 +93,7 @@ namespace OpenCover.Framework.Communication
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("{0}:{1}", ex.GetType(), ex.Message);
+                            DebugOutput.Print(string.Format("{0}:{1}", ex.GetType(), ex.Message));
                             responseGSP.more = false;
                             responseGSP.count = 0;
                             _marshalWrapper.StructureToPtr(responseGSP, pinnedMemory, false);
@@ -141,7 +141,7 @@ namespace OpenCover.Framework.Communication
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("{0}:{1}", ex.GetType(), ex.Message);
+                             DebugOutput.Print(string.Format("{0}:{1}", ex.GetType(), ex.Message));
                             responseGBP.more = false;
                             responseGBP.count = 0;
                             _marshalWrapper.StructureToPtr(responseGBP, pinnedMemory, false);
