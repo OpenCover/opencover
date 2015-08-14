@@ -89,6 +89,7 @@
       <Link>Properties\Version.cs</Link>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="DebugOutput.cs" />
     <Compile Include="Filtering\AssemblyAndClassFilter.cs" />
     <Compile Include="Filtering\FilterHelper.cs" />
     <Compile Include="Filtering\FilterType.cs" />

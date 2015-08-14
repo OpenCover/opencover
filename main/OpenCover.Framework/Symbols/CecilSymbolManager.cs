@@ -33,7 +33,7 @@ namespace OpenCover.Framework.Symbols
             }
             catch (Exception)
             {
-                //Console.WriteLine("Exception whilst trying to get the body of method {0}", methodDefinition.FullName);
+				// DebugOutput.Print(string.Format("Exception whilst trying to get the body of method {0}", methodDefinition.FullName));
             }
             return null;
         }
@@ -80,7 +80,7 @@ namespace OpenCover.Framework.Symbols
             if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
             {
                 var name = Path.GetFileName(fileName);
-                //Console.WriteLine(targetfolder);
+				// DebugOutput.Print(targetfolder);
                 if (name != null)
                 {
                     if (System.IO.File.Exists(Path.Combine(targetfolder, 
