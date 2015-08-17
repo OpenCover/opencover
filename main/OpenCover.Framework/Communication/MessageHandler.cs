@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using log4net;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Service;
@@ -29,6 +30,8 @@ namespace OpenCover.Framework.Communication
         private readonly IProfilerCommunication _profilerCommunication;
         private readonly IMarshalWrapper _marshalWrapper;
         private readonly IMemoryManager _memoryManager;
+
+        private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
 
         public MessageHandler(IProfilerCommunication profilerCommunication, IMarshalWrapper marshalWrapper, IMemoryManager memoryManager)
         {
@@ -93,7 +96,7 @@ namespace OpenCover.Framework.Communication
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("{0}:{1}", ex.GetType(), ex.Message);
+                            Logger.DebugFormat("{0}:{1}", ex.GetType(), ex.Message);
                             responseGSP.more = false;
                             responseGSP.count = 0;
                             _marshalWrapper.StructureToPtr(responseGSP, pinnedMemory, false);
@@ -141,7 +144,7 @@ namespace OpenCover.Framework.Communication
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine("{0}:{1}", ex.GetType(), ex.Message);
+                            Logger.DebugFormat("{0}:{1}", ex.GetType(), ex.Message);
                             responseGBP.more = false;
                             responseGBP.count = 0;
                             _marshalWrapper.StructureToPtr(responseGBP, pinnedMemory, false);

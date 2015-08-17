@@ -23,7 +23,7 @@ namespace OpenCover.Console
 {
     class Program
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper));
+        private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
 
         /// <summary>
         /// This is the initial console harness - it may become the full thing
