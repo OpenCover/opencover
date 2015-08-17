@@ -377,14 +377,41 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
     return;
 }
 
-void report_runtime(const std::runtime_error& re, tstring &msg){
+void report_runtime(const std::runtime_error& re, const tstring &msg){
     USES_CONVERSION;
     RELTRACE(_T("Runtime error: %s - %s"), msg.c_str(), A2T(re.what()));
 }
 
-void report_exception(const std::exception& re, tstring &msg){
+void report_exception(const std::exception& re, const tstring &msg){
     USES_CONVERSION;
     RELTRACE(_T("Error occurred: %s - %s"), msg.c_str(), A2T(re.what()));
+}
+
+template<class Action>
+void handle_exception(Action action, const tstring& message) {
+    try
+    {
+        action();
+    }
+    catch (const std::runtime_error& re)
+    {
+        // specific handling for runtime_error
+        report_runtime(re, message);
+        throw;
+    }
+    catch (const std::exception& ex)
+    {
+        // specific handling for all exceptions extending std::exception, except
+        // std::runtime_error which is handled explicitly
+        report_exception(ex, message);
+        throw;
+    }
+    catch (...)
+    {
+        // catch any other errors (that we have no information about)
+        RELTRACE(_T("Unknown failure occured. Possible memory corruption - %s"), message.c_str());
+        throw;
+    }
 }
 
 template<class BR, class PR>
@@ -394,7 +421,8 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
     if (!hostCommunicationActive) return;
 
 	try {
-        buildRequest();
+
+        handle_exception([&](){ buildRequest(); }, message);
     
         DWORD dwSignal = m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler, dwTimeout);
 		if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, dwTimeout);
@@ -404,29 +432,7 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
         BOOL hasMore = FALSE;
         do
         {
-            try
-            {
-                hasMore = processResults();
-            }
-            catch (const std::runtime_error& re)
-            {
-                // specific handling for runtime_error
-                report_runtime(re, message);
-                throw;
-            }
-            catch (const std::exception& ex)
-            {
-                // specific handling for all exceptions extending std::exception, except
-                // std::runtime_error which is handled explicitly
-                report_exception(ex, message);
-                throw;
-            }
-            catch (...)
-            {
-                // catch any other errors (that we have no information about)
-                RELTRACE(_T("Unknown failure occured. Possible memory corruption - %s"), message.c_str());
-                throw;
-            }
+            handle_exception([&](){ hasMore = processResults(); }, message);
 
             if (hasMore)
             {
