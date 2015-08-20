@@ -100,6 +100,33 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
+        private void LoadSourceAssembly()
+        {
+            try
+            {
+                var symbolFolder = FindSymbolsFolder();
+                if (symbolFolder == null) return;
+                var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
+
+                var parameters = new ReaderParameters
+                {
+                    SymbolReaderProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider(),
+                    ReadingMode = ReadingMode.Deferred,
+                    ReadSymbols = true
+                };
+                var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
+                _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
+
+                if (_sourceAssembly != null)
+                    _sourceAssembly.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+            }
+            catch (Exception)
+            {
+                // failure to here is quite normal for DLL's with no PDBs => no instrumentation
+                _sourceAssembly = null;
+            }
+        }
+
         public AssemblyDefinition SourceAssembly
         {
             get
@@ -109,25 +136,7 @@ namespace OpenCover.Framework.Symbols
                     var currentPath = Environment.CurrentDirectory;
                     try
                     {
-                        var symbolFolder = FindSymbolsFolder();
-                        var folder = symbolFolder.Maybe(_ => _.TargetFolder) ?? Environment.CurrentDirectory;
-
-                        var parameters = new ReaderParameters
-                        {
-                            SymbolReaderProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider(),
-                            ReadingMode = ReadingMode.Deferred,
-                            ReadSymbols = true
-                        };
-                        var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
-                        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
-
-                        if (_sourceAssembly != null)
-                            _sourceAssembly.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
-                    }
-                    catch (Exception)
-                    {
-                        // failure to here is quite normal for DLL's with no PDBs => no instrumentation
-                        _sourceAssembly = null;
+                        LoadSourceAssembly();
                     }
                     finally
                     {
