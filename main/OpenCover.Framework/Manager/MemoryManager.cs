@@ -19,6 +19,7 @@ namespace OpenCover.Framework.Manager
         private string _namespace;
         private string _key;
         private readonly object _lockObject = new object();
+        private uint _bufferId;
 
         private readonly IList<ManagedBufferBlock> _blocks = new List<ManagedBufferBlock>();
 
@@ -243,18 +244,20 @@ namespace OpenCover.Framework.Manager
         /// <param name="bufferSize"></param>
         /// <param name="bufferId"></param>
         /// <returns></returns>
-        public ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, uint bufferId)
+        public ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, out uint bufferId)
         {
+            bufferId = 0;
             if (!_isIntialised) return null;
 
             lock (_lockObject)
             {
+                bufferId = _bufferId++;
                 var tuple = new ManagedBufferBlock
                 {
                     CommunicationBlock =
-                        new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int) bufferId, _servicePrincipal),
+                        new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
                     MemoryBlock =
-                        new ManagedMemoryBlock(_namespace, _key, bufferSize, (int) bufferId, _servicePrincipal),
+                        new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
                     BufferId = bufferId
                 };
                 _blocks.Add(tuple);

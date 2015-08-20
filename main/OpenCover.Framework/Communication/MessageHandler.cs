@@ -168,15 +168,14 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_AllocateMemoryBuffer:
                     {
                         var msgAB = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
-                        
-                        var block = _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, _bufferId);
 
-                        var responseAB = new MSG_AllocateBuffer_Response {allocated = true, bufferId = _bufferId };
+                        uint bufferId = 0;
+                        var block = _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, out bufferId);
+                        var responseAB = new MSG_AllocateBuffer_Response { allocated = true, bufferId = bufferId };
                         _marshalWrapper.StructureToPtr(responseAB, pinnedMemory, false);
                         writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
-                        _bufferId++;
-
                         offloadHandling(block);
+
                     }
                     break;
 
@@ -197,7 +196,6 @@ namespace OpenCover.Framework.Communication
         }
 
         private int _readSize;
-        private uint _bufferId = 0;
 
         public int ReadSize
         {

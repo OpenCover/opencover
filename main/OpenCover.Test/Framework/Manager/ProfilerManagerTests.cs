@@ -27,7 +27,8 @@ namespace OpenCover.Test.Framework.Manager
             _key = (new Random().Next()).ToString();
             _manager = new MemoryManager();
             _manager.Initialise("Local", _key, Enumerable.Empty<string>());
-            _manager.AllocateMemoryBuffer(65536, 0);
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(65536, out bufferId);
             Container.RegisterInstance(_manager);
         }
 

@@ -78,9 +78,9 @@ namespace OpenCover.Test.Framework.Communication
             Container.GetMock<IMarshalWrapper>()
                 .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_AllocateBuffer_Request());
-
+            uint bufferId;
             Container.GetMock<IMemoryManager>()
-                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()))
+                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
                      .Returns(new ManagedBufferBlock());
 
             // act
@@ -89,7 +89,7 @@ namespace OpenCover.Test.Framework.Communication
             // assert
             uint uniqueId;
             Container.GetMock<IMemoryManager>()
-                .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()), Times.Once());
+                .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId), Times.Once());
 
         }
 

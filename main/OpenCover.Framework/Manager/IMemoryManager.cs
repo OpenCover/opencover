@@ -19,7 +19,7 @@ namespace OpenCover.Framework.Manager
     public interface IMemoryManager : IDisposable
     {
         void Initialise(string nameSpace, string key, IEnumerable<string> servicePrincipal);
-        ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, uint bufferId);
+        ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, out uint bufferId);
         IList<ManagedBufferBlock> GetBlocks { get; }
         void DeactivateMemoryBuffer(uint bufferId);
         void RemoveDeactivatedBlocks();
