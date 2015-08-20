@@ -108,29 +108,28 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 void ProfilerCommunication::ThreadCreated(ThreadID threadID, DWORD osThreadID){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     m_threadmap[threadID] = osThreadID;
+    AllocateVisitMap(osThreadID);
+}
+
+MSG_SendVisitPoints_Request* ProfilerCommunication::AllocateVisitMap(DWORD osThreadID){
     auto p = new MSG_SendVisitPoints_Request();
     p->count = 0;
     //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
     m_visitmap[osThreadID] = p;
+    return p;
 }
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
+    MSG_SendVisitPoints_Request * p = NULL;
     try {
-        auto result = m_visitmap.find(osThreadID);
-        if (result != m_visitmap.end())
-            return (*result).second;
-        
-        auto p = new MSG_SendVisitPoints_Request();
-        ::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
-        m_visitmap[osThreadID] = p;
+        p = m_visitmap[osThreadID];
+        if (p == NULL)
+            p = AllocateVisitMap(osThreadID);
     }
     catch (...){
-        auto p = new MSG_SendVisitPoints_Request();
-        p->count = 0;
-        //::ZeroMemory(p, sizeof(MSG_SendVisitPoints_Request));
-        m_visitmap[osThreadID] = p;
+        p = AllocateVisitMap(osThreadID);
     }
-    return m_visitmap[osThreadID];
+    return p;
 }
 
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
@@ -143,6 +142,7 @@ void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
 }
 
 void ProfilerCommunication::SendRemainingThreadBuffers(){
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
     for (auto it = m_visitmap.begin(); it != m_visitmap.end(); ++it){
         if (it->second != NULL){
             SendThreadVisitPoints(it->second);
@@ -230,11 +230,11 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         }, 
         [=, &points]()->BOOL
         {
-            for (int i=0; i < m_pMSG->getSequencePointsResponse.count;i++)
-                points.push_back(m_pMSG->getSequencePointsResponse.points[i]); 
+            for (int i = 0; i < m_pMSG->getSequencePointsResponse.count; i++)
+                points.push_back(m_pMSG->getSequencePointsResponse.points[i]);
             BOOL hasMore = m_pMSG->getSequencePointsResponse.hasMore;
-			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
-			return hasMore;
+            ::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+            return hasMore;
         }
         , COMM_WAIT_SHORT
         , _T("GetSequencePoints"));
@@ -377,6 +377,43 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
     return;
 }
 
+void report_runtime(const std::runtime_error& re, const tstring &msg){
+    USES_CONVERSION;
+    RELTRACE(_T("Runtime error: %s - %s"), msg.c_str(), A2T(re.what()));
+}
+
+void report_exception(const std::exception& re, const tstring &msg){
+    USES_CONVERSION;
+    RELTRACE(_T("Error occurred: %s - %s"), msg.c_str(), A2T(re.what()));
+}
+
+template<class Action>
+void handle_exception(Action action, const tstring& message) {
+    try
+    {
+        action();
+    }
+    catch (const std::runtime_error& re)
+    {
+        // specific handling for runtime_error
+        report_runtime(re, message);
+        throw;
+    }
+    catch (const std::exception& ex)
+    {
+        // specific handling for all exceptions extending std::exception, except
+        // std::runtime_error which is handled explicitly
+        report_exception(ex, message);
+        throw;
+    }
+    catch (...)
+    {
+        // catch any other errors (that we have no information about)
+        RELTRACE(_T("Unknown failure occured. Possible memory corruption - %s"), message.c_str());
+        throw;
+    }
+}
+
 template<class BR, class PR>
 void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message)
 {
@@ -384,7 +421,8 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
     if (!hostCommunicationActive) return;
 
 	try {
-        buildRequest();
+
+        handle_exception([&](){ buildRequest(); }, message);
     
         DWORD dwSignal = m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler, dwTimeout);
 		if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, dwTimeout);
@@ -394,7 +432,7 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
         BOOL hasMore = FALSE;
         do
         {
-            hasMore = processResults();
+            handle_exception([&](){ hasMore = processResults(); }, message);
 
             if (hasMore)
             {
@@ -409,6 +447,10 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
     } catch (CommunicationException ex) {
         RELTRACE(_T("ProfilerCommunication::RequestInformation(...) => Communication (Chat channel - %s) with host has failed (0x%x, %d)"),  
 			message.c_str(), ex.getReason(), ex.getTimeout());
+        hostCommunicationActive = false;
+    } 
+    catch (...)
+    {
         hostCommunicationActive = false;
     }
 }

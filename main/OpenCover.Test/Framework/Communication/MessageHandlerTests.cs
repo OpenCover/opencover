@@ -241,5 +241,69 @@ namespace OpenCover.Test.Framework.Communication
             // assert
             Container.GetMock<IProfilerCommunication>().Verify(x => x.Stopping(), Times.Once());
         }
+
+        [Test]
+        public void ExceptionDuring_MSG_GetSequencePoints_ReturnsLastBlockAsEmpty()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_GetSequencePoints_Request());
+
+            var points = Enumerable.Repeat(new SequencePoint(), 100).ToArray<InstrumentationPoint>();
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Throws<NullReferenceException>();
+
+            var response = new MSG_GetSequencePoints_Response(){count = -1, more = true};
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_GetSequencePoints_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_GetSequencePoints_Response, IntPtr, bool>((pts, ptr, b) => { response = pts; });
+
+            var chunked = false;
+            
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, 
+                (i, block) => { chunked = true; }, 
+                block => { });
+
+            // assert
+            Assert.False(chunked);
+            Assert.AreEqual(0, response.count);
+            Assert.AreEqual(false, response.more);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_GetBranchPoints_ReturnsLastBlockAsEmpty()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_GetBranchPoints_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_GetBranchPoints_Request());
+
+            var points = Enumerable.Repeat(new BranchPoint(), 100).ToArray();
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Throws<NullReferenceException>();
+
+            var response = new MSG_GetBranchPoints_Response() { count = -1, more = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_GetBranchPoints_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_GetBranchPoints_Response, IntPtr, bool>((pts, ptr, b) => { response = pts; });
+
+            var chunked = false;
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object,
+                (i, block) => { chunked = true; },
+                block => { });
+
+            // assert
+            Assert.False(chunked);
+            Assert.AreEqual(0, response.count);
+            Assert.AreEqual(false, response.more);
+        }
     }
 }

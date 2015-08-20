@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using log4net.Repository.Hierarchy;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Service;
 
@@ -68,20 +70,18 @@ namespace OpenCover.Framework.Communication
             mcb.InformationReadByProfiler.Reset();
         }
 
-        private byte[] _data = null;
         public byte[] HandleMemoryBlock(IManagedMemoryBlock mmb)
         {
-            _data = _data ?? new byte[mmb.BufferSize];
             mmb.ProfilerHasResults.Reset();
+            do
+            {
+                mmb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+            } while (mmb.StreamAccessorResults.Read(mmb.Buffer, 0, mmb.BufferSize) != mmb.BufferSize);
 
-            mmb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
-            mmb.StreamAccessorResults.Read(_data, 0, mmb.BufferSize);
-
-            var nCount = (int)BitConverter.ToUInt32(_data, 0);
+            var nCount = (int)BitConverter.ToUInt32(mmb.Buffer, 0);
             var dataSize = (nCount + 1)*sizeof (UInt32);
             var newData = new byte[dataSize];
-            Buffer.BlockCopy(_data, 0, newData, 0, dataSize);
-
+            Buffer.BlockCopy(mmb.Buffer, 0, newData, 0, dataSize);
             mmb.ResultsHaveBeenReceived.Set();
 
             return newData;

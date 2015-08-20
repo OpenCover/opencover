@@ -13,20 +13,25 @@ class CReleaseTrace
 	    {
 	}
 
+	const char* PREFIX = "OpenCover: ";
+	const wchar_t* WPREFIX = L"OpenCover: ";
+
 #pragma warning(push)
 #pragma warning(disable : 4793)
 	void __cdecl operator()(
 		const char *pszFmt, 
 		...) const
-	{
+	{		
 		va_list ptr; va_start(ptr, pszFmt);
         int nBytes = _vscprintf(pszFmt, ptr) + 1;
         va_end(ptr);
-
-        std::vector<char> buffer(nBytes);
+				
+		int prefixLength = strlen(PREFIX);
+		std::vector<char> buffer(nBytes + prefixLength);
+		sprintf_s(&buffer[0], prefixLength + 1, "%s", PREFIX);
 
         va_start(ptr, pszFmt);
-        _vsnprintf_s(&buffer[0], nBytes, nBytes - 1, pszFmt, ptr);
+		_vsnprintf_s(&buffer[prefixLength], nBytes, nBytes - 1, pszFmt, ptr);
         va_end(ptr);
 
         ::OutputDebugStringA(&buffer[0]);
@@ -43,10 +48,12 @@ class CReleaseTrace
         int nBytes = _vscwprintf(pszFmt, ptr) + 1;
         va_end(ptr);
 
-        std::vector<wchar_t> buffer(nBytes);
-
+		int prefixLength = wcslen(WPREFIX);
+		std::vector<wchar_t> buffer(nBytes + prefixLength);
+		swprintf_s(&buffer[0], prefixLength + 1, L"%s", WPREFIX);
+		
         va_start(ptr, pszFmt);
-        _vsnwprintf_s(&buffer[0], nBytes, nBytes - 1, pszFmt, ptr);
+		_vsnwprintf_s(&buffer[prefixLength], nBytes, nBytes - 1, pszFmt, ptr);
         va_end(ptr);
 
         ::OutputDebugStringW(&buffer[0]);

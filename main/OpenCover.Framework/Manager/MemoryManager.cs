@@ -54,6 +54,7 @@ namespace OpenCover.Framework.Manager
             private readonly MemoryMappedFile _mmfResults;
             public MemoryMappedViewStream StreamAccessorResults { get; private set; }
             public int BufferSize { get; private set; }
+            public byte[] Buffer { get; private set; }
 
             /// <summary>
             /// Gets an ACL for unit test purposes
@@ -112,6 +113,7 @@ namespace OpenCover.Framework.Manager
                     transparent,
                     HandleInheritability.Inheritable);
 
+                Buffer = new byte[bufferSize];
                 StreamAccessorResults = _mmfResults.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
                 StreamAccessorResults.Write(BitConverter.GetBytes(0), 0, 4);
                 BufferSize = bufferSize;
