@@ -10,5 +10,6 @@ namespace OpenCover.Framework.Manager
         EventWaitHandle ResultsHaveBeenReceived { get; }
         MemoryMappedViewStream StreamAccessorResults { get; }
         int BufferSize { get; }
+        byte[] Buffer { get; }
     }
 }
