@@ -278,8 +278,8 @@ namespace OpenCover.Test.Framework.Manager
             EventWaitHandle standardMessageReady = null;
             EventWaitHandle offloadComplete = new AutoResetEvent(false);
 
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<ManagedBufferBlock>>()))
@@ -331,8 +331,8 @@ namespace OpenCover.Test.Framework.Manager
             var self = WindowsIdentity.GetCurrent().User;
 
             // act
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, servicePrincipal))
             {
                 var phrRules = mmb.ProfilerHasResults.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
                 var rhbrRules = mmb.ResultsHaveBeenReceived.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
@@ -370,8 +370,8 @@ namespace OpenCover.Test.Framework.Manager
             var self = WindowsIdentity.GetCurrent().User;
 
             // act
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, servicePrincipal))
             {
                 var mcbRules = mcb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));
                 var mmbRules = mmb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));

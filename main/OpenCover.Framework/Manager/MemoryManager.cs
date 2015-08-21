@@ -19,7 +19,7 @@ namespace OpenCover.Framework.Manager
         private string _namespace;
         private string _key;
         private readonly object _lockObject = new object();
-        private uint _bufferId;
+        private uint _bufferId = 1;
 
         private readonly IList<ManagedBufferBlock> _blocks = new List<ManagedBufferBlock>();
 

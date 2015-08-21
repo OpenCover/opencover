@@ -70,6 +70,8 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         memoryKey = m_key + memoryKey;
 
+        RELTRACE(_T("Re-initialising communication interface => %d"), bufferId);
+
 		m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
 		if (!m_eventProfilerRequestsInformation.IsValid()) return false;
 
@@ -84,7 +86,7 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-		RELTRACE(_T("Re-initialised communication interface"));
+		RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
         
         m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
         if (!m_eventProfilerHasResults.IsValid()) return false;
@@ -99,7 +101,7 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         m_pVisitPoints->count = 0;
 
-        RELTRACE(_T("Initialised results interface"));
+        RELTRACE(_T("Initialised results interface %d"), bufferId);
     }
 
     return hostCommunicationActive;
@@ -165,7 +167,10 @@ void ProfilerCommunication::AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdTy
 
 void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
-    if (!hostCommunicationActive) return;
+    
+    if (!hostCommunicationActive) 
+        return;
+    
     memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
     pVisitPoints->count = 0;
     SendVisitPoints();
@@ -176,7 +181,10 @@ void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* p
 void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType)
 {
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
-    if (!hostCommunicationActive) return;
+    
+    if (!hostCommunicationActive) 
+        return;
+    
     m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
@@ -188,7 +196,9 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
 
 void ProfilerCommunication::SendVisitPoints()
 {
-    if (!hostCommunicationActive) return;
+    if (!hostCommunicationActive) 
+        return;
+
     try {
         DWORD dwSignal = m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, COMM_WAIT_SHORT);
         if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, COMM_WAIT_SHORT);
@@ -204,11 +214,13 @@ void ProfilerCommunication::SendVisitPoints()
 bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath, 
     WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints)
 {
-    if (!hostCommunicationActive) return false;
-
+    seqPoints.clear();
+    brPoints.clear();
     bool ret = GetSequencePoints(functionToken, pModulePath, pAssemblyName, seqPoints);
-     
-    GetBranchPoints(functionToken, pModulePath, pAssemblyName, brPoints);
+    
+    if (ret){
+        GetBranchPoints(functionToken, pModulePath, pAssemblyName, brPoints);
+    }
 
     return ret;
 }
@@ -216,9 +228,8 @@ bool ProfilerCommunication::GetPoints(mdToken functionToken, WCHAR* pModulePath,
 bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pModulePath,  
     WCHAR* pAssemblyName, std::vector<SequencePoint> &points)
 {
-    if (!hostCommunicationActive) return false;
-
-    points.clear();
+    if (!hostCommunicationActive) 
+        return false;
 
     RequestInformation(
         [=]
@@ -245,10 +256,9 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
 bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, 
     WCHAR* pAssemblyName, std::vector<BranchPoint> &points)
 {
-    if (!hostCommunicationActive) return false;
-    
-    points.clear();
-
+    if (!hostCommunicationActive) 
+        return false;
+ 
     RequestInformation(
         [=]
         {
@@ -273,7 +283,8 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
 
 bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName)
 {
-    if (!hostCommunicationActive) return false;
+    if (!hostCommunicationActive) 
+        return false;
 
     bool response = false;
     RequestInformation(
@@ -297,7 +308,8 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
 
 bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId)
 {
-    if (!hostCommunicationActive) return false;
+    if (!hostCommunicationActive) 
+        return false;
 
     bool response = false;
     RequestInformation(
@@ -324,7 +336,9 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
 bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
 {
     CScopedLock<CMutex> lock(m_mutexCommunication);
-    if (!hostCommunicationActive) return false;
+    
+    if (!hostCommunicationActive) 
+        return false;
 
     bool response = false;
 
@@ -348,15 +362,19 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
 }
 
 void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
-    if (m_bufferId == 0) return;
-    
+    if (m_bufferId == 0) 
+        return;
+
+    if (!hostCommunicationActive)
+        return;
 
     if (sendSingleBuffer)
         SendVisitPoints();
     else
         SendRemainingThreadBuffers();
 
-    if (!hostCommunicationActive) return;
+    if (!hostCommunicationActive)
+        return;
 
     bool response = false;
 
