@@ -9,7 +9,7 @@
 
 #include "ProfilerInfoBase.h"
 
-extern class CCodeCoverage;
+class CCodeCoverage;
 
 using namespace ATL;
 
