@@ -117,6 +117,8 @@ namespace OpenCover.Framework.Manager
                 Buffer = new byte[bufferSize];
                 StreamAccessorResults = _mmfResults.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
                 StreamAccessorResults.Write(BitConverter.GetBytes(0), 0, 4);
+                StreamAccessorResults.Flush();
+
                 BufferSize = bufferSize;
             }
 

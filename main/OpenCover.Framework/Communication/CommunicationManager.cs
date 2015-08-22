@@ -65,6 +65,7 @@ namespace OpenCover.Framework.Communication
         {
             mcb.StreamAccessorComms.Seek(0, SeekOrigin.Begin);
             mcb.StreamAccessorComms.Write(mcb.DataCommunication, 0, writeSize);
+            mcb.StreamAccessorComms.Flush();
 
             WaitHandle.SignalAndWait(mcb.InformationReadyForProfiler, mcb.InformationReadByProfiler, 10000, false);
             mcb.InformationReadByProfiler.Reset();

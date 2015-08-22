@@ -72,22 +72,22 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         RELTRACE(_T("Re-initialising communication interface => %d"), bufferId);
 
-		m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
-		if (!m_eventProfilerRequestsInformation.IsValid()) return false;
+        m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
+        if (!m_eventProfilerRequestsInformation.IsValid()) return false;
 
-		m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey).c_str());
-		if (!m_eventInformationReadByProfiler.IsValid()) return false;
+        m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey).c_str());
+        if (!m_eventInformationReadByProfiler.IsValid()) return false;
 
-		m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey).c_str());
-		if (!m_eventInformationReadyForProfiler.IsValid()) return false;
+        m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey).c_str());
+        if (!m_eventInformationReadyForProfiler.IsValid()) return false;
 
-		m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey).c_str());
-		if (!m_memoryCommunication.IsValid()) return false;
+        m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey).c_str());
+        if (!m_memoryCommunication.IsValid()) return false;
 
         m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-		RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
-        
+        RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
+
         m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
         if (!m_eventProfilerHasResults.IsValid()) return false;
 
@@ -101,7 +101,7 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         m_pVisitPoints->count = 0;
 
-        RELTRACE(_T("Initialised results interface %d"), bufferId);
+        RELTRACE(_T("Initialised results interface => %d"), bufferId);
     }
 
     return hostCommunicationActive;
@@ -167,11 +167,14 @@ void ProfilerCommunication::AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdTy
 
 void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints){
     ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critResults);
-    
-    if (!hostCommunicationActive) 
+
+    if (!hostCommunicationActive)
         return;
-    
-    memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
+
+    handle_exception([=](){
+        memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
+    }, _T("SendThreadVisitPoints"));
+
     pVisitPoints->count = 0;
     SendVisitPoints();
     //::ZeroMemory(m_pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
@@ -185,12 +188,17 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (!hostCommunicationActive) 
         return;
     
-    m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
+    handle_exception([=](){
+        m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
+    }, _T("AddVisitPointToBuffer"));
+
     if (++m_pVisitPoints->count == VP_BUFFER_SIZE)
     {
         SendVisitPoints();
         //::ZeroMemory(m_pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
-        m_pVisitPoints->count = 0;
+        handle_exception([=](){
+            m_pVisitPoints->count = 0;
+        }, _T("AddVisitPointToBuffer"));
     }
 }
 
@@ -198,8 +206,9 @@ void ProfilerCommunication::SendVisitPoints()
 {
     if (!hostCommunicationActive) 
         return;
-
     try {
+        m_memoryResults.FlushViewOfFile();
+
         DWORD dwSignal = m_eventProfilerHasResults.SignalAndWait(m_eventResultsHaveBeenReceived, COMM_WAIT_SHORT);
         if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, COMM_WAIT_SHORT);
         m_eventResultsHaveBeenReceived.Reset();
@@ -409,21 +418,35 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
     return;
 }
 
-void report_runtime(const std::runtime_error& re, const tstring &msg){
+void ProfilerCommunication::report_runtime(const std::runtime_error& re, const tstring &msg){
     USES_CONVERSION;
     RELTRACE(_T("Runtime error: %s - %s"), msg.c_str(), A2T(re.what()));
 }
 
-void report_exception(const std::exception& re, const tstring &msg){
+void ProfilerCommunication::report_exception(const std::exception& re, const tstring &msg){
     USES_CONVERSION;
     RELTRACE(_T("Error occurred: %s - %s"), msg.c_str(), A2T(re.what()));
 }
 
 template<class Action>
-void handle_exception(Action action, const tstring& message) {
+void ProfilerCommunication::handle_sehexception(Action action, const tstring& message) {
+    __try{
+        action();
+    }
+    __except (GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+    {
+        RELTRACE(_T("SEH exception failure occured: %s - %d"),
+            message.c_str(), GetExceptionCode());
+    }
+}
+
+template<class Action>
+void ProfilerCommunication::handle_exception(Action action, const tstring& message) {
     try
     {
-        action();
+        handle_sehexception([&](){
+            action();
+        }, message);
     }
     catch (const std::runtime_error& re)
     {
@@ -455,7 +478,9 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
 	try {
 
         handle_exception([&](){ buildRequest(); }, message);
-    
+        
+        m_memoryCommunication.FlushViewOfFile();
+
         DWORD dwSignal = m_eventProfilerRequestsInformation.SignalAndWait(m_eventInformationReadyForProfiler, dwTimeout);
 		if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, dwTimeout);
     

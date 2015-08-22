@@ -86,6 +86,16 @@ private:
     MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
 
 private:
+    void report_runtime(const std::runtime_error& re, const tstring &msg);
+    void report_exception(const std::exception& re, const tstring &msg);
+
+    template<class Action>
+    void handle_exception(Action action, const tstring& message);
+
+    template<class Action>
+    void handle_sehexception(Action action, const tstring& message);
+
+private:
   
     class CommunicationException : std::exception
     {
