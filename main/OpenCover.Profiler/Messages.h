@@ -6,7 +6,7 @@
 #pragma once
 
 #define SEQ_BUFFER_SIZE 8000
-#define BRANCH_BUFFER_SIZE 4000
+#define BRANCH_BUFFER_SIZE 2000
 #define VP_BUFFER_SIZE 16000
 #define MAX_MSG_SIZE 65536
 

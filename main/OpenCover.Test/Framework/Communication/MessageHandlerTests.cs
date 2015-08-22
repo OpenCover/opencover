@@ -142,7 +142,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetSequencePoints_Request());
 
-            var points = Enumerable.Repeat(new InstrumentationPoint(), 100).ToArray();
+            var points = Enumerable.Repeat(new InstrumentationPoint(), 10000).ToArray();
 
             //var points = new[] { new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint() };
             Container.GetMock<IProfilerCommunication>()
@@ -154,7 +154,7 @@ namespace OpenCover.Test.Framework.Communication
 
             // assert
             Container.GetMock<IMarshalWrapper>()
-                .Verify(x => x.StructureToPtr(It.IsAny<MSG_SequencePoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(100));
+                .Verify(x => x.StructureToPtr(It.IsAny<MSG_SequencePoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(10000));
 
             Assert.True(chunked);
 
@@ -209,7 +209,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetBranchPoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetBranchPoints_Request());
 
-            var points = Enumerable.Repeat(new BranchPoint(), 100).ToArray();
+            var points = Enumerable.Repeat(new BranchPoint(), 10000).ToArray();
 
             Container.GetMock<IProfilerCommunication>()
                 .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
@@ -220,7 +220,7 @@ namespace OpenCover.Test.Framework.Communication
 
             // assert
             Container.GetMock<IMarshalWrapper>()
-                .Verify(x => x.StructureToPtr(It.IsAny<MSG_BranchPoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(100));
+                .Verify(x => x.StructureToPtr(It.IsAny<MSG_BranchPoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(10000));
 
             Assert.True(chunked);
         }

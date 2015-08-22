@@ -241,6 +241,13 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         }, 
         [=, &points]()->BOOL
         {
+            if (m_pMSG->getSequencePointsResponse.count > SEQ_BUFFER_SIZE){
+                RELTRACE(_T("Received an abnormal count for sequence points (%d) for token 0x%X"),
+                    m_pMSG->getSequencePointsResponse.count, functionToken);
+                points.clear();
+                return false;
+            }
+
             for (int i = 0; i < m_pMSG->getSequencePointsResponse.count; i++)
                 points.push_back(m_pMSG->getSequencePointsResponse.points[i]);
             BOOL hasMore = m_pMSG->getSequencePointsResponse.hasMore;
@@ -269,6 +276,13 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
         }, 
         [=, &points]()->BOOL
         {
+            if (m_pMSG->getBranchPointsResponse.count > BRANCH_BUFFER_SIZE){
+                RELTRACE(_T("Received an abnormal count for branch points (%d) for token 0x%X"),
+                    m_pMSG->getBranchPointsResponse.count, functionToken);
+                points.clear();
+                return false;
+            }
+
             for (int i=0; i < m_pMSG->getBranchPointsResponse.count;i++)
                 points.push_back(m_pMSG->getBranchPointsResponse.points[i]); 
             BOOL hasMore = m_pMSG->getBranchPointsResponse.hasMore;
