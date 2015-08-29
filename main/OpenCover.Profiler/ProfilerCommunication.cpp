@@ -52,6 +52,9 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey).c_str());
     if (!m_memoryCommunication.IsValid()) return false;
 
+    _semapore_communication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + sharedKey).c_str());
+    if (!_semapore_communication.IsValid()) return false;
+
     RELTRACE(_T("Initialised communication interface"));
 
     hostCommunicationActive = true;
@@ -86,12 +89,15 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
+        _semapore_communication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + memoryKey).c_str());
+        if (!_semapore_communication.IsValid()) return false;
+
         RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
 
-        m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
+        m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_SendResults_Event_") + memoryKey).c_str());
         if (!m_eventProfilerHasResults.IsValid()) return false;
 
-        m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + memoryKey).c_str());
+        m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_ReceiveResults_Event_") + memoryKey).c_str());
         if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
 
         m_memoryResults.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey).c_str());
@@ -100,6 +106,9 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
         m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
         m_pVisitPoints->count = 0;
+
+        _semapore_results.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_Semaphore_") + memoryKey).c_str());
+        if (!_semapore_results.IsValid()) return false;
 
         RELTRACE(_T("Initialised results interface => %d"), bufferId);
     }
@@ -171,6 +180,13 @@ void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* p
     if (!hostCommunicationActive)
         return;
 
+    // the previous value should always be zero unless the host process has released 
+    // and that means we have disposed of the shared memory
+    if (_semapore_results.ReleaseAndWait() != 0) {
+        hostCommunicationActive = false;
+        return;
+    }
+
     handle_exception([=](){
         memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
     }, _T("SendThreadVisitPoints"));
@@ -188,6 +204,13 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (!hostCommunicationActive) 
         return;
     
+    // the previous value should always be zero unless the host process has released 
+    // and that means we have disposed of the shared memory
+    if (_semapore_results.ReleaseAndWait() != 0) {
+        hostCommunicationActive = false;
+        return;
+    }
+
     handle_exception([=](){
         m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
     }, _T("AddVisitPointToBuffer"));
@@ -474,6 +497,13 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
 {
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critComms);
     if (!hostCommunicationActive) return;
+
+    // the previous value should always be zero unless the host process has released 
+    // and that means we have disposed of the shared memory
+    if (_semapore_communication.ReleaseAndWait() != 0) {
+        hostCommunicationActive = false;
+        return;
+    }
 
 	try {
 

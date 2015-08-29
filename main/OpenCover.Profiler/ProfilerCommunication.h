@@ -66,12 +66,14 @@ private:
     CEvent m_eventInformationReadyForProfiler;
     CEvent m_eventInformationReadByProfiler;
     MSG_Union *m_pMSG;
+    CSemaphoreEx _semapore_communication;
 
 private:
     CSharedMemory m_memoryResults;
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
+    CSemaphoreEx _semapore_results;
 
 private:
     ATL::CComAutoCriticalSection m_critResults;

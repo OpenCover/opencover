@@ -22,6 +22,39 @@ private:
 	void CloseHandle() {if (m_hMutex!=NULL) { ::CloseHandle(m_hMutex); m_hMutex=NULL; }}
 };
 
+class CSemaphore
+{
+public:
+    CSemaphore() : m_hSemaphore(NULL) {}
+    ~CSemaphore() { CloseHandle(); }
+    bool IsValid() { return m_hSemaphore != NULL; }
+
+public:
+    void Initialise(const TCHAR * pName) { CloseHandle(); m_hSemaphore = ::CreateSemaphore(NULL, 0, 2, pName); }
+    void Enter(){ if (m_hSemaphore != NULL) { ::WaitForSingleObject(m_hSemaphore, INFINITE); } }
+    void Leave(){ if (m_hSemaphore != NULL) { ::ReleaseSemaphore(m_hSemaphore, 1, NULL); } }
+
+private:
+    HANDLE m_hSemaphore;
+    void CloseHandle() { if (m_hSemaphore != NULL) { ::CloseHandle(m_hSemaphore); m_hSemaphore = NULL; } }
+
+    friend class CSemaphoreEx;
+};
+
+class CSemaphoreEx : public CSemaphore {
+public:
+    LONG ReleaseAndWait() {
+        if (m_hSemaphore != NULL) {
+            LONG prevCount = -1;
+            if (::ReleaseSemaphore(m_hSemaphore, 1, &prevCount) && prevCount == 0)  // +1
+                ::WaitForSingleObject(m_hSemaphore, INFINITE);                      // -1
+            return prevCount;
+        }
+        return -1;
+    }
+
+};
+
 template<class T>
 class CScopedLock
 {

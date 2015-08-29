@@ -57,6 +57,8 @@ namespace OpenCover.Framework.Manager
             public int BufferSize { get; private set; }
             public byte[] Buffer { get; private set; }
 
+            private readonly Semaphore _semaphore; 
+
             /// <summary>
             /// Gets an ACL for unit test purposes
             /// </summary>
@@ -72,46 +74,56 @@ namespace OpenCover.Framework.Manager
                 Namespace = @namespace;
                 Key = key;
 
-                EventWaitHandleSecurity open = null;
-                MemoryMappedFileSecurity transparent = null;
+                EventWaitHandleSecurity handleSecurity = null;
+                MemoryMappedFileSecurity memSecurity = null;
+                SemaphoreSecurity semaphoreSecurity = null;
 
-                var service = servicePrincpal.FirstOrDefault();
+                var serviceIdentity = servicePrincpal.FirstOrDefault();
                 var currentIdentity = WindowsIdentity.GetCurrent();
-                if (service != null && currentIdentity != null)
+                if (serviceIdentity != null && currentIdentity != null)
                 {
-                    open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    handleSecurity = new EventWaitHandleSecurity();
+                    handleSecurity.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
                     // The event handles need more than just EventWaitHandleRights.Modify | EventWaitHandleRights.Synchronize to work
-                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    handleSecurity.AddAccessRule(new EventWaitHandleAccessRule(serviceIdentity, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
-                    transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                    memSecurity = new MemoryMappedFileSecurity();
+                    memSecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    memSecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(serviceIdentity, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+
+                    semaphoreSecurity = new SemaphoreSecurity();
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(currentIdentity.Name, SemaphoreRights.FullControl, AccessControlType.Allow));
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(serviceIdentity, SemaphoreRights.FullControl, AccessControlType.Allow));
                 }
 
                 bool createdNew;
 
                 ProfilerHasResults = new EventWaitHandle(
                     false,
-                    EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_SendResults_Event_", bufferId),
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Results_SendResults_Event_", bufferId),
                     out createdNew,
-                    open);
+                    handleSecurity);
 
                 ResultsHaveBeenReceived = new EventWaitHandle(
                     false, 
-                    EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveResults_Event_", bufferId),
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Results_ReceiveResults_Event_", bufferId),
                     out createdNew,
-                    open);
+                    handleSecurity);
+
+                _semaphore = new Semaphore(0, 2, 
+                    MakeName(@"\OpenCover_Profiler_Results_Semaphore_", bufferId), 
+                    out createdNew,
+                    semaphoreSecurity);
 
                 _mmfResults = MemoryMappedFile.CreateNew(
                     MakeName(@"\OpenCover_Profiler_Results_MemoryMapFile_", bufferId),
                     bufferSize,
                     MemoryMappedFileAccess.ReadWrite,
                     MemoryMappedFileOptions.None,
-                    transparent,
+                    memSecurity,
                     HandleInheritability.Inheritable);
 
                 Buffer = new byte[bufferSize];
@@ -125,8 +137,13 @@ namespace OpenCover.Framework.Manager
             public void Dispose()
             {
                 Debug.WriteLine("*** disposing memory block ***");
-                StreamAccessorResults.Dispose();
-                _mmfResults.Dispose();
+                _semaphore.Do(s =>
+                {
+                    s.Release(1);
+                    s.Dispose();
+                });
+                StreamAccessorResults.Do(r => r.Dispose());
+                _mmfResults.Do(r => r.Dispose());
             }
         }
 
@@ -143,6 +160,7 @@ namespace OpenCover.Framework.Manager
             public byte[] DataCommunication { get; private set; }
             public GCHandle PinnedDataCommunication { get; private set; }
 
+            private readonly Semaphore _semaphore; 
             /// <summary>
             /// Gets an ACL for unit test purposes
             /// </summary>
@@ -159,20 +177,25 @@ namespace OpenCover.Framework.Manager
                 Namespace = @namespace;
                 Key = key;
 
-                EventWaitHandleSecurity open = null;
-                MemoryMappedFileSecurity transparent = null;
+                EventWaitHandleSecurity eventSecurity = null;
+                MemoryMappedFileSecurity memorySecurity = null;
 
-                var service = servicePrincpal.FirstOrDefault();
+                var serviceIdentity = servicePrincpal.FirstOrDefault();
                 var currentIdentity = WindowsIdentity.GetCurrent();
-                if (service != null && currentIdentity != null)
+                SemaphoreSecurity semaphoreSecurity = null;
+                if (serviceIdentity != null && currentIdentity != null)
                 {
-                    open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
-                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    eventSecurity = new EventWaitHandleSecurity();
+                    eventSecurity.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    eventSecurity.AddAccessRule(new EventWaitHandleAccessRule(serviceIdentity, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
-                    transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                    memorySecurity = new MemoryMappedFileSecurity();
+                    memorySecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    memorySecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(serviceIdentity, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+
+                    semaphoreSecurity = new SemaphoreSecurity();
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(currentIdentity.Name, SemaphoreRights.FullControl, AccessControlType.Allow));
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(serviceIdentity, SemaphoreRights.FullControl, AccessControlType.Allow));
                 }
 
                 _memoryMappedFile = MemoryMappedFile.CreateNew(
@@ -180,7 +203,7 @@ namespace OpenCover.Framework.Manager
                     bufferSize,
                     MemoryMappedFileAccess.ReadWrite,
                     MemoryMappedFileOptions.None,
-                    transparent,
+                    memorySecurity,
                     HandleInheritability.Inheritable);
 
                 StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
@@ -192,21 +215,26 @@ namespace OpenCover.Framework.Manager
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_SendData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
 
                 InformationReadyForProfiler = new EventWaitHandle(
                     false, 
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_ReceiveData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
 
                 InformationReadByProfiler = new EventWaitHandle(
                     false, 
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_ChunkData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
+
+                _semaphore = new Semaphore(0, 2,
+                    MakeName(@"\OpenCover_Profiler_Communication_Semaphore_", bufferId),
+                    out createdNew,
+                    semaphoreSecurity);
 
                 DataCommunication = new byte[bufferSize];
                 PinnedDataCommunication = GCHandle.Alloc(DataCommunication, GCHandleType.Pinned);
@@ -215,8 +243,13 @@ namespace OpenCover.Framework.Manager
             public void Dispose()
             {
                 Debug.WriteLine("*** disposing communication block ***");
-                StreamAccessorComms.Dispose();
-                _memoryMappedFile.Dispose();
+                _semaphore.Do(s =>
+                {
+                    s.Release(1);
+                    s.Dispose();
+                });
+                StreamAccessorComms.Do(r => r.Dispose());
+                _memoryMappedFile.Do(f => f.Dispose());
                 PinnedDataCommunication.Free();
             }
         }

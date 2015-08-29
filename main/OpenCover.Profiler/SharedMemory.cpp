@@ -33,7 +33,7 @@ void* CSharedMemory::MapViewOfFile(DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow
     }
     void* pMappedData = ::MapViewOfFile(
         m_hMemory,
-        FILE_MAP_ALL_ACCESS,
+        SECTION_MAP_WRITE | SECTION_MAP_READ,
         dwFileOffsetHigh,
         dwFileOffsetLow,
         dwNumberOfBytesToMap
