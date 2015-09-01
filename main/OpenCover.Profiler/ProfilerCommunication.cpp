@@ -16,6 +16,7 @@
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define COMM_WAIT_SHORT 10000
 #define COMM_WAIT_LONG 60000
+#define COMM_WAIT_VSHORT 3000
 
 ProfilerCommunication::ProfilerCommunication() 
 {
@@ -456,22 +457,25 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
         return false;
 
     bool response = false;
-
-    RequestInformation(
-        [=]()
-        {
-            m_pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
-            m_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
-        }, 
-        [=, &response, &bufferId]()->BOOL
-        {
-            response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
-            bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
-			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
-            return FALSE;
-        }
-        , COMM_WAIT_SHORT
-        , _T("AllocateBuffer"));
+    int repeat = 0;
+    while (!response && (++repeat <= 3)){
+        hostCommunicationActive = true;
+        RequestInformation(
+            [=]()
+            {
+                m_pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
+                m_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
+            }, 
+            [=, &response, &bufferId]()->BOOL
+            {
+                response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
+                bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
+			    ::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+                return FALSE;
+            }
+            , COMM_WAIT_VSHORT
+            , _T("AllocateBuffer"));
+    }
 
     return response;
 }
