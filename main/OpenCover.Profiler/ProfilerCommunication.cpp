@@ -38,24 +38,45 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     m_mutexCommunication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     if (!m_mutexCommunication.IsValid()) return false;
     
-	RELTRACE(_T("Initialised mutexes"));
+    USES_CONVERSION;
+    RELTRACE(_T("Initialised mutexes => %s"), W2CT(sharedKey.c_str()));
 
-    m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + sharedKey).c_str());
-    if (!m_eventProfilerRequestsInformation.IsValid()) return false;
+    auto resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + sharedKey);
+    m_eventProfilerRequestsInformation.Initialise(resource_name.c_str());
+    if (!m_eventProfilerRequestsInformation.IsValid()) {
+        RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + sharedKey).c_str());
-    if (!m_eventInformationReadByProfiler.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + sharedKey);
+    m_eventInformationReadByProfiler.Initialise(resource_name.c_str());
+    if (!m_eventInformationReadByProfiler.IsValid()) {
+        RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + sharedKey).c_str());
-    if (!m_eventInformationReadyForProfiler.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + sharedKey);
+    m_eventInformationReadyForProfiler.Initialise(resource_name.c_str());
+    if (!m_eventInformationReadyForProfiler.IsValid()) {
+        RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey).c_str());
-    if (!m_memoryCommunication.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey);
+    m_memoryCommunication.OpenFileMapping(resource_name.c_str());
+    if (!m_memoryCommunication.IsValid()) {
+        RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    _semapore_communication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + sharedKey).c_str());
-    if (!_semapore_communication.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + sharedKey);
+    _semapore_communication.Initialise(resource_name.c_str());
+    if (!_semapore_communication.IsValid()) {
+        RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    RELTRACE(_T("Initialised communication interface"));
+    RELTRACE(_T("Initialised communication interface => %s"), W2CT(sharedKey.c_str()));
 
     hostCommunicationActive = true;
 
@@ -73,44 +94,92 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         memoryKey = m_key + memoryKey;
 
-        RELTRACE(_T("Re-initialising communication interface => %d"), bufferId);
+        RELTRACE(_T("Re-initialising communication interface => %s"), W2CT(memoryKey.c_str()));
 
-        m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
-        if (!m_eventProfilerRequestsInformation.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey);
+        m_eventProfilerRequestsInformation.Initialise(resource_name.c_str());
+        if (!m_eventProfilerRequestsInformation.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey).c_str());
-        if (!m_eventInformationReadByProfiler.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey);
+        m_eventInformationReadByProfiler.Initialise(resource_name.c_str());
+        if (!m_eventInformationReadByProfiler.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey).c_str());
-        if (!m_eventInformationReadyForProfiler.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey);
+        m_eventInformationReadyForProfiler.Initialise(resource_name.c_str());
+        if (!m_eventInformationReadyForProfiler.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey).c_str());
-        if (!m_memoryCommunication.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey);
+        m_memoryCommunication.OpenFileMapping(resource_name.c_str());
+        if (!m_memoryCommunication.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
         m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-        _semapore_communication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + memoryKey).c_str());
-        if (!_semapore_communication.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + memoryKey);
+        _semapore_communication.Initialise(resource_name.c_str());
+        if (!_semapore_communication.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
+        RELTRACE(_T("Re-initialised communication interface => %s"), W2CT(memoryKey.c_str()));
 
-        m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_SendResults_Event_") + memoryKey).c_str());
-        if (!m_eventProfilerHasResults.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_SendResults_Event_") + memoryKey);
+        m_eventProfilerHasResults.Initialise(resource_name.c_str());
+        if (!m_eventProfilerHasResults.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_ReceiveResults_Event_") + memoryKey).c_str());
-        if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_ReceiveResults_Event_") + memoryKey);
+        m_eventResultsHaveBeenReceived.Initialise(resource_name.c_str());
+        if (!m_eventResultsHaveBeenReceived.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_memoryResults.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey).c_str());
-        if (!m_memoryResults.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey);
+        m_memoryResults.OpenFileMapping(resource_name.c_str());
+        if (!m_memoryResults.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
         m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
         m_pVisitPoints->count = 0;
 
-        _semapore_results.Initialise((m_namespace + _T("\\OpenCover_Profiler_Results_Semaphore_") + memoryKey).c_str());
-        if (!_semapore_results.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_Semaphore_") + memoryKey);
+        _semapore_results.Initialise(resource_name.c_str());
+        if (!_semapore_results.IsValid()) {
+            RELTRACE(_T("Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        RELTRACE(_T("Initialised results interface => %d"), bufferId);
+        RELTRACE(_T("Initialised results interface => %s"), W2CT(memoryKey.c_str()));
+    }
+    else {
+        hostCommunicationActive = false;
     }
 
     return hostCommunicationActive;

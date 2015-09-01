@@ -94,7 +94,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     if (!m_host.Initialise(key, ns))
     {
-        RELTRACE(_T("    ::Initialize => Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
+        RELTRACE(_T("    ::Initialize => Failed to initialise the profiler communications - profiler will not run for this process."));
         return E_FAIL;
     }
 
