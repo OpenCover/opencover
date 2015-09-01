@@ -8,7 +8,7 @@ using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Symbols
 {
-    public interface ISymbolManager
+    internal interface ISymbolManager
     {
         string ModulePath { get; }
 
