@@ -15,7 +15,9 @@ namespace OpenCover.Framework.Persistance
         protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
-        private readonly Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>(); 
+        private readonly Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>> _moduleMethodMap = new Dictionary<Module, Dictionary<int, KeyValuePair<Class, Method>>>();
+
+        private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
         /// <summary>
         /// constructor
@@ -25,13 +27,20 @@ namespace OpenCover.Framework.Persistance
         protected BasePersistance(ICommandLine commandLine, ILog logger)
         {
             CommandLine = commandLine;
-            _logger = logger;
+            _logger = logger ?? DebugLogger;
             CoverageSession = new CoverageSession();
             _trackedMethodId = 0;
         }
 
+        /// <summary>
+        /// A coverage session
+        /// </summary>
         public CoverageSession CoverageSession { get; private set; }
 
+        /// <summary>
+        /// Add the <see cref="Module"/> to the current session
+        /// </summary>
+        /// <param name="module"></param>
         public void PersistModule(Module module)
         {
             if (module == null) return;
@@ -56,6 +65,9 @@ namespace OpenCover.Framework.Persistance
             CoverageSession.Modules = list.ToArray();
         }
 
+        /// <summary>
+        /// Clear the current coverage session data
+        /// </summary>
         protected void ClearCoverageSession()
         {
             _moduleMethodMap.Clear();
@@ -374,7 +386,7 @@ namespace OpenCover.Framework.Persistance
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
 
-                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; ;
+                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; 
                     @class.Summary.VisitedClasses = (@class.Summary.VisitedMethods > 0) ? 1 : 0;
 
                     AddPoints(module.Summary, @class.Summary);
@@ -434,6 +446,13 @@ namespace OpenCover.Framework.Persistance
             parent.VisitedMethods += child.VisitedMethods;
         }
 
+        /// <summary>
+        /// Get the sequence points for a function
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="functionToken"></param>
+        /// <param name="sequencePoints"></param>
+        /// <returns></returns>
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {
             sequencePoints = new InstrumentationPoint[0];
@@ -452,6 +471,13 @@ namespace OpenCover.Framework.Persistance
             return false;      
         }
 
+        /// <summary>
+        /// Get the branch ponts for a function
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="functionToken"></param>
+        /// <param name="branchPoints"></param>
+        /// <returns></returns>
         public bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints)
         {
             branchPoints = new BranchPoint[0];
@@ -466,6 +492,13 @@ namespace OpenCover.Framework.Persistance
             return false;
         }
 
+        /// <summary>
+        /// Get <see cref="Method"/> data for a function
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="functionToken"></param>
+        /// <param name="class"></param>
+        /// <returns></returns>
         private Method GetMethod(string modulePath, int functionToken, out Class @class)
         {
             @class = null;
@@ -479,6 +512,12 @@ namespace OpenCover.Framework.Persistance
             return pair.Value;
         }
 
+        /// <summary>
+        /// Get the class name of a function
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="functionToken"></param>
+        /// <returns></returns>
         public string GetClassFullName(string modulePath, int functionToken)
         {
             Class @class;
@@ -486,12 +525,16 @@ namespace OpenCover.Framework.Persistance
             return @class != null ? @class.FullName : null;
         }
 
+        /// <summary>
+        /// Save the visit data to the session model
+        /// </summary>
+        /// <param name="data"></param>
         public void SaveVisitData(byte[] data)
         {
             var nCount = BitConverter.ToUInt32(data, 0);
             if (nCount > (data.Count()/4) - 1)
             {
-                _logger.DebugFormat("Failed to process points as count ({0}) exceeded available buffer size ({1})",
+                _logger.ErrorFormat("Failed to process points as count ({0}) exceeded available buffer size ({1})",
                     nCount, (data.Count()/4) - 1);
                 return;
             }
@@ -502,7 +545,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!InstrumentationPoint.AddVisitCount(spid, _trackedMethodId))
                     {
-                        _logger.DebugFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
+                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
                             spid, _trackedMethodId, InstrumentationPoint.Count);
                     }
                 }
@@ -514,6 +557,14 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        /// <summary>
+        /// determine if the method (test method) should be tracked
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="assemblyName"></param>
+        /// <param name="functionToken"></param>
+        /// <param name="uniqueId"></param>
+        /// <returns></returns>
         public bool GetTrackingMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
         {
             uniqueId = 0;

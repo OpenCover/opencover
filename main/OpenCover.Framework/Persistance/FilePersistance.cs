@@ -26,7 +26,7 @@ namespace OpenCover.Framework.Persistance
         /// </summary>
         /// <param name="commandLine"></param>
         /// <param name="logger"></param>
-        public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine, logger)
+        public FilePersistance(ICommandLine commandLine, ILog logger) : base(commandLine, null)
         {
             _logger = logger;
         }
