@@ -86,11 +86,11 @@ namespace OpenCover.Framework.Communication
                     break;
 
                 case MSG_Type.MSG_TrackMethod:
-                        writeSize = HandleTrackMethodMessage(pinnedMemory);
+                    writeSize = HandleTrackMethodMessage(pinnedMemory);
                     break;
 
                 case MSG_Type.MSG_AllocateMemoryBuffer:
-                    writeSize = HandlerAllocateBufferMessage(offloadHandling, pinnedMemory);
+                    writeSize = HandleAllocateBufferMessage(offloadHandling, pinnedMemory);
                     break;
 
                 case MSG_Type.MSG_CloseChannel:
@@ -140,7 +140,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                Logger.DebugFormat("{0}:{1}", ex.GetType(), ex.Message);
+                Logger.DebugFormat("HandleGetSequencePointsMessage => {0}:{1}", ex.GetType(), ex.Message);
                 response.more = false;
                 response.count = 0;
                 _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
@@ -189,7 +189,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                Logger.DebugFormat("{0}:{1}", ex.GetType(), ex.Message);
+                Logger.DebugFormat("HandleGetBranchPointsMessage => {0}:{1}", ex.GetType(), ex.Message);
                 response.more = false;
                 response.count = 0;
                 _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
@@ -197,49 +197,97 @@ namespace OpenCover.Framework.Communication
             return writeSize;
         }
 
-        private int HandlerAllocateBufferMessage(Action<ManagedBufferBlock> offloadHandling, IntPtr pinnedMemory)
+        private int HandleAllocateBufferMessage(Action<ManagedBufferBlock> offloadHandling, IntPtr pinnedMemory)
         {
-            var request = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
-            uint bufferId;
-            var block = _memoryManager.AllocateMemoryBuffer(request.bufferSize, out bufferId);
-            var response = new MSG_AllocateBuffer_Response { allocated = true, bufferId = bufferId };
-            _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
             var writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
-            offloadHandling(block);
+            var response = new MSG_AllocateBuffer_Response { allocated = false, bufferId = 0 };
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
+                uint bufferId;
+                var block = _memoryManager.AllocateMemoryBuffer(request.bufferSize, out bufferId);
+                response.allocated=true;
+                response.bufferId = bufferId;
+                offloadHandling(block);
+            }
+            catch (Exception ex)
+            {
+                Logger.DebugFormat("HandlerAllocateBufferMessage => {0}:{1}", ex.GetType(), ex.Message);
+                response.allocated = false;
+                response.bufferId = 0;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
             return writeSize;
         }
 
         private int HandleCloseChannelMessage(IntPtr pinnedMemory)
         {
-            var request = _marshalWrapper.PtrToStructure<MSG_CloseChannel_Request>(pinnedMemory);
-            var bufferId = request.bufferId;
-            var response = new MSG_CloseChannel_Response {done = true};
-            _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
-            var writeSize = Marshal.SizeOf(typeof (MSG_CloseChannel_Response));
-            _memoryManager.DeactivateMemoryBuffer(bufferId);
+            var writeSize = Marshal.SizeOf(typeof(MSG_CloseChannel_Response));
+            var response = new MSG_CloseChannel_Response { done = true };
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_CloseChannel_Request>(pinnedMemory);
+                var bufferId = request.bufferId;
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+                _memoryManager.DeactivateMemoryBuffer(bufferId);
+            }
+            catch (Exception ex)
+            {
+                Logger.DebugFormat("HandleCloseChannelMessage => {0}:{1}", ex.GetType(), ex.Message);
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
             return writeSize;
         }
 
         private int HandleTrackMethodMessage(IntPtr pinnedMemory)
         {
-            var request = _marshalWrapper.PtrToStructure<MSG_TrackMethod_Request>(pinnedMemory);
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackMethod_Response));
             var response = new MSG_TrackMethod_Response();
-            uint uniqueId;
-            response.track = _profilerCommunication.TrackMethod(request.modulePath,
-                request.assemblyName, request.functionToken, out uniqueId);
-            response.uniqueId = uniqueId;
-            _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
-            var writeSize = Marshal.SizeOf(typeof (MSG_TrackMethod_Response));
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackMethod_Request>(pinnedMemory);
+                uint uniqueId;
+                response.track = _profilerCommunication.TrackMethod(request.modulePath,
+                    request.assemblyName, request.functionToken, out uniqueId);
+                response.uniqueId = uniqueId;
+            }
+            catch (Exception ex)
+            {
+                Logger.DebugFormat("HandleTrackMethodMessage => {0}:{1}", ex.GetType(), ex.Message);
+                response.track = false;
+                response.uniqueId = 0;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
             return writeSize;
         }
 
         private int HandleTrackAssemblyMessage(IntPtr pinnedMemory)
         {
-            var request = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
             var response = new MSG_TrackAssembly_Response();
-            response.track = _profilerCommunication.TrackAssembly(request.modulePath, request.assemblyName);
-            _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
-            var writeSize = Marshal.SizeOf(typeof (MSG_TrackAssembly_Response));
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackAssembly_Response));
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
+                response.track = _profilerCommunication.TrackAssembly(request.modulePath, request.assemblyName);
+            }
+            catch (Exception ex)
+            {
+                Logger.DebugFormat("HandleTrackAssemblyMessage => {0}:{1}", ex.GetType(), ex.Message);
+                response.track = false;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
             return writeSize;
         }
 

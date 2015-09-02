@@ -136,12 +136,13 @@ namespace OpenCover.Framework.Manager
 
             public void Dispose()
             {
-                Debug.WriteLine("*** disposing memory block ***");
                 _semaphore.Do(s =>
                 {
                     s.Release(1);
                     s.Dispose();
                 });
+                ProfilerHasResults.Do(e => e.Dispose());
+                ResultsHaveBeenReceived.Do(e => e.Dispose());
                 StreamAccessorResults.Do(r => r.Dispose());
                 _mmfResults.Do(r => r.Dispose());
             }
@@ -198,16 +199,6 @@ namespace OpenCover.Framework.Manager
                     semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(serviceIdentity, SemaphoreRights.FullControl, AccessControlType.Allow));
                 }
 
-                _memoryMappedFile = MemoryMappedFile.CreateNew(
-                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId),
-                    bufferSize,
-                    MemoryMappedFileAccess.ReadWrite,
-                    MemoryMappedFileOptions.None,
-                    memorySecurity,
-                    HandleInheritability.Inheritable);
-
-                StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
-
                 bool createdNew;
 
                 ProfilerRequestsInformation = new EventWaitHandle(
@@ -236,18 +227,30 @@ namespace OpenCover.Framework.Manager
                     out createdNew,
                     semaphoreSecurity);
 
+                _memoryMappedFile = MemoryMappedFile.CreateNew(
+                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId),
+                    bufferSize,
+                    MemoryMappedFileAccess.ReadWrite,
+                    MemoryMappedFileOptions.None,
+                    memorySecurity,
+                    HandleInheritability.Inheritable);
+
+                StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
+
                 DataCommunication = new byte[bufferSize];
                 PinnedDataCommunication = GCHandle.Alloc(DataCommunication, GCHandleType.Pinned);
             }
 
             public void Dispose()
             {
-                Debug.WriteLine("*** disposing communication block ***");
                 _semaphore.Do(s =>
                 {
                     s.Release(1);
                     s.Dispose();
                 });
+                ProfilerRequestsInformation.Do(e => e.Dispose());
+                InformationReadyForProfiler.Do(e => e.Dispose());
+                InformationReadByProfiler.Do(e => e.Dispose());
                 StreamAccessorComms.Do(r => r.Dispose());
                 _memoryMappedFile.Do(f => f.Dispose());
                 PinnedDataCommunication.Free();
@@ -333,9 +336,8 @@ namespace OpenCover.Framework.Manager
                 var list = _blocks.Where(b => !b.Active).ToList();
                 foreach (var b in list)
                 {
-                    Debug.WriteLine("*** removing deactivated ***");
-                    b.CommunicationBlock.Dispose();
-                    b.MemoryBlock.Dispose();
+                    b.CommunicationBlock.Do(x => x.Dispose());
+                    b.MemoryBlock.Do(x => x.Dispose());
                     _blocks.RemoveAt(_blocks.IndexOf(b));
                 }
             }
@@ -343,13 +345,12 @@ namespace OpenCover.Framework.Manager
 
         public void Dispose()
         {
-            //Console.WriteLine("Disposing...");
             lock (_lockObject)
             {
-                foreach(var block in _blocks.Where(b => b.Active))
+                foreach(var block in _blocks)
                 {
-                    block.CommunicationBlock.Dispose();
-                    block.MemoryBlock.Dispose();
+                    block.CommunicationBlock.Do(x => x.Dispose());
+                    block.MemoryBlock.Do(x => x.Dispose());
                 }
                 _blocks.Clear();
             }
