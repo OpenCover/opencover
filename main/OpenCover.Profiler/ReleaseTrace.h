@@ -13,8 +13,8 @@ class CReleaseTrace
 	    {
 	}
 
-	const char* PREFIX = "OpenCover: ";
-	const wchar_t* WPREFIX = L"OpenCover: ";
+	const char* PREFIX = "OpenCover: (Profiler) ";
+	const wchar_t* WPREFIX = L"OpenCover: (Profiler) ";
 
 #pragma warning(push)
 #pragma warning(disable : 4793)
@@ -63,3 +63,8 @@ class CReleaseTrace
 };
 
 #define RELTRACE CReleaseTrace()
+
+#ifdef _DEBUG
+#undef ATLTRACE
+#define ATLTRACE CReleaseTrace()
+#endif
