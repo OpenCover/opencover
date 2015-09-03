@@ -3,28 +3,33 @@
 namespace OpenCover.Framework.Utility
 {
     /// <summary>
-    /// 
+    /// Expose some performance counters
     /// </summary>
-    /// 
     [ExcludeFromCoverage("Performance counters can only be created by Administrators")] 
     public class PerfCounters : IPerfCounters
     {
         private PerformanceCounter _memoryQueue;
         private PerformanceCounter _queueThrougput;
 
+        /// <summary>
+        /// get the current queue size
+        /// </summary>
         public int CurrentMemoryQueueSize { set { _memoryQueue.RawValue = value; } }
         public void IncrementBlocksReceived()
         {
             _queueThrougput.RawValue += 1;
         }
 
+        /// <summary>
+        /// Instantiate the Performance Counters
+        /// </summary>
         public PerfCounters()
         {
             CreateCounters();
             ResetCounters();
         }
 
-        private const string InstanceName = "OpenCover";
+        //private const string InstanceName = "OpenCover";
         private const string CategoryName = "OpenCover";
         private const string MemoryQueue = "MemoryQueue";
         private const string QueueThroughput = "QueueThroughput";
@@ -61,6 +66,9 @@ namespace OpenCover.Framework.Utility
     [ExcludeFromCoverage("Performance counters can only be created by Administrators")] 
     public class NullPerfCounter : IPerfCounters
     {
+        /// <summary>
+        /// A null performance counters implementation
+        /// </summary>
         public int CurrentMemoryQueueSize { set; private get; }
         public void IncrementBlocksReceived()
         {
