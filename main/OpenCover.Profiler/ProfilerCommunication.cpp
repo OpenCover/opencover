@@ -250,12 +250,8 @@ void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* p
     if (!hostCommunicationActive)
         return;
 
-    // the previous value should always be zero unless the host process has released 
-    // and that means we have disposed of the shared memory
-    if (_semapore_results.ReleaseAndWait() != 0) {
-        hostCommunicationActive = false;
+    if (!TestSemaphore(_semapore_results))
         return;
-    }
 
     handle_exception([=](){
         memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
@@ -274,12 +270,8 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (!hostCommunicationActive) 
         return;
     
-    // the previous value should always be zero unless the host process has released 
-    // and that means we have disposed of the shared memory
-    if (_semapore_results.ReleaseAndWait() != 0) {
-        hostCommunicationActive = false;
+    if (!TestSemaphore(_semapore_results))
         return;
-    }
 
     handle_exception([=](){
         m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
@@ -487,6 +479,9 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
     if (!hostCommunicationActive)
         return;
 
+    if (!TestSemaphore(_semapore_results))
+        return;
+
     if (sendSingleBuffer)
         SendVisitPoints();
     else
@@ -569,14 +564,11 @@ template<class BR, class PR>
 void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message)
 {
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critComms);
-    if (!hostCommunicationActive) return;
-
-    // the previous value should always be zero unless the host process has released 
-    // and that means we have disposed of the shared memory
-    if (_semapore_communication.ReleaseAndWait() != 0) {
-        hostCommunicationActive = false;
+    if (!hostCommunicationActive) 
         return;
-    }
+
+    if (!TestSemaphore(_semapore_communication))
+        return;
 
 	try {
 

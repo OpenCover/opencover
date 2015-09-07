@@ -5,6 +5,8 @@
 //
 #pragma once
 
+#include "ReleaseTrace.h"
+
 class CMutex
 {
 public:
@@ -30,24 +32,32 @@ public:
     bool IsValid() { return m_hSemaphore != NULL; }
 
 public:
-    void Initialise(const TCHAR * pName) { CloseHandle(); m_hSemaphore = ::CreateSemaphore(NULL, 0, 2, pName); }
-    void Enter(){ if (m_hSemaphore != NULL) { ::WaitForSingleObject(m_hSemaphore, INFINITE); } }
-    void Leave(){ if (m_hSemaphore != NULL) { ::ReleaseSemaphore(m_hSemaphore, 1, NULL); } }
+    void Initialise(const TCHAR * pName) { CloseHandle(); m_hSemaphore = ::CreateSemaphore(NULL, 0, 2, pName); _handleName = pName; }
+    void Enter(){ if (IsValid()) { ::WaitForSingleObject(m_hSemaphore, INFINITE); } }
+    void Leave(){ if (IsValid()) { ::ReleaseSemaphore(m_hSemaphore, 1, NULL); } }
+
+protected:
+    HANDLE m_hSemaphore;
+    tstring _handleName;
 
 private:
-    HANDLE m_hSemaphore;
-    void CloseHandle() { if (m_hSemaphore != NULL) { ::CloseHandle(m_hSemaphore); m_hSemaphore = NULL; } }
-
-    friend class CSemaphoreEx;
+    void CloseHandle() { if (IsValid()) { ::CloseHandle(m_hSemaphore); m_hSemaphore = NULL; } }
 };
 
 class CSemaphoreEx : public CSemaphore {
 public:
     LONG ReleaseAndWait() {
-        if (m_hSemaphore != NULL) {
+        if (IsValid()) {
             LONG prevCount = -1;
-            if (::ReleaseSemaphore(m_hSemaphore, 1, &prevCount) && prevCount == 0)  // +1
-                ::WaitForSingleObject(m_hSemaphore, INFINITE);                      // -1
+            if (::ReleaseSemaphore(m_hSemaphore, 1, &prevCount) && prevCount == 0){ // +1
+                if (::WaitForSingleObject(m_hSemaphore, 1000) == WAIT_TIMEOUT){     // -1
+                    RELTRACE(_T("Semaphore wait timed out => %s"), _handleName.c_str());
+                    return -1;
+                }
+            }
+            else {
+                RELTRACE(_T("Semaphore count failed => %s, %d"), _handleName.c_str(), prevCount);
+            }
             return prevCount;
         }
         return -1;

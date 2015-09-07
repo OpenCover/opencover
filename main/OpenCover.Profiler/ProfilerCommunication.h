@@ -59,6 +59,15 @@ private:
 
     ULONG m_bufferId;
 
+    bool TestSemaphore(CSemaphoreEx &semaphore){
+        // the previous value should always be zero unless the host process has released 
+        // and that means we have disposed of the shared memory
+        if (hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
+            hostCommunicationActive = false;
+        }
+        return hostCommunicationActive;
+    }
+
 private:
     CMutex m_mutexCommunication;
     CSharedMemory m_memoryCommunication;
