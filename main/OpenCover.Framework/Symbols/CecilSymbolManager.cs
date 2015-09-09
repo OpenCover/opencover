@@ -398,17 +398,16 @@ namespace OpenCover.Framework.Symbols
                 UInt32 ordinal = 0;
                 var instructions = methodDefinition.SafeGetMethodBody().Instructions;
                 
-                // if method is generated MoveNext skip switch if it is the first branch
-                var skipFirstSwitch = Regex.IsMatch(methodDefinition.FullName, @"\<.+\>d__\d+::MoveNext\(\)$");
+                // if method is a generated MoveNext skip first branch (could be a switch or a branch)
+                var skipFirstBranch = Regex.IsMatch(methodDefinition.FullName, @"\<.+\>d__\d+::MoveNext\(\)$");
 
                 foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {
-                    if (instruction.OpCode.Code == Code.Switch && skipFirstSwitch)
+                    if (skipFirstBranch)
                     {
-                        skipFirstSwitch = false;
+                        skipFirstBranch = false;
                         continue;
                     }
-                    skipFirstSwitch = false; 
 
                     if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
 
