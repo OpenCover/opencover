@@ -92,9 +92,9 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    if (!m_host.Initialise(key, ns))
+    if (!m_host.Initialise(key, ns, szExeName))
     {
-        RELTRACE(_T("    ::Initialize => Failed to initialise the profiler communications - profiler will not run for this process."));
+        RELTRACE(_T("    ::Initialize => Profiler will not run for this process."));
         return E_FAIL;
     }
 

@@ -15,69 +15,95 @@ namespace OpenCover.Test.Framework
     {
         #region TestData for AddFilter tests
 
-        public class AssemblyClassData
+        public class FilterData
         {
-            public string AssemblyClass { get; set; }
+            public FilterData()
+            {
+                ProcessResult = ".*";
+            }
+
+            public string FilterExpression { get; set; }
+            public string ProcessResult { get; set; }
             public string AssemblyResult { get; set; }
             public string ClassResult { get; set; }
             public FilterType FilterTypeResult { get; set; }
         }
 
-#pragma warning disable 169
+        private readonly string[] _invalidFilterExpressions =
+        {
+            "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][",
+            @"-[\]", @"+[X]\", "-[X]]", "+[X][", "-{[*]*", "+}[*]*",
+            "+{}[*]*", "-[*]", "-[]*", "-{*}[*]", "-{*}[]*"
+        };
 
-        private readonly string[] _invalidAssemblyClassPairs = { "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][", @"-[\]", @"+[X]\", "-[X]]", "+[X][" };
+        private readonly FilterData[] _filterExpressions =
+        {
+            new FilterData
+            {
+                FilterExpression = "+[My App]Namespace",
+                AssemblyResult = "My App",
+                ClassResult = "Namespace",
+                FilterTypeResult = FilterType.Inclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "-[System.*]Console",
+                AssemblyResult = @"System\..*",
+                ClassResult = "Console",
+                FilterTypeResult = FilterType.Exclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "+[System]Console.*",
+                AssemblyResult = "System",
+                ClassResult = @"Console\..*",
+                FilterTypeResult = FilterType.Inclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "-[System.*]Console.*",
+                AssemblyResult = @"System\..*",
+                ClassResult = @"Console\..*",
+                FilterTypeResult = FilterType.Exclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "+{*}[System.*]Console.*",
+                AssemblyResult = @"System\..*",
+                ClassResult = @"Console\..*",
+                ProcessResult = ".*",
+                FilterTypeResult = FilterType.Inclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "+[*]*",
+                AssemblyResult = ".*",
+                ClassResult = ".*",
+                FilterTypeResult = FilterType.Inclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "+{*}[*]*",
+                AssemblyResult = ".*",
+                ClassResult = ".*",
+                ProcessResult = ".*",
+                FilterTypeResult = FilterType.Inclusion,
+            },
+            new FilterData
+            {
+                FilterExpression = "-{MyApplication.*}[*]*",
+                AssemblyResult = ".*",
+                ClassResult = ".*",
+                ProcessResult = @"MyApplication\..*",
+                FilterTypeResult = FilterType.Exclusion,
+            }
 
-        private readonly AssemblyClassData[] _assemblyClassPairs =
-                                                              {
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "+[System]Console",
-                                                                          AssemblyResult = "System",
-                                                                          ClassResult = "Console",
-                                                                          FilterTypeResult = FilterType.Inclusion, 
-                                                                      },
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "+[My App]Namespace",
-                                                                          AssemblyResult = "My App",
-                                                                          ClassResult = "Namespace",
-                                                                          FilterTypeResult = FilterType.Inclusion, 
-                                                                      },
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "+[System]",
-                                                                          AssemblyResult = "System",
-                                                                          ClassResult = "",
-                                                                          FilterTypeResult = FilterType.Inclusion, 
-                                                                      },
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "-[System.*]Console",
-                                                                          AssemblyResult = @"System\..*",
-                                                                          ClassResult = "Console",
-                                                                          FilterTypeResult = FilterType.Exclusion, 
-                                                                      },
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "+[System]Console.*",
-                                                                          AssemblyResult = "System",
-                                                                          ClassResult = @"Console\..*",
-                                                                          FilterTypeResult = FilterType.Inclusion, 
-                                                                      },
-                                                                  new AssemblyClassData
-                                                                      {
-                                                                          AssemblyClass = "-[System.*]Console.*",
-                                                                          AssemblyResult = @"System\..*",
-                                                                          ClassResult = @"Console\..*",
-                                                                          FilterTypeResult = FilterType.Exclusion, 
-                                                                      }
-                                                              };
-#pragma warning restore 169
+        };
         #endregion
 
         [Test]
         public void AddFilter_ThrowsException_WhenInvalid_AssemblyClassPair(
-            [ValueSource("_invalidAssemblyClassPairs")]string assemblyClassPair)
+            [ValueSource("_invalidFilterExpressions")]string assemblyClassPair)
         {
             // arrange
             var filter = new Filter();
@@ -89,23 +115,32 @@ namespace OpenCover.Test.Framework
 
         [Test]
         public void AddFilter_Adds_ValidAssemblyClassPair(
-            [ValueSource("_assemblyClassPairs")]AssemblyClassData assemblyClassPair)
+            [ValueSource("_filterExpressions")]FilterData assemblyClassPair)
         {
             // arrange
             var filter = new Filter();
 
             // act
-            filter.AddFilter(assemblyClassPair.AssemblyClass);
+            filter.AddFilter(assemblyClassPair.FilterExpression);
 
             // assert
             Assert.AreEqual(1, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
                 filter.InclusionFilters.Count : filter.ExclusionFilters.Count);
 
-            Assert.AreEqual(assemblyClassPair.AssemblyResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilters[0].AssemblyName : filter.ExclusionFilters[0].AssemblyName);
+            Assert.AreEqual(assemblyClassPair.ProcessResult,
+                assemblyClassPair.FilterTypeResult == FilterType.Inclusion ? 
+                filter.InclusionFilters[0].ProcessName
+                    : filter.ExclusionFilters[0].ProcessName);
 
-            Assert.AreEqual(assemblyClassPair.ClassResult, assemblyClassPair.FilterTypeResult == FilterType.Inclusion ?
-                filter.InclusionFilters[0].ClassName : filter.ExclusionFilters[0].ClassName);
+            Assert.AreEqual(assemblyClassPair.AssemblyResult,
+                assemblyClassPair.FilterTypeResult == FilterType.Inclusion ? 
+                filter.InclusionFilters[0].AssemblyName
+                    : filter.ExclusionFilters[0].AssemblyName);
+
+            Assert.AreEqual(assemblyClassPair.ClassResult, 
+                assemblyClassPair.FilterTypeResult == FilterType.Inclusion ? 
+                filter.InclusionFilters[0].ClassName
+                : filter.ExclusionFilters[0].ClassName);
         }
 
         #region Test Data for UseAssembly tests
@@ -173,7 +208,7 @@ namespace OpenCover.Test.Framework
             data.Filters.ForEach(filter.AddFilter);
 
             // act
-            var result = filter.UseAssembly(data.Assembly);
+            var result = filter.UseAssembly("processName.exe", data.Assembly);
 
             // result
             Assert.AreEqual(data.ExpectedResult, result,
@@ -698,7 +733,7 @@ namespace OpenCover.Test.Framework
             // act
 
             // assert
-            Assert.AreEqual(canUse, filter.UseAssembly(assembly));
+            Assert.AreEqual(canUse, filter.UseAssembly("processName.exe", assembly));
         }
 
         [Test]
@@ -757,7 +792,42 @@ namespace OpenCover.Test.Framework
         {
             var filter = Filter.BuildFilter(new CommandLineParser(commandLine).Do(_ => _.ExtractAndValidateArguments()));
             Assert.IsNotNull(filter);
-            Assert.AreEqual(matchAssembly, filter.UseAssembly("System"));
+            Assert.AreEqual(matchAssembly, filter.UseAssembly("processName.exe", "System"));
         }
+
+        [Test]
+        [TestCase("+{*}[*]*", null, true, false)]
+        [TestCase("-{*}[*]*", "process.exe", true, false)]
+        [TestCase("-{pro*}[*]*", "process.exe", true, false)]
+        [TestCase("-{*cess}[*]*", "process.exe", true, false)]
+        [TestCase("+{*}[*]*", "process.exe", true, true)]
+        [TestCase("+{pro*}[*]*", "process.exe", true, true)]
+        [TestCase("+{*cess}[*]*", "process.exe", true, true)]
+        [TestCase("-{*}[*]* +{pro*}[*]*", "process.exe", true, false)]
+        [TestCase("+{abc*}[*]* +{pro*}[*]*", "process.exe", true, true)]
+        [TestCase("-{*}[ABC*]* +[*]*", "process.exe", true, true)]
+        [TestCase("-{*}[ABC*]* +{*}[*]*", "process.exe", false, true)]
+        [TestCase("-{pro*}[D*F]* +[*]*", "process.exe", false, true)]
+        [TestCase("-{*cess}[*GHI]* +[*]*", "process.exe", false, true)]
+        [TestCase("+{ABC}[*]*", "process.exe", false, false)]
+        [TestCase("+{pro*}[*]*", "process.exe", false, true)]
+        public void CanFilterByProcessName(string filterArg, string processName, bool defaultFilters, bool expected)
+        {
+            // arrange
+            var filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, defaultFilters).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
+
+            // act
+            var instrument = filter.InstrumentProcess(processName);
+
+            // assert
+            Assert.AreEqual(expected, instrument);
+        }
+
+        IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
+        {
+            yield return "-target:t";
+            yield return string.Format("-filter:\"{0}\"", filterArg);
+            if (!defaultFilters) yield return "-nodefaultfilters";
+        } 
     }
 }

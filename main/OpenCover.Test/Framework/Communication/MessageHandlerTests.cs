@@ -49,7 +49,7 @@ namespace OpenCover.Test.Framework.Communication
 
             // assert
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x=>x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+                .Verify(x => x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
 
         }
 
@@ -106,7 +106,7 @@ namespace OpenCover.Test.Framework.Communication
             // assert
             InstrumentationPoint[] points;
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
+                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
         }
 
@@ -121,7 +121,7 @@ namespace OpenCover.Test.Framework.Communication
             var points = Enumerable.Repeat(new InstrumentationPoint(), 2).ToArray();
             Assert.NotNull(points);
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
@@ -147,7 +147,7 @@ namespace OpenCover.Test.Framework.Communication
 
             //var points = new[] { new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint() };
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
             
             var chunked = false;
             // act
@@ -175,7 +175,7 @@ namespace OpenCover.Test.Framework.Communication
             // assert
             BranchPoint[] points;
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
+                .Verify(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
         }
 
@@ -191,7 +191,7 @@ namespace OpenCover.Test.Framework.Communication
             Assert.NotNull(points);
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
@@ -216,7 +216,7 @@ namespace OpenCover.Test.Framework.Communication
             Assert.NotNull(points);
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
@@ -283,7 +283,7 @@ namespace OpenCover.Test.Framework.Communication
             Assert.NotNull(points);
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Throws<NullReferenceException>();
 
             var response = new MSG_GetSequencePoints_Response{count = -1, more = true};
@@ -316,7 +316,7 @@ namespace OpenCover.Test.Framework.Communication
             Assert.NotNull(points);
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Throws<NullReferenceException>();
 
             var response = new MSG_GetBranchPoints_Response { count = -1, more = true };
@@ -431,11 +431,54 @@ namespace OpenCover.Test.Framework.Communication
                 .Callback<MSG_TrackAssembly_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(x => x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Throws<NullReferenceException>();
 
             // act
             Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(false, response.track);
+        }
+
+        [Test]
+        public void Handles_MSG_TrackProcess()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackProcess_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackProcess_Request());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackProcess, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
+
+            // assert
+            Container.GetMock<IProfilerCommunication>()
+                .Verify(x => x.TrackProcess(It.IsAny<string>()), Times.Once());
+
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_TrackProcess_ReturnsTrackAsFalse()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackProcess_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackProcess_Request());
+
+            var response = new MSG_TrackProcess_Response { track = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_TrackProcess_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_TrackProcess_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.TrackProcess(It.IsAny<string>()))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackProcess, _mockCommunicationBlock.Object,
                 (i, block) => { },
                 block => { });
 

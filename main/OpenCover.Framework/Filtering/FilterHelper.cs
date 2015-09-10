@@ -22,8 +22,24 @@ namespace OpenCover.Framework.Filtering
 
         internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForAssemblyName(this IEnumerable<AssemblyAndClassFilter> filters, string assemblyName)
         {
-            var matchingFilters =
-                filters.Where(filter => filter.IsMatchingAssemblyName(assemblyName)).ToList();
+            var matchingFilters = filters
+                .Where(filter => filter.IsMatchingAssemblyName(assemblyName)).ToList();
+            return matchingFilters;
+        }
+
+        internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForProcessName(this IEnumerable<AssemblyAndClassFilter> filters, string processName)
+        {
+            var matchingFilters = filters
+                .Where(filter => filter.IsMatchingProcessName(processName)).ToList();
+            return matchingFilters;
+        }
+
+        internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForProcessAssemblyName(this IEnumerable<AssemblyAndClassFilter> filters, string processName, string assemblyName)
+        {
+            var matchingFilters = filters
+                .Where(filter => filter.IsMatchingProcessName(processName))
+                .Where(filter => filter.IsMatchingAssemblyName(assemblyName))
+                .ToList();
             return matchingFilters;
         }
 

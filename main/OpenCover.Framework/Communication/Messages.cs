@@ -42,6 +42,11 @@ namespace OpenCover.Framework.Communication
         /// Close a channel between host and profiler
         /// </summary>
         MSG_CloseChannel = 6,
+
+        /// <summary>
+        /// Do we track this process
+        /// </summary>
+        MSG_TrackProcess = 7,
     }
 
     /// <summary>
@@ -76,7 +81,7 @@ namespace OpenCover.Framework.Communication
     }
 
     /// <summary>
-    /// Trck an assembly
+    /// Track an assembly
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
     public struct MSG_TrackAssembly_Request
@@ -85,6 +90,12 @@ namespace OpenCover.Framework.Communication
         /// The message type
         /// </summary>
         public MSG_Type type;
+
+        /// <summary>
+        /// The path to the process
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        public string processName;
 
         /// <summary>
         /// The path to the module/assembly
@@ -127,6 +138,12 @@ namespace OpenCover.Framework.Communication
         /// The token of the method
         /// </summary>
         public int functionToken;
+
+        /// <summary>
+        /// The path to the process
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        public string processName;
 
         /// <summary>
         /// The path to the module hosting the emthod
@@ -191,6 +208,12 @@ namespace OpenCover.Framework.Communication
         /// The token of the method
         /// </summary>
         public int functionToken;
+
+        /// <summary>
+        /// The path to the process
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        public string processName;
 
         /// <summary>
         /// The path to the module hosting the emthod
@@ -348,6 +371,37 @@ namespace OpenCover.Framework.Communication
         /// </summary>
         [MarshalAs(UnmanagedType.Bool)]
         public bool done;
+    }
+
+    /// <summary>
+    /// Track an assembly
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
+    public struct MSG_TrackProcess_Request
+    {
+        /// <summary>
+        /// The message type
+        /// </summary>
+        public MSG_Type type;
+
+        /// <summary>
+        /// The path to the process
+        /// </summary>
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
+        public string processName;
+    }
+
+    /// <summary>
+    /// The response to a <see cref="MSG_TrackProcess_Request"/>
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct MSG_TrackProcess_Response
+    {
+        /// <summary>
+        /// True - if the assembly has instrumentable code
+        /// </summary>
+        [MarshalAs(UnmanagedType.Bool)]
+        public bool track;
     }
     // ReSharper restore InconsistentNaming
 

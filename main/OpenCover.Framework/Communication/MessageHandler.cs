@@ -96,6 +96,11 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_CloseChannel:
                     writeSize = HandleCloseChannelMessage(pinnedMemory);
                     break;
+
+                case MSG_Type.MSG_TrackProcess:
+                    writeSize = HandleTrackProcessMessage(pinnedMemory);
+                    break;
+
             }
             return writeSize;                
         }
@@ -108,7 +113,7 @@ namespace OpenCover.Framework.Communication
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
                 InstrumentationPoint[] origPoints;
-                _profilerCommunication.GetSequencePoints(request.modulePath, request.assemblyName,
+                _profilerCommunication.GetSequencePoints(request.processName, request.modulePath, request.assemblyName,
                     request.functionToken, out origPoints);
                 var num = origPoints.Maybe(o => o.Length);
 
@@ -156,7 +161,7 @@ namespace OpenCover.Framework.Communication
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
                 BranchPoint[] origPoints;
-                _profilerCommunication.GetBranchPoints(request.modulePath, request.assemblyName,
+                _profilerCommunication.GetBranchPoints(request.processName, request.modulePath, request.assemblyName,
                     request.functionToken, out origPoints);
                 var num = origPoints.Maybe(o => o.Length);
 
@@ -277,11 +282,32 @@ namespace OpenCover.Framework.Communication
             try
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
-                response.track = _profilerCommunication.TrackAssembly(request.modulePath, request.assemblyName);
+                response.track = _profilerCommunication.TrackAssembly(request.processName, request.modulePath, request.assemblyName);
             }
             catch (Exception ex)
             {
                 DebugLogger.ErrorFormat("HandleTrackAssemblyMessage => {0}:{1}", ex.GetType(), ex.Message);
+                response.track = false;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleTrackProcessMessage(IntPtr pinnedMemory)
+        {
+            var response = new MSG_TrackProcess_Response();
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackProcess_Response));
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackProcess_Request>(pinnedMemory);
+                response.track = _profilerCommunication.TrackProcess(request.processName);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleTrackProcessMessage => {0}:{1}", ex.GetType(), ex.Message);
                 response.track = false;
             }
             finally

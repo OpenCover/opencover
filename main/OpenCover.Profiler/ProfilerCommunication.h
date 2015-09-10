@@ -23,19 +23,22 @@ private:
 public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
-    bool Initialise(TCHAR* key, TCHAR *ns);
+    bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
 public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
     bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
-    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
 	inline void AddTestEnterPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }
 	inline void AddTestLeavePoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }
 	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
 	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
     void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
     void CloseChannel(bool sendSingleBuffer);
+
+private:
+    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
+    bool TrackProcess();
 
 public: 
     void ThreadCreated(ThreadID threadID, DWORD osThreadID);
@@ -53,6 +56,7 @@ private:
 private:
     tstring m_key;
     tstring m_namespace;
+    tstring m_processName;
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
