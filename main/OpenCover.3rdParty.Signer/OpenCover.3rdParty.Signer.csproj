@@ -7,8 +7,8 @@
     <ProjectGuid>{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OpenCover.Gendarme.Signer</RootNamespace>
-    <AssemblyName>OpenCover.Gendarme.Signer</AssemblyName>
+    <RootNamespace>OpenCover.ThirdParty.Signer</RootNamespace>
+    <AssemblyName>OpenCover.3rdParty.Signer</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -65,6 +65,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CrashReporterSigner.cs" />
+    <Compile Include="GendarmeSigner.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -78,6 +80,10 @@
     <PostBuildEvent Condition=" '$(OS)' == 'Windows_NT' ">cd $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)
 $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)\OpenCover.Gendarme.Signer.exe</PostBuildEvent>
     <PostBuildEvent Condition=" '$(OS)' != 'Windows_NT' ">mono OpenCover.Gendarme.Signer.exe</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>cd $(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)
+$(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)\OpenCover.3rdParty.Signer.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

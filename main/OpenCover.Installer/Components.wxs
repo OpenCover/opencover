@@ -36,6 +36,9 @@
         <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
         <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
       </Component>
+      <Component Id="CrashReporter_Signed_3rdParty" Guid="{d2a05736-4ed9-4bf1-9fc0-d507794a5a68}">
+        <File Id="CRASHREPORTER_NET_DLL" Source="..\bin\Release\CrashReporter.NET.dll" KeyPath="yes" />
+      </Component>
       <Component Id="Log4Net_3rdParty" Guid="{12E6BB24-EC81-4831-A1CD-9DF0600901A0}">
         <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
         <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
