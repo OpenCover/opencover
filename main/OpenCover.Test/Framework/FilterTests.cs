@@ -823,11 +823,13 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(expected, instrument);
         }
 
-        IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
+        static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
         {
             yield return "-target:t";
             yield return string.Format("-filter:\"{0}\"", filterArg);
             if (!defaultFilters) yield return "-nodefaultfilters";
-        } 
+        }
+
+        
     }
 }
