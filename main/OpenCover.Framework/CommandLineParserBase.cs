@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OpenCover.Framework
 {
@@ -17,12 +16,19 @@ namespace OpenCover.Framework
     {
         private readonly string[] _arguments;
 
+        /// <summary>
+        /// Instantiate the base command line parser
+        /// </summary>
+        /// <param name="arguments"></param>
         protected CommandLineParserBase(string[] arguments)
         {
             _arguments = arguments;
             ParsedArguments = new Dictionary<string, string>();
         }
 
+        /// <summary>
+        /// Get the parsed arguments
+        /// </summary>
         protected IDictionary<string, string> ParsedArguments { get; private set; }
         
         /// <summary>

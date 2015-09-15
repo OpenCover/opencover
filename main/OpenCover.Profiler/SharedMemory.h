@@ -16,8 +16,10 @@ public:
     void* MapViewOfFile(DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow, SIZE_T dwNumberOfBytesToMap);
     static DWORD GetAllocationGranularity();
     bool IsValid() {return m_hMemory!=NULL; }
+    void FlushViewOfFile();
 
 private:
     HANDLE m_hMemory;
-    std::list<void*> m_viewMap;
+    std::list<std::pair<void*, SIZE_T>> m_viewMap;
+    void CloseMapping();
 };

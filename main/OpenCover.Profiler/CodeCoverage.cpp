@@ -92,9 +92,9 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    if (!m_host.Initialise(key, ns))
+    if (!m_host.Initialise(key, ns, szExeName))
     {
-        RELTRACE(_T("    ::Initialize => Failed to initialise the profiler communications -> GetLastError() => %d"), ::GetLastError());
+        RELTRACE(_T("    ::Initialize => Profiler will not run for this process."));
         return E_FAIL;
     }
 
@@ -161,7 +161,9 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
-	if (m_chainedProfiler != NULL)
+    RELTRACE(_T("::Shutdown - Starting"));
+
+    if (m_chainedProfiler != NULL)
 		m_chainedProfiler->Shutdown();
 
     m_host.CloseChannel(m_tracingEnabled);

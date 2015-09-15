@@ -13,8 +13,8 @@ class CReleaseTrace
 	    {
 	}
 
-	const char* PREFIX = "OpenCover: ";
-	const wchar_t* WPREFIX = L"OpenCover: ";
+	const char* PREFIX = "OpenCover: (Profiler) ";
+	const wchar_t* WPREFIX = L"OpenCover: (Profiler) ";
 
 #pragma warning(push)
 #pragma warning(disable : 4793)
@@ -26,7 +26,7 @@ class CReleaseTrace
         int nBytes = _vscprintf(pszFmt, ptr) + 1;
         va_end(ptr);
 				
-		int prefixLength = strlen(PREFIX);
+		auto prefixLength = strlen(PREFIX);
 		std::vector<char> buffer(nBytes + prefixLength);
 		sprintf_s(&buffer[0], prefixLength + 1, "%s", PREFIX);
 
@@ -48,7 +48,7 @@ class CReleaseTrace
         int nBytes = _vscwprintf(pszFmt, ptr) + 1;
         va_end(ptr);
 
-		int prefixLength = wcslen(WPREFIX);
+		auto prefixLength = wcslen(WPREFIX);
 		std::vector<wchar_t> buffer(nBytes + prefixLength);
 		swprintf_s(&buffer[0], prefixLength + 1, L"%s", WPREFIX);
 		
@@ -63,3 +63,8 @@ class CReleaseTrace
 };
 
 #define RELTRACE CReleaseTrace()
+
+#ifdef _DEBUG
+#undef ATLTRACE
+#define ATLTRACE CReleaseTrace()
+#endif

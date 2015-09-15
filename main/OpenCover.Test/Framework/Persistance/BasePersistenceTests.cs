@@ -1067,7 +1067,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.SaveVisitData(data.ToArray());
 
             //assert
-            Container.GetMock<ILog>().Verify(x => x.DebugFormat(It.IsAny<string>(),
+            Container.GetMock<ILog>().Verify(x => x.ErrorFormat(It.IsAny<string>(),
                 It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()), Times.Once());
         }
 
@@ -1083,7 +1083,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.SaveVisitData(data.ToArray());
 
             //assert
-            Container.GetMock<ILog>().Verify(x => x.DebugFormat(It.IsAny<string>(),
+            Container.GetMock<ILog>().Verify(x => x.ErrorFormat(It.IsAny<string>(),
                 It.IsAny<object>(), It.IsAny<object>(), It.IsAny<object>()), Times.Once());
         }
 

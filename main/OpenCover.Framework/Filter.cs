@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -25,6 +26,7 @@ namespace OpenCover.Framework
         internal IList<RegexFilter> ExcludedFiles { get; private set; }
         internal IList<RegexFilter> TestFiles { get; private set; }
         public bool RegExFilters { get; private set; }
+        
 
         /// <summary>
         /// Standard constructor
@@ -40,10 +42,11 @@ namespace OpenCover.Framework
             RegExFilters = useRegexFilters;
         }
 
-        public bool UseAssembly(string assemblyName)
+        public bool UseAssembly(string processName, string assemblyName)
         {
+            processName = Path.GetFileNameWithoutExtension(processName);
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingProcessName(processName)))
             {
                 return false;
             }
@@ -62,15 +65,16 @@ namespace OpenCover.Framework
             return false;
         }
 
-        public bool InstrumentClass(string assemblyName, string className)
+        public bool InstrumentClass(string processName, string assemblyName, string className)
         {
-            if (string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
+            if (string.IsNullOrEmpty(processName) || string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
             {
                 return false;
             }
 
+            processName = Path.GetFileNameWithoutExtension(processName);
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*"))
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingProcessName(processName)))
             {
                 return false;
             }
@@ -91,20 +95,28 @@ namespace OpenCover.Framework
             return false;
         }
 
+
+        public bool InstrumentClass(string assemblyName, string className)
+        {
+            return InstrumentClass(Guid.NewGuid().ToString(), assemblyName, className);
+        }
+
         public void AddFilter(string assemblyClassName)
         {
             string assemblyName;
             string className;
+            string processName;
             FilterType filterType;
-            GetAssemblyClassName(assemblyClassName, RegExFilters, out filterType, out assemblyName, out className);
+            GetAssemblyClassName(assemblyClassName, RegExFilters, out filterType, out assemblyName, out className, out processName);
 
             if (!RegExFilters)
             {
+                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape();
                 assemblyName = assemblyName.ValidateAndEscape();
                 className = className.ValidateAndEscape();
             }
 
-            var filter = new AssemblyAndClassFilter(assemblyName, className);
+            var filter = new AssemblyAndClassFilter(processName, assemblyName, className);
             if (filterType == FilterType.Inclusion)
                 InclusionFilters.Add(filter);
 
@@ -112,13 +124,13 @@ namespace OpenCover.Framework
                 ExclusionFilters.Add(filter);
         }
 
-        private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className)
+        private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className, out string processName)
         {
             className = string.Empty;
             assemblyName = string.Empty;
-            var regEx = new Regex(@"^(?<type>([+-]))(\[(?<assembly>(.+))\])(?<class>(.*))?$");
+            var regEx = new Regex(@"^(?<type>([+-]))(\{(?<process>(.+))\})?(\[(?<assembly>(.+))\])(?<class>(.+))$");
             if (useRegEx)
-                regEx = new Regex(@"^(?<type>([+-]))(\[\((?<assembly>(.+))\)\])(\((?<class>(.*))\))?$");
+                regEx = new Regex(@"^(?<type>([+-]))(\{\((?<process>(.+))\)\})?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
 
             var match = regEx.Match(assemblyClassName);
             if (match.Success)
@@ -126,6 +138,7 @@ namespace OpenCover.Framework
                 filterType = match.Groups["type"].Value.ParseFilterType();
                 assemblyName = match.Groups["assembly"].Value;
                 className = match.Groups["class"].Value;
+                processName = match.Groups["process"].Value;
 
                 if (string.IsNullOrWhiteSpace(assemblyName))
                     throw InvalidFilterFormatException(assemblyClassName);
@@ -235,6 +248,24 @@ namespace OpenCover.Framework
                 return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
             }
             return false;
+        }
+
+        public bool InstrumentProcess(string processName)
+        {
+            if (string.IsNullOrEmpty(processName))
+            {
+                return false;
+            }
+
+            processName = Path.GetFileNameWithoutExtension(processName);
+            var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForProcessName(processName);
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*"))
+            {
+                return false;
+            }
+
+            var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForProcessName(processName);
+            return matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.AssemblyName == ".*" || inclusionFilter.ClassName == ".*");
         }
 
         /// <summary>

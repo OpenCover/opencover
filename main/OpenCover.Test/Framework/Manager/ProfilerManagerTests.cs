@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -27,7 +26,8 @@ namespace OpenCover.Test.Framework.Manager
             _key = (new Random().Next()).ToString();
             _manager = new MemoryManager();
             _manager.Initialise("Local", _key, Enumerable.Empty<string>());
-            _manager.AllocateMemoryBuffer(65536, 0);
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(65536, out bufferId);
             Container.RegisterInstance(_manager);
         }
 
@@ -277,8 +277,8 @@ namespace OpenCover.Test.Framework.Manager
             EventWaitHandle standardMessageReady = null;
             EventWaitHandle offloadComplete = new AutoResetEvent(false);
 
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, Enumerable.Empty<string>()))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, Enumerable.Empty<string>()))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, Enumerable.Empty<string>()))
             {
                 Container.GetMock<ICommunicationManager>()
                          .Setup(x => x.HandleCommunicationBlock(It.IsAny<IManagedCommunicationBlock>(), It.IsAny<Action<ManagedBufferBlock>>()))
@@ -330,8 +330,8 @@ namespace OpenCover.Test.Framework.Manager
             var self = WindowsIdentity.GetCurrent().User;
 
             // act
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, servicePrincipal))
             {
                 var phrRules = mmb.ProfilerHasResults.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
                 var rhbrRules = mmb.ResultsHaveBeenReceived.GetAccessControl().GetAccessRules(true, false, typeof(SecurityIdentifier));
@@ -369,8 +369,8 @@ namespace OpenCover.Test.Framework.Manager
             var self = WindowsIdentity.GetCurrent().User;
 
             // act
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 1, servicePrincipal))
-            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 1, servicePrincipal))
+            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", _key, 100, 2, servicePrincipal))
+            using (var mmb = new MemoryManager.ManagedMemoryBlock("Local", _key, 100, 2, servicePrincipal))
             {
                 var mcbRules = mcb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));
                 var mmbRules = mmb.MemoryAcl.GetAccessRules(true, false, typeof(SecurityIdentifier));
@@ -402,6 +402,8 @@ namespace OpenCover.Test.Framework.Manager
 
         private void RunProcess(StringDictionary dict, Action<EventWaitHandle> getStandardMessageDataReady, Action doExtraWork)
         {
+            ProfilerManager.BufferWaitCount = 0;
+
             // arrange
             EventWaitHandle standardMessageDataReady = null;
 

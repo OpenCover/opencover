@@ -23,7 +23,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns("ModulePath");
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -44,7 +44,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns("ModuleName");
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -64,7 +64,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] {@class});
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -88,7 +88,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -119,7 +119,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { new SequencePoint() });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -150,7 +150,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -204,7 +204,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(System.IO.Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"));
             
             Container.GetMock<IFilter>()
-               .Setup(x => x.UseAssembly(It.IsAny<string>()))
+               .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
@@ -273,7 +273,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -304,7 +304,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -340,7 +340,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { brPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -371,7 +371,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { brPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act

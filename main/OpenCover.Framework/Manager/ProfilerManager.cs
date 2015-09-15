@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
@@ -38,6 +39,8 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
+        private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
+
         /// <summary>
         /// Create an instance of the profiler manager
         /// </summary>
@@ -56,6 +59,11 @@ namespace OpenCover.Framework.Manager
             _perfCounters = perfCounters;
         }
 
+        /// <summary>
+        /// Start the target process
+        /// </summary>
+        /// <param name="process"></param>
+        /// <param name="servicePrincipal"></param>
         public void RunProcess(Action<Action<StringDictionary>> process, string[] servicePrincipal)
         {
             var key = Guid.NewGuid().GetHashCode().ToString("X");
@@ -159,6 +167,11 @@ namespace OpenCover.Framework.Manager
             };
         }
 
+        /// <summary>
+        /// wait for how long
+        /// </summary>
+        internal static int BufferWaitCount = 30;
+
         private bool _continueWait = true;
 
         private void ProcessMessages(WaitHandle[] handles)
@@ -173,38 +186,58 @@ namespace OpenCover.Framework.Manager
                         break;
 
                     case 1:
-                        _communicationManager.HandleCommunicationBlock(_mcb, block => threadHandles.Add(StartProcessingThread(block)));
+                        _communicationManager.HandleCommunicationBlock(_mcb,
+                            block => Task.Factory.StartNew(() =>
+                            {
+                                lock (threadHandles)
+                                {
+                                    threadHandles.Add(StartProcessingThread(block));
+                                }
+                            }));
                         break;
                 }
             } while (_continueWait);
 
+            // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
+            var i = 0;
+            while (i < BufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
+            {
+                DebugLogger.InfoFormat("Waiting for {0} processes to close", _memoryManager.GetBlocks.Count(b => b.Active));
+                Thread.Sleep(500);
+                i++;
+            }
+
+            // grab anything left in the main buffers
             foreach (var block in _memoryManager.GetBlocks.Where(b => b.Active).Select(b => b.MemoryBlock))
             {
                 var data = new byte[block.BufferSize];
                 block.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
                 block.StreamAccessorResults.Read(data, 0, block.BufferSize);
-                _messageQueue.Enqueue(data);    
+                _messageQueue.Enqueue(data);
             }
 
-            if (threadHandles.Any())
+            lock (threadHandles)
             {
-                var tasks = threadHandles
-                    .Select((e, index) => new {Pair = e, Block = index / NumHandlesPerBlock})
-                    .GroupBy(g => g.Block)
-                    .Select(g => g.Select(a => a.Pair).ToList())
-                    .Select(g => Task.Factory.StartNew(() =>
-                    {
-                        g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                        WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
-                    })).ToArray();
-                Task.WaitAll(tasks);
-
-                foreach(var threadHandle in threadHandles)
+                if (threadHandles.Any())
                 {
-                    threadHandle.Item1.Dispose();
-                    threadHandle.Item2.Dispose();
+                    var tasks = threadHandles
+                        .Select((e, index) => new {Pair = e, Block = index/NumHandlesPerBlock})
+                        .GroupBy(g => g.Block)
+                        .Select(g => g.Select(a => a.Pair).ToList())
+                        .Select(g => Task.Factory.StartNew(() =>
+                        {
+                            g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
+                            WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                        })).ToArray();
+                    Task.WaitAll(tasks);
+
+                    foreach (var threadHandle in threadHandles)
+                    {
+                        threadHandle.Item1.Dispose();
+                        threadHandle.Item2.Dispose();
+                    }
+                    threadHandles.Clear();
                 }
-                threadHandles.Clear();
             }
 
             _messageQueue.Enqueue(new byte[0]);
@@ -212,6 +245,7 @@ namespace OpenCover.Framework.Manager
 
         private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(ManagedBufferBlock block)
         {
+            DebugLogger.InfoFormat("Starting Process Block => {0}", block.BufferId);
             var terminateThread = new ManualResetEvent(false);
             var threadTerminated = new ManualResetEvent(false);
 
@@ -221,6 +255,7 @@ namespace OpenCover.Framework.Manager
                     threadActivated, threadTerminated));
                 threadActivated.WaitOne();
             }
+            DebugLogger.InfoFormat("Started Process Block => {0}", block.BufferId);
             return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
         }
 

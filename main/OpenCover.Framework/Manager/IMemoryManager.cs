@@ -4,24 +4,75 @@ using System.Threading;
 
 namespace OpenCover.Framework.Manager
 {
+    /// <summary>
+    /// Defines the buffer between the host and a profiler instance 
+    /// </summary>
     public class ManagedBufferBlock
     {
+        /// <summary>
+        /// Defines the buffer between the host and a profiler instance 
+        /// </summary>
         public ManagedBufferBlock()
         {
             Active = true;
         }
+
+        /// <summary>
+        /// A communication block is where all commands are sent from profiler to host 
+        /// </summary>
         public IManagedCommunicationBlock CommunicationBlock { get; set; }
+
+        /// <summary>
+        /// A memory block is were the results are sent
+        /// </summary>
         public IManagedMemoryBlock MemoryBlock { get; set; }
+
+        /// <summary>
+        /// The buffer identifier
+        /// </summary>
         public uint BufferId { get; set; }
+
+        /// <summary>
+        /// Is the block still active?
+        /// </summary>
         public bool Active { get; set; }
     }
 
+    /// <summary>
+    /// Defines the interface for a memory manager implementation
+    /// </summary>
     public interface IMemoryManager : IDisposable
     {
+        /// <summary>
+        /// Initialise a memory manager
+        /// </summary>
+        /// <param name="nameSpace"></param>
+        /// <param name="key"></param>
+        /// <param name="servicePrincipal"></param>
         void Initialise(string nameSpace, string key, IEnumerable<string> servicePrincipal);
-        ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, uint bufferId);
+
+        /// <summary>
+        /// Allocate a <see cref="ManagedBufferBlock"/> that is used to communicate between host and profiler
+        /// </summary>
+        /// <param name="bufferSize"></param>
+        /// <param name="bufferId"></param>
+        /// <returns></returns>
+        ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, out uint bufferId);
+
+        /// <summary>
+        /// Get the list of all allocated blocks
+        /// </summary>
         IList<ManagedBufferBlock> GetBlocks { get; }
+
+        /// <summary>
+        /// Deactivate a <see cref="ManagedBufferBlock"/>
+        /// </summary>
+        /// <param name="bufferId"></param>
         void DeactivateMemoryBuffer(uint bufferId);
+        
+        /// <summary>
+        /// Remove all deactivated blocks
+        /// </summary>
         void RemoveDeactivatedBlocks();
     }
 }
