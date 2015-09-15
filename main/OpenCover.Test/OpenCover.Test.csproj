@@ -147,6 +147,7 @@
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />
     <Compile Include="Framework\CommandLineParserTests.cs" />
     <Compile Include="Framework\FilterTests.cs" />
+    <Compile Include="Framework\Manager\MemoryManagerTests.cs" />
     <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationPointTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />

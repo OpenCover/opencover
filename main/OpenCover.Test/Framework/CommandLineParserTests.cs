@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -732,6 +733,25 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
             Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
+        }
+
+        [Test]
+        [TestCase("-{nunit-console*}[*]* -{pdb*}[*]* -{nunit-agent*}[*]*")]
+        [TestCase("-[System*]* -[Xyz*]* -[Zap*]*")]
+        [TestCase("-{nunit-console*}[System*]* -[Xyz*]* -{nunit-agent*}[Zap*]*")]
+        public void FilterParsing_NonGreedy(string filterArg)
+        {
+            var parser = new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments());
+
+            // assert
+            Assert.AreEqual(3, parser.Filters.Count);
+        }
+
+        static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
+        {
+            yield return "-target:t";
+            yield return string.Format("-filter:\"{0}\"", filterArg);
+            if (!defaultFilters) yield return "-nodefaultfilters";
         }
     }
 }

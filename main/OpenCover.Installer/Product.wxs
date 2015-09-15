@@ -45,6 +45,7 @@
       <ComponentRef Id="Autofac_3rdParty" />
       <ComponentRef Id="MonoCecil_3rdParty" />
       <ComponentRef Id="Gendarme_Signed_3rdParty" />
+      <ComponentRef Id="CrashReporter_Signed_3rdParty" />
       <ComponentRef Id="Log4Net_3rdParty" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />

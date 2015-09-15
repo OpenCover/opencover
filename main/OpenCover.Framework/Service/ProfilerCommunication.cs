@@ -28,12 +28,12 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public bool TrackAssembly(string modulePath, string assemblyName)
+        public bool TrackAssembly(string processName, string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            if (!_filter.UseAssembly(assemblyName))
+            if (!_filter.UseAssembly(processName, assemblyName))
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.Filter);
@@ -59,38 +59,38 @@ namespace OpenCover.Framework.Service
             return !module.ShouldSerializeSkippedDueTo();
         }
 
-        public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
+        public bool GetBranchPoints(string processName, string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
         {
             BranchPoint[] points = null;
 
             var ret = GetPoints(() => _persistance.GetBranchPointsForFunction(modulePath, functionToken, out points),
-                    modulePath, assemblyName, functionToken, out instrumentPoints);
+                    processName, modulePath, assemblyName, functionToken, out instrumentPoints);
 
             instrumentPoints = points;
             return ret;
         }
 
-        public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] instrumentPoints)
+        public bool GetSequencePoints(string processName, string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] instrumentPoints)
         {
             InstrumentationPoint[] points = null;
 
             var ret = GetPoints(() => _persistance.GetSequencePointsForFunction(modulePath, functionToken, out points),
-                                modulePath, assemblyName, functionToken, out instrumentPoints);
+                                processName, modulePath, assemblyName, functionToken, out instrumentPoints);
 
             instrumentPoints = points;
             return ret;
         }
 
-        private bool GetPoints<T>(Func<bool> getPointsFunc, string modulePath, string assemblyName, int functionToken, out T[] points)
+        private bool GetPoints<T>(Func<bool> getPointsFunc, string processName, string modulePath, string assemblyName, int functionToken, out T[] points)
         {
             points = new T[0];
-            return CanReturnPoints(modulePath, assemblyName, functionToken) && getPointsFunc();
+            return CanReturnPoints(processName, modulePath, assemblyName, functionToken) && getPointsFunc();
         }
 
-        private bool CanReturnPoints(string modulePath, string assemblyName, int functionToken)
+        private bool CanReturnPoints(string processName, string modulePath, string assemblyName, int functionToken)
         {
             var className = _persistance.GetClassFullName(modulePath, functionToken);
-            return _filter.InstrumentClass(assemblyName, className);
+            return _filter.InstrumentClass(processName, assemblyName, className);
         }
 
         public void Stopping()
@@ -101,6 +101,11 @@ namespace OpenCover.Framework.Service
         public bool TrackMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
         {
             return _persistance.GetTrackingMethod(modulePath, assemblyName,functionToken, out uniqueId);
+        }
+
+        public bool TrackProcess(string processName)
+        {
+            return _filter.InstrumentProcess(processName);
         }
     }
 }

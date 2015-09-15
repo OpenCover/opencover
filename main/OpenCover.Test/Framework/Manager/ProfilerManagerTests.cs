@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -403,6 +402,8 @@ namespace OpenCover.Test.Framework.Manager
 
         private void RunProcess(StringDictionary dict, Action<EventWaitHandle> getStandardMessageDataReady, Action doExtraWork)
         {
+            ProfilerManager.BufferWaitCount = 0;
+
             // arrange
             EventWaitHandle standardMessageDataReady = null;
 

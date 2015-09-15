@@ -1,48 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Mono.Cecil;
 
-namespace OpenCover.Gendarme.Signer
+namespace OpenCover.ThirdParty.Signer
 {
-    class Program
+    internal static class GendarmeSigner
     {
-		private const string GendarmeVersion = "2.11.0.20121120";
 
-		private static readonly string GendarmeAssemblyName = string.Format("Mono.Gendarme.{0}", GendarmeVersion);
+        private const string GendarmeVersion = "2.11.0.20121120";
 
-        private static readonly string TargetFolder = Path.Combine("..", "tools", "GendarmeSigned");
+        private static readonly string GendarmeAssemblyName = string.Format("Mono.Gendarme.{0}", GendarmeVersion);
+
+        public static readonly string TargetFolder = Path.Combine("..", "tools", "GendarmeSigned");
         private static readonly string SourceFolder = Path.Combine("packages", GendarmeAssemblyName, "tools");
-        private static readonly string StrongNameKey = Path.Combine("..", "build", "Version", "opencover.gendarme.snk");
+        private static readonly string StrongNameKey = Path.Combine("..", "build", "Version", "opencover.3rdparty.snk");
 
-        static void Main(string[] args)
-        {
-			var assemblyLocation = Assembly.GetAssembly (typeof(Program)).Location;
-			var assemblyFolder = Path.GetDirectoryName(assemblyLocation);
-            var baseFolder = Path.Combine(assemblyFolder, "..", "..", "..");
 
-			var targetDirectory = Path.Combine (baseFolder, TargetFolder);
-            if (!Directory.Exists(targetDirectory)) 
-				Directory.CreateDirectory (targetDirectory);
-
-            if (AlreadySigned(baseFolder))
-            {
-                Console.WriteLine("Gendarme Framework is already Signed");
-                return;
-            }
-
-            Console.WriteLine("Signing Gendarme Framework");
-            SignGendarmeFramework(baseFolder);
-
-            Console.WriteLine("Signing Gendarme Rules Maintainability");
-            SignGendarmeRulesMaintainability(baseFolder);
-        }
-
-        private static bool AlreadySigned(string baseFolder)
+        public static bool AlreadySigned(string baseFolder)
         {
             var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
             if (File.Exists(frameworkAssembly))
@@ -59,7 +34,7 @@ namespace OpenCover.Gendarme.Signer
             return false;
         }
 
-        private static void SignGendarmeRulesMaintainability(string baseFolder)
+        public static void SignGendarmeRulesMaintainability(string baseFolder)
         {
             var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
             var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly);
@@ -97,7 +72,7 @@ namespace OpenCover.Gendarme.Signer
 
         }
 
-        private static void SignGendarmeFramework(string baseFolder)
+        public static void SignGendarmeFramework(string baseFolder)
         {
             var key = Path.Combine(baseFolder, StrongNameKey);
             var assembly = Path.Combine(baseFolder, SourceFolder, "Gendarme.Framework.dll");

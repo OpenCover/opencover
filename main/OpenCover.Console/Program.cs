@@ -12,6 +12,8 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Security.Principal;
 using System.ServiceProcess;
+using CrashReporterDotNET.com.drdump;
+using OpenCover.Console.CrashReporter;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
@@ -21,6 +23,8 @@ using System.Management;
 
 namespace OpenCover.Console
 {
+
+
     class Program
     {
         private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
@@ -34,11 +38,16 @@ namespace OpenCover.Console
         {
             int returnCode;
             var returnCodeOffset = 0;
-            
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+
             try
             {
+                //throw new NullReferenceException();
+
                 CommandLineParser parser;
                 if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
 
@@ -65,12 +74,46 @@ namespace OpenCover.Console
                 {
                     Logger.FatalFormat("An exception occured: {0}", ex.Message);
                     Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                    Logger.FatalFormat("A report has been sent to the OenCover development team...");
                 }
+
+                ReportCrash(ex);
 
                 returnCode = returnCodeOffset + 1;
             }
 
             return returnCode;
+        }
+
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        {
+            ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
+            Environment.Exit(0);
+        }
+
+        private static void ReportCrash(Exception exception)
+        {
+            try
+            {
+                var uploader = new HttpsCrashReporterReportUploader();
+
+                var state = new SendRequestState
+                {
+                    AnonymousData = new AnonymousData
+                    {
+                        ApplicationGuid = new Guid("e3933a4b-368b-4256-ad42-777bc60a9558"),
+                        Exception = exception,
+                        ToEmail = ""
+                    }
+                };
+
+                uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(true));
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine("Failed to send crash report :(");
+            }
+
         }
 
         private static int RunWithContainer(CommandLineParser parser, Bootstrapper container, IPersistance persistance)

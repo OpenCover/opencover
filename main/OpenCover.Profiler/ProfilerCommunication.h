@@ -23,19 +23,22 @@ private:
 public:
     ProfilerCommunication();
     ~ProfilerCommunication(void);
-    bool Initialise(TCHAR* key, TCHAR *ns);
+    bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
 public:
     bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
     bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
     bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
-    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
 	inline void AddTestEnterPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }
 	inline void AddTestLeavePoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }
 	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
 	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
     void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
     void CloseChannel(bool sendSingleBuffer);
+
+private:
+    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
+    bool TrackProcess();
 
 public: 
     void ThreadCreated(ThreadID threadID, DWORD osThreadID);
@@ -53,11 +56,21 @@ private:
 private:
     tstring m_key;
     tstring m_namespace;
+    tstring m_processName;
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
 
     ULONG m_bufferId;
+
+    bool TestSemaphore(CSemaphoreEx &semaphore){
+        // the previous value should always be zero unless the host process has released 
+        // and that means we have disposed of the shared memory
+        if (hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
+            hostCommunicationActive = false;
+        }
+        return hostCommunicationActive;
+    }
 
 private:
     CMutex m_mutexCommunication;
@@ -66,12 +79,14 @@ private:
     CEvent m_eventInformationReadyForProfiler;
     CEvent m_eventInformationReadByProfiler;
     MSG_Union *m_pMSG;
+    CSemaphoreEx _semapore_communication;
 
 private:
     CSharedMemory m_memoryResults;
     CEvent m_eventProfilerHasResults;
     CEvent m_eventResultsHaveBeenReceived;
     MSG_SendVisitPoints_Request *m_pVisitPoints;
+    CSemaphoreEx _semapore_results;
 
 private:
     ATL::CComAutoCriticalSection m_critResults;

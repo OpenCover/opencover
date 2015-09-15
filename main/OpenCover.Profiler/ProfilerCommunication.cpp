@@ -7,15 +7,15 @@
 #include "ProfilerCommunication.h"
 #include "ReleaseTrace.h"
 
-#include <concrt.h>
-
-#include <TlHelp32.h>
+//#include <concrt.h>
+//#include <TlHelp32.h>
 
 #include <sstream>
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
 #define COMM_WAIT_SHORT 10000
 #define COMM_WAIT_LONG 60000
+#define COMM_WAIT_VSHORT 3000
 
 ProfilerCommunication::ProfilerCommunication() 
 {
@@ -26,9 +26,10 @@ ProfilerCommunication::~ProfilerCommunication()
 {
 }
 
-bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
+bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns, TCHAR *processName)
 {
 	m_key = key;
+    m_processName = processName;
 
 	std::wstring sharedKey = key;
 	sharedKey.append(_T("-1"));
@@ -38,25 +39,53 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
     m_mutexCommunication.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_Mutex_") + m_key).c_str());
     if (!m_mutexCommunication.IsValid()) return false;
     
-	RELTRACE(_T("Initialised mutexes"));
+    USES_CONVERSION;
+    ATLTRACE(_T("ProfilerCommunication::Initialise(...) => Initialised mutexes => %s"), W2CT(sharedKey.c_str()));
 
-    m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + sharedKey).c_str());
-    if (!m_eventProfilerRequestsInformation.IsValid()) return false;
+    auto resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + sharedKey);
+    m_eventProfilerRequestsInformation.Initialise(resource_name.c_str());
+    if (!m_eventProfilerRequestsInformation.IsValid()) {
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + sharedKey).c_str());
-    if (!m_eventInformationReadByProfiler.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + sharedKey);
+    m_eventInformationReadByProfiler.Initialise(resource_name.c_str());
+    if (!m_eventInformationReadByProfiler.IsValid()) {
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) = >Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + sharedKey).c_str());
-    if (!m_eventInformationReadyForProfiler.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + sharedKey);
+    m_eventInformationReadyForProfiler.Initialise(resource_name.c_str());
+    if (!m_eventInformationReadyForProfiler.IsValid()) {
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey).c_str());
-    if (!m_memoryCommunication.IsValid()) return false;
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + sharedKey);
+    m_memoryCommunication.OpenFileMapping(resource_name.c_str());
+    if (!m_memoryCommunication.IsValid()) {
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
 
-    RELTRACE(_T("Initialised communication interface"));
+    resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + sharedKey);
+    _semapore_communication.Initialise(resource_name.c_str());
+    if (!_semapore_communication.IsValid()) {
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+        return false;
+    }
+    m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
     hostCommunicationActive = true;
 
-    m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
+    ATLTRACE(_T("ProfilerCommunication::Initialise(...) => Initialised communication interface => %s"), W2CT(sharedKey.c_str()));
+
+    if (!TrackProcess()){
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => ProfilerCommunication => process is not be tracked"));
+        return false;
+    }
 
     ULONG bufferId =  0;
     if (AllocateBuffer(MAX_MSG_SIZE, bufferId))
@@ -70,38 +99,92 @@ bool ProfilerCommunication::Initialise(TCHAR *key, TCHAR *ns)
 
         memoryKey = m_key + memoryKey;
 
-        RELTRACE(_T("Re-initialising communication interface => %d"), bufferId);
+        ATLTRACE(_T("ProfilerCommunication::Initialise(...) => Re-initialising communication interface => %s"), W2CT(memoryKey.c_str()));
 
-        m_eventProfilerRequestsInformation.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey).c_str());
-        if (!m_eventProfilerRequestsInformation.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_SendData_Event_") + memoryKey);
+        m_eventProfilerRequestsInformation.Initialise(resource_name.c_str());
+        if (!m_eventProfilerRequestsInformation.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventInformationReadByProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey).c_str());
-        if (!m_eventInformationReadByProfiler.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ChunkData_Event_") + memoryKey);
+        m_eventInformationReadByProfiler.Initialise(resource_name.c_str());
+        if (!m_eventInformationReadByProfiler.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventInformationReadyForProfiler.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey).c_str());
-        if (!m_eventInformationReadyForProfiler.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveData_Event_") + memoryKey);
+        m_eventInformationReadyForProfiler.Initialise(resource_name.c_str());
+        if (!m_eventInformationReadyForProfiler.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_memoryCommunication.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey).c_str());
-        if (!m_memoryCommunication.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_MemoryMapFile_") + memoryKey);
+        m_memoryCommunication.OpenFileMapping(resource_name.c_str());
+        if (!m_memoryCommunication.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
         m_pMSG = (MSG_Union*)m_memoryCommunication.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
-        RELTRACE(_T("Re-initialised communication interface => %d"), bufferId);
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Communication_Semaphore_") + memoryKey);
+        _semapore_communication.Initialise(resource_name.c_str());
+        if (!_semapore_communication.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_eventProfilerHasResults.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_SendResults_Event_") + memoryKey).c_str());
-        if (!m_eventProfilerHasResults.IsValid()) return false;
+        ATLTRACE(_T("ProfilerCommunication::Initialise(...) => Re-initialised communication interface => %s"), W2CT(memoryKey.c_str()));
 
-        m_eventResultsHaveBeenReceived.Initialise((m_namespace + _T("\\OpenCover_Profiler_Communication_ReceiveResults_Event_") + memoryKey).c_str());
-        if (!m_eventResultsHaveBeenReceived.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_SendResults_Event_") + memoryKey);
+        m_eventProfilerHasResults.Initialise(resource_name.c_str());
+        if (!m_eventProfilerHasResults.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
-        m_memoryResults.OpenFileMapping((m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey).c_str());
-        if (!m_memoryResults.IsValid()) return false;
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_ReceiveResults_Event_") + memoryKey);
+        m_eventResultsHaveBeenReceived.Initialise(resource_name.c_str());
+        if (!m_eventResultsHaveBeenReceived.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
+
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_MemoryMapFile_") + memoryKey);
+        m_memoryResults.OpenFileMapping(resource_name.c_str());
+        if (!m_memoryResults.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
 
         m_pVisitPoints = (MSG_SendVisitPoints_Request*)m_memoryResults.MapViewOfFile(0, 0, MAX_MSG_SIZE);
 
         m_pVisitPoints->count = 0;
 
-        RELTRACE(_T("Initialised results interface => %d"), bufferId);
+        resource_name = (m_namespace + _T("\\OpenCover_Profiler_Results_Semaphore_") + memoryKey);
+        _semapore_results.Initialise(resource_name.c_str());
+        if (!_semapore_results.IsValid()) {
+            RELTRACE(_T("ProfilerCommunication::Initialise(...) => Failed to initialise resource %s => ::GetLastError() = %d"), W2CT(resource_name.c_str()), ::GetLastError());
+            hostCommunicationActive = false;
+            return false;
+        }
+
+        RELTRACE(_T("ProfilerCommunication::Initialise(...) => Initialised results interface => %s"), W2CT(memoryKey.c_str()));
+    }
+    else {
+        hostCommunicationActive = false;
     }
 
     return hostCommunicationActive;
@@ -171,6 +254,9 @@ void ProfilerCommunication::SendThreadVisitPoints(MSG_SendVisitPoints_Request* p
     if (!hostCommunicationActive)
         return;
 
+    if (!TestSemaphore(_semapore_results))
+        return;
+
     handle_exception([=](){
         memcpy(m_pVisitPoints, pVisitPoints, sizeof(MSG_SendVisitPoints_Request));
     }, _T("SendThreadVisitPoints"));
@@ -188,6 +274,9 @@ void ProfilerCommunication::AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msg
     if (!hostCommunicationActive) 
         return;
     
+    if (!TestSemaphore(_semapore_results))
+        return;
+
     handle_exception([=](){
         m_pVisitPoints->points[m_pVisitPoints->count].UniqueId = (uniqueId | msgType);
     }, _T("AddVisitPointToBuffer"));
@@ -245,6 +334,8 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
         {
             m_pMSG->getSequencePointsRequest.type = MSG_GetSequencePoints;
             m_pMSG->getSequencePointsRequest.functionToken = functionToken;
+            USES_CONVERSION;
+            wcscpy_s(m_pMSG->getSequencePointsRequest.szProcessName, T2CW(m_processName.c_str()));
             wcscpy_s(m_pMSG->getSequencePointsRequest.szModulePath, pModulePath);
             wcscpy_s(m_pMSG->getSequencePointsRequest.szAssemblyName, pAssemblyName);
         }, 
@@ -280,6 +371,8 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
         {
             m_pMSG->getBranchPointsRequest.type = MSG_GetBranchPoints;
             m_pMSG->getBranchPointsRequest.functionToken = functionToken;
+            USES_CONVERSION;
+            wcscpy_s(m_pMSG->getBranchPointsRequest.szProcessName, T2CW(m_processName.c_str()));
             wcscpy_s(m_pMSG->getBranchPointsRequest.szModulePath, pModulePath);
             wcscpy_s(m_pMSG->getBranchPointsRequest.szAssemblyName, pAssemblyName);
         }, 
@@ -314,6 +407,8 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
         [=]()
         {
             m_pMSG->trackAssemblyRequest.type = MSG_TrackAssembly; 
+            USES_CONVERSION;
+            wcscpy_s(m_pMSG->trackAssemblyRequest.szProcessName, T2CW(m_processName.c_str()));
             wcscpy_s(m_pMSG->trackAssemblyRequest.szModulePath, pModulePath);
             wcscpy_s(m_pMSG->trackAssemblyRequest.szAssemblyName, pAssemblyName);
         }, 
@@ -364,22 +459,25 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
         return false;
 
     bool response = false;
-
-    RequestInformation(
-        [=]()
-        {
-            m_pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
-            m_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
-        }, 
-        [=, &response, &bufferId]()->BOOL
-        {
-            response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
-            bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
-			::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
-            return FALSE;
-        }
-        , COMM_WAIT_SHORT
-        , _T("AllocateBuffer"));
+    int repeat = 0;
+    while (!response && (++repeat <= 3)){
+        hostCommunicationActive = true;
+        RequestInformation(
+            [=]()
+            {
+                m_pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
+                m_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
+            }, 
+            [=, &response, &bufferId]()->BOOL
+            {
+                response =  m_pMSG->allocateBufferResponse.bResponse == TRUE;
+                bufferId = m_pMSG->allocateBufferResponse.ulBufferId;
+			    ::ZeroMemory(m_pMSG, MAX_MSG_SIZE);
+                return FALSE;
+            }
+            , COMM_WAIT_VSHORT
+            , _T("AllocateBuffer"));
+    }
 
     return response;
 }
@@ -389,6 +487,9 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
         return;
 
     if (!hostCommunicationActive)
+        return;
+
+    if (!TestSemaphore(_semapore_results))
         return;
 
     if (sendSingleBuffer)
@@ -404,8 +505,8 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
     RequestInformation(
         [=]()
         {
-            m_pMSG->closeChannelBufferRequest.type = MSG_CloseChannel;
-            m_pMSG->closeChannelBufferRequest.ulBufferId = m_bufferId;
+            m_pMSG->closeChannelRequest.type = MSG_CloseChannel;
+            m_pMSG->closeChannelRequest.ulBufferId = m_bufferId;
         },
         [=, &response]()->BOOL
         {
@@ -416,6 +517,32 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
         , _T("CloseChannel"));
 
     return;
+}
+
+bool ProfilerCommunication::TrackProcess(){
+    CScopedLock<CMutex> lock(m_mutexCommunication);
+
+    if (!hostCommunicationActive)
+        return false;
+
+    bool response = false;
+
+    RequestInformation(
+        [=]()
+        {
+            m_pMSG->trackProcessRequest.type = MSG_TrackProcess;
+            USES_CONVERSION;
+            wcscpy_s(m_pMSG->trackProcessRequest.szProcessName, T2CW(m_processName.c_str()));
+        },
+        [=, &response]()->BOOL
+        {
+            response = m_pMSG->trackProcessResponse.bResponse == TRUE;
+            return FALSE;
+        }
+        , COMM_WAIT_SHORT
+        , _T("TrackProcess"));
+
+    return response;
 }
 
 void ProfilerCommunication::report_runtime(const std::runtime_error& re, const tstring &msg){
@@ -473,7 +600,11 @@ template<class BR, class PR>
 void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message)
 {
 	ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critComms);
-    if (!hostCommunicationActive) return;
+    if (!hostCommunicationActive) 
+        return;
+
+    if (!TestSemaphore(_semapore_communication))
+        return;
 
 	try {
 
