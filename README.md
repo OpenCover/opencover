@@ -84,10 +84,13 @@ No Git? Don't worry you can download the latest code as a [zip file](http://gith
 I would like to thank 
 
 * JetBrains for my Open Source [ReSharper licence](http://www.jetbrains.com/resharper/),
+<img src="http://www.jetbrains.com/company/docs/logo_jetbrains.png"/>
+
 * [AppVeyor](https://ci.appveyor.com/project/sawilde/opencover) for allowing free build CI services for Open Source projects,
 * [Coveralls](https://coveralls.io/r/OpenCover/opencover) for allowing free services for Open Source projects,
 * NDepend for my [NDepend licence](http://www.ndepend.com/),
 * the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the VS2013 Community Edition), 
 * the [NextGenUG](http://www.nxtgenug.net/) and their free swag from where I got lots of useful tools,
+
 
 I'd also like to thank my family, employers, colleagues and friends for all their support. 
