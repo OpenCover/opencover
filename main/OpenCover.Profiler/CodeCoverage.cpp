@@ -25,7 +25,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 	ATLTRACE(_T("::OpenCoverInitialise"));
 
     OLECHAR szGuid[40]={0};
-    int nCount = ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
+    ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
     RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
     //::OutputDebugStringW(szGuid);
 
@@ -351,14 +351,14 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
             CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, seqPoints[0].UniqueId);
         if (method.IsInstrumented(0, instructions)) return;
   
-        CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        CoverageInstrumentation::AddBranchCoverage([pvsig, pt](InstructionList& brinstructions, ULONG uniqueId)->Instruction*
         {
-            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
+            return CoverageInstrumentation::InsertFunctionCall(brinstructions, pvsig, (FPTR)pt, uniqueId);
         }, method, brPoints, seqPoints);
 
-        CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        CoverageInstrumentation::AddSequenceCoverage([pvsig, pt](InstructionList& seqinstructions, ULONG uniqueId)->Instruction*
         {
-            return CoverageInstrumentation::InsertFunctionCall(instructions, pvsig, (FPTR)pt, uniqueId);
+            return CoverageInstrumentation::InsertFunctionCall(seqinstructions, pvsig, (FPTR)pt, uniqueId);
         }, method, seqPoints);
     }
     else
@@ -370,14 +370,14 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
             CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, seqPoints[0].UniqueId);
         if (method.IsInstrumented(0, instructions)) return;
   
-        CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        CoverageInstrumentation::AddBranchCoverage([injectedVisitedMethod](InstructionList& brinstructions, ULONG uniqueId)->Instruction*
         {
-            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
+            return CoverageInstrumentation::InsertInjectedMethod(brinstructions, injectedVisitedMethod, uniqueId);
         }, method, brPoints, seqPoints);
         
-        CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& instructions, ULONG uniqueId)->Instruction*
+        CoverageInstrumentation::AddSequenceCoverage([injectedVisitedMethod](InstructionList& seqinstructions, ULONG uniqueId)->Instruction*
         {
-            return CoverageInstrumentation::InsertInjectedMethod(instructions, injectedVisitedMethod, uniqueId);
+            return CoverageInstrumentation::InsertInjectedMethod(seqinstructions, injectedVisitedMethod, uniqueId);
         }, method, seqPoints);
     }
 }

@@ -48,6 +48,10 @@ public:
         m_runtimeType = COR_PRF_DESKTOP_CLR;
         m_useOldStyle = false;
 		m_threshold = 0U;
+        m_tracingEnabled = false;
+        m_cuckooCriticalToken = 0;
+        m_cuckooSafeToken = 0;
+        m_infoHook = nullptr;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -71,11 +75,11 @@ END_COM_MAP()
 
     void FinalRelease()
     {
-        if (m_profilerInfo!=NULL) m_profilerInfo.Release();
-        if (m_profilerInfo2!=NULL) m_profilerInfo2.Release();
-        if (m_profilerInfo3!=NULL) m_profilerInfo3.Release();
+        if (m_profilerInfo != nullptr) m_profilerInfo.Release();
+        if (m_profilerInfo2 != nullptr) m_profilerInfo2.Release();
+        if (m_profilerInfo3 != nullptr) m_profilerInfo3.Release();
 #ifndef _TOOLSETV71
-        if (m_profilerInfo4!=NULL) m_profilerInfo4.Release();
+        if (m_profilerInfo4 != nullptr) m_profilerInfo4.Release();
 #endif
 	}
 
@@ -188,98 +192,98 @@ public:
 
 public:
     virtual HRESULT STDMETHODCALLTYPE Initialize( 
-        /* [in] */ IUnknown *pICorProfilerInfoUnk);
+        /* [in] */ IUnknown *pICorProfilerInfoUnk) override;
         
-    virtual HRESULT STDMETHODCALLTYPE Shutdown( void);
+    virtual HRESULT STDMETHODCALLTYPE Shutdown( void) override;
 
     virtual HRESULT STDMETHODCALLTYPE ModuleAttachedToAssembly( 
         /* [in] */ ModuleID moduleId,
-        /* [in] */ AssemblyID assemblyId);
+        /* [in] */ AssemblyID assemblyId) override;
     
      virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished( 
         /* [in] */ ModuleID moduleId,
-        /* [in] */ HRESULT hrStatus);
+        /* [in] */ HRESULT hrStatus) override;
 
     virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted( 
         /* [in] */ FunctionID functionId,
-        /* [in] */ BOOL fIsSafeToBlock);
+        /* [in] */ BOOL fIsSafeToBlock) override;
 
 public:
 	// COR_PRF_MONITOR_APPDOMAIN_LOADS
 	virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted(
-		/* [in] */ AppDomainID appDomainId)
+		/* [in] */ AppDomainID appDomainId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AppDomainCreationStarted(appDomainId);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AppDomainCreationFinished(
 		/* [in] */ AppDomainID appDomainId,
-		/* [in] */ HRESULT hrStatus)
+		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AppDomainCreationFinished(appDomainId, hrStatus);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownStarted(
-		/* [in] */ AppDomainID appDomainId)
+		/* [in] */ AppDomainID appDomainId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AppDomainShutdownStarted(appDomainId);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownFinished(
 		/* [in] */ AppDomainID appDomainId,
-		/* [in] */ HRESULT hrStatus)
+		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AppDomainShutdownFinished(appDomainId, hrStatus);
 		return S_OK;
 	}
 
 	// COR_PRF_MONITOR_ASSEMBLY_LOADS
 	virtual HRESULT STDMETHODCALLTYPE AssemblyLoadStarted(
-		/* [in] */ AssemblyID assemblyId)
+		/* [in] */ AssemblyID assemblyId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AssemblyLoadStarted(assemblyId);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AssemblyLoadFinished(
 		/* [in] */ AssemblyID assemblyId,
-		/* [in] */ HRESULT hrStatus)
+		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AssemblyLoadFinished(assemblyId, hrStatus);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadStarted(
-		/* [in] */ AssemblyID assemblyId)
+		/* [in] */ AssemblyID assemblyId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AssemblyUnloadStarted(assemblyId);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadFinished(
 		/* [in] */ AssemblyID assemblyId,
-		/* [in] */ HRESULT hrStatus)
+		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->AssemblyUnloadFinished(assemblyId, hrStatus);
 		return S_OK;
 	}
 
 	// COR_PRF_MONITOR_MODULE_LOADS
 	virtual HRESULT STDMETHODCALLTYPE ModuleLoadStarted(
-		/* [in] */ ModuleID moduleId)
+		/* [in] */ ModuleID moduleId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->ModuleLoadStarted(moduleId);
 		return S_OK;
 	}
@@ -294,18 +298,18 @@ public:
 	//}
 
 	virtual HRESULT STDMETHODCALLTYPE ModuleUnloadStarted(
-		/* [in] */ ModuleID moduleId)
+		/* [in] */ ModuleID moduleId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->ModuleUnloadStarted(moduleId);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE ModuleUnloadFinished(
 		/* [in] */ ModuleID moduleId,
-		/* [in] */ HRESULT hrStatus)
+		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->ModuleUnloadFinished(moduleId, hrStatus);
 		return S_OK;
 	}
@@ -328,17 +332,17 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE JITCompilationFinished(
 		/* [in] */ FunctionID functionId,
 		/* [in] */ HRESULT hrStatus,
-		/* [in] */ BOOL fIsSafeToBlock)
+		/* [in] */ BOOL fIsSafeToBlock) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->JITCompilationFinished(functionId, hrStatus, fIsSafeToBlock);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE JITFunctionPitched(
-		/* [in] */ FunctionID functionId)
+		/* [in] */ FunctionID functionId) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->JITFunctionPitched(functionId);
 		return S_OK;
 	}
@@ -346,29 +350,29 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE JITInlining(
 		/* [in] */ FunctionID callerId,
 		/* [in] */ FunctionID calleeId,
-		/* [out] */ BOOL *pfShouldInline)
+		/* [out] */ BOOL *pfShouldInline) override
 	{
-		if (m_chainedProfiler != NULL)
+		if (m_chainedProfiler != nullptr)
 			return m_chainedProfiler->JITInlining(callerId, calleeId, pfShouldInline);
 		return S_OK;
 	}
 
 	// COR_PRF_MONITOR_THREADS
     virtual HRESULT STDMETHODCALLTYPE ThreadCreated(
-        /* [in] */ ThreadID threadId);
+        /* [in] */ ThreadID threadId) override;
 
     virtual HRESULT STDMETHODCALLTYPE ThreadDestroyed(
-        /* [in] */ ThreadID threadId);
+        /* [in] */ ThreadID threadId) override;
 
     virtual HRESULT STDMETHODCALLTYPE ThreadAssignedToOSThread(
         /* [in] */ ThreadID managedThreadId,
-        /* [in] */ DWORD osThreadId);
+        /* [in] */ DWORD osThreadId) override;
 
     virtual HRESULT STDMETHODCALLTYPE ThreadNameChanged(
         /* [in] */ ThreadID threadId,
         /* [in] */ ULONG cchName,
         /* [in] */
-        __in_ecount_opt(cchName)  WCHAR name[]);
+        __in_ecount_opt(cchName)  WCHAR name[]) override;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(CodeCoverage), CCodeCoverage)
