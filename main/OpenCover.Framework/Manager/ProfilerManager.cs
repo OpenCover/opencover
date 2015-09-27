@@ -127,6 +127,8 @@ namespace OpenCover.Framework.Manager
             dictionary["Cor_Enable_Profiling"] = "1";
             dictionary["CoreClr_Profiler"] = ProfilerGuid;
             dictionary["CoreClr_Enable_Profiling"] = "1";
+            dictionary["Cor_Profiler_Path"] = string.Empty;
+            dictionary["CorClr_Profiler_Path"] = string.Empty;
            
             switch (_commandLine.Registration)
             {

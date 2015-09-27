@@ -146,8 +146,8 @@ namespace OpenCover.Test.Framework.Manager
             RunSimpleProcess(dict);
 
             // assert
-            Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
-            Assert.IsFalse(dict.ContainsKey(@"CorClr_Profiler_Path"));
+            Assert.IsFalse(!(dict.ContainsKey(@"Cor_Profiler_Path") || !string.IsNullOrEmpty(dict[@"Cor_Profiler_Path"])));
+            Assert.IsFalse(!(dict.ContainsKey(@"CorClr_Profiler_Path") || !string.IsNullOrEmpty(dict[@"CorClr_Profiler_Path"])));
         }
 
         [Test]
@@ -161,8 +161,8 @@ namespace OpenCover.Test.Framework.Manager
             RunSimpleProcess(dict);
 
             // assert
-            Assert.IsFalse(dict.ContainsKey(@"Cor_Profiler_Path"));
-            Assert.IsFalse(dict.ContainsKey(@"CorClr_Profiler_Path"));
+            Assert.IsFalse(!(dict.ContainsKey(@"Cor_Profiler_Path") || !string.IsNullOrEmpty(dict[@"Cor_Profiler_Path"])));
+            Assert.IsFalse(!(dict.ContainsKey(@"CorClr_Profiler_Path") || !string.IsNullOrEmpty(dict[@"CorClr_Profiler_Path"])));
         }
 
         [Test]
