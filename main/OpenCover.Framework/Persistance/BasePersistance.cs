@@ -259,14 +259,23 @@ namespace OpenCover.Framework.Persistance
 
                 #endregion
 
+               	var emptySeqPoints = new SequencePoint[0];
+               	var emptyBranchPoints = new BranchPoint[0];
+
                 foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
-                        var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
-                        var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+                        var sequencePoints = method.SequencePoints ?? emptySeqPoints;
+                        var branchPoints = method.BranchPoints ?? emptyBranchPoints;
 
+                        // No sequences in method, but branches present? => remove branches
+                        if (sequencePoints.Length == 0 && branchPoints.Length != 0) {
+                        	method.BranchPoints = emptyBranchPoints;
+                        	branchPoints = emptyBranchPoints;
+                        }
+                        
                         MapFileReferences(sequencePoints, filesDictionary);
                         MapFileReferences(branchPoints, filesDictionary);
 
@@ -277,46 +286,62 @@ namespace OpenCover.Framework.Persistance
 
                             #region Join Sequences and Branches
 
+                            /* Fast match branches to sequence based on IL offset
+                             * ATTN: This presumes that both SP & BP are sorted by offset!
+                             */
+
                             var index = 0;
 
                             // get first sequencePoint and prepare list for Add(branchPoint)
-                            var parent = sequencePoints[index];
-                            parent.BranchPoints = new List<BranchPoint>();
+                            var currentSp = sequencePoints[index];
+                            currentSp.BranchPoints = new List<BranchPoint>();
 
-                            // get nextOffset
-                            int nextOffset = index + 1 < sequencePoints.Length ? sequencePoints[index + 1].Offset : int.MaxValue;
+                            // get nextSpOffset
+                            int nextSpOffset = index + 1 < sequencePoints.Length ? sequencePoints[index + 1].Offset : int.MinValue;
                             
-                            foreach (var branchPoint in branchPoints) {
+                            foreach (var currentBp in branchPoints) {
                                 
-                                // while branchPoint belongs to next sequencePoint
-                                // nextOffset is offset of next sequencePoint 
-                                // or unreachable int.MinValue
-                                while (branchPoint.Offset > nextOffset) {
+								/*
+								 * As long as current_BP_offset is between 
+								 * current_SP_offset and [next_SP_offset],
+								 * current_BP belongs to current_SP
+								 */
 
-                                    // increment index to next sequencePoint
+								// Is current_BP outside of scope of current_SP?
+								while (nextSpOffset != int.MinValue && currentBp.Offset >= nextSpOffset) {
+
+									/*
+									* Find next sequence points pair where
+									* current_SP_offset <= current_BP_offset < next_SP_offset 
+									*/
+
+                                    // increment index to next/current sequencePoint
                                     ++index; 
 
                                     // get next sequencePoint and prepare list for Add(branchPoint)
-                                    parent = sequencePoints[index];
-                                    parent.BranchPoints = new List<BranchPoint>();
+                                    currentSp = sequencePoints[index];
+                                    currentSp.BranchPoints = new List<BranchPoint>();
 
-                                    // get nextOffset
-                                    if (index + 1 < sequencePoints.Length) {
-                                        nextOffset = sequencePoints[index + 1].Offset;
-                                    }
-                                    else {
-                                        nextOffset = int.MaxValue;
-                                    }
+                                    // get nextSpOffset
+                                    nextSpOffset = index + 1 < sequencePoints.Length ? sequencePoints[index + 1].Offset : int.MinValue;
                                 }
-                                // join BranchPoint to SequencePoint
-                                parent.BranchPoints.Add(branchPoint);
+
+								// Add BranchPoint to curent SequencePoint
+                                if (currentBp.Offset >= currentSp.Offset) {
+                                    currentSp.BranchPoints.Add(currentBp);
+                                }
                             }
-    
+                            
                             #endregion
                             
                             #region Merge each Sequence Branch-Exits
 
+                            // Aggregate of BranchPoints connected to SequencePoints
+                            var sequencedBranches = new List<BranchPoint>();
+
+                            // Identify real number of branches using exit/join offset
                             var branchExits = new Dictionary<int, BranchPoint>();
+
                             foreach (var sequencePoint in sequencePoints) {
                 
                                 // SequencePoint has branches attached?
@@ -340,9 +365,16 @@ namespace OpenCover.Framework.Persistance
                                         sequencePoint.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
                                     }
                                 }
-                                sequencePoint.BranchPoints = null; // release memory
+
+                                // Aggregate branchpoints
+                                sequencedBranches.AddRange(sequencePoint.BranchPoints);
+                                sequencePoint.BranchPoints.Clear();
                             }
-                                            
+
+                            // Replace original Method.branchpoints with branches connected to sequence point(s)
+                            method.BranchPoints = sequencedBranches.ToArray();
+                            sequencedBranches.Clear();
+
                             #endregion
 
                         }
