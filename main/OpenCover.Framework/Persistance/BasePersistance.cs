@@ -230,6 +230,9 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
+        private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
+
         private void PopulateInstrumentedPoints()
         {
             if (CoverageSession.Modules == null) return;
@@ -245,7 +248,7 @@ namespace OpenCover.Framework.Persistance
             {
                 method.MarkAsSkipped(SkippedMethod.Inferred);
             }
-            
+
             foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
 
@@ -258,9 +261,6 @@ namespace OpenCover.Framework.Persistance
                 }
 
                 #endregion
-
-               	var emptySeqPoints = new SequencePoint[0];
-               	var emptyBranchPoints = new BranchPoint[0];
 
                 foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
