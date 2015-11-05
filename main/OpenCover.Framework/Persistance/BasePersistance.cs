@@ -275,12 +275,15 @@ namespace OpenCover.Framework.Persistance
                         	method.BranchPoints = emptyBranchPoints;
                         	branchPoints = emptyBranchPoints;
                         }
-                        
+
                         MapFileReferences(sequencePoints, filesDictionary);
                         MapFileReferences(branchPoints, filesDictionary);
 
                         #region Merge branch-exits
 
+                        sequencePoints = sequencePoints.OrderBy( sp => sp.Offset ).ToArray();
+                        branchPoints = branchPoints.OrderBy( bp => bp.Offset ).ToArray();
+                        
                         // anything to merge?
                         if (sequencePoints.Length != 0 && branchPoints.Length != 0) {
 
