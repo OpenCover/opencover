@@ -67,6 +67,14 @@ namespace OpenCover.Framework.Communication
             _memoryManager = memoryManager;
         }
 
+        /// <summary>
+        /// Process a Standard Message
+        /// </summary>
+        /// <param name="msgType"></param>
+        /// <param name="mcb"></param>
+        /// <param name="chunkReady"></param>
+        /// <param name="offloadHandling"></param>
+        /// <returns></returns>
         public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling)
         {
             IntPtr pinnedMemory = mcb.PinnedDataCommunication.AddrOfPinnedObject();
@@ -319,6 +327,9 @@ namespace OpenCover.Framework.Communication
 
         private int _readSize;
 
+        /// <summary>
+        /// Maximum size of a base message
+        /// </summary>
         public int ReadSize
         {
             get
@@ -344,6 +355,9 @@ namespace OpenCover.Framework.Communication
             }
         }
 
+        /// <summary>
+        /// Finished
+        /// </summary>
         public void Complete()
         {
             _profilerCommunication.Stopping();

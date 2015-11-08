@@ -12,6 +12,9 @@ namespace OpenCover.Framework.Persistance
     /// </summary>
     public abstract class BasePersistance : IPersistance
     {
+        /// <summary>
+        /// Provides subclasses access to the command line object 
+        /// </summary>
         protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;

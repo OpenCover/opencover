@@ -68,6 +68,9 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        /// <summary>
+        /// we are done and the data needs one last clean up
+        /// </summary>
         public override void Commit()
         {
             _logger.Info("Committing...");

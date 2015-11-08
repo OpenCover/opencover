@@ -3,7 +3,7 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
-using System.Collections.Generic;
+
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -95,6 +95,10 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("isSetter")]
         public bool IsSetter { get; set; }
 
+        /// <summary>
+        /// Mark an entity as skipped
+        /// </summary>
+        /// <param name="reason">Provide a reason</param>
         public override void MarkAsSkipped(SkippedMethod reason)
         {
             SkippedDueTo = reason;
