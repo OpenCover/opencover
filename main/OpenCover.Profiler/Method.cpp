@@ -41,17 +41,17 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
     COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
     if(!fatImage->IsFat())
     {
-        ATLTRACE(_T("TINY"));
+        ATLTRACE(_T("TINY\n"));
         COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
         m_header.CodeSize = tinyImage->GetCodeSize();
         pCode = tinyImage->GetCode();
-        ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+        ATLTRACE(_T("TINY(%X) => (%d + 1) : %d\n"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
     }
     else
     {
         memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
         pCode = fatImage->GetCode();
-        ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+        ATLTRACE(_T("FAT(%X) => (%d + 12) : %d\n"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
     }
     SetBuffer(pCode);
     ReadBody();
@@ -437,25 +437,25 @@ void Method::ResolveBranches()
 void Method::DumpIL()
 {
 #ifdef DUMP_IL
-    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
+    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+\n"));
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.operandSize == Null)
         {
-            ATLTRACE(_T("IL_%04X %s"), (*it)->m_offset, details.stringName);
+            ATLTRACE(_T("IL_%04X %s\n"), (*it)->m_offset, details.stringName);
         }
         else
         {
             if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
             {
                 long offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
-                ATLTRACE(_T("IL_%04X %s IL_%04X"), 
+                ATLTRACE(_T("IL_%04X %s IL_%04X\n"), 
                     (*it)->m_offset, details.stringName, offset);
             }
             else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
             {
-                ATLTRACE(_T("IL_%04X %s (%02X)%02X%02X%02X"), 
+                ATLTRACE(_T("IL_%04X %s (%02X)%02X%02X%02X\n"), 
                     (*it)->m_offset, details.stringName, 
                     (BYTE)((*it)->m_operand >> 24),
                     (BYTE)((*it)->m_operand >> 16),
@@ -464,22 +464,22 @@ void Method::DumpIL()
             }
             else if (details.operandSize == Byte)
             {
-                ATLTRACE(_T("IL_%04X %s %02X"), 
+                ATLTRACE(_T("IL_%04X %s %02X\n"), 
                     (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
             else if (details.operandSize == Word)
             {
-                ATLTRACE(_T("IL_%04X %s %04X"), 
+                ATLTRACE(_T("IL_%04X %s %04X\n"), 
                     (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
             else if (details.operandSize == Dword)
             {
-                ATLTRACE(_T("IL_%04X %s %08X"), 
+                ATLTRACE(_T("IL_%04X %s %08X\n"), 
                     (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
             else
             {
-                ATLTRACE(_T("IL_%04X %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
+                ATLTRACE(_T("IL_%04X %s %X\n"), (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
         }
         for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
@@ -487,7 +487,7 @@ void Method::DumpIL()
             if ((*it)->m_operation == CEE_SWITCH)
             {
                 long offset = (*it)->m_offset + (4*(long)(*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
-                ATLTRACE(_T("    IL_%04X"), offset);
+                ATLTRACE(_T("    IL_%04X\n"), offset);
             }
         }
     }
@@ -495,7 +495,7 @@ void Method::DumpIL()
     int i = 0;
     for (auto it = m_exceptions.begin(); it != m_exceptions.end() ; ++it)
     {
-        ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"), 
+        ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X\n"), 
             i++, (*it)->m_handlerType, 
             (*it)->m_tryStart != NULL ? (*it)->m_tryStart->m_offset : 0, 
             (*it)->m_tryEnd != NULL ? (*it)->m_tryEnd->m_offset : 0, 
@@ -504,7 +504,7 @@ void Method::DumpIL()
             (*it)->m_filterStart != NULL ? (*it)->m_filterStart->m_offset : 0, 
             (*it)->m_token);
     } 
-    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
+    ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+\n"));
 #endif
 }
 

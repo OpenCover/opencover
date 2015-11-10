@@ -25,7 +25,7 @@ public: // ICorProfilerInfo
 	virtual HRESULT STDMETHODCALLTYPE GetClassFromObject(
 		/* [in] */ ObjectID objectId,
 		/* [out] */ ClassID *pClassId){
-		//ATLTRACE(_T("GetClassFromObject"));
+		//ATLTRACE(_T("GetClassFromObject\n"));
 		return m_pProfilerInfo->GetClassFromObject(objectId, pClassId);
 	}
 
@@ -33,7 +33,7 @@ public: // ICorProfilerInfo
 		/* [in] */ ModuleID moduleId,
 		/* [in] */ mdTypeDef typeDef,
 		/* [out] */ ClassID *pClassId){
-		//ATLTRACE(_T("GetClassFromToken"));
+		//ATLTRACE(_T("GetClassFromToken\n"));
 		return m_pProfilerInfo->GetClassFromToken(moduleId, typeDef, pClassId);
 	}
 
@@ -41,20 +41,20 @@ public: // ICorProfilerInfo
 		/* [in] */ FunctionID functionId,
 		/* [out] */ LPCBYTE *pStart,
 		/* [out] */ ULONG *pcSize){
-		//ATLTRACE(_T("GetCodeInfo"));
+		//ATLTRACE(_T("GetCodeInfo\n"));
 		return m_pProfilerInfo->GetCodeInfo(functionId, pStart, pcSize);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetEventMask(
 		/* [out] */ DWORD *pdwEvents){
-		//ATLTRACE(_T("GetEventMask"));
+		//ATLTRACE(_T("GetEventMask\n"));
 		return m_pProfilerInfo->GetEventMask(pdwEvents);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetFunctionFromIP(
 		/* [in] */ LPCBYTE ip,
 		/* [out] */ FunctionID *pFunctionId){
-		//ATLTRACE(_T("GetFunctionFromIP"));
+		//ATLTRACE(_T("GetFunctionFromIP\n"));
 		return m_pProfilerInfo->GetFunctionFromIP(ip, pFunctionId);
 	}
 
@@ -62,21 +62,21 @@ public: // ICorProfilerInfo
 		/* [in] */ ModuleID moduleId,
 		/* [in] */ mdToken token,
 		/* [out] */ FunctionID *pFunctionId){
-		//ATLTRACE(_T("GetFunctionFromToken"));
+		//ATLTRACE(_T("GetFunctionFromToken\n"));
 		return m_pProfilerInfo->GetFunctionFromToken(moduleId, token, pFunctionId);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetHandleFromThread(
 		/* [in] */ ThreadID threadId,
 		/* [out] */ HANDLE *phThread){
-		//ATLTRACE(_T("GetHandleFromThread"));
+		//ATLTRACE(_T("GetHandleFromThread\n"));
 		return m_pProfilerInfo->GetHandleFromThread(threadId, phThread);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetObjectSize(
 		/* [in] */ ObjectID objectId,
 		/* [out] */ ULONG *pcSize){
-		//ATLTRACE(_T("GetObjectSize"));
+		//ATLTRACE(_T("GetObjectSize\n"));
 		return m_pProfilerInfo->GetObjectSize(objectId, pcSize);
 	}
 
@@ -85,20 +85,20 @@ public: // ICorProfilerInfo
 		/* [out] */ CorElementType *pBaseElemType,
 		/* [out] */ ClassID *pBaseClassId,
 		/* [out] */ ULONG *pcRank){
-		//ATLTRACE(_T("IsArrayClass"));
+		//ATLTRACE(_T("IsArrayClass\n"));
 		return m_pProfilerInfo->IsArrayClass(classId, pBaseElemType, pBaseClassId, pcRank);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetThreadInfo(
 		/* [in] */ ThreadID threadId,
 		/* [out] */ DWORD *pdwWin32ThreadId){
-		//ATLTRACE(_T("GetThreadInfo"));
+		//ATLTRACE(_T("GetThreadInfo\n"));
 		return m_pProfilerInfo->GetThreadInfo(threadId, pdwWin32ThreadId);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetCurrentThreadID(
 		/* [out] */ ThreadID *pThreadId){
-		//ATLTRACE(_T("GetCurrentThreadID"));
+		//ATLTRACE(_T("GetCurrentThreadID\n"));
 		return m_pProfilerInfo->GetCurrentThreadID(pThreadId);
 	}
 
@@ -106,7 +106,7 @@ public: // ICorProfilerInfo
 		/* [in] */ ClassID classId,
 		/* [out] */ ModuleID *pModuleId,
 		/* [out] */ mdTypeDef *pTypeDefToken){
-		//ATLTRACE(_T("GetClassIDInfo"));
+		//ATLTRACE(_T("GetClassIDInfo\n"));
 		return m_pProfilerInfo->GetClassIDInfo(classId, pModuleId, pTypeDefToken);
 	}
 
@@ -115,13 +115,13 @@ public: // ICorProfilerInfo
 		/* [out] */ ClassID *pClassId,
 		/* [out] */ ModuleID *pModuleId,
 		/* [out] */ mdToken *pToken){
-		//ATLTRACE(_T("GetFunctionInfo"));
+		//ATLTRACE(_T("GetFunctionInfo\n"));
 		return m_pProfilerInfo->GetFunctionInfo(functionId, pClassId, pModuleId, pToken);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE SetEventMask(
 		/* [in] */ DWORD dwEvents){
-		ATLTRACE(_T("CProfilerInfoBase::SetEventMask(0x%X)"), dwEvents);
+		ATLTRACE(_T("CProfilerInfoBase::SetEventMask(0x%X)\n"), dwEvents);
 		return m_pProfilerInfo->SetEventMask(dwEvents);
 	}
 
@@ -129,13 +129,13 @@ public: // ICorProfilerInfo
 		/* [in] */ FunctionEnter *pFuncEnter,
 		/* [in] */ FunctionLeave *pFuncLeave,
 		/* [in] */ FunctionTailcall *pFuncTailcall){
-		//ATLTRACE(_T("SetEnterLeaveFunctionHooks"));
+		//ATLTRACE(_T("SetEnterLeaveFunctionHooks\n"));
 		return m_pProfilerInfo->SetEnterLeaveFunctionHooks(pFuncEnter, pFuncLeave, pFuncTailcall);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE SetFunctionIDMapper(
 		/* [in] */ FunctionIDMapper *pFunc){
-		//ATLTRACE(_T("SetFunctionIDMapper"));
+		//ATLTRACE(_T("SetFunctionIDMapper\n"));
 		return m_pProfilerInfo->SetFunctionIDMapper(pFunc);
 	}
 
@@ -144,7 +144,7 @@ public: // ICorProfilerInfo
 		/* [in] */ REFIID riid,
 		/* [out] */ IUnknown **ppImport,
 		/* [out] */ mdToken *pToken){
-		//ATLTRACE(_T("GetTokenAndMetaDataFromFunction"));
+		//ATLTRACE(_T("GetTokenAndMetaDataFromFunction\n"));
 		return m_pProfilerInfo->GetTokenAndMetaDataFromFunction(functionId, riid, ppImport, pToken);
 	}
 
@@ -156,7 +156,7 @@ public: // ICorProfilerInfo
 		/* [annotation][out] */
 		_Out_writes_to_(cchName, *pcchName)  WCHAR szName[],
 		/* [out] */ AssemblyID *pAssemblyId){
-		//ATLTRACE(_T("GetModuleInfo"));
+		//ATLTRACE(_T("GetModuleInfo\n"));
 		return m_pProfilerInfo->GetModuleInfo(moduleId, ppBaseLoadAddress, cchName, pcchName, szName, pAssemblyId);
 	}
 
@@ -165,7 +165,7 @@ public: // ICorProfilerInfo
 		/* [in] */ DWORD dwOpenFlags,
 		/* [in] */ REFIID riid,
 		/* [out] */ IUnknown **ppOut){
-		//ATLTRACE(_T("GetModuleMetaData"));
+		//ATLTRACE(_T("GetModuleMetaData\n"));
 		return m_pProfilerInfo->GetModuleMetaData(moduleId, dwOpenFlags, riid, ppOut);
 	}
 
@@ -174,14 +174,14 @@ public: // ICorProfilerInfo
 		/* [in] */ mdMethodDef methodId,
 		/* [out] */ LPCBYTE *ppMethodHeader,
 		/* [out] */ ULONG *pcbMethodSize){
-		//ATLTRACE(_T("GetILFunctionBody"));
+		//ATLTRACE(_T("GetILFunctionBody\n"));
 		return m_pProfilerInfo->GetILFunctionBody(moduleId, methodId, ppMethodHeader, pcbMethodSize);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetILFunctionBodyAllocator(
 		/* [in] */ ModuleID moduleId,
 		/* [out] */ IMethodMalloc **ppMalloc){
-		//ATLTRACE(_T("GetILFunctionBodyAllocator"));
+		//ATLTRACE(_T("GetILFunctionBodyAllocator\n"));
 		return m_pProfilerInfo->GetILFunctionBodyAllocator(moduleId, ppMalloc);
 	}
 
@@ -189,7 +189,7 @@ public: // ICorProfilerInfo
 		/* [in] */ ModuleID moduleId,
 		/* [in] */ mdMethodDef methodid,
 		/* [in] */ LPCBYTE pbNewILMethodHeader){
-		//ATLTRACE(_T("SetILFunctionBody"));
+		//ATLTRACE(_T("SetILFunctionBody\n"));
 		return m_pProfilerInfo->SetILFunctionBody(moduleId, methodid, pbNewILMethodHeader);
 	}
 
@@ -200,7 +200,7 @@ public: // ICorProfilerInfo
 		/* [annotation][out] */
 		_Out_writes_to_(cchName, *pcchName)  WCHAR szName[],
 		/* [out] */ ProcessID *pProcessId){
-		//ATLTRACE(_T("GetAppDomainInfo"));
+		//ATLTRACE(_T("GetAppDomainInfo\n"));
 		return m_pProfilerInfo->GetAppDomainInfo(appDomainId, cchName, pcchName, szName, pProcessId);
 	}
 
@@ -212,18 +212,18 @@ public: // ICorProfilerInfo
 		_Out_writes_to_(cchName, *pcchName)  WCHAR szName[],
 		/* [out] */ AppDomainID *pAppDomainId,
 		/* [out] */ ModuleID *pModuleId){
-		//ATLTRACE(_T("GetAssemblyInfo"));
+		//ATLTRACE(_T("GetAssemblyInfo\n"));
 		return m_pProfilerInfo->GetAssemblyInfo(assemblyId, cchName, pcchName, szName, pAppDomainId, pModuleId);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE SetFunctionReJIT(
 		/* [in] */ FunctionID functionId){
-		//ATLTRACE(_T("SetFunctionReJIT"));
+		//ATLTRACE(_T("SetFunctionReJIT\n"));
 		return m_pProfilerInfo->SetFunctionReJIT(functionId);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE ForceGC(void){
-		//ATLTRACE(_T("GetClassFromObject"));
+		//ATLTRACE(_T("GetClassFromObject\n"));
 		return m_pProfilerInfo->ForceGC();
 	}
 
@@ -232,39 +232,39 @@ public: // ICorProfilerInfo
 		/* [in] */ BOOL fStartJit,
 		/* [in] */ ULONG cILMapEntries,
 		/* [size_is][in] */ COR_IL_MAP rgILMapEntries[]){
-		//ATLTRACE(_T("SetILInstrumentedCodeMap"));
+		//ATLTRACE(_T("SetILInstrumentedCodeMap\n"));
 		return m_pProfilerInfo->SetILInstrumentedCodeMap(functionId, fStartJit, cILMapEntries, rgILMapEntries);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetInprocInspectionInterface(
 		/* [out] */ IUnknown **ppicd){
-		//ATLTRACE(_T("GetInprocInspectionInterface"));
+		//ATLTRACE(_T("GetInprocInspectionInterface\n"));
 		return m_pProfilerInfo->GetInprocInspectionInterface(ppicd);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetInprocInspectionIThisThread(
 		/* [out] */ IUnknown **ppicd){
-		//ATLTRACE(_T("GetInprocInspectionIThisThread"));
+		//ATLTRACE(_T("GetInprocInspectionIThisThread\n"));
 		return m_pProfilerInfo->GetInprocInspectionIThisThread(ppicd);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetThreadContext(
 		/* [in] */ ThreadID threadId,
 		/* [out] */ ContextID *pContextId){
-		//ATLTRACE(_T("GetThreadContext"));
+		//ATLTRACE(_T("GetThreadContext\n"));
 		return m_pProfilerInfo->GetThreadContext(threadId, pContextId);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE BeginInprocDebugging(
 		/* [in] */ BOOL fThisThreadOnly,
 		/* [out] */ DWORD *pdwProfilerContext){
-		//ATLTRACE(_T("BeginInprocDebugging"));
+		//ATLTRACE(_T("BeginInprocDebugging\n"));
 		return m_pProfilerInfo->BeginInprocDebugging(fThisThreadOnly, pdwProfilerContext);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE EndInprocDebugging(
 		/* [in] */ DWORD dwProfilerContext){
-		//ATLTRACE(_T("EndInprocDebugging"));
+		//ATLTRACE(_T("EndInprocDebugging\n"));
 		return m_pProfilerInfo->EndInprocDebugging(dwProfilerContext);
 	}
 
@@ -273,7 +273,7 @@ public: // ICorProfilerInfo
 		/* [in] */ ULONG32 cMap,
 		/* [out] */ ULONG32 *pcMap,
 		/* [length_is][size_is][out] */ COR_DEBUG_IL_TO_NATIVE_MAP map[]){
-		//ATLTRACE(_T("GetILToNativeMapping"));
+		//ATLTRACE(_T("GetILToNativeMapping\n"));
 		return m_pProfilerInfo->GetILToNativeMapping(functionId, cMap, pcMap, map);
 	}
 
@@ -285,7 +285,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ void *clientData,
 		/* [size_is][in] */ BYTE context[],
 		/* [in] */ ULONG32 contextSize){
-		//ATLTRACE(_T("DoStackSnapshot"));
+		//ATLTRACE(_T("DoStackSnapshot\n"));
 		return m_pProfilerInfo2->DoStackSnapshot(thread, callback, infoFlags, clientData, context, contextSize);
 	}
 
@@ -293,7 +293,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ FunctionEnter2 *pFuncEnter,
 		/* [in] */ FunctionLeave2 *pFuncLeave,
 		/* [in] */ FunctionTailcall2 *pFuncTailcall){
-		//ATLTRACE(_T("SetEnterLeaveFunctionHooks2"));
+		//ATLTRACE(_T("SetEnterLeaveFunctionHooks2\n"));
 		return m_pProfilerInfo2->SetEnterLeaveFunctionHooks2(pFuncEnter, pFuncLeave, pFuncTailcall);
 	}
 
@@ -306,7 +306,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG32 cTypeArgs,
 		/* [out] */ ULONG32 *pcTypeArgs,
 		/* [out] */ ClassID typeArgs[]){
-		//ATLTRACE(_T("GetFunctionInfo2"));
+		//ATLTRACE(_T("GetFunctionInfo2\n"));
 		return m_pProfilerInfo2->GetFunctionInfo2(funcId, frameInfo, pClassId, pModuleId, pToken, cTypeArgs, pcTypeArgs, typeArgs);
 	}
 
@@ -314,7 +314,7 @@ public: //ICorProfilerInfo2
 		/* [out] */ ULONG *pBufferLengthOffset,
 		/* [out] */ ULONG *pStringLengthOffset,
 		/* [out] */ ULONG *pBufferOffset){
-		//ATLTRACE(_T("GetStringLayout"));
+		//ATLTRACE(_T("GetStringLayout\n"));
 		return m_pProfilerInfo2->GetStringLayout(pBufferLengthOffset, pStringLengthOffset, pBufferOffset);
 	}
 
@@ -324,7 +324,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG cFieldOffset,
 		/* [out] */ ULONG *pcFieldOffset,
 		/* [out] */ ULONG *pulClassSize){
-		//ATLTRACE(_T("GetClassLayout"));
+		//ATLTRACE(_T("GetClassLayout\n"));
 		return m_pProfilerInfo2->GetClassLayout(classID, rFieldOffset, cFieldOffset, pcFieldOffset, pulClassSize);
 	}
 
@@ -336,7 +336,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG32 cNumTypeArgs,
 		/* [out] */ ULONG32 *pcNumTypeArgs,
 		/* [out] */ ClassID typeArgs[]){
-		//ATLTRACE(_T("GetClassIDInfo2"));
+		//ATLTRACE(_T("GetClassIDInfo2\n"));
 		return m_pProfilerInfo2->GetClassIDInfo2(classId, pModuleId, pTypeDefToken, pParentClassId, cNumTypeArgs, pcNumTypeArgs, typeArgs);
 	}
 
@@ -345,7 +345,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG32 cCodeInfos,
 		/* [out] */ ULONG32 *pcCodeInfos,
 		/* [length_is][size_is][out] */ COR_PRF_CODE_INFO codeInfos[]){
-		//ATLTRACE(_T("GetCodeInfo2"));
+		//ATLTRACE(_T("GetCodeInfo2\n"));
 		return m_pProfilerInfo2->GetCodeInfo2(functionID, cCodeInfos, pcCodeInfos, codeInfos);
 	}
 
@@ -355,7 +355,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG32 cTypeArgs,
 		/* [size_is][in] */ ClassID typeArgs[],
 		/* [out] */ ClassID *pClassID){
-		//ATLTRACE(_T("GetClassFromTokenAndTypeArgs"));
+		//ATLTRACE(_T("GetClassFromTokenAndTypeArgs\n"));
 		return m_pProfilerInfo2->GetClassFromTokenAndTypeArgs(moduleID, typeDef, cTypeArgs, typeArgs, pClassID);
 	}
 
@@ -366,14 +366,14 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG32 cTypeArgs,
 		/* [size_is][in] */ ClassID typeArgs[],
 		/* [out] */ FunctionID *pFunctionID){
-		//ATLTRACE(_T("GetFunctionFromTokenAndTypeArgs"));
+		//ATLTRACE(_T("GetFunctionFromTokenAndTypeArgs\n"));
 		return m_pProfilerInfo2->GetFunctionFromTokenAndTypeArgs(moduleID, funcDef, classId, cTypeArgs, typeArgs, pFunctionID);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE EnumModuleFrozenObjects(
 		/* [in] */ ModuleID moduleID,
 		/* [out] */ ICorProfilerObjectEnum **ppEnum){
-		//ATLTRACE(_T("GetClassFromObject"));
+		//ATLTRACE(_T("GetClassFromObject\n"));
 		return m_pProfilerInfo2->EnumModuleFrozenObjects(moduleID, ppEnum);
 	}
 
@@ -383,21 +383,21 @@ public: //ICorProfilerInfo2
 		/* [size_is][out] */ ULONG32 pDimensionSizes[],
 		/* [size_is][out] */ int pDimensionLowerBounds[],
 		/* [out] */ BYTE **ppData){
-		//ATLTRACE(_T("GetArrayObjectInfo"));
+		//ATLTRACE(_T("GetArrayObjectInfo\n"));
 		return m_pProfilerInfo2->GetArrayObjectInfo(objectId, cDimensions, pDimensionSizes, pDimensionLowerBounds, ppData);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetBoxClassLayout(
 		/* [in] */ ClassID classId,
 		/* [out] */ ULONG32 *pBufferOffset){
-		//ATLTRACE(_T("GetBoxClassLayout"));
+		//ATLTRACE(_T("GetBoxClassLayout\n"));
 		return m_pProfilerInfo2->GetBoxClassLayout(classId, pBufferOffset);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetThreadAppDomain(
 		/* [in] */ ThreadID threadId,
 		/* [out] */ AppDomainID *pAppDomainId){
-		//ATLTRACE(_T("GetThreadAppDomain"));
+		//ATLTRACE(_T("GetThreadAppDomain\n"));
 		return m_pProfilerInfo2->GetThreadAppDomain(threadId, pAppDomainId);
 	}
 
@@ -405,7 +405,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ClassID classId,
 		/* [in] */ mdFieldDef fieldToken,
 		/* [out] */ void **ppAddress){
-		//ATLTRACE(_T("GetRVAStaticAddress"));
+		//ATLTRACE(_T("GetRVAStaticAddress\n"));
 		return m_pProfilerInfo2->GetRVAStaticAddress(classId, fieldToken, ppAddress);
 	}
 
@@ -414,7 +414,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ mdFieldDef fieldToken,
 		/* [in] */ AppDomainID appDomainId,
 		/* [out] */ void **ppAddress){
-		//ATLTRACE(_T("GetAppDomainStaticAddress"));
+		//ATLTRACE(_T("GetAppDomainStaticAddress\n"));
 		return m_pProfilerInfo2->GetAppDomainStaticAddress(classId, fieldToken, appDomainId, ppAddress);
 	}
 
@@ -423,7 +423,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ mdFieldDef fieldToken,
 		/* [in] */ ThreadID threadId,
 		/* [out] */ void **ppAddress){
-		//ATLTRACE(_T("GetThreadStaticAddress"));
+		//ATLTRACE(_T("GetThreadStaticAddress\n"));
 		return m_pProfilerInfo2->GetThreadStaticAddress(classId, fieldToken, threadId, ppAddress);
 	}
 
@@ -432,7 +432,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ mdFieldDef fieldToken,
 		/* [in] */ ContextID contextId,
 		/* [out] */ void **ppAddress){
-		//ATLTRACE(_T("GetContextStaticAddress"));
+		//ATLTRACE(_T("GetContextStaticAddress\n"));
 		return m_pProfilerInfo2->GetContextStaticAddress(classId, fieldToken, contextId, ppAddress);
 	}
 
@@ -440,7 +440,7 @@ public: //ICorProfilerInfo2
 		/* [in] */ ClassID classId,
 		/* [in] */ mdFieldDef fieldToken,
 		/* [out] */ COR_PRF_STATIC_TYPE *pFieldInfo){
-		//ATLTRACE(_T("GetStaticFieldInfo"));
+		//ATLTRACE(_T("GetStaticFieldInfo\n"));
 		return m_pProfilerInfo2->GetStaticFieldInfo(classId, fieldToken, pFieldInfo);
 	}
 
@@ -448,47 +448,47 @@ public: //ICorProfilerInfo2
 		/* [in] */ ULONG cObjectRanges,
 		/* [out] */ ULONG *pcObjectRanges,
 		/* [length_is][size_is][out] */ COR_PRF_GC_GENERATION_RANGE ranges[]){
-		//ATLTRACE(_T("GetGenerationBounds"));
+		//ATLTRACE(_T("GetGenerationBounds\n"));
 		return m_pProfilerInfo2->GetGenerationBounds(cObjectRanges, pcObjectRanges, ranges);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetObjectGeneration(
 		/* [in] */ ObjectID objectId,
 		/* [out] */ COR_PRF_GC_GENERATION_RANGE *range){
-		//ATLTRACE(_T("GetObjectGeneration"));
+		//ATLTRACE(_T("GetObjectGeneration\n"));
 		return m_pProfilerInfo2->GetObjectGeneration(objectId, range);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetNotifiedExceptionClauseInfo(
 		/* [out] */ COR_PRF_EX_CLAUSE_INFO *pinfo){
-		//ATLTRACE(_T("GetNotifiedExceptionClauseInfo"));
+		//ATLTRACE(_T("GetNotifiedExceptionClauseInfo\n"));
 		return m_pProfilerInfo2->GetNotifiedExceptionClauseInfo(pinfo);
 	}
 
 public: // ICorProfilerInfo3
 	virtual HRESULT STDMETHODCALLTYPE EnumJITedFunctions(
 		/* [out] */ ICorProfilerFunctionEnum **ppEnum){
-		//ATLTRACE(_T("EnumJITedFunctions"));
+		//ATLTRACE(_T("EnumJITedFunctions\n"));
 		return m_pProfilerInfo3->EnumJITedFunctions(ppEnum);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE RequestProfilerDetach(
 		/* [in] */ DWORD dwExpectedCompletionMilliseconds){
-		//ATLTRACE(_T("RequestProfilerDetach"));
+		//ATLTRACE(_T("RequestProfilerDetach\n"));
 		return m_pProfilerInfo3->RequestProfilerDetach(dwExpectedCompletionMilliseconds);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE SetFunctionIDMapper2(
 		/* [in] */ FunctionIDMapper2 *pFunc,
 		/* [in] */ void *clientData){
-		//ATLTRACE(_T("SetFunctionIDMapper2"));
+		//ATLTRACE(_T("SetFunctionIDMapper2\n"));
 		return m_pProfilerInfo3->SetFunctionIDMapper2(pFunc, clientData);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetStringLayout2(
 		/* [out] */ ULONG *pStringLengthOffset,
 		/* [out] */ ULONG *pBufferOffset){
-		//ATLTRACE(_T("GetStringLayout2"));
+		//ATLTRACE(_T("GetStringLayout2\n"));
 		return m_pProfilerInfo3->GetStringLayout2(pStringLengthOffset, pBufferOffset);
 	}
 
@@ -496,7 +496,7 @@ public: // ICorProfilerInfo3
 		/* [in] */ FunctionEnter3 *pFuncEnter3,
 		/* [in] */ FunctionLeave3 *pFuncLeave3,
 		/* [in] */ FunctionTailcall3 *pFuncTailcall3){
-		//ATLTRACE(_T("SetEnterLeaveFunctionHooks3"));
+		//ATLTRACE(_T("SetEnterLeaveFunctionHooks3\n"));
 		return m_pProfilerInfo3->SetEnterLeaveFunctionHooks3(pFuncEnter3, pFuncLeave3, pFuncTailcall3);
 	}
 
@@ -504,7 +504,7 @@ public: // ICorProfilerInfo3
 		/* [in] */ FunctionEnter3WithInfo *pFuncEnter3WithInfo,
 		/* [in] */ FunctionLeave3WithInfo *pFuncLeave3WithInfo,
 		/* [in] */ FunctionTailcall3WithInfo *pFuncTailcall3WithInfo){
-		//ATLTRACE(_T("SetEnterLeaveFunctionHooks3WithInfo"));
+		//ATLTRACE(_T("SetEnterLeaveFunctionHooks3WithInfo\n"));
 		return m_pProfilerInfo3->SetEnterLeaveFunctionHooks3WithInfo(pFuncEnter3WithInfo, pFuncLeave3WithInfo, pFuncTailcall3WithInfo);
 	}
 
@@ -514,7 +514,7 @@ public: // ICorProfilerInfo3
 		/* [out] */ COR_PRF_FRAME_INFO *pFrameInfo,
 		/* [out][in] */ ULONG *pcbArgumentInfo,
 		/* [size_is][out] */ COR_PRF_FUNCTION_ARGUMENT_INFO *pArgumentInfo){
-		//ATLTRACE(_T("GetFunctionEnter3Info"));
+		//ATLTRACE(_T("GetFunctionEnter3Info\n"));
 		return m_pProfilerInfo3->GetFunctionEnter3Info(functionId, eltInfo, pFrameInfo, pcbArgumentInfo, pArgumentInfo);
 	}
 
@@ -523,7 +523,7 @@ public: // ICorProfilerInfo3
 		/* [in] */ COR_PRF_ELT_INFO eltInfo,
 		/* [out] */ COR_PRF_FRAME_INFO *pFrameInfo,
 		/* [out] */ COR_PRF_FUNCTION_ARGUMENT_RANGE *pRetvalRange){
-		//ATLTRACE(_T("GetFunctionLeave3Info"));
+		//ATLTRACE(_T("GetFunctionLeave3Info\n"));
 		return m_pProfilerInfo3->GetFunctionLeave3Info(functionId, eltInfo, pFrameInfo, pRetvalRange);
 	}
 
@@ -531,13 +531,13 @@ public: // ICorProfilerInfo3
 		/* [in] */ FunctionID functionId,
 		/* [in] */ COR_PRF_ELT_INFO eltInfo,
 		/* [out] */ COR_PRF_FRAME_INFO *pFrameInfo){
-		//ATLTRACE(_T("GetFunctionTailcall3Info"));
+		//ATLTRACE(_T("GetFunctionTailcall3Info\n"));
 		return m_pProfilerInfo3->GetFunctionTailcall3Info(functionId, eltInfo, pFrameInfo);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE EnumModules(
 		/* [out] */ ICorProfilerModuleEnum **ppEnum){
-		//ATLTRACE(_T("EnumModules"));
+		//ATLTRACE(_T("EnumModules\n"));
 		return m_pProfilerInfo3->EnumModules(ppEnum);
 	}
 
@@ -552,7 +552,7 @@ public: // ICorProfilerInfo3
 		/* [out] */ ULONG *pcchVersionString,
 		/* [annotation][out] */
 		_Out_writes_to_(cchVersionString, *pcchVersionString)  WCHAR szVersionString[]){
-		//ATLTRACE(_T("GetRuntimeInformation"));
+		//ATLTRACE(_T("GetRuntimeInformation\n"));
 		return m_pProfilerInfo3->GetRuntimeInformation(pClrInstanceId, pRuntimeType, pMajorVersion,
 			pMinorVersion, pBuildNumber, pQFEVersion, cchVersionString, pcchVersionString, szVersionString);
 	}
@@ -563,7 +563,7 @@ public: // ICorProfilerInfo3
 		/* [in] */ AppDomainID appDomainId,
 		/* [in] */ ThreadID threadId,
 		/* [out] */ void **ppAddress){
-		//ATLTRACE(_T("GetThreadStaticAddress2"));
+		//ATLTRACE(_T("GetThreadStaticAddress2\n"));
 		return m_pProfilerInfo3->GetThreadStaticAddress2(classId,
 			fieldToken, appDomainId, threadId, ppAddress);
 	}
@@ -573,7 +573,7 @@ public: // ICorProfilerInfo3
 		/* [in] */ ULONG32 cAppDomainIds,
 		/* [out] */ ULONG32 *pcAppDomainIds,
 		/* [length_is][size_is][out] */ AppDomainID appDomainIds[]){
-		//ATLTRACE(_T("GetAppDomainsContainingModule"));
+		//ATLTRACE(_T("GetAppDomainsContainingModule\n"));
 		return m_pProfilerInfo3->GetAppDomainsContainingModule(moduleId,
 			cAppDomainIds, pcAppDomainIds, appDomainIds);
 	}
@@ -587,7 +587,7 @@ public: // ICorProfilerInfo3
 		_Out_writes_to_(cchName, *pcchName)  WCHAR szName[],
 		/* [out] */ AssemblyID *pAssemblyId,
 		/* [out] */ DWORD *pdwModuleFlags){
-		//ATLTRACE(_T("GetModuleInfo2"));
+		//ATLTRACE(_T("GetModuleInfo2\n"));
 		return m_pProfilerInfo3->GetModuleInfo2(moduleId, ppBaseLoadAddress, cchName,
 			pcchName, szName, pAssemblyId, pdwModuleFlags);
 	}
@@ -595,12 +595,12 @@ public: // ICorProfilerInfo3
 public: // ICorProfilerInfo4
 	virtual HRESULT STDMETHODCALLTYPE EnumThreads(
 		/* [out] */ ICorProfilerThreadEnum **ppEnum){
-		//ATLTRACE(_T("EnumThreads"));
+		//ATLTRACE(_T("EnumThreads\n"));
 		return m_pProfilerInfo4->EnumThreads(ppEnum);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE InitializeCurrentThread(void){
-		//ATLTRACE(_T("InitializeCurrentThread"));
+		//ATLTRACE(_T("InitializeCurrentThread\n"));
 		return m_pProfilerInfo4->InitializeCurrentThread();
 	}
 
@@ -608,7 +608,7 @@ public: // ICorProfilerInfo4
 		/* [in] */ ULONG cFunctions,
 		/* [size_is][in] */ ModuleID moduleIds[],
 		/* [size_is][in] */ mdMethodDef methodIds[]){
-		//ATLTRACE(_T("RequestReJIT"));
+		//ATLTRACE(_T("RequestReJIT\n"));
 		return m_pProfilerInfo4->RequestReJIT(cFunctions, moduleIds, methodIds);
 	}
 
@@ -617,7 +617,7 @@ public: // ICorProfilerInfo4
 		/* [size_is][in] */ ModuleID moduleIds[],
 		/* [size_is][in] */ mdMethodDef methodIds[],
 		/* [size_is][out] */ HRESULT status[]){
-		//ATLTRACE(_T("RequestRevert"));
+		//ATLTRACE(_T("RequestRevert\n"));
 		return m_pProfilerInfo4->RequestRevert(cFunctions, moduleIds, methodIds, status);
 	}
 
@@ -627,7 +627,7 @@ public: // ICorProfilerInfo4
 		/* [in] */ ULONG32 cCodeInfos,
 		/* [out] */ ULONG32 *pcCodeInfos,
 		/* [length_is][size_is][out] */ COR_PRF_CODE_INFO codeInfos[]){
-		//ATLTRACE(_T("GetCodeInfo3"));
+		//ATLTRACE(_T("GetCodeInfo3\n"));
 		return m_pProfilerInfo4->GetCodeInfo3(functionID, reJitId, cCodeInfos, pcCodeInfos, codeInfos);
 	}
 
@@ -635,7 +635,7 @@ public: // ICorProfilerInfo4
 		/* [in] */ LPCBYTE ip,
 		/* [out] */ FunctionID *pFunctionId,
 		/* [out] */ ReJITID *pReJitId){
-		//ATLTRACE(_T("GetFunctionFromIP2"));
+		//ATLTRACE(_T("GetFunctionFromIP2\n"));
 		return m_pProfilerInfo4->GetFunctionFromIP2(ip, pFunctionId, pReJitId);
 	}
 
@@ -644,7 +644,7 @@ public: // ICorProfilerInfo4
 		/* [in] */ ULONG cReJitIds,
 		/* [out] */ ULONG *pcReJitIds,
 		/* [length_is][size_is][out] */ ReJITID reJitIds[]){
-		//ATLTRACE(_T("GetClassFromObject"));
+		//ATLTRACE(_T("GetClassFromObject\n"));
 		return m_pProfilerInfo4->GetReJITIDs(functionId, cReJitIds, pcReJitIds, reJitIds);
 	}
 
@@ -654,20 +654,20 @@ public: // ICorProfilerInfo4
 		/* [in] */ ULONG32 cMap,
 		/* [out] */ ULONG32 *pcMap,
 		/* [length_is][size_is][out] */ COR_DEBUG_IL_TO_NATIVE_MAP map[]){
-		//ATLTRACE(_T("GetILToNativeMapping2"));
+		//ATLTRACE(_T("GetILToNativeMapping2\n"));
 		return m_pProfilerInfo4->GetILToNativeMapping2(functionId, reJitId, cMap, pcMap, map);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE EnumJITedFunctions2(
 		/* [out] */ ICorProfilerFunctionEnum **ppEnum){
-		//ATLTRACE(_T("EnumJITedFunctions2"));
+		//ATLTRACE(_T("EnumJITedFunctions2\n"));
 		return m_pProfilerInfo4->EnumJITedFunctions2(ppEnum);
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE GetObjectSize2(
 		/* [in] */ ObjectID objectId,
 		/* [out] */ SIZE_T *pcSize){
-		//ATLTRACE(_T("GetObjectSize2"));
+		//ATLTRACE(_T("GetObjectSize2\n"));
 		return m_pProfilerInfo4->GetObjectSize2(objectId, pcSize);
 	}
 
