@@ -205,16 +205,8 @@ MSG_SendVisitPoints_Request* ProfilerCommunication::AllocateVisitMap(DWORD osThr
 }
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
-    MSG_SendVisitPoints_Request * p = NULL;
-    try {
-        p = m_visitmap[osThreadID];
-        if (p == NULL)
-            p = AllocateVisitMap(osThreadID);
-    }
-    catch (...){
-        p = AllocateVisitMap(osThreadID);
-    }
-    return p;
+    ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
+    return m_visitmap[osThreadID];
 }
 
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
