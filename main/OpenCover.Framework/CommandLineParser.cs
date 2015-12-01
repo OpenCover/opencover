@@ -190,6 +190,11 @@ namespace OpenCover.Framework
                         ReturnCodeOffset = ExtractValue<int>("returntargetcode", () =>
                             { throw new InvalidOperationException("The return target code offset must be an integer"); });
                         break;
+                    case "communicationtimeout":
+                        CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
+                        { throw new InvalidOperationException(string.Format("The communicationtimeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
+                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
+                        break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
                         break;
@@ -511,6 +516,11 @@ namespace OpenCover.Framework
         /// Instructs the console to print its version and exit
         /// </summary>
         public bool PrintVersion { get; private set; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host (normally 10000ms)
+        /// </summary>
+        public int CommunicationTimeout { get; private set; }
     }
 
 }
