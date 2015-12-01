@@ -17,6 +17,7 @@
 #include <unordered_map>
 
 #include "ReleaseTrace.h"
+#include <memory>
 
 using namespace ATL;
 
@@ -52,6 +53,7 @@ public:
         m_cuckooCriticalToken = 0;
         m_cuckooSafeToken = 0;
         m_infoHook = nullptr;
+        _shortwait = 10000;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -99,7 +101,8 @@ public:
     void __fastcall AddVisitPoint(ULONG uniqueId);
 
 private:
-    ProfilerCommunication m_host;
+    std::shared_ptr<ProfilerCommunication> _host;
+    ULONG _shortwait;
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
 	DWORD AppendProfilerEventMask(DWORD currentEventMask);
 
