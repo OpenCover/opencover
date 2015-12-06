@@ -38,11 +38,11 @@ Method::~Method()
 void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
-    COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
+    auto fatImage = static_cast<COR_ILMETHOD_FAT*>(&pMethod->Fat);
     if(!fatImage->IsFat())
     {
         ATLTRACE(_T("TINY"));
-        COR_ILMETHOD_TINY* tinyImage = (COR_ILMETHOD_TINY*)&pMethod->Tiny;
+        auto tinyImage = static_cast<COR_ILMETHOD_TINY*>(&pMethod->Tiny);
         m_header.CodeSize = tinyImage->GetCodeSize();
         pCode = tinyImage->GetCode();
         ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
@@ -64,7 +64,7 @@ void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
 void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 {
     BYTE* pCode;
-    COR_ILMETHOD_FAT* fatImage = (COR_ILMETHOD_FAT*)&pMethod->Fat;
+    auto fatImage = static_cast<COR_ILMETHOD_FAT*>(&pMethod->Fat);
     
     m_header.Flags &= ~CorILMethod_MoreSects;
     if (m_exceptions.size() > 0)
@@ -80,7 +80,7 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.op1 == REFPRE)
         {
             Write<BYTE>(details.op2);
@@ -100,13 +100,13 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
         case Null:
             break;
         case Byte:
-            Write<BYTE>((BYTE)(*it)->m_operand);
+            Write<BYTE>(static_cast<BYTE>((*it)->m_operand));
             break;
         case Word:
-            Write<USHORT>((USHORT)(*it)->m_operand);
+            Write<USHORT>(static_cast<USHORT>((*it)->m_operand));
             break;
         case Dword:
-            Write<ULONG>((ULONG)(*it)->m_operand);
+            Write<ULONG>(static_cast<ULONG>((*it)->m_operand));
             break;
         case Qword:
             Write<ULONGLONG>((*it)->m_operand);
@@ -117,7 +117,7 @@ void Method::WriteMethod(IMAGE_COR_ILMETHOD* pMethod)
 
         if ((*it)->m_operation == CEE_SWITCH)
         {
-            for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+            for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end(); ++offsetIter)
             {
                 Write<long>(*offsetIter);
             }
@@ -210,17 +210,17 @@ void Method::ReadBody()
         {
             if (details.operandSize==1)
             {
-                pInstruction->m_branchOffsets.push_back((char)(BYTE)pInstruction->m_operand);
+                pInstruction->m_branchOffsets.push_back(static_cast<char>(static_cast<BYTE>(pInstruction->m_operand)));
             }
             else
             {
-                pInstruction->m_branchOffsets.push_back((ULONG)pInstruction->m_operand);
+                pInstruction->m_branchOffsets.push_back(static_cast<ULONG>(pInstruction->m_operand));
             }
         }
 
         if (pInstruction->m_operation == CEE_SWITCH)
         {
-            DWORD numbranches = (DWORD)pInstruction->m_operand;
+            auto numbranches = static_cast<DWORD>(pInstruction->m_operand);
             while(numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>());
         }
 
@@ -229,7 +229,7 @@ void Method::ReadBody()
 
     ReadSections();
 
-    SetBuffer(NULL); 
+    SetBuffer(nullptr); 
 
     //DumpIL();
 
@@ -248,7 +248,7 @@ void Method::ReadSections()
 {
     if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
     {
-        BYTE flags = 0;
+        BYTE flags;
         do
         {
             Align<DWORD>(); // must be DWORD aligned
@@ -258,13 +258,13 @@ void Method::ReadSections()
             {
                 Advance(-1);
                 int count = ((Read<ULONG>() >> 8) / 24);
-                for (int i = 0; i < count; i++)
+                for (auto i = 0; i < count; i++)
                 {
-                    CorExceptionFlag type = (CorExceptionFlag)Read<ULONG>();
-                    long tryStart = Read<long>();
-                    long tryEnd = Read<long>();
-                    long handlerStart = Read<long>();
-                    long handlerEnd = Read<long>();
+                    auto type = static_cast<CorExceptionFlag>(Read<ULONG>());
+                    auto tryStart = Read<long>();
+                    auto tryEnd = Read<long>();
+                    auto handlerStart = Read<long>();
+                    auto handlerEnd = Read<long>();
                     long filterStart = 0;
                     ULONG token = 0;
                     switch (type)
@@ -276,7 +276,7 @@ void Method::ReadSections()
                         token = Read<ULONG>();
                         break;
                     }
-                    ExceptionHandler * pSection = new ExceptionHandler();
+                    auto pSection = new ExceptionHandler();
                     pSection->m_handlerType = type;
                     pSection->m_tryStart = GetInstructionAtOffset(tryStart);
                     pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
@@ -296,11 +296,11 @@ void Method::ReadSections()
             }
             else
             {
-                int count = (int)(Read<BYTE>() / 12);
+                auto count = static_cast<int>(Read<BYTE>() / 12);
                 Advance(2);
-                for (int i = 0; i < count; i++)
+                for (auto i = 0; i < count; i++)
                 {
-                    CorExceptionFlag type = (CorExceptionFlag)Read<USHORT>();
+                    auto type = static_cast<CorExceptionFlag>(Read<USHORT>());
                     long tryStart = Read<USHORT>();
                     long tryEnd = Read<BYTE>();
                     long handlerStart = Read<USHORT>();
@@ -353,7 +353,7 @@ Instruction * Method::GetInstructionAtOffset(long offset)
         }
     }
     _ASSERTE(FALSE);
-    return NULL;
+    return nullptr;
 }
 
 /// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
@@ -387,19 +387,19 @@ Instruction * Method::GetInstructionAtOffset(long offset, bool isFinally, bool i
 
     if (isFinally || isFault || isFilter || isTyped)
     {
-        Instruction *pLast = m_instructions.back();
-        OperationDetails &details = Operations::m_mapNameOperationDetails[pLast->m_operation];
+        auto pLast = m_instructions.back();
+        auto& details = Operations::m_mapNameOperationDetails[pLast->m_operation];
         if (offset == pLast->m_offset + details.length + details.operandSize)
         {
             // add a code label to hang the clause handler end off
-            Instruction *pInstruction = new Instruction(CEE_CODE_LABEL); 
+            auto pInstruction = new Instruction(CEE_CODE_LABEL); 
             pInstruction->m_offset = offset;
             m_instructions.push_back(pInstruction);
             return pInstruction;
         }
     }  
     _ASSERTE(FALSE);
-    return NULL;
+    return nullptr;
 }
 
 /// <summary>Uses the current offsets and locates the instructions that reside that offset to 
@@ -412,18 +412,18 @@ void Method::ResolveBranches()
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
         (*it)->m_branches.clear();
-        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
-        long baseOffset = (*it)->m_offset + details.length + details.operandSize;
+        auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        auto baseOffset = (*it)->m_offset + details.length + details.operandSize;
         if ((*it)->m_operation == CEE_SWITCH)
         {
-            baseOffset += (4*(long)(*it)->m_operand);
+            baseOffset += (4*static_cast<long>((*it)->m_operand));
         }
         
-        for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; ++offsetIter)
         {
-            long offset = baseOffset + (*offsetIter);
-            Instruction * instruction = GetInstructionAtOffset(offset);
-            if (instruction != NULL) 
+            auto offset = baseOffset + (*offsetIter);
+            auto instruction = GetInstructionAtOffset(offset);
+            if (instruction != nullptr) 
             {
                 (*it)->m_branches.push_back(instruction);
             }
@@ -440,7 +440,7 @@ void Method::DumpIL()
     ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
     for (auto it = m_instructions.begin(); it != m_instructions.end() ; ++it)
     {
-        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if (details.operandSize == Null)
         {
             ATLTRACE(_T("IL_%04X %s"), (*it)->m_offset, details.stringName);
@@ -449,7 +449,7 @@ void Method::DumpIL()
         {
             if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
             {
-                long offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
+                auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
                 ATLTRACE(_T("IL_%04X %s IL_%04X"), 
                     (*it)->m_offset, details.stringName, offset);
             }
@@ -482,11 +482,11 @@ void Method::DumpIL()
                 ATLTRACE(_T("IL_%04X %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
             }
         }
-        for (std::vector<long>::iterator offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; offsetIter++)
+        for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end() ; ++offsetIter)
         {
             if ((*it)->m_operation == CEE_SWITCH)
             {
-                long offset = (*it)->m_offset + (4*(long)(*it)->m_operand) + (*offsetIter) + details.length + details.operandSize;
+                auto offset = (*it)->m_offset + (4*static_cast<long>((*it)->m_operand)) + (*offsetIter) + details.length + details.operandSize;
                 ATLTRACE(_T("    IL_%04X"), offset);
             }
         }
@@ -497,11 +497,11 @@ void Method::DumpIL()
     {
         ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"), 
             i++, (*it)->m_handlerType, 
-            (*it)->m_tryStart != NULL ? (*it)->m_tryStart->m_offset : 0, 
-            (*it)->m_tryEnd != NULL ? (*it)->m_tryEnd->m_offset : 0, 
-            (*it)->m_handlerStart != NULL ? (*it)->m_handlerStart->m_offset : 0, 
-            (*it)->m_handlerEnd != NULL ? (*it)->m_handlerEnd->m_offset : 0, 
-            (*it)->m_filterStart != NULL ? (*it)->m_filterStart->m_offset : 0, 
+            (*it)->m_tryStart != nullptr ? (*it)->m_tryStart->m_offset : 0, 
+            (*it)->m_tryEnd != nullptr ? (*it)->m_tryEnd->m_offset : 0, 
+            (*it)->m_handlerStart != nullptr ? (*it)->m_handlerStart->m_offset : 0, 
+            (*it)->m_handlerEnd != nullptr ? (*it)->m_handlerEnd->m_offset : 0, 
+            (*it)->m_filterStart != nullptr ? (*it)->m_filterStart->m_offset : 0, 
             (*it)->m_token);
     } 
     ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
@@ -583,25 +583,25 @@ void Method::RecalculateOffsets()
     int position = 0;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         (*it)->m_offset = position;
         position += details.length;
         position += details.operandSize;
         if((*it)->m_operation == CEE_SWITCH)
         {
-            position += 4*(long)(*it)->m_operand;
+            position += 4*static_cast<long>((*it)->m_operand);
         }
     }
 
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
-        OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+        auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
         if ((*it)->m_isBranch)
         {
             (*it)->m_branchOffsets.clear();
             if((*it)->m_operation == CEE_SWITCH)
             {
-                long offset = ((*it)->m_offset + details.length + details.operandSize + (4*(long)(*it)->m_operand));                    
+                auto offset = ((*it)->m_offset + details.length + details.operandSize + (4*static_cast<long>((*it)->m_operand)));                    
                 for (auto bit = (*it)->m_branches.begin(); bit != (*it)->m_branches.end(); ++bit)
                 {
                     (*it)->m_branchOffsets.push_back((*bit)->m_offset - offset);
@@ -610,7 +610,7 @@ void Method::RecalculateOffsets()
             else
             {
                 (*it)->m_operand = (*it)->m_branches[0]->m_offset - ((*it)->m_offset + details.length + details.operandSize);
-                (*it)->m_branchOffsets.push_back((long)(*it)->m_operand);
+                (*it)->m_branchOffsets.push_back(static_cast<long>((*it)->m_operand));
             }
         }
     }
@@ -624,8 +624,8 @@ void Method::RecalculateOffsets()
 /// beforehand if any instrumentation has been done</remarks>
 long Method::GetMethodSize()
 {
-    Instruction * lastInstruction = m_instructions.back();
-    OperationDetails &details = Operations::m_mapNameOperationDetails[lastInstruction->m_operation];
+    auto lastInstruction = m_instructions.back();
+    auto& details = Operations::m_mapNameOperationDetails[lastInstruction->m_operation];
     
     m_header.CodeSize = lastInstruction->m_offset + details.length + details.operandSize;
     long size = sizeof(IMAGE_COR_ILMETHOD_FAT) + m_header.CodeSize;
@@ -636,7 +636,7 @@ long Method::GetMethodSize()
         m_header.Flags |= CorILMethod_MoreSects;
         long align = sizeof(DWORD) - 1;
         size = ((size + align) & ~align);
-        size += (((long)m_exceptions.size() * 6) + 1) * sizeof(long);
+        size += ((static_cast<long>(m_exceptions.size()) * 6) + 1) * sizeof(long);
     }
 
     return size;
@@ -679,12 +679,12 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
         clone.push_back(new Instruction(*(*it)));
     }
 
-    long actualOffset = 0;
+    //long actualOffset;
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_offset == offset)
         {
-            actualOffset = (*it)->m_offset;
+            //actualOffset = (*it)->m_offset;
             m_instructions.insert(++it, clone.begin(), clone.end());
             break;
         }
@@ -693,8 +693,8 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
     for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
     {
         if ((*it)->m_origOffset == offset)
-        {            
-            Instruction orig = *(*it);
+        {
+            auto orig = *(*it);
             for (unsigned int i=0;i<clone.size();i++)
             {
                 auto temp = it++;
@@ -817,10 +817,10 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
 Instruction* Method::EndOfBranch(Instruction* toFollow)
     {
         Instruction* next = toFollow;
-        next->m_jump = NULL;
-        Instruction* jump = NULL;
-        Instruction* jumpTo = NULL;
-        if (next != NULL)
+        next->m_jump = nullptr;
+        Instruction* jump;
+        Instruction* jumpTo;
+        if (next != nullptr)
         {
             while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
                 _ASSERTE(next->m_isBranch);
@@ -828,12 +828,12 @@ Instruction* Method::EndOfBranch(Instruction* toFollow)
                 _ASSERTE(next->m_branches[0] != NULL);
                 jumpTo = next->m_branches[0];
                 _ASSERTE(jumpTo != NULL);
-                if ( jumpTo == NULL ) break;
+                if ( jumpTo == nullptr ) break;
                 jump = next; // store last BR instruction
                 next = jumpTo; // store last BR jump-target instruction found (so far) 
                 next->m_jump = jump; // set m_jump to last BR instruction
             }
         }
-        return next == NULL? toFollow : next;
+        return next == nullptr ? toFollow : next;
     }
 
