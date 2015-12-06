@@ -160,7 +160,7 @@ namespace OpenCover.Specs.Steps
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x86", Path.GetExtension(output));
 
             var outputXml64 = string.Format(@"{0}\{1}_{2}.{3}",
-                Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x86", Path.GetExtension(output));
+                Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x64", Path.GetExtension(output));
 
             Assert.IsTrue(File.Exists(outputXml86));
             Assert.IsTrue(File.Exists(outputXml64));
