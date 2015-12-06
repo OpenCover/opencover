@@ -264,11 +264,20 @@ namespace OpenCover.Framework.Persistance
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
-                        var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
-                        var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+                        if (method.SequencePoints == null) method.SequencePoints = new SequencePoint[0];
+                        if (method.BranchPoints == null) method.BranchPoints = new BranchPoint[0];
 
-                        MapFileReferences(sequencePoints, filesDictionary);
-                        MapFileReferences(branchPoints, filesDictionary);
+                        // use shorter names
+                        var sequencePoints = method.SequencePoints;
+                        var branchPoints = method.BranchPoints;
+                        
+                        // No sequences in method, but branches present? => remove branches
+                        if (sequencePoints.Length == 0 && branchPoints.Length != 0) {
+                        	branchPoints = new BranchPoint[0];
+                        }
+
+                        if (sequencePoints.Length != 0) MapFileReferences(sequencePoints, filesDictionary);
+                        if (branchPoints.Length != 0) MapFileReferences(branchPoints, filesDictionary);
 
                         #region Merge branch-exits
 
