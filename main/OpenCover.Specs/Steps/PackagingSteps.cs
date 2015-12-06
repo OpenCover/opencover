@@ -132,7 +132,7 @@ namespace OpenCover.Specs.Steps
             var folder = (string)ScenarioContext.Current["targetFolder"];
             var output = (string)ScenarioContext.Current["targetOutput"];
 
-            var outputXml = string.Format(@"{0}\{1}_{2}.{3}",
+            var outputXml = string.Format(@"{0}\{1}_{2}{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), binFolder, Path.GetExtension(output));
 
             if (File.Exists(outputXml)) File.Delete(outputXml);
@@ -156,10 +156,10 @@ namespace OpenCover.Specs.Steps
 
             var output = (string)ScenarioContext.Current["targetOutput"];
 
-            var outputXml86 = string.Format(@"{0}\{1}_{2}.{3}",
+            var outputXml86 = string.Format(@"{0}\{1}_{2}{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x86", Path.GetExtension(output));
 
-            var outputXml64 = string.Format(@"{0}\{1}_{2}.{3}",
+            var outputXml64 = string.Format(@"{0}\{1}_{2}{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), "x64", Path.GetExtension(output));
 
             Assert.IsTrue(File.Exists(outputXml86));
