@@ -333,9 +333,13 @@ namespace OpenCover.Framework.Persistance
                                     nextSpOffset = index + 1 < sPoints.Length ? sPoints[index + 1].Offset : int.MinValue;
                                 }
 
-								// Add BranchPoint to curent SequencePoint
-                                if (currentBp.Offset >= currentSp.Offset) {
-                                    currentSp.BranchPoints.Add(currentBp);
+                                // User (not by compiler) generated branches have line sequence longer than 2 characters?
+                                // Rule above EXCLUDES branches within '{' & '}' & 'in' sequence points 
+                                if (currentSp.StartLine == currentSp.EndLine && (currentSp.EndColumn - currentSp.StartColumn) > 2) {
+                                    // Add BranchPoint to curent SequencePoint
+	                                if (currentBp.Offset >= currentSp.Offset) {
+	                                    currentSp.BranchPoints.Add(currentBp);
+                                    }
                                 }
                             }
     
