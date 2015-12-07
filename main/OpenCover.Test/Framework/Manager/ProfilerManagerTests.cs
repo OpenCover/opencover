@@ -77,6 +77,33 @@ namespace OpenCover.Test.Framework.Manager
             Assert.NotNull(dict[@"OpenCover_Profiler_Threshold"]);
             Assert.AreEqual("500", dict[@"OpenCover_Profiler_Threshold"]);
         }
+        [Test]
+        public void Manager_DoesNotAdd_ShortWait_EnvironmentVariable()
+        {
+            // arrange
+            var dict = new StringDictionary();
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.Null(dict[@"OpenCover_Profiler_ShortWait"]);
+        }
+
+        [Test]
+        public void Manager_Adds_Supplied_ShortWait_EnvironmentVariable()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.CommunicationTimeout).Returns(10000);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.NotNull(dict[@"OpenCover_Profiler_ShortWait"]);
+            Assert.AreEqual("10000", dict[@"OpenCover_Profiler_ShortWait"]);
+        }
 
         [Test]
         public void Manager_Adds_TraceByTest_EnvironmentVariable_When_Tracing_Enabled()

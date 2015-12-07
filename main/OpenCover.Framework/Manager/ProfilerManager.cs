@@ -129,7 +129,10 @@ namespace OpenCover.Framework.Manager
             dictionary["CoreClr_Enable_Profiling"] = "1";
             dictionary["Cor_Profiler_Path"] = string.Empty;
             dictionary["CorClr_Profiler_Path"] = string.Empty;
-           
+
+            if (_commandLine.CommunicationTimeout > 0)
+                dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
+
             switch (_commandLine.Registration)
             {
                 case Registration.Path32:

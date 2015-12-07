@@ -113,7 +113,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
-            builder.AppendLine("    [-servicestarttimeout:1m23s");
+            builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
+            builder.AppendLine("    [-communicationtimeout:<integer, e.g. 10000>");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
@@ -192,7 +193,7 @@ namespace OpenCover.Framework
                         break;
                     case "communicationtimeout":
                         CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
-                        { throw new InvalidOperationException(string.Format("The communicationtimeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
+                        { throw new InvalidOperationException(string.Format("The communication timeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
                         CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
                         break;
                     case "filter":

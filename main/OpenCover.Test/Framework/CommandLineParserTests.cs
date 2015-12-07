@@ -767,7 +767,7 @@ namespace OpenCover.Test.Framework
             var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
 
             // assert
-            Assert.That(thrownException.Message, Contains.Substring("communicationtimeout"));
+            Assert.That(thrownException.Message, Contains.Substring("communication timeout"));
             Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
         }
 
