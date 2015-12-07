@@ -49,6 +49,7 @@ You will need:
 1. Visual Studio VS2013 (Community Edition) or later with C# and C++
 2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/136891)
 3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 
 
