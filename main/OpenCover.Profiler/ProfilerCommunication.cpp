@@ -20,6 +20,9 @@
 ProfilerCommunication::ProfilerCommunication() 
 {
     m_bufferId = 0;
+    m_pMSG = nullptr;
+    m_pVisitPoints = nullptr;
+    hostCommunicationActive = false;
 }
 
 ProfilerCommunication::~ProfilerCommunication()
@@ -205,10 +208,10 @@ MSG_SendVisitPoints_Request* ProfilerCommunication::AllocateVisitMap(DWORD osThr
 }
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
-    MSG_SendVisitPoints_Request * p = NULL;
+    MSG_SendVisitPoints_Request * p;
     try {
         p = m_visitmap[osThreadID];
-        if (p == NULL)
+        if (p == nullptr)
             p = AllocateVisitMap(osThreadID);
     }
     catch (...){

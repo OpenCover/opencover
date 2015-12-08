@@ -8,14 +8,14 @@
 class CSharedMemory
 {
 public:
-    CSharedMemory() : m_hMemory(NULL) { }
+    CSharedMemory() : m_hMemory(nullptr) { }
     ~CSharedMemory();
 
 public:
     void OpenFileMapping(const TCHAR *pName);  
     void* MapViewOfFile(DWORD dwFileOffsetHigh, DWORD dwFileOffsetLow, SIZE_T dwNumberOfBytesToMap);
     static DWORD GetAllocationGranularity();
-    bool IsValid() {return m_hMemory!=NULL; }
+    bool IsValid() { return m_hMemory != nullptr; }
     void FlushViewOfFile();
 
 private:

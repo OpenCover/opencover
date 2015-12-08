@@ -10,7 +10,6 @@
 #include "Messages.h"
 
 #include <exception>
-#include <concurrent_vector.h>
 
 #include <unordered_map>
 
