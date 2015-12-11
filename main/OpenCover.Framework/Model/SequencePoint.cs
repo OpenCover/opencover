@@ -37,10 +37,16 @@ namespace OpenCover.Framework.Model
         /// </summary>
         [XmlAttribute("ec")]
         public int EndColumn { get; set; }
-        
+
+        /// <summary>
+        /// Count of merged branches
+        /// </summary>
         [XmlAttribute("bec")]
         public int BranchExitsCount { get; set; }
         
+        /// <summary>
+        /// Visit count of merged branches 
+        /// </summary>
         [XmlAttribute("bev")]
         public int BranchExitsVisit { get; set; }
 
