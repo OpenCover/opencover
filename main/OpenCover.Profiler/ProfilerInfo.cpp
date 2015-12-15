@@ -18,7 +18,7 @@ HRESULT STDMETHODCALLTYPE CProfilerInfo::SetEventMask(
 	expected |= COR_PRF_MONITOR_MODULE_LOADS;
     expected |= COR_PRF_ENABLE_REJIT; // VS2012 only
 
-	ATLTRACE(_T("CProfilerInfo::SetEventMask => received => 0x%X, expected 0x%X"), dwEvents, expected);
+	ATLTRACE(_T("CProfilerInfo::SetEventMask => received => 0x%X, expected 0x%X\n"), dwEvents, expected);
     ATLASSERT(expected == (dwEvents | expected)); // assert that nothing new has been added that we haven't already tested against
 
 	if (m_pProfilerHook!=NULL)

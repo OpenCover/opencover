@@ -37,7 +37,7 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 	mdTypeDef systemObject = mdTokenNil;
 	if (S_OK == metaDataImport->FindTypeDefByName(L"System.Object", mdTokenNil, &systemObject))
 	{
-		RELTRACE(_T("::ModuleLoadFinished(...) => Adding methods to mscorlib..."));
+		RELTRACE(_T("::ModuleLoadFinished(...) => Adding methods to mscorlib...\n"));
 		mdMethodDef systemObjectCtor;
 		COM_FAIL_MSG_RETURN_ERROR(metaDataImport->FindMethod(systemObject, L".ctor",
 			ctorCallSignature, sizeof(ctorCallSignature), &systemObjectCtor),
@@ -122,7 +122,7 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 		COM_FAIL_MSG_RETURN_ERROR(metaDataEmit->DefineCustomAttribute(m_cuckooSafeToken, attributeCtor, NULL, 0, &customAttr),
 			_T("    ::ModuleLoadFinished(...) => DefineCustomAttribute => 0x%X"));
 
-		RELTRACE(_T("::ModuleLoadFinished(...) => Added methods to mscorlib"));
+		RELTRACE(_T("::ModuleLoadFinished(...) => Added methods to mscorlib\n"));
 	}
 
 	return S_OK;
@@ -130,7 +130,7 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 
 mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
 {
-	ATLTRACE(_T("::RegisterSafeCuckooMethod(%X) => %s"), moduleId, CUCKOO_SAFE_METHOD_NAME);
+	ATLTRACE(_T("::RegisterSafeCuckooMethod(%X) => %s\n"), moduleId, CUCKOO_SAFE_METHOD_NAME);
 
 	// for modules we are going to instrument add our reference to the method marked 
 	// with the SecuritySafeCriticalAttribute
@@ -160,7 +160,7 @@ mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
 /// <remarks>This method makes the call into the profiler</remarks>
 HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 {
-	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical..."));
+	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical...\n"));
 
 	mdSignature pvsig = GetMethodSignatureToken_I4(moduleId);
 	void(__fastcall *pt)(ULONG) = GetInstrumentPointVisit();
@@ -181,7 +181,7 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 
 	InstrumentMethodWith(moduleId, m_cuckooCriticalToken, instructions);
 
-	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical - Done!"));
+	ATLTRACE(_T("::AddCriticalCuckooBody => Adding VisitedCritical - Done!\n"));
 
 	return S_OK;
 }
@@ -190,7 +190,7 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 /// <remarks>Calls the method that is marked with the SecurityCriticalAttribute</remarks>
 HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 {
-	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited..."));
+	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited...\n"));
 
 	BYTE data[] = { (0x01 << 2) | CorILMethod_TinyFormat, CEE_RET };
 	Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
@@ -203,7 +203,7 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 
 	InstrumentMethodWith(moduleId, m_cuckooSafeToken, instructions);
 
-	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited - Done!"));
+	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited - Done!\n"));
 
 	return S_OK;
 }
