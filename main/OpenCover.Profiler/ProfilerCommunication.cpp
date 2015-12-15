@@ -209,15 +209,15 @@ MSG_SendVisitPoints_Request* ProfilerCommunication::AllocateVisitMap(DWORD osThr
 
 MSG_SendVisitPoints_Request* ProfilerCommunication::GetVisitMapForOSThread(ULONG osThreadID){
     MSG_SendVisitPoints_Request * p;
-    try {
-        p = m_visitmap[osThreadID];
-        if (p == nullptr)
-            p = AllocateVisitMap(osThreadID);
+    auto it = m_visitmap.find(osThreadID);
+    if (it == m_visitmap.end()) {
+        ATL::CComCritSecLock<ATL::CComAutoCriticalSection> lock(m_critThreads);
+        it = m_visitmap.find(osThreadID);
+        if (it == m_visitmap.end()) {
+            return AllocateVisitMap(osThreadID);
+        }
     }
-    catch (...){
-        p = AllocateVisitMap(osThreadID);
-    }
-    return p;
+    return it->second;
 }
 
 void ProfilerCommunication::ThreadDestroyed(ThreadID threadID){
