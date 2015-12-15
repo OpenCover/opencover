@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -239,35 +240,103 @@ namespace OpenCover.Framework.Persistance
         // Dictionary with stored source files per module
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
-        // Return if SequencePoint cannot have user defined branches
-        // So far have detected sequencePoints with branches on '{' '}' (static methods)
-        // and within keyword 'in'. My guess, VB 'In' is same as C# 'in' 
-        private bool CanContainUserBranches ( SequencePoint sp ) {
-        	if (sp.StartLine == sp.EndLine) {
-        		string content = "";
-        		int spLength = sp.EndColumn - sp.StartColumn;
-        		switch (spLength) {
-        			case 1:
-        			case 2:
-        				if (sp.FileId != 0) {
-        					CodeCoverageStringTextSource source = null;
-        					sourceRepository.TryGetValue(sp.FileId, out source);
-        					if (source != null) {
-        						content = source.GetText(sp);
-        					}
-        				}
-        				break;
-        		}
-        		switch (content) {
-        			case "{":  //C#
-        			case "}":  //C#
-        			case "in": //C#
-        			case "In": //VB
-        				return false;
-        		}
-        	}
-        	return true;
+        private static Regex ifMatch = new Regex (@"\Aif\s*\(", RegexOptions.Compiled);
+        private static Regex switchMatch = new Regex (@"\Aswitch\s*\(", RegexOptions.Compiled);
+        private static Regex whileMatch = new Regex (@"\Awhile\s*\(", RegexOptions.Compiled);
+        private static Regex forMatch = new Regex (@"\Afor\s*\(", RegexOptions.Compiled);
+        private static Regex foreachMatch = new Regex (@"\Aforeach\s*\(", RegexOptions.Compiled);
+        private static Regex tryMatch = new Regex (@"\Atry\s*\{", RegexOptions.Compiled);
+
+        private static Regex assignBoolMatch = new Regex (@"(?<![=!<>])=(?!\s*[=><]).+(\|\s*\||&\s*&|=\s*=|!\s*=|>\s*=|<\s*=|\?\s*\?|\?|:|<|>|\|).*;", RegexOptions.Compiled);
+        private static Regex evalBoolMatch = new Regex (@"\(.*(\|\s*\||&\s*&|=\s*=|!\s*=|>\s*=|<\s*=|\?\s*\?|\?|:|<|>|\|).*\)\s*;", RegexOptions.Compiled);
+
+        private static Regex cRequiresMatch = new Regex (@"Contract\s*\.\s*Requires", RegexOptions.Compiled);
+        private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant", RegexOptions.Compiled);
+        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*Ensures", RegexOptions.Compiled);
+
+        private const bool doRemove = true;
+        private const bool preserve = false;
+
+        // Return true if branches can be removed
+        private bool doRemoveBranches (SequencePoint sp) {
+            if (sp == null)
+                return preserve;
+            if (sp.FileId == 0)
+                return preserve;
+
+            CodeCoverageStringTextSource source = null;
+            sourceRepository.TryGetValue (sp.FileId, out source);
+            if (source == null)
+                return preserve;
+
+            switch (source.FileType) {
+                case FileType.Unsupported:
+                    return preserve;
+
+                case FileType.CSharp:
+                    break; // continue
+                case FileType.VBasic:
+                    return preserve;
+
+                default:
+#if DEBUG
+                    throw new NotImplementedException ("Source.FileType");
+#else
+					return preserve;
+#endif
+            }
+
+            string spSource = source.GetText (sp);
+            if (String.IsNullOrWhiteSpace (spSource))
+                return preserve;
+            if (spSource.Length < 5)
+                return doRemove; //if(x); x=a|b;
+
+            switch (spSource.Substring (0, 2)) {
+                case "if": // if (
+                    if (ifMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "sw": // switch (
+                    if (switchMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "wh": // while (
+                    if (whileMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "fo": // for|foreach (
+                    if (forMatch.IsMatch (spSource))
+                        return preserve;
+                    if (foreachMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "tr": // try {
+                    if (tryMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "Co": // Contract.*
+                    if (cRequiresMatch.IsMatch (spSource))
+                        return preserve;
+                    if (cInvariantMatch.IsMatch (spSource))
+                        return doRemove;
+                    if (cEnsuresMatch.IsMatch (spSource))
+                        return doRemove;
+                    break;
+
+                default:
+                    break;
+            }
+            if (BasePersistance.assignBoolMatch.IsMatch (spSource) || BasePersistance.evalBoolMatch.IsMatch (spSource))
+                return preserve;
+            return doRemove;
         }
+
 
         private void PopulateInstrumentedPoints()
         {
@@ -389,7 +458,7 @@ namespace OpenCover.Framework.Persistance
                             #region Remove Compiler Generated Branches
 
                             foreach (var sp in sPoints) {
-                            	if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && !CanContainUserBranches(sp)) {
+                            	if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && doRemoveBranches(sp)) {
                             		sp.BranchPoints = emptyBranchList;
                             	}
                             }
