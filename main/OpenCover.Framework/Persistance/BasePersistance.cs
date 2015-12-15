@@ -240,19 +240,32 @@ namespace OpenCover.Framework.Persistance
         // Dictionary with stored source files per module
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
+        // match if (
         private static Regex ifMatch = new Regex (@"\Aif\s*\(", RegexOptions.Compiled);
+        // match else if (
+        private static Regex elseifMatch = new Regex (@"\Aelse\s+if\s*\(", RegexOptions.Compiled);
+        // match switch (
         private static Regex switchMatch = new Regex (@"\Aswitch\s*\(", RegexOptions.Compiled);
+        // match while (
         private static Regex whileMatch = new Regex (@"\Awhile\s*\(", RegexOptions.Compiled);
+        // match for (
         private static Regex forMatch = new Regex (@"\Afor\s*\(", RegexOptions.Compiled);
+        // match foreach (
         private static Regex foreachMatch = new Regex (@"\Aforeach\s*\(", RegexOptions.Compiled);
+        // match try {
         private static Regex tryMatch = new Regex (@"\Atry\s*\{", RegexOptions.Compiled);
 
+        // match anything like "= boolean expression" 
         private static Regex assignBoolMatch = new Regex (@"(?<![=!<>])=(?!\s*[=><]).+(\|\s*\||&\s*&|=\s*=|!\s*=|>\s*=|<\s*=|\?\s*\?|\?|:|<|>|\|).*;", RegexOptions.Compiled);
+        // match anything like (boolean expression) 
         private static Regex evalBoolMatch = new Regex (@"\(.*(\|\s*\||&\s*&|=\s*=|!\s*=|>\s*=|<\s*=|\?\s*\?|\?|:|<|>|\|).*\)\s*;", RegexOptions.Compiled);
 
-        private static Regex cRequiresMatch = new Regex (@"Contract\s*\.\s*Requires", RegexOptions.Compiled);
-        private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant", RegexOptions.Compiled);
-        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*Ensures", RegexOptions.Compiled);
+        // match Contract.Requires<*> (
+        private static Regex cRequiresMatch = new Regex (@"Contract\s*\.\s*Requires\s*<.*>\s*\(", RegexOptions.Compiled);
+        // match Contract.Invariant (
+        private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant\s*\(", RegexOptions.Compiled);
+        // match Contract.Ensures[OnThrow<*>] (
+        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*(Ensures|EnsuresOnThrow\s*<.*>)\s*\(", RegexOptions.Compiled);
 
         private const bool doRemove = true;
         private const bool preserve = false;
@@ -263,6 +276,8 @@ namespace OpenCover.Framework.Persistance
                 return preserve;
             if (sp.FileId == 0)
                 return preserve;
+            if (sp.StartLine == sp.EndLine && (sp.EndColumn - sp.StartColumn) <= 2)
+            	return doRemove;
 
             CodeCoverageStringTextSource source = null;
             sourceRepository.TryGetValue (sp.FileId, out source);
@@ -280,7 +295,7 @@ namespace OpenCover.Framework.Persistance
 
                 default:
 #if DEBUG
-                    throw new NotImplementedException ("Source.FileType");
+					throw new NotImplementedException ("Source.FileType");
 #else
 					return preserve;
 #endif
@@ -288,13 +303,18 @@ namespace OpenCover.Framework.Persistance
 
             string spSource = source.GetText (sp);
             if (String.IsNullOrWhiteSpace (spSource))
-                return preserve;
+                return doRemove;
             if (spSource.Length < 5)
-                return doRemove; //if(x); x=a|b;
+                return doRemove; // { } in (if(x)  x=a|b)
 
             switch (spSource.Substring (0, 2)) {
                 case "if": // if (
                     if (ifMatch.IsMatch (spSource))
+                        return preserve;
+                    break;
+
+                case "el": // else if (
+                    if (elseifMatch.IsMatch (spSource))
                         return preserve;
                     break;
 
@@ -321,12 +341,14 @@ namespace OpenCover.Framework.Persistance
                     break;
 
                 case "Co": // Contract.*
-                    if (cRequiresMatch.IsMatch (spSource))
-                        return preserve;
-                    if (cInvariantMatch.IsMatch (spSource))
-                        return doRemove;
-                    if (cEnsuresMatch.IsMatch (spSource))
-                        return doRemove;
+                    if (spSource.Length > 8 && spSource.Substring(0, 8) == "Contract") {
+	                    if (cRequiresMatch.IsMatch (spSource))
+	                        return preserve;
+	                    if (cInvariantMatch.IsMatch (spSource))
+	                        return doRemove;
+	                    if (cEnsuresMatch.IsMatch (spSource))
+	                        return doRemove;
+                    }
                     break;
 
                 default:
