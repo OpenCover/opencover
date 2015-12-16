@@ -55,7 +55,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        existingModule.Aliases.Add(module.FullName); 
+                        existingModule.Aliases.Add(module.FullName);
                     }
                     return;
                 }
@@ -78,12 +78,12 @@ namespace OpenCover.Framework.Persistance
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="session"></param>
         protected void ReassignCoverageSession(CoverageSession session)
         {
-            _moduleMethodMap.Clear(); 
+            _moduleMethodMap.Clear();
             CoverageSession = session;
             CoverageSession.Summary = new Summary();
             foreach (var module in CoverageSession.Modules)
@@ -132,7 +132,7 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
                     !x.ShouldSerializeSkippedDueTo());
         }
 
@@ -225,7 +225,7 @@ namespace OpenCover.Framework.Persistance
             if (CoverageSession.Modules == null) return;
             foreach (var module in CoverageSession.Modules)
             {
-                module.Files = (from file in module.Files ?? new File[0] 
+                module.Files = (from file in module.Files ?? new File[0]
                                 from @class in module.Classes ?? new Class[0]
                                 where (@class.Methods ?? new Method[0]).Where(x=>x.FileRef != null).Any(x => x.FileRef.UniqueId == file.UniqueId)
                                 select file).Distinct().ToArray();
@@ -233,7 +233,7 @@ namespace OpenCover.Framework.Persistance
         }
 
         // static readonly empty collections, saves creation time of new empty ones
-           private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
+        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
         private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
         private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
 
@@ -241,11 +241,13 @@ namespace OpenCover.Framework.Persistance
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
         // match Contract.Requires<*> (
-        private static Regex cRequiresMatch = new Regex (@"Contract\s*\.\s*Requires\s*<.+>\s*\(", RegexOptions.Compiled);
+        private static Regex cRequiresThrowMatch = new Regex (@"Contract\s*\.\s*Requires\s*<.+>\s*\(", RegexOptions.Compiled);
         // match Contract.Invariant (
         private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant\s*\(", RegexOptions.Compiled);
         // match Contract.Ensures[OnThrow<*>] (
-        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*(Ensures|EnsuresOnThrow\s*<.+>)\s*\(", RegexOptions.Compiled);
+        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*Ensures\s*<.+>\s*\(", RegexOptions.Compiled);
+        // match Contract.EnsuresOnThrow<*>] (
+        private static Regex cEnsuresOnThrowMatch = new Regex (@"Contract\s*\.\s*EnsuresOnThrow\s*<.+>\s*\(", RegexOptions.Compiled);
 
         private const bool doRemove = true;
         private const bool preserve = false;
@@ -280,6 +282,14 @@ namespace OpenCover.Framework.Persistance
 #endif
             }
 
+            /* Must exclude only SequencePoints that cannot have user defined branches  
+             * Another approach by including (selecting) only lines with branches
+             * cannot be done by Regex for at least one reason
+             * 1) "for" keyword has no SequencePoint (undetectable),
+             *    "for" branch is in second SequencePoint "[condition]" of 
+             *    "for ( [initialisation] ; [condition] ; [iteration] ) { ....
+             *    and "[condition]" can be a boolean function (boolean undetectable by Regex)
+            */ 
             string spSource = source.GetText (sp);
             if (String.IsNullOrWhiteSpace (spSource))
                 return doRemove;
@@ -296,8 +306,8 @@ namespace OpenCover.Framework.Persistance
                     //          ensuresOnThrow<T>(x);
                     // 12345678901234567890
                     if (spSource.Length >= 20 && spSource.Substring(0, 8) == "Contract" && spSource.Last() == ';') {
-//                        if (cRequiresMatch.IsMatch (spSource))
-//                            return doRemove;
+                        // Requires<Exception> and EnsuresOnThrow<Exception> branches are testable
+                        // Requires sometimes has too much branches?
                         if (cInvariantMatch.IsMatch (spSource))
                             return doRemove;
                         if (cEnsuresMatch.IsMatch (spSource))
@@ -373,18 +383,29 @@ namespace OpenCover.Framework.Persistance
                             #region Join Sequences and Branches
                             // Quick match branches to sequence using SP&BP sort order by IL offset
 
-                            // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset 
+                            // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
                             // ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
                             method.SequencePoints = method.SequencePoints.OrderBy( sp => sp.Offset ).ToArray();
                             method.BranchPoints = method.BranchPoints.OrderBy( bp => bp.Offset ).ToArray();
     
-                            var branchStack = new Stack<BranchPoint>(method.BranchPoints); // Stack.Pop is constant time 
-                            foreach (SequencePoint sPoint in method.SequencePoints.Reverse()) {
-                                sPoint.BranchPoints = new List<BranchPoint>();
-                                while (branchStack.Count != 0 && branchStack.Peek().Offset >= sPoint.Offset) {
-                                    sPoint.BranchPoints.Add(branchStack.Pop());
+                            // Use stack because Stack.Pop is constant time
+                            var branchStack = new Stack<BranchPoint>(method.BranchPoints);
+
+                            // Join offset matching BranchPoints with SequencePoint "parent"
+                            // Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
+                            // Reverse() starts loop from highest offset to lowest
+                            foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
+                            	// create branchPoints "child" list
+                                spParent.BranchPoints = new List<BranchPoint>();
+                                // if BranchPoint.Offset is >= SequencePoint.Offset 
+                                // then move BranchPoint from stack to "child" list (Pop/Add)
+                                while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
+                                    spParent.BranchPoints.Add(branchStack.Pop());
                                 }
                             }
+
+                            // clear the stack
+                            branchStack.Clear();
 
                             #endregion
 
@@ -398,7 +419,7 @@ namespace OpenCover.Framework.Persistance
 
                             #endregion
                             
-                            #region Merge Branch-Exits for each Sequence  
+                            #region Merge Branch-Exits for each Sequence
 
                             // Collection of validBranchPoints (child/connected to parent SequencePoint)
                             var validBranchPoints = new List<BranchPoint>();
@@ -433,7 +454,9 @@ namespace OpenCover.Framework.Persistance
                                 }
                             }
 
-                            // Replace original branchPoints with branches connected to sequence point(s)
+                            // Replace original method branchPoints with valid (filtered and joined) branches.
+                            // Order is Required by FilePersistanceTest because it does not sets .Offset.
+                            // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
                             method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
                             validBranchPoints = emptyBranchList; // clear
 
@@ -480,7 +503,7 @@ namespace OpenCover.Framework.Persistance
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
 
-                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; 
+                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0;
                     @class.Summary.VisitedClasses = (@class.Summary.VisitedMethods > 0) ? 1 : 0;
 
                     AddPoints(module.Summary, @class.Summary);
@@ -562,7 +585,7 @@ namespace OpenCover.Framework.Persistance
                 sequencePoints = points.ToArray();
                 return true;
             }
-            return false;      
+            return false;
         }
 
         /// <summary>
@@ -639,7 +662,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!InstrumentationPoint.AddVisitCount(spid, _trackedMethodId))
                     {
-                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
+                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}",
                             spid, _trackedMethodId, InstrumentationPoint.Count);
                     }
                 }
