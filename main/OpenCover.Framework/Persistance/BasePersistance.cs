@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Utility;
 using log4net;
 
 namespace OpenCover.Framework.Persistance
@@ -230,9 +231,43 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        // static readonly empty collections, saves creation time of new empty ones
        	private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
         private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
         private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
+
+        // Dictionary with stored source files per module
+        private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
+
+        // Return if SequencePoint cannot have user defined branches
+        // So far have detected sequencePoints with branches on '{' '}' (static methods)
+        // and within keyword 'in'. My guess, VB 'In' is same as C# 'in' 
+        private bool CanContainUserBranches ( SequencePoint sp ) {
+        	if (sp.StartLine == sp.EndLine) {
+        		string content = "";
+        		int spLength = sp.EndColumn - sp.StartColumn;
+        		switch (spLength) {
+        			case 1:
+        			case 2:
+        				if (sp.FileId != 0) {
+        					CodeCoverageStringTextSource source = null;
+        					sourceRepository.TryGetValue(sp.FileId, out source);
+        					if (source != null) {
+        						content = source.GetText(sp);
+        					}
+        				}
+        				break;
+        		}
+        		switch (content) {
+        			case "{":  //C#
+        			case "}":  //C#
+        			case "in": //C#
+        			case "In": //VB
+        				return false;
+        		}
+        	}
+        	return true;
+        }
 
         private void PopulateInstrumentedPoints()
         {
@@ -256,15 +291,25 @@ namespace OpenCover.Framework.Persistance
 
                 #region Module File/FileID Dictionary
 
+                sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
                 var filesDictionary = new Dictionary<string,uint>();
-                foreach (var file in (module.Files ?? new File[0]).Where(file => !filesDictionary.ContainsKey(file.FullPath ?? "")))
+                foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
                 {
-                    filesDictionary.Add(file.FullPath ?? "", file.UniqueId);
+                	var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
+                	if (source != null) sourceRepository.Add (file.UniqueId, source);
+                    filesDictionary.Add(file.FullPath, file.UniqueId);
                 }
 
                 #endregion
 
-                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
+                #region TODO:? Merge Compiler Extracted/Generated Methods (enumerator methods)
+
+                // Store repeated Query
+                var classesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
+
+                #endregion
+
+                foreach (var @class in classesQuery)
                 {
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
@@ -339,6 +384,16 @@ namespace OpenCover.Framework.Persistance
                                 }
                             }
     
+                            #endregion
+
+                            #region Remove Compiler Generated Branches
+
+                            foreach (var sp in sPoints) {
+                            	if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && !CanContainUserBranches(sp)) {
+                            		sp.BranchPoints = emptyBranchList;
+                            	}
+                            }
+
                             #endregion
                             
                             #region Merge Branch-Exits for each Sequence  
