@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -54,7 +55,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        existingModule.Aliases.Add(module.FullName); 
+                        existingModule.Aliases.Add(module.FullName);
                     }
                     return;
                 }
@@ -77,12 +78,12 @@ namespace OpenCover.Framework.Persistance
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="session"></param>
         protected void ReassignCoverageSession(CoverageSession session)
         {
-            _moduleMethodMap.Clear(); 
+            _moduleMethodMap.Clear();
             CoverageSession = session;
             CoverageSession.Summary = new Summary();
             foreach (var module in CoverageSession.Modules)
@@ -131,7 +132,7 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
                     !x.ShouldSerializeSkippedDueTo());
         }
 
@@ -224,7 +225,7 @@ namespace OpenCover.Framework.Persistance
             if (CoverageSession.Modules == null) return;
             foreach (var module in CoverageSession.Modules)
             {
-                module.Files = (from file in module.Files ?? new File[0] 
+                module.Files = (from file in module.Files ?? new File[0]
                                 from @class in module.Classes ?? new Class[0]
                                 where (@class.Methods ?? new Method[0]).Where(x=>x.FileRef != null).Any(x => x.FileRef.UniqueId == file.UniqueId)
                                 select file).Distinct().ToArray();
@@ -232,42 +233,91 @@ namespace OpenCover.Framework.Persistance
         }
 
         // static readonly empty collections, saves creation time of new empty ones
-       	private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
+        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
         private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
         private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
 
         // Dictionary with stored source files per module
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
-        // Return if SequencePoint cannot have user defined branches
-        // So far have detected sequencePoints with branches on '{' '}' (static methods)
-        // and within keyword 'in'. My guess, VB 'In' is same as C# 'in' 
-        private bool CanContainUserBranches ( SequencePoint sp ) {
-        	if (sp.StartLine == sp.EndLine) {
-        		string content = "";
-        		int spLength = sp.EndColumn - sp.StartColumn;
-        		switch (spLength) {
-        			case 1:
-        			case 2:
-        				if (sp.FileId != 0) {
-        					CodeCoverageStringTextSource source = null;
-        					sourceRepository.TryGetValue(sp.FileId, out source);
-        					if (source != null) {
-        						content = source.GetText(sp);
-        					}
-        				}
-        				break;
-        		}
-        		switch (content) {
-        			case "{":  //C#
-        			case "}":  //C#
-        			case "in": //C#
-        			case "In": //VB
-        				return false;
-        		}
-        	}
-        	return true;
+        // match Contract.Requires<*> (
+        private static Regex cRequiresThrowMatch = new Regex (@"Contract\s*\.\s*Requires\s*<.+>\s*\(", RegexOptions.Compiled);
+        // match Contract.Invariant (
+        private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant\s*\(", RegexOptions.Compiled);
+        // match Contract.Ensures[OnThrow<*>] (
+        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*Ensures\s*<.+>\s*\(", RegexOptions.Compiled);
+        // match Contract.EnsuresOnThrow<*>] (
+        private static Regex cEnsuresOnThrowMatch = new Regex (@"Contract\s*\.\s*EnsuresOnThrow\s*<.+>\s*\(", RegexOptions.Compiled);
+
+        private const bool doRemove = true;
+        private const bool preserve = false;
+
+        //private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
+
+        // Return true if branches can be removed
+        private bool doRemoveBranches (SequencePoint sp) {
+
+            if (sp == null)
+                return preserve;
+            if (sp.FileId == 0)
+                return preserve;
+
+            CodeCoverageStringTextSource source = null;
+            sourceRepository.TryGetValue (sp.FileId, out source);
+            if (source == null)
+                return preserve;
+
+            switch (source.FileType) {
+                case FileType.Unsupported:
+                    return preserve;
+                case FileType.CSharp:
+                    break; // continue
+                case FileType.VBasic:
+                    return preserve;
+                default:
+#if DEBUG
+                    throw new NotImplementedException ("Source.FileType");
+#else
+                    return preserve;
+#endif
+            }
+
+            /* Must exclude only SequencePoints that cannot have user defined branches  
+             * Another approach by including (selecting) only lines with branches
+             * cannot be done by Regex for at least one reason
+             * 1) "for" keyword has no SequencePoint (undetectable),
+             *    "for" branch is in second SequencePoint "[condition]" of 
+             *    "for ( [initialisation] ; [condition] ; [iteration] ) { ....
+             *    and "[condition]" can be a boolean function (boolean undetectable by Regex)
+            */ 
+            string spSource = source.GetText (sp);
+            if (String.IsNullOrWhiteSpace (spSource))
+                return doRemove;
+
+            switch (spSource.Length) {
+                case 1:
+                    if (spSource == "{" || spSource == "}") return doRemove;
+                    break;
+                default:
+                    // contract.
+                    //          requires<T>(x);
+                    //          invariant(x);
+                    //          ensures(x);
+                    //          ensuresOnThrow<T>(x);
+                    // 12345678901234567890
+                    if (spSource.Length >= 20 && spSource.Substring(0, 8) == "Contract" && spSource.Last() == ';') {
+                        // Requires<Exception> and EnsuresOnThrow<Exception> branches are testable
+                        // Requires sometimes has too much branches?
+                        if (cInvariantMatch.IsMatch (spSource))
+                            return doRemove;
+                        if (cEnsuresMatch.IsMatch (spSource))
+                            return doRemove;
+                    }
+                    break;
+            }
+            return preserve;
         }
+
 
         private void PopulateInstrumentedPoints()
         {
@@ -295,8 +345,8 @@ namespace OpenCover.Framework.Persistance
                 var filesDictionary = new Dictionary<string,uint>();
                 foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
                 {
-                	var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
-                	if (source != null) sourceRepository.Add (file.UniqueId, source);
+                    var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
+                    if (source != null) sourceRepository.Add (file.UniqueId, source);
                     filesDictionary.Add(file.FullPath, file.UniqueId);
                 }
 
@@ -317,92 +367,65 @@ namespace OpenCover.Framework.Persistance
                         if (method.SequencePoints == null) method.SequencePoints = emptySeqPoints;
                         if (method.BranchPoints == null) method.BranchPoints = emptyBranchPoints;
 
-                        // use shorter names
-                        var sPoints = method.SequencePoints;
-                        var bPoints = method.BranchPoints;
-                        
                         // No sequences in method, but branches present? => remove branches
-                        if (sPoints.Length == 0 && bPoints.Length != 0) {
-                        	bPoints = emptyBranchPoints;
+                        if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
+                            method.BranchPoints = emptyBranchPoints;
                         }
 
-                        if (sPoints.Length != 0) MapFileReferences(sPoints, filesDictionary);
-                        if (bPoints.Length != 0) MapFileReferences(bPoints, filesDictionary);
+                        if (method.SequencePoints.Length != 0) MapFileReferences(method.SequencePoints, filesDictionary);
+                        if (method.BranchPoints.Length != 0) MapFileReferences(method.BranchPoints, filesDictionary);
 
                         #region Merge branch-exits
 
-                        // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset 
-                        // ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
-                        sPoints = sPoints.OrderBy( sp => sp.Offset ).ToArray();
-                        bPoints = bPoints.OrderBy( bp => bp.Offset ).ToArray();
-
-                        // anything to merge?
-                        if (sPoints.Length != 0 && bPoints.Length != 0) {
+                        // anything to join, filter, merge?
+                        if (method.SequencePoints.Length != 0 && method.BranchPoints.Length != 0) {
 
                             #region Join Sequences and Branches
                             // Quick match branches to sequence using SP&BP sort order by IL offset
 
-                            var index = 0;
-
-                            // get first sequencePoint and prepare list for Add(branchPoint)
-                            var currentSp = sPoints[index];
-                            currentSp.BranchPoints = new List<BranchPoint>();
-
-                            // get nextOffset
-                            int nextSpOffset = index + 1 < sPoints.Length ? sPoints[index + 1].Offset : int.MinValue;
-                            
-                            foreach (var currentBp in bPoints) {
-                                
-								/*
-								 * As long as current_BP_offset is between 
-								 * current_SP_offset and [next_SP_offset],
-								 * current_BP belongs to current_SP
-								 */
-
-								// Is currentBp outside of scope of current_SP?
-								while (nextSpOffset != int.MinValue && currentBp.Offset >= nextSpOffset) {
-
-									/*
-									* Find next sequence points pair where
-									* currentSp_offset <= currentBp_offset < nextSp_offset 
-									*/
-
-                                    // increment index to next sequencePoint
-                                    ++index; 
-
-                                    // get next sequencePoint and prepare list for Add(branchPoint)
-                                    currentSp = sPoints[index];
-                                    currentSp.BranchPoints = new List<BranchPoint>();
-
-                                    // get nextSpOffset
-                                    nextSpOffset = index + 1 < sPoints.Length ? sPoints[index + 1].Offset : int.MinValue;
-                                }
-
-								// Add BranchPoint to curent SequencePoint
-                                if (currentBp.Offset >= currentSp.Offset) {
-                                    currentSp.BranchPoints.Add(currentBp);
-                                }
-                            }
+                            // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
+                            // ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
+                            method.SequencePoints = method.SequencePoints.OrderBy( sp => sp.Offset ).ToArray();
+                            method.BranchPoints = method.BranchPoints.OrderBy( bp => bp.Offset ).ToArray();
     
+                            // Use stack because Stack.Pop is constant time
+                            var branchStack = new Stack<BranchPoint>(method.BranchPoints);
+
+                            // Join offset matching BranchPoints with SequencePoint "parent"
+                            // Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
+                            // Reverse() starts loop from highest offset to lowest
+                            foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
+                            	// create branchPoints "child" list
+                                spParent.BranchPoints = new List<BranchPoint>();
+                                // if BranchPoint.Offset is >= SequencePoint.Offset 
+                                // then move BranchPoint from stack to "child" list (Pop/Add)
+                                while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
+                                    spParent.BranchPoints.Add(branchStack.Pop());
+                                }
+                            }
+
+                            // clear the stack
+                            branchStack.Clear();
+
                             #endregion
 
-                            #region Remove Compiler Generated Branches
+                            #region Remove Compiler Generated Branches from SequencePoints
 
-                            foreach (var sp in sPoints) {
-                            	if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && !CanContainUserBranches(sp)) {
-                            		sp.BranchPoints = emptyBranchList;
-                            	}
+                            foreach (var sp in method.SequencePoints) {
+                                if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && doRemoveBranches(sp)) {
+                                    sp.BranchPoints = emptyBranchList;
+                                }
                             }
 
                             #endregion
                             
-                            #region Merge Branch-Exits for each Sequence  
+                            #region Merge Branch-Exits for each Sequence
 
                             // Collection of validBranchPoints (child/connected to parent SequencePoint)
                             var validBranchPoints = new List<BranchPoint>();
 
                             var branchExits = new Dictionary<int, BranchPoint>();
-                            foreach (var sp in sPoints) {
+                            foreach (var sp in method.SequencePoints) {
                 
                                 // SequencePoint has branches attached?
                                 if (sp.BranchPoints != null && sp.BranchPoints.Count != 0) {
@@ -417,7 +440,7 @@ namespace OpenCover.Framework.Persistance
                                         }
                                     }
                 
-                                    // Update SequencePoint properties/attributes
+                                    // Update SequencePoint counters
                                     sp.BranchExitsCount = 0;
                                     sp.BranchExitsVisit = 0;
                                     foreach (var branchPoint in branchExits.Values) {
@@ -425,14 +448,16 @@ namespace OpenCover.Framework.Persistance
                                         sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
                                     }
 
-                                    // Add validBranchPoints
-	                                validBranchPoints.AddRange(sp.BranchPoints);
-	                                sp.BranchPoints = emptyBranchList; // clear
+                                    // Add to validBranchPoints
+                                    validBranchPoints.AddRange(sp.BranchPoints);
+                                    sp.BranchPoints = emptyBranchList; // clear
                                 }
                             }
 
-                            // Replace original branchPoints with branches connected to sequence point(s)
-                            bPoints = validBranchPoints.ToArray();
+                            // Replace original method branchPoints with valid (filtered and joined) branches.
+                            // Order is Required by FilePersistanceTest because it does not sets .Offset.
+                            // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
+                            method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
                             validBranchPoints = emptyBranchList; // clear
 
                             #endregion
@@ -446,10 +471,10 @@ namespace OpenCover.Framework.Persistance
                             method.Visited = (method.MethodPoint.VisitCount > 0);
                         }
 
-                        method.Summary.NumBranchPoints = bPoints.Count();
-                        method.Summary.VisitedBranchPoints = bPoints.Count(pt => pt.VisitCount != 0);
-                        method.Summary.NumSequencePoints = sPoints.Count();
-                        method.Summary.VisitedSequencePoints = sPoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumBranchPoints = method.BranchPoints.Count();
+                        method.Summary.VisitedBranchPoints = method.BranchPoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumSequencePoints = method.SequencePoints.Count();
+                        method.Summary.VisitedSequencePoints = method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
                         if (method.Summary.NumSequencePoints > 0)
                             method.Summary.NumBranchPoints += 1;
@@ -478,7 +503,7 @@ namespace OpenCover.Framework.Persistance
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
 
-                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; 
+                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0;
                     @class.Summary.VisitedClasses = (@class.Summary.VisitedMethods > 0) ? 1 : 0;
 
                     AddPoints(module.Summary, @class.Summary);
@@ -560,7 +585,7 @@ namespace OpenCover.Framework.Persistance
                 sequencePoints = points.ToArray();
                 return true;
             }
-            return false;      
+            return false;
         }
 
         /// <summary>
@@ -637,7 +662,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!InstrumentationPoint.AddVisitCount(spid, _trackedMethodId))
                     {
-                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
+                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}",
                             spid, _trackedMethodId, InstrumentationPoint.Count);
                     }
                 }

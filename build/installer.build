@@ -21,6 +21,7 @@
         <include name="Gendarme.Rules.Maintainability.dll" />
         <include name="log4net.dll" />
         <include name="log4net.config" />
+        <include name="CrashReporter.NET.dll" />
       </fileset>
       <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
         <include name="OpenCover.Profiler.dll" />
