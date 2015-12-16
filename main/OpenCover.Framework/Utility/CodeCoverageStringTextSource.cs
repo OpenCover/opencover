@@ -10,12 +10,34 @@ using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Utility
 {
+	/// <summary>
+	/// FileType enum
+	/// </summary>
+	public enum FileType : byte {
+		/// <summary>
+		/// Unsupported file extension
+		/// </summary>
+		Unsupported,
+
+		/// <summary>
+		/// File extension is ".cs"
+		/// </summary>
+		CSharp,
+
+		/// <summary>
+		/// File extension is ".vb"
+		/// </summary>
+		VBasic
+	}
     /// <summary>StringTextSource (ReadOnly)
 	/// <remarks>Line and column counting starts at 1.</remarks>
-    /// <remarks>IDocument/ITextBuffer/ITextSource fails returning single char "{"?</remarks>
     /// </summary>
     public class CodeCoverageStringTextSource
     {
+    	/// <summary>
+    	/// File Type by file name extension
+    	/// </summary>
+    	public FileType FileType = FileType.Unsupported;
         private readonly string textSource;
         private struct lineInfo {
             public int Offset;
@@ -242,6 +264,17 @@ namespace OpenCover.Framework.Utility
 						stream.Position = 0;
 						using (var reader = new StreamReader (stream, Encoding.Default, true)) {
 							retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
+							switch (Path.GetExtension(filename).ToLowerInvariant()) {
+								case ".cs":
+									retSource.FileType = FileType.CSharp;
+									break;
+								case ".vb":
+									retSource.FileType = FileType.VBasic;
+									break;
+								default:
+									retSource.FileType = FileType.Unsupported;
+									break;
+							}
 						}
 					} catch (Exception) {}
 				}
