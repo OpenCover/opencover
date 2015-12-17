@@ -240,14 +240,10 @@ namespace OpenCover.Framework.Persistance
         // Dictionary with stored source files per module
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
-        // match Contract.Requires<*> (
-        private static Regex cRequiresThrowMatch = new Regex (@"Contract\s*\.\s*Requires\s*<.+>\s*\(", RegexOptions.Compiled);
-        // match Contract.Invariant (
-        private static Regex cInvariantMatch = new Regex (@"Contract\s*\.\s*Invariant\s*\(", RegexOptions.Compiled);
-        // match Contract.Ensures[OnThrow<*>] (
-        private static Regex cEnsuresMatch = new Regex (@"Contract\s*\.\s*Ensures\s*<.+>\s*\(", RegexOptions.Compiled);
-        // match Contract.EnsuresOnThrow<*>] (
-        private static Regex cEnsuresOnThrowMatch = new Regex (@"Contract\s*\.\s*EnsuresOnThrow\s*<.+>\s*\(", RegexOptions.Compiled);
+        private static RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+
+        // Match any Contract (Contract){1}(\s*\.\s*.+?){1}(\s*<.+>){1}?(\s*\(){1}
+        private static Regex contractMatch = new Regex (@"\A(Contract){1}(\s*\.\s*.+?){1}(\s*<.+>){1}?(\s*\(){1}", regexOptions);
 
         private const bool doRemove = true;
         private const bool preserve = false;
@@ -305,12 +301,9 @@ namespace OpenCover.Framework.Persistance
                     //          ensures(x);
                     //          ensuresOnThrow<T>(x);
                     // 12345678901234567890
-                    if (spSource.Length >= 20 && spSource.Substring(0, 8) == "Contract" && spSource.Last() == ';') {
-                        // Requires<Exception> and EnsuresOnThrow<Exception> branches are testable
-                        // Requires sometimes has too much branches?
-                        if (cInvariantMatch.IsMatch (spSource))
-                            return doRemove;
-                        if (cEnsuresMatch.IsMatch (spSource))
+                    if (spSource.Length >= 20 && spSource.Substring(0, 8) == "Contract") {
+                        // No Contract.* method contains user branches that can be covered by test!
+                        if (contractMatch.IsMatch (spSource))
                             return doRemove;
                     }
                     break;
