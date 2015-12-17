@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
@@ -240,77 +241,44 @@ namespace OpenCover.Framework.Persistance
         // Dictionary with stored source files per module
         private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
-        private static RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
-
-        // Match any Contract (Contract){1}(\s*\.\s*.+?){1}(\s*<.+>){1}?(\s*\(){1}
-        private static Regex contractMatch = new Regex (@"\A(Contract){1}(\s*\.\s*.+?){1}(\s*<.+>){1}?(\s*\(){1}", regexOptions);
-
         private const bool doRemove = true;
         private const bool preserve = false;
 
-        //private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
-
-        // Return true if branches can be removed
-        private bool doRemoveBranches (SequencePoint sp) {
-
-            if (sp == null)
-                return preserve;
-            if (sp.FileId == 0)
-                return preserve;
-
+        private uint fileID_cache = 0;
+        private CodeCoverageStringTextSource textSource_cache = null;
+        private CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
             CodeCoverageStringTextSource source = null;
-            sourceRepository.TryGetValue (sp.FileId, out source);
-            if (source == null)
-                return preserve;
-
-            switch (source.FileType) {
-                case FileType.Unsupported:
-                    return preserve;
-                case FileType.CSharp:
-                    break; // continue
-                case FileType.VBasic:
-                    return preserve;
-                default:
-#if DEBUG
-                    throw new NotImplementedException ("Source.FileType");
-#else
-                    return preserve;
-#endif
-            }
-
-            /* Must exclude only SequencePoints that cannot have user defined branches  
-             * Another approach by including (selecting) only lines with branches
-             * cannot be done by Regex for at least one reason
-             * 1) "for" keyword has no SequencePoint (undetectable),
-             *    "for" branch is in second SequencePoint "[condition]" of 
-             *    "for ( [initialisation] ; [condition] ; [iteration] ) { ....
-             *    and "[condition]" can be a boolean function (boolean undetectable by Regex)
-            */ 
-            string spSource = source.GetText (sp);
-            if (String.IsNullOrWhiteSpace (spSource))
-                return doRemove;
-
-            switch (spSource.Length) {
-                case 1:
-                    if (spSource == "{" || spSource == "}") return doRemove;
-                    break;
-                default:
-                    // contract.
-                    //          requires<T>(x);
-                    //          invariant(x);
-                    //          ensures(x);
-                    //          ensuresOnThrow<T>(x);
-                    // 12345678901234567890
-                    if (spSource.Length >= 20 && spSource.Substring(0, 8) == "Contract") {
-                        // No Contract.* method contains user branches that can be covered by test!
-                        if (contractMatch.IsMatch (spSource))
-                            return doRemove;
+            if (fileId != 0) {
+                if (fileID_cache == fileId) {
+                    source = textSource_cache;
+                } else {
+                    sourceRepository.TryGetValue (fileId, out source);
+                    if (source != null) {
+                        fileID_cache = fileId;
+                        textSource_cache = source;
                     }
-                    break;
+                }
             }
-            return preserve;
+            return source;
         }
 
+        private string getSequencePointText (SequencePoint sp) {
+            if (sp != null) {
+                CodeCoverageStringTextSource source = getCodeCoverageStringTextSource (sp.FileId);
+                return source != null ? source.GetText(sp) : "";
+            }
+            return "";
+        }
+
+        private static bool isSingleCharSequencePoint (SequencePoint sp) {
+            return ((sp != null) && (sp.StartLine == sp.EndLine) && (sp.EndColumn - sp.StartColumn) == 1);
+        }
+        private bool isLeftBraceSequencePoint (SequencePoint sp) {
+            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "{";
+        }
+        private bool isRightBraceSequencePoint (SequencePoint sp) {
+            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "}";
+        }
 
         private void PopulateInstrumentedPoints()
         {
@@ -332,10 +300,11 @@ namespace OpenCover.Framework.Persistance
             foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
 
-                #region Module File/FileID Dictionary
+                #region Module FileID/FullPath/TextSource
 
                 sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
                 var filesDictionary = new Dictionary<string,uint>();
+
                 foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
                 {
                     var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
@@ -345,7 +314,7 @@ namespace OpenCover.Framework.Persistance
 
                 #endregion
 
-                #region TODO:? Merge Compiler Extracted/Generated Methods (enumerator methods)
+                #region TODO:? Merge Compiler Extracted/Generated Methods (enumerator methods) SP's into method SP's
 
                 // Store repeated Query
                 var classesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
@@ -388,9 +357,9 @@ namespace OpenCover.Framework.Persistance
                             // Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
                             // Reverse() starts loop from highest offset to lowest
                             foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
-                            	// create branchPoints "child" list
+                                // create branchPoints "child" list
                                 spParent.BranchPoints = new List<BranchPoint>();
-                                // if BranchPoint.Offset is >= SequencePoint.Offset 
+                                // if BranchPoint.Offset is >= SequencePoint.Offset
                                 // then move BranchPoint from stack to "child" list (Pop/Add)
                                 while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
                                     spParent.BranchPoints.Add(branchStack.Pop());
@@ -404,9 +373,33 @@ namespace OpenCover.Framework.Persistance
 
                             #region Remove Compiler Generated Branches from SequencePoints
 
-                            foreach (var sp in method.SequencePoints) {
-                                if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && doRemoveBranches(sp)) {
-                                    sp.BranchPoints = emptyBranchList;
+                            long startOffset = long.MinValue;
+                            long finalOffset = long.MaxValue;
+                            CodeCoverageStringTextSource source = getCodeCoverageStringTextSource(method.FileRef.UniqueId);
+                            if (source != null && source.FileType == FileType.CSharp) {
+                                var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp=>sp.StartLine).ThenBy(sp=>sp.StartColumn).Where(sp=>sp.FileId == method.FileRef.UniqueId).ToArray();
+                                if (sourceLineOrderedSps.Length >= 3) { // method.sp; leftBrace.sp, rightBrace.sp || leftBrace.sp, any.sp, rightBrace.sp
+                                    if (isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
+                                        startOffset = sourceLineOrderedSps[1].Offset;
+                                    }
+                                    else if (isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
+                                        startOffset = sourceLineOrderedSps[0].Offset;
+                                    }
+                                    if (isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                        finalOffset = sourceLineOrderedSps.Last().Offset;
+                                    }
+                                }
+                            }
+
+                            if (startOffset != long.MinValue || finalOffset != long.MaxValue) {
+                                // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
+                                // this will exclude "{" "}" compiler generated branches and ccrewrite Code Contract's
+                                foreach (var sp in method.SequencePoints) {
+                                    if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
+                                        if (sp.Offset <= startOffset || finalOffset <= sp.Offset) {
+                                             sp.BranchPoints = emptyBranchList;
+                                        }
+                                    }
                                 }
                             }
 
@@ -517,6 +510,9 @@ namespace OpenCover.Framework.Persistance
 
                 CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
+
+                filesDictionary.Clear();
+                sourceRepository.Clear();
             }
 
             CalculateCoverage(CoverageSession.Summary);
