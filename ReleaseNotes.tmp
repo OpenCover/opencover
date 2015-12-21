@@ -1,5 +1,6 @@
 Version [[version]]
 #376 protect buffer allocation in multithreaded environment (fix)
+#335 allow short wait timeout to be configured (feature)
 
 Version 4.6.210 (rc - remove)
 #282 exclude by process (feature)

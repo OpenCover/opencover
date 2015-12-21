@@ -10,7 +10,8 @@ namespace OpenCover.Framework.Communication
     /// <summary>
     /// The command supportd by the host
     /// </summary>
-// ReSharper disable InconsistentNaming
+    // ReSharper disable InconsistentNaming
+    // ReSharper disable once EnumUnderlyingTypeIsInt
     public enum MSG_Type : int
     {
         /// <summary>
@@ -338,8 +339,15 @@ namespace OpenCover.Framework.Communication
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MSG_AllocateBuffer_Response
     {
+        /// <summary>
+        /// is the buffer allocated
+        /// </summary>
         [MarshalAs(UnmanagedType.Bool)]
         public bool allocated;
+
+        /// <summary>
+        /// The id assigned to the buffer
+        /// </summary>
         public uint bufferId;
     }
 

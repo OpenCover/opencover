@@ -719,6 +719,7 @@ namespace OpenCover.Test.Framework
             Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, expectedMinutes, expectedSeconds)));
         }
 
+        [Test]
         [TestCase("10")]
         [TestCase("NaNs")]
         [TestCase("indifferenttext")]
@@ -732,6 +733,41 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
+            Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
+        }
+
+        [Test]
+        [TestCase(10000, 10000)]
+        [TestCase(30000, 30000)]
+        [TestCase(60000, 60000)]
+        [TestCase(100, 10000)]
+        [TestCase(70000, 60000)]
+        public void HandlesCommunicationTimeout(int suppliedMillisconds, int expectedMiliseconds)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { string.Format("-communicationtimeout:{0}", suppliedMillisconds), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.That(parser.CommunicationTimeout, Is.EqualTo(expectedMiliseconds));
+
+        }
+
+        [Test]
+        [TestCase("NaNs")]
+        [TestCase("indifferenttext")]
+        public void InvalidServiceCommunicationTimeoutThrowsException(string invalidTimeout)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-communicationtimeout:" + invalidTimeout, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("communication timeout"));
             Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
         }
 

@@ -127,7 +127,12 @@ namespace OpenCover.Framework.Manager
             dictionary["Cor_Enable_Profiling"] = "1";
             dictionary["CoreClr_Profiler"] = ProfilerGuid;
             dictionary["CoreClr_Enable_Profiling"] = "1";
-           
+            dictionary["Cor_Profiler_Path"] = string.Empty;
+            dictionary["CorClr_Profiler_Path"] = string.Empty;
+
+            if (_commandLine.CommunicationTimeout > 0)
+                dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
+
             switch (_commandLine.Registration)
             {
                 case Registration.Path32:
@@ -226,15 +231,22 @@ namespace OpenCover.Framework.Manager
                         .Select(g => g.Select(a => a.Pair).ToList())
                         .Select(g => Task.Factory.StartNew(() =>
                         {
-                            g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                            WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                            ConsumeException(() =>
+                            {
+                                g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
+                                WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                            });
                         })).ToArray();
                     Task.WaitAll(tasks);
 
                     foreach (var threadHandle in threadHandles)
                     {
-                        threadHandle.Item1.Dispose();
-                        threadHandle.Item2.Dispose();
+                        var handle = threadHandle;
+                        ConsumeException(() =>
+                        {
+                            handle.Item1.Dispose();
+                            handle.Item2.Dispose();
+                        });
                     }
                     threadHandles.Clear();
                 }
@@ -243,6 +255,18 @@ namespace OpenCover.Framework.Manager
             _messageQueue.Enqueue(new byte[0]);
         }
 
+        // wrap exceptions when closing down
+        private static void ConsumeException(Action doSomething)
+        {
+            try
+            {
+                doSomething();
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.Error("An unexpected exception was encountered but consumed.", ex);
+            }
+        }
         private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(ManagedBufferBlock block)
         {
             DebugLogger.InfoFormat("Starting Process Block => {0}", block.BufferId);

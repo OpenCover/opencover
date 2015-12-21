@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -15,6 +13,12 @@ namespace OpenCover.Framework.Persistance
     /// </summary>
     public abstract class BasePersistance : IPersistance
     {
+
+        private static readonly object Protection = new object();
+
+        /// <summary>
+        /// Provides subclasses access to the command line object 
+        /// </summary>
         protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
@@ -50,15 +54,23 @@ namespace OpenCover.Framework.Persistance
             module.Classes = module.Classes ?? new Class[0];
             if (CommandLine.MergeByHash)
             {
-                var modules = CoverageSession.Modules ?? new Module[0];
-                var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
-                if (existingModule!=null)
+                lock (Protection)
                 {
-                    if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                    var modules = CoverageSession.Modules ?? new Module[0];
+                    lock (Protection)
                     {
-                        existingModule.Aliases.Add(module.FullName);
+                        var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
+                        if (existingModule != null)
+                        {
+                            if (
+                                !existingModule.Aliases.Any(
+                                    x => x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                            {
+                                existingModule.Aliases.Add(module.FullName);
+                            }
+                            return;
+                        }
                     }
-                    return;
                 }
             }
 
@@ -133,8 +145,10 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
-                    !x.ShouldSerializeSkippedDueTo());
+            lock (Protection) { 
+                return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
+                        !x.ShouldSerializeSkippedDueTo());
+            }
         }
 
         /// <summary>
@@ -234,50 +248,47 @@ namespace OpenCover.Framework.Persistance
         }
 
         // static readonly empty collections, saves creation time of new empty ones
-        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
-        private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
-        private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
+        private static readonly SequencePoint[] EmptySeqPoints = new SequencePoint[0];
+        private static readonly BranchPoint[] EmptyBranchPoints = new BranchPoint[0];
+        private static readonly List<BranchPoint> EmptyBranchList = new List<BranchPoint>(0);
 
         // Dictionary with stored source files per module
-        private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
+        private Dictionary<uint, CodeCoverageStringTextSource> _sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
 
-        private const bool doRemove = true;
-        private const bool preserve = false;
-
-        private uint fileID_cache = 0;
-        private CodeCoverageStringTextSource textSource_cache = null;
-        private CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
+        private uint _fileIdCache;
+        private CodeCoverageStringTextSource _textSourceCache;
+        private CodeCoverageStringTextSource GetCodeCoverageStringTextSource (uint fileId) {
             CodeCoverageStringTextSource source = null;
             if (fileId != 0) {
-                if (fileID_cache == fileId) {
-                    source = textSource_cache;
+                if (_fileIdCache == fileId) {
+                    source = _textSourceCache;
                 } else {
-                    sourceRepository.TryGetValue (fileId, out source);
+                    _sourceRepository.TryGetValue (fileId, out source);
                     if (source != null) {
-                        fileID_cache = fileId;
-                        textSource_cache = source;
+                        _fileIdCache = fileId;
+                        _textSourceCache = source;
                     }
                 }
             }
             return source;
         }
 
-        private string getSequencePointText (SequencePoint sp) {
+        private string GetSequencePointText (SequencePoint sp) {
             if (sp != null) {
-                CodeCoverageStringTextSource source = getCodeCoverageStringTextSource (sp.FileId);
+                CodeCoverageStringTextSource source = GetCodeCoverageStringTextSource (sp.FileId);
                 return source != null ? source.GetText(sp) : "";
             }
             return "";
         }
 
-        private static bool isSingleCharSequencePoint (SequencePoint sp) {
+        private static bool IsSingleCharSequencePoint (SequencePoint sp) {
             return ((sp != null) && (sp.StartLine == sp.EndLine) && (sp.EndColumn - sp.StartColumn) == 1);
         }
-        private bool isLeftBraceSequencePoint (SequencePoint sp) {
-            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "{";
+        private bool IsLeftBraceSequencePoint (SequencePoint sp) {
+            return IsSingleCharSequencePoint(sp) && GetSequencePointText(sp) == "{";
         }
-        private bool isRightBraceSequencePoint (SequencePoint sp) {
-            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "}";
+        private bool IsRightBraceSequencePoint (SequencePoint sp) {
+            return IsSingleCharSequencePoint(sp) && GetSequencePointText(sp) == "}";
         }
 
         private void PopulateInstrumentedPoints()
@@ -302,13 +313,13 @@ namespace OpenCover.Framework.Persistance
 
                 #region Module FileID/FullPath/TextSource
 
-                sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
+                _sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
                 var filesDictionary = new Dictionary<string,uint>();
 
                 foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
                 {
                     var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
-                    if (source != null) sourceRepository.Add (file.UniqueId, source);
+                    if (source != null) _sourceRepository.Add (file.UniqueId, source);
                     filesDictionary.Add(file.FullPath, file.UniqueId);
                 }
 
@@ -326,12 +337,12 @@ namespace OpenCover.Framework.Persistance
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
-                        if (method.SequencePoints == null) method.SequencePoints = emptySeqPoints;
-                        if (method.BranchPoints == null) method.BranchPoints = emptyBranchPoints;
+                        if (method.SequencePoints == null) method.SequencePoints = EmptySeqPoints;
+                        if (method.BranchPoints == null) method.BranchPoints = EmptyBranchPoints;
 
                         // No sequences in method, but branches present? => remove branches
                         if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
-                            method.BranchPoints = emptyBranchPoints;
+                            method.BranchPoints = EmptyBranchPoints;
                         }
 
                         if (method.SequencePoints.Length != 0) MapFileReferences(method.SequencePoints, filesDictionary);
@@ -375,17 +386,17 @@ namespace OpenCover.Framework.Persistance
 
                             long startOffset = long.MinValue;
                             long finalOffset = long.MaxValue;
-                            CodeCoverageStringTextSource source = getCodeCoverageStringTextSource(method.FileRef.UniqueId);
+                            CodeCoverageStringTextSource source = GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
                             if (source != null && source.FileType == FileType.CSharp) {
                                 var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp=>sp.StartLine).ThenBy(sp=>sp.StartColumn).Where(sp=>sp.FileId == method.FileRef.UniqueId).ToArray();
                                 if (sourceLineOrderedSps.Length >= 3) { // method.sp; leftBrace.sp, rightBrace.sp || leftBrace.sp, any.sp, rightBrace.sp
-                                    if (isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
+                                    if (IsLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
                                         startOffset = sourceLineOrderedSps[1].Offset;
                                     }
-                                    else if (isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
+                                    else if (IsLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
                                         startOffset = sourceLineOrderedSps[0].Offset;
                                     }
-                                    if (isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                    if (IsRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
                                         finalOffset = sourceLineOrderedSps.Last().Offset;
                                     }
                                 }
@@ -397,7 +408,7 @@ namespace OpenCover.Framework.Persistance
                                 foreach (var sp in method.SequencePoints) {
                                     if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
                                         if (sp.Offset <= startOffset || finalOffset <= sp.Offset) {
-                                             sp.BranchPoints = emptyBranchList;
+                                             sp.BranchPoints = EmptyBranchList;
                                         }
                                     }
                                 }
@@ -436,7 +447,7 @@ namespace OpenCover.Framework.Persistance
 
                                     // Add to validBranchPoints
                                     validBranchPoints.AddRange(sp.BranchPoints);
-                                    sp.BranchPoints = emptyBranchList; // clear
+                                    sp.BranchPoints = EmptyBranchList; // clear
                                 }
                             }
 
@@ -444,7 +455,7 @@ namespace OpenCover.Framework.Persistance
                             // Order is Required by FilePersistanceTest because it does not sets .Offset.
                             // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
                             method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
-                            validBranchPoints = emptyBranchList; // clear
+                            validBranchPoints = EmptyBranchList; // clear
 
                             #endregion
 
@@ -512,7 +523,7 @@ namespace OpenCover.Framework.Persistance
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
 
                 filesDictionary.Clear();
-                sourceRepository.Clear();
+                _sourceRepository.Clear();
             }
 
             CalculateCoverage(CoverageSession.Summary);
@@ -609,13 +620,17 @@ namespace OpenCover.Framework.Persistance
         {
             @class = null;
             //c = null;
-            var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
-            if (module == null)
-                return null;
-            if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
-            var pair = _moduleMethodMap[module][functionToken];
-            @class = pair.Key;
-            return pair.Value;
+            lock (Protection)
+            {
+                var module = CoverageSession.Modules
+                    .FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
+                if (module == null)
+                    return null;
+                if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
+                var pair = _moduleMethodMap[module][functionToken];
+                @class = pair.Key;
+                return pair.Value;
+            }
         }
 
         /// <summary>
@@ -673,21 +688,23 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool GetTrackingMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
         {
-            uniqueId = 0;
-            foreach (var module in CoverageSession.Modules
-                .Where(x => x.TrackedMethods != null)
-                .Where(x => x.Aliases.Contains(modulePath)))
+            lock (Protection)
             {
-                foreach (var trackedMethod in module.TrackedMethods)
+                uniqueId = 0;
+                foreach (var module in CoverageSession.Modules
+                    .Where(x => x.TrackedMethods != null)
+                    .Where(x => x.Aliases.Contains(modulePath)))
                 {
-                    if (trackedMethod.MetadataToken == functionToken)
+                    foreach (var trackedMethod in module.TrackedMethods)
                     {
-                        uniqueId = trackedMethod.UniqueId;
-                        return true;
+                        if (trackedMethod.MetadataToken == functionToken)
+                        {
+                            uniqueId = trackedMethod.UniqueId;
+                            return true;
+                        }
                     }
                 }
             }
-
             return false;
         }
     }

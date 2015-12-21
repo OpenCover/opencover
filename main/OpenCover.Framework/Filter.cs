@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -25,6 +24,10 @@ namespace OpenCover.Framework
         internal IList<RegexFilter> ExcludedAttributes { get; private set; }
         internal IList<RegexFilter> ExcludedFiles { get; private set; }
         internal IList<RegexFilter> TestFiles { get; private set; }
+
+        /// <summary>
+        /// Are the filters supplied as reguar expressions
+        /// </summary>
         public bool RegExFilters { get; private set; }
         
 
@@ -42,6 +45,13 @@ namespace OpenCover.Framework
             RegExFilters = useRegexFilters;
         }
 
+        /// <summary>
+        /// Decides whether an assembly should be included in the instrumentation
+        /// </summary>
+        /// <param name="processName">The name of the process being profiled</param>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
+        /// as it is the class that is being filtered within these unless the class filter is *</remarks>
         public bool UseAssembly(string processName, string assemblyName)
         {
             processName = Path.GetFileNameWithoutExtension(processName);
@@ -65,6 +75,13 @@ namespace OpenCover.Framework
             return false;
         }
 
+        /// <summary>
+        /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
+        /// </summary>
+        /// <param name="processName">The name of the process</param>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="className">the name of the class under profile</param>
+        /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
         public bool InstrumentClass(string processName, string assemblyName, string className)
         {
             if (string.IsNullOrEmpty(processName) || string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
@@ -96,11 +113,23 @@ namespace OpenCover.Framework
         }
 
 
+        /// <summary>
+        /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
+        /// </summary>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="className">the name of the class under profile</param>
+        /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
         public bool InstrumentClass(string assemblyName, string className)
         {
             return InstrumentClass(Guid.NewGuid().ToString(), assemblyName, className);
         }
 
+        /// <summary>
+        /// Add a filter
+        /// </summary>
+        /// <param name="assemblyClassName">A filter is of the format (+ or -)[assemblyName]className, wildcards are allowed. <br/>
+        /// i.e. -[mscorlib], -[System.*]*, +[App.*]*, +[*]*
+        /// </param>
         public void AddFilter(string assemblyClassName)
         {
             string assemblyName;
@@ -154,11 +183,20 @@ namespace OpenCover.Framework
             return new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
         }
 
+        /// <summary>
+        /// Add attribute exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters">An array of filters that are used to wildcard match an attribute</param>
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
             ExcludedAttributes.AddFilters(exclusionFilters, RegExFilters);
         }
 
+        /// <summary>
+        /// Is this entity (method/type) excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
         public bool ExcludeByAttribute(IMemberDefinition entity)
         {
             if (ExcludedAttributes.Count == 0)
@@ -207,6 +245,11 @@ namespace OpenCover.Framework
                 select excludeAttribute).Any();
         }
 
+        /// <summary>
+        /// Is this entity excluded due to an attributeFilter
+        /// </summary>
+        /// <param name="entity">The entity to test</param>
+        /// <returns></returns>
         public bool ExcludeByAttribute(AssemblyDefinition entity)
         {
             if (ExcludedAttributes.Count == 0)
@@ -215,6 +258,11 @@ namespace OpenCover.Framework
             return ExcludeByAttribute((ICustomAttributeProvider)entity);
         }
 
+        /// <summary>
+        /// Is this file excluded
+        /// </summary>
+        /// <param name="fileName">The name of the file to test</param>
+        /// <returns></returns>
         public bool ExcludeByFile(string fileName)
         {
             if (ExcludedFiles.Count == 0 || string.IsNullOrWhiteSpace(fileName))
@@ -223,11 +271,20 @@ namespace OpenCover.Framework
             return ExcludedFiles.Any(excludeFile => excludeFile.IsMatchingExpression(fileName));
         }
 
+        /// <summary>
+        /// Add file exclusion filters
+        /// </summary>
+        /// <param name="exclusionFilters"></param>
         public void AddFileExclusionFilters(string[] exclusionFilters)
         {
             ExcludedFiles.AddFilters(exclusionFilters, RegExFilters);
         }
 
+        /// <summary>
+        /// Decides whether an assembly should be analysed for test methods
+        /// </summary>
+        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <returns>true - if the assembly matches the test assembly filter</returns>
         public bool UseTestAssembly(string assemblyName)
         {
             if (TestFiles.Count == 0 || string.IsNullOrWhiteSpace(assemblyName))
@@ -236,11 +293,20 @@ namespace OpenCover.Framework
             return TestFiles.Any(file => file.IsMatchingExpression(assemblyName));
         }
 
+        /// <summary>
+        /// Add test file filters
+        /// </summary>
+        /// <param name="testFilters"></param>
         public void AddTestFileFilters(string[] testFilters)
         {
             TestFiles.AddFilters(testFilters, RegExFilters);
         }
 
+        /// <summary>
+        /// Is the method an auto-implemented property get/set
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
         public bool IsAutoImplementedProperty(MethodDefinition method)
         {
             if ((method.IsSetter || method.IsGetter) && method.HasCustomAttributes)
@@ -250,6 +316,11 @@ namespace OpenCover.Framework
             return false;
         }
 
+        /// <summary>
+        /// Should we instrument this asssembly
+        /// </summary>
+        /// <param name="processName"></param>
+        /// <returns></returns>
         public bool InstrumentProcess(string processName)
         {
             if (string.IsNullOrEmpty(processName))

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using log4net.Repository.Hierarchy;
 using OpenCover.Framework.Manager;
-using OpenCover.Framework.Service;
 
 namespace OpenCover.Framework.Communication
 {
@@ -48,6 +45,11 @@ namespace OpenCover.Framework.Communication
             _messageHandler = messageHandler;
         }
 
+        /// <summary>
+        /// Process a communication related message from a profiler
+        /// </summary>
+        /// <param name="mcb"></param>
+        /// <param name="offloadHandling"></param>
         public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<ManagedBufferBlock> offloadHandling)
         {
             mcb.ProfilerRequestsInformation.Reset();
@@ -71,6 +73,10 @@ namespace OpenCover.Framework.Communication
             mcb.InformationReadByProfiler.Reset();
         }
 
+        /// <summary>
+        /// process a results block from the profiler
+        /// </summary>
+        /// <param name="mmb"></param>
         public byte[] HandleMemoryBlock(IManagedMemoryBlock mmb)
         {
             mmb.ProfilerHasResults.Reset();
@@ -88,6 +94,9 @@ namespace OpenCover.Framework.Communication
             return newData;
         }
 
+        /// <summary>
+        /// Communication is over
+        /// </summary>
         public void Complete()
         {
             _messageHandler.Complete();
