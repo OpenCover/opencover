@@ -11,7 +11,7 @@
 
 #include <exception>
 
-#include <unordered_map>
+#include <concurrent_unordered_map.h>
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
@@ -95,8 +95,11 @@ private:
 
 private:
     ATL::CComAutoCriticalSection _critThreads;
-    std::unordered_map<ThreadID, ULONG> _threadmap;
-    std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
+    //std::unordered_map<ThreadID, ULONG> _threadmap;
+    //std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
+
+    Concurrency::concurrent_unordered_map<ThreadID, ULONG> _threadmap;
+    Concurrency::concurrent_unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
 
     MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
 
