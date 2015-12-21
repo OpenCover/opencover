@@ -74,7 +74,7 @@ namespace OpenCover.Console
                 {
                     Logger.FatalFormat("An exception occured: {0}", ex.Message);
                     Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                    Logger.FatalFormat("A report has been sent to the OenCover development team...");
+                    Logger.FatalFormat("A report has been sent to the OpenCover development team...");
                 }
 
                 ReportCrash(ex);
