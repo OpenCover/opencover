@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
+using OpenCover.Framework.Utility;
 using log4net;
 
 namespace OpenCover.Framework.Persistance
@@ -56,7 +59,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        existingModule.Aliases.Add(module.FullName); 
+                        existingModule.Aliases.Add(module.FullName);
                     }
                     return;
                 }
@@ -79,12 +82,12 @@ namespace OpenCover.Framework.Persistance
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="session"></param>
         protected void ReassignCoverageSession(CoverageSession session)
         {
-            _moduleMethodMap.Clear(); 
+            _moduleMethodMap.Clear();
             CoverageSession = session;
             CoverageSession.Summary = new Summary();
             foreach (var module in CoverageSession.Modules)
@@ -133,7 +136,7 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) && 
+            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
                     !x.ShouldSerializeSkippedDueTo());
         }
 
@@ -226,15 +229,63 @@ namespace OpenCover.Framework.Persistance
             if (CoverageSession.Modules == null) return;
             foreach (var module in CoverageSession.Modules)
             {
-                module.Files = (from file in module.Files ?? new File[0] 
+                module.Files = (from file in module.Files ?? new File[0]
                                 from @class in module.Classes ?? new Class[0]
                                 where (@class.Methods ?? new Method[0]).Where(x=>x.FileRef != null).Any(x => x.FileRef.UniqueId == file.UniqueId)
                                 select file).Distinct().ToArray();
             }
         }
 
+        // static readonly empty collections, saves creation time of new empty ones
+        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
+        private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
+        private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
+
+        // Dictionary with stored source files per module
+        private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
+
+        private const bool doRemove = true;
+        private const bool preserve = false;
+
+        private uint fileID_cache = 0;
+        private CodeCoverageStringTextSource textSource_cache = null;
+        private CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
+            CodeCoverageStringTextSource source = null;
+            if (fileId != 0) {
+                if (fileID_cache == fileId) {
+                    source = textSource_cache;
+                } else {
+                    sourceRepository.TryGetValue (fileId, out source);
+                    if (source != null) {
+                        fileID_cache = fileId;
+                        textSource_cache = source;
+                    }
+                }
+            }
+            return source;
+        }
+
+        private string getSequencePointText (SequencePoint sp) {
+            if (sp != null) {
+                CodeCoverageStringTextSource source = getCodeCoverageStringTextSource (sp.FileId);
+                return source != null ? source.GetText(sp) : "";
+            }
+            return "";
+        }
+
+        private static bool isSingleCharSequencePoint (SequencePoint sp) {
+            return ((sp != null) && (sp.StartLine == sp.EndLine) && (sp.EndColumn - sp.StartColumn) == 1);
+        }
+        private bool isLeftBraceSequencePoint (SequencePoint sp) {
+            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "{";
+        }
+        private bool isRightBraceSequencePoint (SequencePoint sp) {
+            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "}";
+        }
+
         private void PopulateInstrumentedPoints()
         {
+
             if (CoverageSession.Modules == null) return;
 
             foreach (var method in from @class in
@@ -252,82 +303,125 @@ namespace OpenCover.Framework.Persistance
             foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
 
-                #region Module File/FileID Dictionary
+                #region Module FileID/FullPath/TextSource
 
+                sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
                 var filesDictionary = new Dictionary<string,uint>();
-                foreach (var file in (module.Files ?? new File[0]).Where(file => !filesDictionary.ContainsKey(file.FullPath ?? "")))
+
+                foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
                 {
-                    filesDictionary.Add(file.FullPath ?? "", file.UniqueId);
+                    var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
+                    if (source != null) sourceRepository.Add (file.UniqueId, source);
+                    filesDictionary.Add(file.FullPath, file.UniqueId);
                 }
 
                 #endregion
 
-                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
+                #region TODO:? Merge Compiler Extracted/Generated Methods (enumerator methods) SP's into method SP's
+
+                // Store repeated Query
+                var classesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
+
+                #endregion
+
+                foreach (var @class in classesQuery)
                 {
 
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
-                        var sequencePoints = method.SequencePoints ?? new SequencePoint[0];
-                        var branchPoints = method.BranchPoints ?? new BranchPoint[0];
+                        if (method.SequencePoints == null) method.SequencePoints = emptySeqPoints;
+                        if (method.BranchPoints == null) method.BranchPoints = emptyBranchPoints;
 
-                        MapFileReferences(sequencePoints, filesDictionary);
-                        MapFileReferences(branchPoints, filesDictionary);
+                        // No sequences in method, but branches present? => remove branches
+                        if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
+                            method.BranchPoints = emptyBranchPoints;
+                        }
+
+                        if (method.SequencePoints.Length != 0) MapFileReferences(method.SequencePoints, filesDictionary);
+                        if (method.BranchPoints.Length != 0) MapFileReferences(method.BranchPoints, filesDictionary);
 
                         #region Merge branch-exits
 
-                        // anything to merge?
-                        if (sequencePoints.Length != 0 && branchPoints.Length != 0) {
+                        // anything to join, filter, merge?
+                        if (method.SequencePoints.Length != 0 && method.BranchPoints.Length != 0) {
 
                             #region Join Sequences and Branches
+                            // Quick match branches to sequence using SP&BP sort order by IL offset
 
-                            var index = 0;
+                            // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
+                            // ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
+                            method.SequencePoints = method.SequencePoints.OrderBy( sp => sp.Offset ).ToArray();
+                            method.BranchPoints = method.BranchPoints.OrderBy( bp => bp.Offset ).ToArray();
+    
+                            // Use stack because Stack.Pop is constant time
+                            var branchStack = new Stack<BranchPoint>(method.BranchPoints);
 
-                            // get first sequencePoint and prepare list for Add(branchPoint)
-                            var parent = sequencePoints[index];
-                            parent.BranchPoints = new List<BranchPoint>();
+                            // Join offset matching BranchPoints with SequencePoint "parent"
+                            // Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
+                            // Reverse() starts loop from highest offset to lowest
+                            foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
+                                // create branchPoints "child" list
+                                spParent.BranchPoints = new List<BranchPoint>();
+                                // if BranchPoint.Offset is >= SequencePoint.Offset
+                                // then move BranchPoint from stack to "child" list (Pop/Add)
+                                while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
+                                    spParent.BranchPoints.Add(branchStack.Pop());
+                                }
+                            }
 
-                            // get nextOffset
-                            int nextOffset = index + 1 < sequencePoints.Length ? sequencePoints[index + 1].Offset : int.MaxValue;
-                            
-                            foreach (var branchPoint in branchPoints) {
-                                
-                                // while branchPoint belongs to next sequencePoint
-                                // nextOffset is offset of next sequencePoint 
-                                // or unreachable int.MinValue
-                                while (branchPoint.Offset > nextOffset) {
+                            // clear the stack
+                            branchStack.Clear();
 
-                                    // increment index to next sequencePoint
-                                    ++index; 
+                            #endregion
 
-                                    // get next sequencePoint and prepare list for Add(branchPoint)
-                                    parent = sequencePoints[index];
-                                    parent.BranchPoints = new List<BranchPoint>();
+                            #region Remove Compiler Generated Branches from SequencePoints
 
-                                    // get nextOffset
-                                    if (index + 1 < sequencePoints.Length) {
-                                        nextOffset = sequencePoints[index + 1].Offset;
+                            long startOffset = long.MinValue;
+                            long finalOffset = long.MaxValue;
+                            CodeCoverageStringTextSource source = getCodeCoverageStringTextSource(method.FileRef.UniqueId);
+                            if (source != null && source.FileType == FileType.CSharp) {
+                                var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp=>sp.StartLine).ThenBy(sp=>sp.StartColumn).Where(sp=>sp.FileId == method.FileRef.UniqueId).ToArray();
+                                if (sourceLineOrderedSps.Length >= 3) { // method.sp; leftBrace.sp, rightBrace.sp || leftBrace.sp, any.sp, rightBrace.sp
+                                    if (isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
+                                        startOffset = sourceLineOrderedSps[1].Offset;
                                     }
-                                    else {
-                                        nextOffset = int.MaxValue;
+                                    else if (isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
+                                        startOffset = sourceLineOrderedSps[0].Offset;
+                                    }
+                                    if (isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                        finalOffset = sourceLineOrderedSps.Last().Offset;
                                     }
                                 }
-                                // join BranchPoint to SequencePoint
-                                parent.BranchPoints.Add(branchPoint);
                             }
-    
+
+                            if (startOffset != long.MinValue || finalOffset != long.MaxValue) {
+                                // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
+                                // this will exclude "{" "}" compiler generated branches and ccrewrite Code Contract's
+                                foreach (var sp in method.SequencePoints) {
+                                    if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
+                                        if (sp.Offset <= startOffset || finalOffset <= sp.Offset) {
+                                             sp.BranchPoints = emptyBranchList;
+                                        }
+                                    }
+                                }
+                            }
+
                             #endregion
                             
-                            #region Merge each Sequence Branch-Exits
+                            #region Merge Branch-Exits for each Sequence
+
+                            // Collection of validBranchPoints (child/connected to parent SequencePoint)
+                            var validBranchPoints = new List<BranchPoint>();
 
                             var branchExits = new Dictionary<int, BranchPoint>();
-                            foreach (var sequencePoint in sequencePoints) {
+                            foreach (var sp in method.SequencePoints) {
                 
                                 // SequencePoint has branches attached?
-                                if (sequencePoint.BranchPoints != null && sequencePoint.BranchPoints.Count != 0) {
+                                if (sp.BranchPoints != null && sp.BranchPoints.Count != 0) {
                 
-                                    // Merge SP.BranchPoints using EndOffset as branchExits key
+                                    // Merge sp.BranchPoints using EndOffset as branchExits key
                                     branchExits.Clear();
-                                    foreach (var branchPoint in sequencePoint.BranchPoints) {
+                                    foreach (var branchPoint in sp.BranchPoints) {
                                         if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
                                             branchExits[branchPoint.EndOffset] = branchPoint; // insert branch
                                         } else {
@@ -335,17 +429,26 @@ namespace OpenCover.Framework.Persistance
                                         }
                                     }
                 
-                                    // Update SequencePoint properties/attributes
-                                    sequencePoint.BranchExitsCount = 0;
-                                    sequencePoint.BranchExitsVisit = 0;
+                                    // Update SequencePoint counters
+                                    sp.BranchExitsCount = 0;
+                                    sp.BranchExitsVisit = 0;
                                     foreach (var branchPoint in branchExits.Values) {
-                                        sequencePoint.BranchExitsCount += 1;
-                                        sequencePoint.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
+                                        sp.BranchExitsCount += 1;
+                                        sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
                                     }
+
+                                    // Add to validBranchPoints
+                                    validBranchPoints.AddRange(sp.BranchPoints);
+                                    sp.BranchPoints = emptyBranchList; // clear
                                 }
-                                sequencePoint.BranchPoints = null; // release memory
                             }
-                                            
+
+                            // Replace original method branchPoints with valid (filtered and joined) branches.
+                            // Order is Required by FilePersistanceTest because it does not sets .Offset.
+                            // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
+                            method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
+                            validBranchPoints = emptyBranchList; // clear
+
                             #endregion
 
                         }
@@ -357,10 +460,10 @@ namespace OpenCover.Framework.Persistance
                             method.Visited = (method.MethodPoint.VisitCount > 0);
                         }
 
-                        method.Summary.NumBranchPoints = branchPoints.Count();
-                        method.Summary.VisitedBranchPoints = branchPoints.Count(pt => pt.VisitCount != 0);
-                        method.Summary.NumSequencePoints = sequencePoints.Count();
-                        method.Summary.VisitedSequencePoints = sequencePoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumBranchPoints = method.BranchPoints.Count();
+                        method.Summary.VisitedBranchPoints = method.BranchPoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumSequencePoints = method.SequencePoints.Count();
+                        method.Summary.VisitedSequencePoints = method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
                         if (method.Summary.NumSequencePoints > 0)
                             method.Summary.NumBranchPoints += 1;
@@ -389,7 +492,7 @@ namespace OpenCover.Framework.Persistance
                         @class.Summary.MaxCyclomaticComplexity = Math.Max(@class.Summary.MaxCyclomaticComplexity, method.CyclomaticComplexity);
                     }
 
-                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0; 
+                    @class.Summary.NumClasses = (@class.Summary.NumMethods > 0) ? 1 : 0;
                     @class.Summary.VisitedClasses = (@class.Summary.VisitedMethods > 0) ? 1 : 0;
 
                     AddPoints(module.Summary, @class.Summary);
@@ -410,6 +513,9 @@ namespace OpenCover.Framework.Persistance
 
                 CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
+
+                filesDictionary.Clear();
+                sourceRepository.Clear();
             }
 
             CalculateCoverage(CoverageSession.Summary);
@@ -471,7 +577,7 @@ namespace OpenCover.Framework.Persistance
                 sequencePoints = points.ToArray();
                 return true;
             }
-            return false;      
+            return false;
         }
 
         /// <summary>
@@ -548,7 +654,7 @@ namespace OpenCover.Framework.Persistance
                 {
                     if (!InstrumentationPoint.AddVisitCount(spid, _trackedMethodId))
                     {
-                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}", 
+                        _logger.ErrorFormat("Failed to add a visit to {0} with tracking method {1}. Max point count is {2}",
                             spid, _trackedMethodId, InstrumentationPoint.Count);
                     }
                 }

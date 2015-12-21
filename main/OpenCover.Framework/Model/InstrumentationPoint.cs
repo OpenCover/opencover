@@ -13,6 +13,7 @@ namespace OpenCover.Framework.Model
     public class InstrumentationPoint
     {
         private static int _instrumentPoint;
+        private static object _addInstrumentPointSync = new object();
         private static readonly List<InstrumentationPoint> InstrumentPoints;
 
         static InstrumentationPoint()
@@ -114,10 +115,13 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public InstrumentationPoint()
         {
-            UniqueSequencePoint = (uint)Interlocked.Increment(ref _instrumentPoint);
-            InstrumentPoints.Add(this);
-            OrigSequencePoint = UniqueSequencePoint;
-        } 
+            lock (_addInstrumentPointSync)
+            {
+                UniqueSequencePoint = (uint)++_instrumentPoint;
+                InstrumentPoints.Add(this);
+                OrigSequencePoint = UniqueSequencePoint;
+            }
+        }
 
         /// <summary>
         /// Store the number of visits
