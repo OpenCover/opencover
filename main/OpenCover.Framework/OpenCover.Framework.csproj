@@ -148,6 +148,7 @@
     <Compile Include="Utility\CodeCoverageStringTextSource.cs" />
     <Compile Include="Utility\IPerfCounters.cs" />
     <Compile Include="Utility\PerfCounters.cs" />
+    <Compile Include="Utility\ThreadHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log4net.config">
