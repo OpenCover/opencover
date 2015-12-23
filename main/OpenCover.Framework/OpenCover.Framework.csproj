@@ -149,6 +149,7 @@
     <Compile Include="Utility\IPerfCounters.cs" />
     <Compile Include="Utility\PerfCounters.cs" />
     <Compile Include="Utility\ThreadHelper.cs" />
+    <Compile Include="Utility\SourceRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log4net.config">
