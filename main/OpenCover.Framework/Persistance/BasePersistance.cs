@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -15,6 +16,9 @@ namespace OpenCover.Framework.Persistance
     /// </summary>
     public abstract class BasePersistance : IPersistance
     {
+    	/// <summary>
+    	/// ICommandLine
+    	/// </summary>
         protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
@@ -142,39 +146,47 @@ namespace OpenCover.Framework.Persistance
         /// </summary>
         public virtual void Commit()
         {
-            PopulateInstrumentedPoints();
+			//ILog TempLogger = LogManager.GetLogger("OpenCover");
+			//TempLogger.Info("Checking Coverage Session...");
+        	if (CoverageSession.Modules != null) {
+				//TempLogger.Info("MarkSkippedMethods...");
+                MarkSkippedMethods();
+				//TempLogger.Info("TransformSequences...");
+                TransformSequences();
+				//TempLogger.Info("CalculateCoverage...");
+                CalculateCoverage();
+				//TempLogger.Info("FilterSkippedMethods...");
+	            if (CommandLine.HideSkipped != null && CommandLine.HideSkipped.Any()) {
+		            foreach (var skippedMethod in CommandLine.HideSkipped.OrderBy(x => x))
+		            {
+		                switch (skippedMethod)
+		                {
+		                    case SkippedMethod.File:
+		                        RemoveSkippedMethods(SkippedMethod.File);
+		                        RemoveEmptyClasses();
+		                        RemoveUnreferencedFiles();
+		                        break;
+		                    case SkippedMethod.Filter:
+		                        RemoveSkippedModules(SkippedMethod.Filter);
+		                        RemoveSkippedClasses(SkippedMethod.Filter);
+		                        break;
+		                    case SkippedMethod.MissingPdb:
+		                        RemoveSkippedModules(SkippedMethod.MissingPdb);
+		                        break;
+		                    case SkippedMethod.Attribute:
+		                        RemoveSkippedClasses(SkippedMethod.Attribute);
+		                        RemoveSkippedMethods(SkippedMethod.Attribute);
+		                        RemoveEmptyClasses();
+		                        break;
+		                    case SkippedMethod.AutoImplementedProperty:
+		                        RemoveSkippedMethods(SkippedMethod.Attribute);
+		                        RemoveEmptyClasses();
+		                        break;
+		                }
+		            }
+	            }
+        	}
 
-            if (CommandLine.HideSkipped == null) return;
-            
-            if (!CommandLine.HideSkipped.Any()) return;
-            
-            foreach (var skippedMethod in CommandLine.HideSkipped.OrderBy(x => x))
-            {
-                switch (skippedMethod)
-                {
-                    case SkippedMethod.File:
-                        RemoveSkippedMethods(SkippedMethod.File);
-                        RemoveEmptyClasses();
-                        RemoveUnreferencedFiles();
-                        break;
-                    case SkippedMethod.Filter:
-                        RemoveSkippedModules(SkippedMethod.Filter);
-                        RemoveSkippedClasses(SkippedMethod.Filter);
-                        break;
-                    case SkippedMethod.MissingPdb:
-                        RemoveSkippedModules(SkippedMethod.MissingPdb);
-                        break;
-                    case SkippedMethod.Attribute:
-                        RemoveSkippedClasses(SkippedMethod.Attribute);
-                        RemoveSkippedMethods(SkippedMethod.Attribute);
-                        RemoveEmptyClasses();
-                        break;
-                    case SkippedMethod.AutoImplementedProperty:
-                        RemoveSkippedMethods(SkippedMethod.Attribute);
-                        RemoveEmptyClasses();
-                        break;
-                }
-            }
         }
 
         private void RemoveSkippedModules(SkippedMethod skipped)
@@ -233,58 +245,8 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        // static readonly empty collections, saves creation time of new empty ones
-        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
-        private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
-        private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
-
-        // Dictionary with stored source files per module
-        private Dictionary<uint, CodeCoverageStringTextSource> sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
-
-        private const bool doRemove = true;
-        private const bool preserve = false;
-
-        private uint fileID_cache = 0;
-        private CodeCoverageStringTextSource textSource_cache = null;
-        private CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
-            CodeCoverageStringTextSource source = null;
-            if (fileId != 0) {
-                if (fileID_cache == fileId) {
-                    source = textSource_cache;
-                } else {
-                    sourceRepository.TryGetValue (fileId, out source);
-                    if (source != null) {
-                        fileID_cache = fileId;
-                        textSource_cache = source;
-                    }
-                }
-            }
-            return source;
-        }
-
-        private string getSequencePointText (SequencePoint sp) {
-            if (sp != null) {
-                CodeCoverageStringTextSource source = getCodeCoverageStringTextSource (sp.FileId);
-                return source != null ? source.GetText(sp) : "";
-            }
-            return "";
-        }
-
-        private static bool isSingleCharSequencePoint (SequencePoint sp) {
-            return ((sp != null) && (sp.StartLine == sp.EndLine) && (sp.EndColumn - sp.StartColumn) == 1);
-        }
-        private bool isLeftBraceSequencePoint (SequencePoint sp) {
-            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "{";
-        }
-        private bool isRightBraceSequencePoint (SequencePoint sp) {
-            return isSingleCharSequencePoint(sp) && getSequencePointText(sp) == "}";
-        }
-
-        private void PopulateInstrumentedPoints()
-        {
-
-            if (CoverageSession.Modules == null) return;
-
+		private void MarkSkippedMethods()
+		{
             foreach (var method in from @class in
                                        (from module in CoverageSession.Modules
                                         from @class in module.Classes ?? new Class[0]
@@ -296,162 +258,16 @@ namespace OpenCover.Framework.Persistance
             {
                 method.MarkAsSkipped(SkippedMethod.Inferred);
             }
-            
+		}
+
+		private void CalculateCoverage()
+        {
             foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
             {
-
-                #region Module FileID/FullPath/TextSource
-
-                sourceRepository = new Dictionary<uint, CodeCoverageStringTextSource>();
-                var filesDictionary = new Dictionary<string,uint>();
-
-                foreach (var file in (module.Files ?? new File[0]).Where(file => !String.IsNullOrWhiteSpace(file.FullPath) && !filesDictionary.ContainsKey(file.FullPath)))
+                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
-                    var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
-                    if (source != null) sourceRepository.Add (file.UniqueId, source);
-                    filesDictionary.Add(file.FullPath, file.UniqueId);
-                }
-
-                #endregion
-
-                #region TODO:? Merge Compiler Extracted/Generated Methods (enumerator methods) SP's into method SP's
-
-                // Store repeated Query
-                var classesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
-
-                #endregion
-
-                foreach (var @class in classesQuery)
-                {
-
                     foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
                     {
-                        if (method.SequencePoints == null) method.SequencePoints = emptySeqPoints;
-                        if (method.BranchPoints == null) method.BranchPoints = emptyBranchPoints;
-
-                        // No sequences in method, but branches present? => remove branches
-                        if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
-                            method.BranchPoints = emptyBranchPoints;
-                        }
-
-                        if (method.SequencePoints.Length != 0) MapFileReferences(method.SequencePoints, filesDictionary);
-                        if (method.BranchPoints.Length != 0) MapFileReferences(method.BranchPoints, filesDictionary);
-
-                        #region Merge branch-exits
-
-                        // anything to join, filter, merge?
-                        if (method.SequencePoints.Length != 0 && method.BranchPoints.Length != 0) {
-
-                            #region Join Sequences and Branches
-                            // Quick match branches to sequence using SP&BP sort order by IL offset
-
-                            // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
-                            // ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
-                            method.SequencePoints = method.SequencePoints.OrderBy( sp => sp.Offset ).ToArray();
-                            method.BranchPoints = method.BranchPoints.OrderBy( bp => bp.Offset ).ToArray();
-    
-                            // Use stack because Stack.Pop is constant time
-                            var branchStack = new Stack<BranchPoint>(method.BranchPoints);
-
-                            // Join offset matching BranchPoints with SequencePoint "parent"
-                            // Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
-                            // Reverse() starts loop from highest offset to lowest
-                            foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
-                                // create branchPoints "child" list
-                                spParent.BranchPoints = new List<BranchPoint>();
-                                // if BranchPoint.Offset is >= SequencePoint.Offset
-                                // then move BranchPoint from stack to "child" list (Pop/Add)
-                                while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
-                                    spParent.BranchPoints.Add(branchStack.Pop());
-                                }
-                            }
-
-                            // clear the stack
-                            branchStack.Clear();
-
-                            #endregion
-
-                            #region Remove Compiler Generated Branches from SequencePoints
-
-                            long startOffset = long.MinValue;
-                            long finalOffset = long.MaxValue;
-                            CodeCoverageStringTextSource source = getCodeCoverageStringTextSource(method.FileRef.UniqueId);
-                            if (source != null && source.FileType == FileType.CSharp) {
-                                var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp=>sp.StartLine).ThenBy(sp=>sp.StartColumn).Where(sp=>sp.FileId == method.FileRef.UniqueId).ToArray();
-                                if (sourceLineOrderedSps.Length >= 3) { // method.sp; leftBrace.sp, rightBrace.sp || leftBrace.sp, any.sp, rightBrace.sp
-                                    if (isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
-                                        startOffset = sourceLineOrderedSps[1].Offset;
-                                    }
-                                    else if (isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
-                                        startOffset = sourceLineOrderedSps[0].Offset;
-                                    }
-                                    if (isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
-                                        finalOffset = sourceLineOrderedSps.Last().Offset;
-                                    }
-                                }
-                            }
-
-                            if (startOffset != long.MinValue || finalOffset != long.MaxValue) {
-                                // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
-                                // this will exclude "{" "}" compiler generated branches and ccrewrite Code Contract's
-                                foreach (var sp in method.SequencePoints) {
-                                    if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
-                                        if (sp.Offset <= startOffset || finalOffset <= sp.Offset) {
-                                             sp.BranchPoints = emptyBranchList;
-                                        }
-                                    }
-                                }
-                            }
-
-                            #endregion
-                            
-                            #region Merge Branch-Exits for each Sequence
-
-                            // Collection of validBranchPoints (child/connected to parent SequencePoint)
-                            var validBranchPoints = new List<BranchPoint>();
-
-                            var branchExits = new Dictionary<int, BranchPoint>();
-                            foreach (var sp in method.SequencePoints) {
-                
-                                // SequencePoint has branches attached?
-                                if (sp.BranchPoints != null && sp.BranchPoints.Count != 0) {
-                
-                                    // Merge sp.BranchPoints using EndOffset as branchExits key
-                                    branchExits.Clear();
-                                    foreach (var branchPoint in sp.BranchPoints) {
-                                        if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
-                                            branchExits[branchPoint.EndOffset] = branchPoint; // insert branch
-                                        } else {
-                                            branchExits[branchPoint.EndOffset].VisitCount += branchPoint.VisitCount; // update branch
-                                        }
-                                    }
-                
-                                    // Update SequencePoint counters
-                                    sp.BranchExitsCount = 0;
-                                    sp.BranchExitsVisit = 0;
-                                    foreach (var branchPoint in branchExits.Values) {
-                                        sp.BranchExitsCount += 1;
-                                        sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
-                                    }
-
-                                    // Add to validBranchPoints
-                                    validBranchPoints.AddRange(sp.BranchPoints);
-                                    sp.BranchPoints = emptyBranchList; // clear
-                                }
-                            }
-
-                            // Replace original method branchPoints with valid (filtered and joined) branches.
-                            // Order is Required by FilePersistanceTest because it does not sets .Offset.
-                            // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
-                            method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
-                            validBranchPoints = emptyBranchList; // clear
-
-                            #endregion
-
-                        }
-
-                        #endregion
-
                         if (method.MethodPoint != null)
                         {
                             method.Visited = (method.MethodPoint.VisitCount > 0);
@@ -511,14 +327,11 @@ namespace OpenCover.Framework.Persistance
                 CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
 
-                filesDictionary.Clear();
-                sourceRepository.Clear();
             }
-
             CalculateCoverage(CoverageSession.Summary);
         }
 
-        private static void MapFileReferences(IEnumerable<IDocumentReference> points, IDictionary<string, uint> filesDictionary)
+		private static void MapFileReferences(IEnumerable<IDocumentReference> points, IDictionary<string, uint> filesDictionary)
         {
             foreach (var pt in points.Where(p => p.FileId == 0))
             {
@@ -690,5 +503,348 @@ namespace OpenCover.Framework.Persistance
 
             return false;
         }
-    }
-}
+
+        // static readonly empty collections, saves creation time of new empty ones
+        // do not modify when referenced/attached to parent
+        private static readonly SequencePoint[] emptySeqPoints = new SequencePoint[0];
+        private static readonly BranchPoint[] emptyBranchPoints = new BranchPoint[0];
+        private static readonly List<BranchPoint> emptyBranchList = new List<BranchPoint>(0);
+
+        private void TransformSequences() {
+
+            var sessionModulesQuery = CoverageSession.Modules.Where(@module => !@module.ShouldSerializeSkippedDueTo());
+            foreach(var module in sessionModulesQuery) {
+
+            	// module sources
+            	var sourceRepository = new SourceRepository();
+
+            	// Queries
+                var moduleClassesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
+                var moduleMethodsQuery = moduleClassesQuery.SelectMany(@class => (@class.Methods ?? new Method[0])).Where(x => !x.ShouldSerializeSkippedDueTo());
+                var methods = new ReadOnlyCollection<Method>(moduleMethodsQuery.ToArray());
+
+                #region Step 0: Collect Module Files (FileID/FullPath/TextSource)
+	
+	            #endregion
+
+                #region Step 1: Prepare sequences for transformations
+                TransformSequences_Initialize (methods);
+                TransformSequences_AddSources (module, methods, sourceRepository);
+                TransformSequences_JoinWithBranches (methods);
+                TransformSequences_RemoveBranchesOutOfOffset  (methods, sourceRepository);
+                TransformSequences_NormalizeBranches (methods);
+                #endregion
+
+                #region step 2: Transformations
+                TransformSequences_RemoveUnvisitedDuplicates (methods);		
+			    #endregion
+            }
+		}
+
+		static void TransformSequences_Initialize (ReadOnlyCollection<Method> methods)
+		{
+			foreach (var method in methods) {
+				#region Cleanup
+				// remove nulls
+				if (method.SequencePoints == null)
+					method.SequencePoints = emptySeqPoints;
+				if (method.BranchPoints == null)
+					method.BranchPoints = emptyBranchPoints;
+				// No sequences in method, but branches present? => remove branches
+				if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
+					method.BranchPoints = emptyBranchPoints;
+				}
+				#endregion
+			}
+		}
+
+		static void TransformSequences_AddSources (Module module, ReadOnlyCollection<Method> methods, IDictionary<uint, CodeCoverageStringTextSource> sourceRepository)
+		{
+            // Dictionary with stored source file names per module
+            var filesDictionary = new Dictionary<string, uint>();
+
+            foreach (var file in (module.Files ?? new File[0]).
+                Where (file => !String.IsNullOrWhiteSpace(file.FullPath) 
+                            && !filesDictionary.ContainsKey(file.FullPath)))
+            {
+                var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
+                if (source != null) sourceRepository.Add (file.UniqueId, source);
+                filesDictionary.Add(file.FullPath, file.UniqueId);
+            }
+	
+			foreach (var method in methods) {
+				#region Add file references
+				if (method.SequencePoints.Length != 0)
+					MapFileReferences(method.SequencePoints, filesDictionary);
+				if (method.BranchPoints.Length != 0)
+					MapFileReferences(method.BranchPoints, filesDictionary);
+				#endregion
+			}
+		}
+
+		static void TransformSequences_JoinWithBranches (ReadOnlyCollection<Method> methods)
+		{
+			foreach (var method in methods) {
+				#region Join BranchPoints children to SequencePoint parent
+				if (method.SequencePoints.Length != 0 && method.BranchPoints.Length != 0) {
+					// Quick match branches to sequence using SP&BP sort order by IL offset
+					// SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
+					// ATTN: Sorted again to prevent future bugs if order of SP & BP is changed!
+					method.SequencePoints = method.SequencePoints.OrderBy(sp => sp.Offset).ToArray();
+					method.BranchPoints = method.BranchPoints.OrderBy(bp => bp.Offset).ToArray();
+					// Use stack because Stack.Pop is constant time
+					var branchStack = new Stack<BranchPoint>(method.BranchPoints);
+					// Join offset matching BranchPoints with SequencePoint "parent"
+					// Exclude all branches where BranchPoint.Offset < first method.SequencePoints.Offset
+					// Reverse() starts loop from highest offset to lowest
+					foreach (SequencePoint spParent in method.SequencePoints.Reverse()) {
+						// create branchPoints "child" list
+						spParent.BranchPoints = new List<BranchPoint>();
+						// if BranchPoint.Offset is >= SequencePoint.Offset
+						// then move BranchPoint from stack to "child" list (Pop/Add)
+						while (branchStack.Count != 0 && branchStack.Peek().Offset >= spParent.Offset) {
+							spParent.BranchPoints.Add(branchStack.Pop());
+						}
+					}
+					// clear the stack
+					branchStack.Clear();
+				}
+				#endregion
+			}
+		}
+
+		static void TransformSequences_RemoveBranchesOutOfOffset (ReadOnlyCollection<Method> methods, SourceRepository sourceRepository)
+		{
+			foreach (var method in methods) {
+				#region Use Offset To Remove Compiler Generated Branches
+				if (method.FileRef != null) {
+					long startOffset = long.MinValue;
+					long finalOffset = long.MaxValue;
+					CodeCoverageStringTextSource source = sourceRepository.getCodeCoverageStringTextSource(method.FileRef.UniqueId);
+					if (source != null && source.FileType == FileType.CSharp) {
+						var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
+						if (sourceLineOrderedSps.Length >= 2) {
+							// leftBrace.sp, any.sp, rightBrace.sp || method.sp; leftBrace.sp, rightBrace.sp
+							// method {
+							if (method.MethodPoint == sourceLineOrderedSps[0] && sourceRepository.isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
+								startOffset = sourceLineOrderedSps[1].Offset;
+								//sourceLineOrderedSps[1].BranchPoints = emptyBranchList;
+							}
+							// getter/setter/static-method {
+							else if (sourceRepository.isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
+								startOffset = sourceLineOrderedSps[0].Offset;
+								//sourceLineOrderedSps[0].BranchPoints = emptyBranchList;
+							}
+							if (sourceRepository.isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
+								finalOffset = sourceLineOrderedSps.Last().Offset;
+							}
+						}
+					}
+					if (startOffset != long.MinValue || finalOffset != long.MaxValue) {
+						// doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
+						// this will exclude "{" "}" compiler generated branches and ccrewrite Code Contract's
+						foreach (var sp in method.SequencePoints) {
+							if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
+								if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
+									sp.BranchPoints = emptyBranchList;
+								}
+							}
+						}
+					}
+				}
+				#endregion
+			}
+		}
+
+		static void TransformSequences_NormalizeBranches (ReadOnlyCollection<Method> methods)
+		{
+			foreach (var method in methods) {
+				#region Merge Branch-Exits for each Sequence
+				// Collection of validBranchPoints (child/connected to parent SequencePoint)
+				var validBranchPoints = new List<BranchPoint>();
+				var branchExits = new Dictionary<int, BranchPoint>();
+				foreach (var sp in method.SequencePoints) {
+					// SequencePoint has branches attached?
+					if (sp.BranchPoints != null && sp.BranchPoints.Count != 0) {
+						// Merge sp.BranchPoints using EndOffset as branchExits key
+						branchExits.Clear();
+						foreach (var branchPoint in sp.BranchPoints) {
+							if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
+								branchExits[branchPoint.EndOffset] = branchPoint;
+								// insert branch
+							} else {
+								branchExits[branchPoint.EndOffset].VisitCount += branchPoint.VisitCount;
+								// update branch
+							}
+						}
+						// Update SequencePoint counters
+						sp.BranchExitsCount = 0;
+						sp.BranchExitsVisit = 0;
+						foreach (var branchPoint in branchExits.Values) {
+							sp.BranchExitsCount += 1;
+							sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
+						}
+						// Add to validBranchPoints
+						validBranchPoints.AddRange(sp.BranchPoints);
+						sp.BranchPoints = emptyBranchList;
+						// clear
+					}
+				}
+				// Replace original method branchPoints with valid (filtered and joined) branches.
+				// Order is Required by FilePersistanceTest because it does not sets .Offset.
+				// (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
+				method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
+				#endregion
+			}
+		}
+
+		static void TransformSequences_RemoveUnvisitedDuplicates (ReadOnlyCollection<Method> methods)
+		{
+			#region ToDo
+			/* Problems:
+		                 * 1) Compiler can duplicate sequence point (found in DBCL project)
+		                 * Solution:
+		                 *  Remove unvisited duplicate?
+		                 * 
+		                 * 2) Compiler can move SequencePoint into compiler generated method
+		                 * Solution?  
+		                 *  Identify compiler generated methods
+		                 *   Match each with user method
+		                 *    Move SequencePoints & branches into user method 
+		                 * 
+		                 */
+			#endregion
+
+			#region Examples
+			            /* Duplicate SequencePoint Example 
+		Generated Method * <Method visited="false" cyclomaticComplexity="1" sequenceCoverage="0" branchCoverage="0" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+		                 *   <Summary numSequencePoints="1" visitedSequencePoints="0" numBranchPoints="1" visitedBranchPoints="0" sequenceCoverage="0" branchCoverage="0" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="0" numMethods="1" />
+		                 *   <MetadataToken>100663434</MetadataToken>
+		<_SetItems>b__b  *   <Name>System.Boolean DD.Collections.BitSetArray::&lt;_SetItems&gt;b__b(System.Int32)</Name>
+		                 *   <FileRef uid="1" />
+		                 *   <SequencePoints>
+		Duplicate SP!    *     <SequencePoint vc="0" uspid="3648" ordinal="0" offset="0" sl="2653" sc="90" el="2653" ec="109" bec="0" bev="0" fileid="1" />
+		                 *   </SequencePoints>
+		                 *   <BranchPoints />
+		                 *   <MethodPoint xsi:type="SequencePoint" vc="0" uspid="3648" ordinal="0" offset="0" sl="2653" sc="90" el="2653" ec="109" bec="0" bev="0" fileid="1" />
+		                 * </Method>
+		                 * 
+		Generated Method * <Method visited="true" cyclomaticComplexity="1" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+		                 *   <Summary numSequencePoints="1" visitedSequencePoints="1" numBranchPoints="1" visitedBranchPoints="1" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="1" minCyclomaticComplexity="1" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
+		                 *   <MetadataToken>100663435</MetadataToken>
+		<_SetItems>b__b_0*   <Name>System.Boolean DD.Collections.BitSetArray::BitSetArray_&lt;_SetItems&gt;b__b_0(System.Int32)</Name>
+		                 *   <FileRef uid="1" />
+		                 *   <SequencePoints>
+		Duplicate SP!    *     <SequencePoint vc="6081" uspid="3649" ordinal="0" offset="0" sl="2653" sc="90" el="2653" ec="109" bec="0" bev="0" fileid="1" />
+		                 *   </SequencePoints>
+		                 *   <BranchPoints />
+		                 *   <MethodPoint xsi:type="SequencePoint" vc="6081" uspid="3649" ordinal="0" offset="0" sl="2653" sc="90" el="2653" ec="109" bec="0" bev="0" fileid="1" />
+		                 * </Method>
+		                 * 
+		User Method      * <Method visited="true" cyclomaticComplexity="9" sequenceCoverage="100" branchCoverage="100" isConstructor="false" isStatic="false" isGetter="false" isSetter="false">
+		                 *   <Summary numSequencePoints="41" visitedSequencePoints="41" numBranchPoints="9" visitedBranchPoints="9" sequenceCoverage="100" branchCoverage="100" maxCyclomaticComplexity="9" minCyclomaticComplexity="9" visitedClasses="0" numClasses="0" visitedMethods="1" numMethods="1" />
+		                 *   <MetadataToken>100663375</MetadataToken>
+		                 *   <Name>System.Void DD.Collections.BitSetArray::_SetItems(System.Collections.Generic.IEnumerable`1&lt;System.Int32&gt;)</Name>
+		                 *   <FileRef uid="1" />
+		                 *   <SequencePoints>
+		                 *     <SequencePoint vc="760" uspid="2609" ordinal="0" offset="0" sl="2649" sc="13" el="2649" ec="77" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="760" uspid="2610" ordinal="1" offset="47" sl="2650" sc="13" el="2650" ec="76" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="759" uspid="2611" ordinal="2" offset="68" sl="2651" sc="13" el="2651" ec="75" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="758" uspid="2612" ordinal="3" offset="87" sl="2652" sc="13" el="2652" ec="70" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="757" uspid="2613" ordinal="4" offset="105" sl="2653" sc="13" el="2653" ec="112" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2614" ordinal="5" offset="168" sl="2648" sc="42" el="2648" ec="43" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2615" ordinal="6" offset="171" sl="2659" sc="13" el="2659" ec="28" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2616" ordinal="7" offset="188" sl="2659" sc="29" el="2659" ec="30" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2617" ordinal="8" offset="189" sl="2660" sc="17" el="2660" ec="36" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2618" ordinal="9" offset="196" sl="2661" sc="17" el="2661" ec="45" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2619" ordinal="10" offset="202" sl="2662" sc="17" el="2662" ec="45" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2620" ordinal="11" offset="208" sl="2663" sc="17" el="2663" ec="24" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2621" ordinal="12" offset="209" sl="2663" sc="38" el="2663" ec="43" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6076" uspid="2622" ordinal="13" offset="222" sl="2663" sc="26" el="2663" ec="34" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6076" uspid="2623" ordinal="14" offset="230" sl="2663" sc="45" el="2663" ec="46" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6076" uspid="2624" ordinal="15" offset="231" sl="2664" sc="21" el="2664" ec="82" bec="2" bev="2" fileid="1" />
+		                 *     <SequencePoint vc="8" uspid="2625" ordinal="16" offset="265" sl="2664" sc="83" el="2664" ec="84" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="8" uspid="2626" ordinal="17" offset="266" sl="2666" sc="21" el="2666" ec="22" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2627" ordinal="18" offset="272" sl="2667" sc="26" el="2667" ec="27" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2628" ordinal="19" offset="273" sl="2669" sc="25" el="2669" ec="76" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2629" ordinal="20" offset="301" sl="2670" sc="25" el="2670" ec="67" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2630" ordinal="21" offset="327" sl="2671" sc="25" el="2671" ec="41" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2631" ordinal="22" offset="341" sl="2672" sc="25" el="2672" ec="45" bec="2" bev="2" fileid="1" />
+		                 *     <SequencePoint vc="770" uspid="2632" ordinal="23" offset="357" sl="2672" sc="46" el="2672" ec="47" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="770" uspid="2633" ordinal="24" offset="358" sl="2673" sc="29" el="2673" ec="45" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="770" uspid="2634" ordinal="25" offset="360" sl="2674" sc="25" el="2674" ec="26" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2635" ordinal="26" offset="361" sl="2675" sc="25" el="2675" ec="45" bec="2" bev="2" fileid="1" />
+		                 *     <SequencePoint vc="6050" uspid="2636" ordinal="27" offset="377" sl="2675" sc="46" el="2675" ec="47" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6050" uspid="2637" ordinal="28" offset="378" sl="2676" sc="29" el="2676" ec="45" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6050" uspid="2638" ordinal="29" offset="380" sl="2677" sc="25" el="2677" ec="26" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6068" uspid="2639" ordinal="30" offset="381" sl="2678" sc="21" el="2678" ec="22" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6076" uspid="2640" ordinal="31" offset="382" sl="2679" sc="17" el="2679" ec="18" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="6828" uspid="2641" ordinal="32" offset="383" sl="2663" sc="35" el="2663" ec="37" bec="2" bev="2" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2642" ordinal="33" offset="428" sl="2680" sc="17" el="2680" ec="47" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2643" ordinal="34" offset="436" sl="2681" sc="17" el="2681" ec="46" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2644" ordinal="35" offset="444" sl="2682" sc="17" el="2682" ec="50" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2645" ordinal="36" offset="465" sl="2683" sc="13" el="2683" ec="14" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2646" ordinal="37" offset="494" sl="2684" sc="9" el="2684" ec="10" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2647" ordinal="38" offset="522" sl="2655" sc="13" el="2655" ec="47" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2648" ordinal="39" offset="542" sl="2656" sc="13" el="2656" ec="52" bec="0" bev="0" fileid="1" />
+		                 *     <SequencePoint vc="752" uspid="2649" ordinal="40" offset="568" sl="2657" sc="13" el="2657" ec="51" bec="0" bev="0" fileid="1" />
+		                 *   </SequencePoints>
+		                 *   <BranchPoints>
+		                 *     <BranchPoint vc="8" uspid="2652" ordinal="2" offset="260" sl="2664" path="0" offsetend="265" fileid="1" />
+		                 *     <BranchPoint vc="6068" uspid="2653" ordinal="3" offset="260" sl="2664" path="1" offsetend="272" fileid="1" />
+		                 *     <BranchPoint vc="770" uspid="2654" ordinal="4" offset="352" sl="2672" path="0" offsetend="357" fileid="1" />
+		                 *     <BranchPoint vc="5298" uspid="2655" ordinal="5" offset="352" sl="2672" path="1" offsetend="361" fileid="1" />
+		                 *     <BranchPoint vc="6050" uspid="2656" ordinal="6" offset="372" sl="2675" path="0" offsetend="377" fileid="1" />
+		                 *     <BranchPoint vc="18" uspid="2657" ordinal="7" offset="372" sl="2675" path="1" offsetend="381" fileid="1" />
+		                 *     <BranchPoint vc="752" uspid="2658" ordinal="8" offset="394" sl="2663" path="0" offsetend="399" fileid="1" />
+		                 *     <BranchPoint vc="6076" uspid="2659" ordinal="9" offset="394" sl="2663" path="1" offsetend="222" fileid="1" />
+		                 *   </BranchPoints>
+		                 *   <MethodPoint xsi:type="SequencePoint" vc="760" uspid="2609" ordinal="0" offset="0" sl="2649" sc="13" el="2649" ec="77" bec="0" bev="0" fileid="1" />
+		                 * </Method>
+		                 * 
+		                 */
+			#endregion
+
+			var generatedMethods = new List<Method>();
+			var userCodedMethods = new List<Method>();
+			var lostSequencePoints = new Dictionary<SequencePoint, Method>();
+			//ILog TempLogger = LogManager.GetLogger("OpenCover");
+			// Extract from generated methods (sp.BranchPoints are collected&connected)
+			foreach (var method in @methods) {
+				if (method.SequencePoints.Length != 0) {
+					if (method.isGenerated) {
+						//TempLogger.Info(getMethodName(method));
+						generatedMethods.Add(method);
+						foreach (var sp in method.SequencePoints) {
+							if (sp.VisitCount == 0) {
+								lostSequencePoints.Add(sp, method);
+							}
+						}
+					} else {
+						userCodedMethods.Add(method);
+					}
+				}
+			}
+			//TempLogger.Warn("lostSequencePoints.Count " + lostSequencePoints.Count);
+			if (lostSequencePoints.Count != 0) {
+				// Remove lost if is duplicate
+				foreach (var method in @methods) {
+					foreach (var sp in method.SequencePoints) {
+						if (lostSequencePoints.ContainsKey(sp)) {
+							var cleanSequencePoints = new List<SequencePoint>();
+							foreach (var spGenerated in lostSequencePoints[sp].SequencePoints) {
+								if (!spGenerated.Equals(sp)) {
+									cleanSequencePoints.Add(spGenerated);
+								} else {
+									//TempLogger.Warn("Sequence skipped, line: " + spGenerated.StartLine);
+								}
+							}
+							lostSequencePoints[sp].SequencePoints = cleanSequencePoints.ToArray();
+						}
+					}
+				}
+			}
+		}
+		
+    } // Class
+} // Namespace
