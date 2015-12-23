@@ -814,29 +814,22 @@ namespace OpenCover.Framework.Persistance
 		                 */
 			#endregion
 
-			//var generatedMethods = new List<Method>();
-			//var userCodedMethods = new List<Method>();
+			#region Remove unvisited duplicate SequencePoints from compiler generated methods
+			// Extract unvisited sequencePoints from generated methods (sp.BranchPoints are collected&connected)
 			var lostSequencePoints = new Dictionary<SequencePoint, Method>();
-			//ILog TempLogger = LogManager.GetLogger("OpenCover");
-			// Extract from generated methods (sp.BranchPoints are collected&connected)
 			foreach (var method in @methods) {
 				if (!Object.ReferenceEquals(method, null) && method.SequencePoints.Length != 0) {
 					if (method.isGenerated) {
-						//TempLogger.Info(getMethodName(method));
-						//generatedMethods.Add(method);
 						foreach (var sp in method.SequencePoints) {
 							if (!Object.ReferenceEquals(sp, null) && sp.VisitCount == 0) {
 								lostSequencePoints.Add(sp, method);
 							}
 						}
-					} else {
-						//userCodedMethods.Add(method);
 					}
 				}
 			}
-			//TempLogger.Warn("lostSequencePoints.Count " + lostSequencePoints.Count);
-			if (lostSequencePoints.Count != 0) {
-				// Remove lost if is duplicate
+			if (lostSequencePoints.Count != 0) { // Any unvisited?
+				// Remove unvisited if is duplicate
 				foreach (var method in @methods) {
 					if (!Object.ReferenceEquals(method, null)) {
 						foreach (var sp in method.SequencePoints) {
@@ -845,8 +838,6 @@ namespace OpenCover.Framework.Persistance
 								foreach (var spGenerated in lostSequencePoints[sp].SequencePoints) {
 									if (!spGenerated.Equals(sp)) {
 										cleanSequencePoints.Add(spGenerated);
-									} else {
-										//TempLogger.Warn("Sequence skipped, line: " + spGenerated.StartLine);
 									}
 								}
 								lostSequencePoints[sp].SequencePoints = cleanSequencePoints.ToArray();
@@ -855,7 +846,8 @@ namespace OpenCover.Framework.Persistance
 					}
 				}
 			}
+			#endregion
 		}
 		
-    } // Class
-} // Namespace
+    }
+}
