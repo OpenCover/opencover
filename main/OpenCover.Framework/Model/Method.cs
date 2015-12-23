@@ -3,7 +3,8 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
-using System.Collections.Generic;
+using System;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -95,6 +96,10 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("isSetter")]
         public bool IsSetter { get; set; }
 
+        /// <summary>
+        /// Mark an entity as skipped
+        /// </summary>
+        /// <param name="reason">Provide a reason</param>
         public override void MarkAsSkipped(SkippedMethod reason)
         {
             SkippedDueTo = reason;
@@ -103,5 +108,46 @@ namespace OpenCover.Framework.Model
             SequencePoints = null;
             BranchPoints = null;
         }
+        /// <summary>
+        /// method name excluding return type, namespace and arguments
+        /// </summary>
+        public string shortName {
+        	get {
+	        	if (String.IsNullOrWhiteSpace(this.Name)) return "";
+				int startIndex = this.Name.IndexOf("::", StringComparison.Ordinal);
+				int finalIndex = this.Name.IndexOf('(', startIndex);
+				return this.Name
+					.Substring(startIndex, finalIndex - startIndex)
+					.Substring(2);
+        	}
+        }
+
+        /* Compiler Generated Name Examples
+          <Name>System.Boolean DD.Collections.BitSetArray/&lt;Complement&gt;d__e::MoveNext()</Name>
+          <Name>System.Boolean DD.Collections.BitSetArray::&lt;_SetItems&gt;b__b(System.Int32)</Name>
+		  <Name>System.Boolean DD.Collections.BitSetArray::BitSetArray_&lt;_SetItems&gt;b__b_0(System.Int32)</Name>
+
+		  <Name>[^\s]+\s[^\s|/|:]+(/\w*)?(::(.+_)?)?(&lt;\w+&gt;[a-z]__\w(\w|_\w)?)(::.+)?(\(.*\)</Name>)$
+        */
+        /// <summary>
+        /// True if method name matches isGeneratedMethodRegex pattern
+        /// </summary>
+        public bool isGenerated {
+        	get {
+	        	return (!String.IsNullOrWhiteSpace(this.Name)
+	        	        && this.Name.Contains("__")
+	        	        && isGeneratedMethodRegex.IsMatch(this.Name)
+	        	       );
+        	}
+        }
+        private const RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        private readonly Regex isGeneratedMethodRegex = new Regex(@"(<[^\s|>]+>[a-z]__\w(\w|_\w)?)(::([^\s|\(]+))?(\([^\s|\)]*\))$", regexOptions);
+
+        /*
+            code sample
+            Match match = generatedMethodItems.Match(sample);
+            if (match.Success) Console.WriteLine(match.Groups["returnType"].Value);
+        */
+        private readonly Regex generatedMethodItems = new Regex(@"(?<returnType>[^\s]+)\s(?<nameSpace>[^\s|/]+/)?(?<className>[^\s|:]+::)?(<(?<replacedName>[^\s|>]+)>[a-z]__\w(\w|_\w)?)(::(?<methodName>[^\s|\(]+))?(\([^\s|\)]*\))$", regexOptions);
     }
 }

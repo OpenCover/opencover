@@ -9,15 +9,19 @@ namespace OpenCover.Framework.Utility
     public class PerfCounters : IPerfCounters
     {
         private PerformanceCounter _memoryQueue;
-        private PerformanceCounter _queueThrougput;
+        private PerformanceCounter _queueThroughput;
 
         /// <summary>
         /// get the current queue size
         /// </summary>
         public int CurrentMemoryQueueSize { set { _memoryQueue.RawValue = value; } }
+
+        /// <summary>
+        /// Increment the block size
+        /// </summary>
         public void IncrementBlocksReceived()
         {
-            _queueThrougput.RawValue += 1;
+            _queueThroughput.RawValue += 1;
         }
 
         /// <summary>
@@ -50,13 +54,16 @@ namespace OpenCover.Framework.Utility
                                               PerformanceCounterCategoryType.SingleInstance, counters);
             
             _memoryQueue = new PerformanceCounter(CategoryName, MemoryQueue, false) { RawValue = 0 };
-            _queueThrougput = new PerformanceCounter(CategoryName, QueueThroughput, false) { RawValue = 0 };
+            _queueThroughput = new PerformanceCounter(CategoryName, QueueThroughput, false) { RawValue = 0 };
         }
 
+        /// <summary>
+        /// Reset all counters
+        /// </summary>
         public void ResetCounters()
         {
             _memoryQueue.RawValue = 0;
-            _queueThrougput.RawValue = 0;
+            _queueThroughput.RawValue = 0;
         }
     }
 
@@ -69,11 +76,19 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// A null performance counters implementation
         /// </summary>
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public int CurrentMemoryQueueSize { set; private get; }
+
+        /// <summary>
+        /// Increment the number of blocks received
+        /// </summary>
         public void IncrementBlocksReceived()
         {
         }
 
+        /// <summary>
+        /// Reset all counters
+        /// </summary>
         public void ResetCounters()
         {
         }

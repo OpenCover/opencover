@@ -10,9 +10,8 @@
 #include "Messages.h"
 
 #include <exception>
-#include <concurrent_vector.h>
 
-#include <unordered_map>
+#include <concurrent_unordered_map.h>
 
 /// <summary>Handles communication back to the profiler host</summary>
 /// <remarks>Currently this is handled by using the WebServices API</remarks>
@@ -21,7 +20,7 @@ class ProfilerCommunication
 private:
 
 public:
-    ProfilerCommunication();
+    ProfilerCommunication(DWORD short_wait);
     ~ProfilerCommunication(void);
     bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
@@ -54,49 +53,53 @@ private:
     MSG_SendVisitPoints_Request* AllocateVisitMap(DWORD osThreadID);
 
 private:
-    tstring m_key;
-    tstring m_namespace;
-    tstring m_processName;
+    tstring _key;
+    tstring _namespace;
+    tstring _processName;
+    DWORD _short_wait;
 
     template<class BR, class PR>
     void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
 
-    ULONG m_bufferId;
+    ULONG _bufferId;
 
     bool TestSemaphore(CSemaphoreEx &semaphore){
         // the previous value should always be zero unless the host process has released 
         // and that means we have disposed of the shared memory
-        if (hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
-            hostCommunicationActive = false;
+        if (_hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
+            _hostCommunicationActive = false;
         }
-        return hostCommunicationActive;
+        return _hostCommunicationActive;
     }
 
 private:
-    CMutex m_mutexCommunication;
-    CSharedMemory m_memoryCommunication;
-    CEvent m_eventProfilerRequestsInformation;
-    CEvent m_eventInformationReadyForProfiler;
-    CEvent m_eventInformationReadByProfiler;
-    MSG_Union *m_pMSG;
+    CMutex _mutexCommunication;
+    CSharedMemory _memoryCommunication;
+    CEvent _eventProfilerRequestsInformation;
+    CEvent _eventInformationReadyForProfiler;
+    CEvent _eventInformationReadByProfiler;
+    MSG_Union *_pMSG;
     CSemaphoreEx _semapore_communication;
 
 private:
-    CSharedMemory m_memoryResults;
-    CEvent m_eventProfilerHasResults;
-    CEvent m_eventResultsHaveBeenReceived;
-    MSG_SendVisitPoints_Request *m_pVisitPoints;
+    CSharedMemory _memoryResults;
+    CEvent _eventProfilerHasResults;
+    CEvent _eventResultsHaveBeenReceived;
+    MSG_SendVisitPoints_Request *_pVisitPoints;
     CSemaphoreEx _semapore_results;
 
 private:
-    ATL::CComAutoCriticalSection m_critResults;
-    ATL::CComAutoCriticalSection m_critComms;
-    bool hostCommunicationActive;
+    ATL::CComAutoCriticalSection _critResults;
+    ATL::CComAutoCriticalSection _critComms;
+    bool _hostCommunicationActive;
 
 private:
-    ATL::CComAutoCriticalSection m_critThreads;
-    std::unordered_map<ThreadID, ULONG> m_threadmap;
-    std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> m_visitmap;
+    ATL::CComAutoCriticalSection _critThreads;
+    //std::unordered_map<ThreadID, ULONG> _threadmap;
+    //std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
+
+    Concurrency::concurrent_unordered_map<ThreadID, ULONG> _threadmap;
+    Concurrency::concurrent_unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
 
     MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
 

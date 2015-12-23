@@ -22,6 +22,7 @@ class ATL_NO_VTABLE CProfilerInfo :
 public:
 	CProfilerInfo()
 	{
+        m_pProfilerHook = nullptr;
 	}
 
 	BEGIN_COM_MAP(CProfilerInfo)
