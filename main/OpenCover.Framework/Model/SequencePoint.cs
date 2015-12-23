@@ -42,6 +42,9 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Count of merged branches
         /// </summary>
+        /// <summary>
+        /// The number of branch exits
+        /// </summary>
         [XmlAttribute("bec")]
         public int BranchExitsCount { get; set; }
         

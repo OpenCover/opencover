@@ -4,7 +4,6 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
@@ -98,9 +97,9 @@ namespace OpenCover.Framework.Model
         public bool IsSetter { get; set; }
 
         /// <summary>
-        /// Mark As Skipped
+        /// Mark an entity as skipped
         /// </summary>
-        /// <param name="reason"></param>
+        /// <param name="reason">Provide a reason</param>
         public override void MarkAsSkipped(SkippedMethod reason)
         {
             SkippedDueTo = reason;

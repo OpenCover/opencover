@@ -39,11 +39,24 @@ namespace OpenCover.Framework.Communication
     /// </summary>
     public class MarshalWrapper : IMarshalWrapper
     {
+        /// <summary>
+        /// Map pinned memory to a structure
+        /// </summary>
+        /// <typeparam name="T">The type of the structure</typeparam>
+        /// <param name="pinnedMemory"></param>
+        /// <returns></returns>
         public T PtrToStructure<T>(IntPtr pinnedMemory)
         {
             return (T)Marshal.PtrToStructure(pinnedMemory, typeof(T));
         }
 
+        /// <summary>
+        /// Map a structure to pinned memory
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="structure"></param>
+        /// <param name="pinnedMemory"></param>
+        /// <param name="fDeleteOld"></param>
         public void StructureToPtr<T>(T structure, IntPtr pinnedMemory, bool fDeleteOld)
         {
             Marshal.StructureToPtr(structure, pinnedMemory, fDeleteOld);

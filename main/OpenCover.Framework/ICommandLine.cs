@@ -53,5 +53,10 @@ namespace OpenCover.Framework
         /// Should auto implemented properties be skipped
         /// </summary>
         bool SkipAutoImplementedProperties { get; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host 
+        /// </summary>
+        int CommunicationTimeout { get; }
     }
 }

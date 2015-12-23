@@ -167,6 +167,7 @@
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />
     <Compile Include="Integration\SimpleExceptionTests.cs" />
+    <Compile Include="Integration\ThreadingTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />

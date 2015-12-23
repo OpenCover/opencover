@@ -24,7 +24,7 @@ UINT_PTR CCodeCoverage::FunctionMapper2(FunctionID functionId, void* clientData,
     if (profiler->GetTokenAndModule(functionId, functionToken, moduleId, modulePath, &assemblyId))
     {
         ULONG uniqueId;
-        if (profiler->m_host.TrackMethod(functionToken, (LPWSTR)modulePath.c_str(), 
+        if (profiler->_host->TrackMethod(functionToken, (LPWSTR)modulePath.c_str(), 
             (LPWSTR)profiler->m_allowModulesAssemblyMap[modulePath].c_str(), uniqueId))
         {
             *pbHookFunction = TRUE;
@@ -46,7 +46,7 @@ void CCodeCoverage::FunctionEnter2(
     /*[in]*/COR_PRF_FRAME_INFO                  func, 
     /*[in]*/COR_PRF_FUNCTION_ARGUMENT_INFO      *argumentInfo)
 {
-    m_host.AddTestEnterPoint((ULONG)clientData);
+    _host->AddTestEnterPoint((ULONG)clientData);
 }
 
 void CCodeCoverage::FunctionLeave2(
@@ -55,7 +55,7 @@ void CCodeCoverage::FunctionLeave2(
     /*[in]*/COR_PRF_FRAME_INFO                  func, 
     /*[in]*/COR_PRF_FUNCTION_ARGUMENT_RANGE     *retvalRange)
 {
-    m_host.AddTestLeavePoint((ULONG)clientData);
+    _host->AddTestLeavePoint((ULONG)clientData);
 }
 
 void CCodeCoverage::FunctionTailcall2(
@@ -63,5 +63,5 @@ void CCodeCoverage::FunctionTailcall2(
     /*[in]*/UINT_PTR                            clientData, 
     /*[in]*/COR_PRF_FRAME_INFO                  func)
 {
-    m_host.AddTestTailcallPoint((ULONG)clientData);
+    _host->AddTestTailcallPoint((ULONG)clientData);
 }

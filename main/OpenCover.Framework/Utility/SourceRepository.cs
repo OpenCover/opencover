@@ -30,6 +30,11 @@ namespace OpenCover.Framework.Utility
         private uint fileID_cache = 0;
         private CodeCoverageStringTextSource textSource_cache = null;
 
+        /// <summary>
+        /// Get string Text Source by FileID
+        /// </summary>
+        /// <param name="fileId"></param>
+        /// <returns></returns>
         public CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
             CodeCoverageStringTextSource source = null;
             if (fileId != 0) {

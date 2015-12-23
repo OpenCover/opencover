@@ -7,7 +7,7 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public abstract class SkippedEntity
     {
-        private SkippedMethod? skippedDueTo;
+        private SkippedMethod? _skippedDueTo;
 
         /// <summary>
         /// If this class has been skipped then this value will describe why
@@ -15,14 +15,14 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("skippedDueTo")]
         public SkippedMethod SkippedDueTo
         {
-            get { return skippedDueTo.GetValueOrDefault(); }
-            set { skippedDueTo = value; }
+            get { return _skippedDueTo.GetValueOrDefault(); }
+            set { _skippedDueTo = value; }
         }
 
         /// <summary>
         /// If this class has been skipped then this value will allow the data to be serialized
         /// </summary>
-        public bool ShouldSerializeSkippedDueTo() { return skippedDueTo.HasValue; }
+        public bool ShouldSerializeSkippedDueTo() { return _skippedDueTo.HasValue; }
 
         /// <summary>
         /// Mark an entity as skipped

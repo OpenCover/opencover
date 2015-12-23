@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -16,9 +14,11 @@ namespace OpenCover.Framework.Persistance
     /// </summary>
     public abstract class BasePersistance : IPersistance
     {
-    	/// <summary>
-    	/// ICommandLine
-    	/// </summary>
+        private static readonly object Protection = new object();
+
+        /// <summary>
+        /// Provides subclasses access to the command line object 
+        /// </summary>
         protected readonly ICommandLine CommandLine;
         private readonly ILog _logger;
         private uint _trackedMethodId;
@@ -54,15 +54,23 @@ namespace OpenCover.Framework.Persistance
             module.Classes = module.Classes ?? new Class[0];
             if (CommandLine.MergeByHash)
             {
-                var modules = CoverageSession.Modules ?? new Module[0];
-                var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
-                if (existingModule!=null)
+                lock (Protection)
                 {
-                    if (!existingModule.Aliases.Any(x=>x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                    var modules = CoverageSession.Modules ?? new Module[0];
+                    lock (Protection)
                     {
-                        existingModule.Aliases.Add(module.FullName);
+                        var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
+                        if (existingModule != null)
+                        {
+                            if (
+                                !existingModule.Aliases.Any(
+                                    x => x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                            {
+                                existingModule.Aliases.Add(module.FullName);
+                            }
+                            return;
+                        }
                     }
-                    return;
                 }
             }
 
@@ -137,8 +145,10 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool IsTracking(string modulePath)
         {
-            return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
-                    !x.ShouldSerializeSkippedDueTo());
+            lock (Protection) { 
+                return CoverageSession.Modules.Any(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)) &&
+                        !x.ShouldSerializeSkippedDueTo());
+            }
         }
 
         /// <summary>
@@ -326,7 +336,6 @@ namespace OpenCover.Framework.Persistance
 
                 CoverageSession.Summary.MinCyclomaticComplexity = Math.Min(CoverageSession.Summary.MinCyclomaticComplexity, module.Summary.MinCyclomaticComplexity);
                 CoverageSession.Summary.MaxCyclomaticComplexity = Math.Max(CoverageSession.Summary.MaxCyclomaticComplexity, module.Summary.MaxCyclomaticComplexity);
-
             }
             CalculateCoverage(CoverageSession.Summary);
         }
@@ -422,13 +431,17 @@ namespace OpenCover.Framework.Persistance
         {
             @class = null;
             //c = null;
-            var module = CoverageSession.Modules.FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
-            if (module == null)
-                return null;
-            if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
-            var pair = _moduleMethodMap[module][functionToken];
-            @class = pair.Key;
-            return pair.Value;
+            lock (Protection)
+            {
+                var module = CoverageSession.Modules
+                    .FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
+                if (module == null)
+                    return null;
+                if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
+                var pair = _moduleMethodMap[module][functionToken];
+                @class = pair.Key;
+                return pair.Value;
+            }
         }
 
         /// <summary>
@@ -486,21 +499,23 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public bool GetTrackingMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
         {
-            uniqueId = 0;
-            foreach (var module in CoverageSession.Modules
-                .Where(x => x.TrackedMethods != null)
-                .Where(x => x.Aliases.Contains(modulePath)))
+            lock (Protection)
             {
-                foreach (var trackedMethod in module.TrackedMethods)
+                uniqueId = 0;
+                foreach (var module in CoverageSession.Modules
+                    .Where(x => x.TrackedMethods != null)
+                    .Where(x => x.Aliases.Contains(modulePath)))
                 {
-                    if (trackedMethod.MetadataToken == functionToken)
+                    foreach (var trackedMethod in module.TrackedMethods)
                     {
-                        uniqueId = trackedMethod.UniqueId;
-                        return true;
+                        if (trackedMethod.MetadataToken == functionToken)
+                        {
+                            uniqueId = trackedMethod.UniqueId;
+                            return true;
+                        }
                     }
                 }
             }
-
             return false;
         }
 
