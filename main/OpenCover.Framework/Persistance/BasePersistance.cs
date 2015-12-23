@@ -156,16 +156,8 @@ namespace OpenCover.Framework.Persistance
         /// </summary>
         public virtual void Commit()
         {
-			//ILog TempLogger = LogManager.GetLogger("OpenCover");
-			//TempLogger.Info("Checking Coverage Session...");
         	if (CoverageSession.Modules != null) {
-				//TempLogger.Info("MarkSkippedMethods...");
                 MarkSkippedMethods();
-				//TempLogger.Info("TransformSequences...");
-                TransformSequences();
-				//TempLogger.Info("CalculateCoverage...");
-                CalculateCoverage();
-				//TempLogger.Info("FilterSkippedMethods...");
 	            if (CommandLine.HideSkipped != null && CommandLine.HideSkipped.Any()) {
 		            foreach (var skippedMethod in CommandLine.HideSkipped.OrderBy(x => x))
 		            {
@@ -195,6 +187,8 @@ namespace OpenCover.Framework.Persistance
 		                }
 		            }
 	            }
+                TransformSequences();
+                CalculateCoverage();
         	}
 
         }
@@ -551,7 +545,7 @@ namespace OpenCover.Framework.Persistance
                 #endregion
 
                 #region step 2: Transformations
-                TransformSequences_RemoveUnvisitedDuplicates (methods);		
+                //TransformSequences_RemoveUnvisitedDuplicates (methods);		
 			    #endregion
             }
 		}
