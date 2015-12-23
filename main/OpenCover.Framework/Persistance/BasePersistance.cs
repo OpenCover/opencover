@@ -814,23 +814,23 @@ namespace OpenCover.Framework.Persistance
 		                 */
 			#endregion
 
-			var generatedMethods = new List<Method>();
-			var userCodedMethods = new List<Method>();
+			//var generatedMethods = new List<Method>();
+			//var userCodedMethods = new List<Method>();
 			var lostSequencePoints = new Dictionary<SequencePoint, Method>();
 			//ILog TempLogger = LogManager.GetLogger("OpenCover");
 			// Extract from generated methods (sp.BranchPoints are collected&connected)
 			foreach (var method in @methods) {
-				if (method.SequencePoints.Length != 0) {
+				if (!Object.ReferenceEquals(method, null) && method.SequencePoints.Length != 0) {
 					if (method.isGenerated) {
 						//TempLogger.Info(getMethodName(method));
-						generatedMethods.Add(method);
+						//generatedMethods.Add(method);
 						foreach (var sp in method.SequencePoints) {
-							if (sp.VisitCount == 0) {
+							if (!Object.ReferenceEquals(sp, null) && sp.VisitCount == 0) {
 								lostSequencePoints.Add(sp, method);
 							}
 						}
 					} else {
-						userCodedMethods.Add(method);
+						//userCodedMethods.Add(method);
 					}
 				}
 			}
@@ -838,17 +838,19 @@ namespace OpenCover.Framework.Persistance
 			if (lostSequencePoints.Count != 0) {
 				// Remove lost if is duplicate
 				foreach (var method in @methods) {
-					foreach (var sp in method.SequencePoints) {
-						if (lostSequencePoints.ContainsKey(sp)) {
-							var cleanSequencePoints = new List<SequencePoint>();
-							foreach (var spGenerated in lostSequencePoints[sp].SequencePoints) {
-								if (!spGenerated.Equals(sp)) {
-									cleanSequencePoints.Add(spGenerated);
-								} else {
-									//TempLogger.Warn("Sequence skipped, line: " + spGenerated.StartLine);
+					if (!Object.ReferenceEquals(method, null)) {
+						foreach (var sp in method.SequencePoints) {
+							if (!Object.ReferenceEquals(sp, null) && lostSequencePoints.ContainsKey(sp)) {
+								var cleanSequencePoints = new List<SequencePoint>();
+								foreach (var spGenerated in lostSequencePoints[sp].SequencePoints) {
+									if (!spGenerated.Equals(sp)) {
+										cleanSequencePoints.Add(spGenerated);
+									} else {
+										//TempLogger.Warn("Sequence skipped, line: " + spGenerated.StartLine);
+									}
 								}
+								lostSequencePoints[sp].SequencePoints = cleanSequencePoints.ToArray();
 							}
-							lostSequencePoints[sp].SequencePoints = cleanSequencePoints.ToArray();
 						}
 					}
 				}
