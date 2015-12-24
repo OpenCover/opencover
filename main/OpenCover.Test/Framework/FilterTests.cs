@@ -803,6 +803,12 @@ namespace OpenCover.Test.Framework
         [TestCase("+{*}[*]*", "process.exe", true, true)]
         [TestCase("+{pro*}[*]*", "process.exe", true, true)]
         [TestCase("+{*cess}[*]*", "process.exe", true, true)]
+        [TestCase("+[ABC*]*", "nunit-executable.exe", true, true)]
+        [TestCase("+[*]DEF.*", "nunit-executable.exe", true, true)]
+        [TestCase("+[*]*", "process.exe", true, true)]
+        [TestCase("-[ABC*]*", "nunit-executable.exe", true, false)]
+        [TestCase("-[*]DEF.*", "nunit-executable.exe", true, false)]
+        [TestCase("-[*]*", "process.exe", true, false)]
         [TestCase("-{*}[*]* +{pro*}[*]*", "process.exe", true, false)]
         [TestCase("+{abc*}[*]* +{pro*}[*]*", "process.exe", true, true)]
         [TestCase("-{*}[ABC*]* +[*]*", "process.exe", true, true)]
@@ -829,7 +835,5 @@ namespace OpenCover.Test.Framework
             yield return string.Format("-filter:\"{0}\"", filterArg);
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
-
-        
     }
 }
