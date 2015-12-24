@@ -93,11 +93,8 @@ namespace OpenCover.Framework.Model
 		/// <param name="obj">Object</param>
 		/// <returns>bool</returns>
         public override bool Equals (Object obj) {
-            if (ReferenceEquals(this, obj)) {
-                return true;
-            }
             var that = obj as SequencePoint;
-			return !ReferenceEquals(that, null) && this.Equals(that);
+            return !ReferenceEquals(that, null) && (ReferenceEquals(this, that) || this.Equals(that));
         }
 
 		/// <summary>
@@ -108,7 +105,8 @@ namespace OpenCover.Framework.Model
 		bool IEquatable<SequencePoint>.Equals(SequencePoint other)
 		{
 			return !ReferenceEquals(other, null)
-				&& this.Document == other.Document
+				&& this.FileId != 0
+				&& this.FileId == other.FileId
 				&& this.StartLine == other.StartLine
 				&& this.StartColumn == other.StartColumn
 				&& this.EndLine == other.EndLine
