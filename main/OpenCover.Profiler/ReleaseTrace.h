@@ -23,7 +23,7 @@ class CReleaseTrace
 		...) const
 	{		
 		va_list ptr; va_start(ptr, pszFmt);
-        int nBytes = _vscprintf(pszFmt, ptr) + 1;
+        int nBytes = _vscprintf(pszFmt, ptr) + 2;
         va_end(ptr);
 				
 		auto prefixLength = strlen(PREFIX);
@@ -31,10 +31,13 @@ class CReleaseTrace
 		sprintf_s(&buffer[0], prefixLength + 1, "%s", PREFIX);
 
         va_start(ptr, pszFmt);
-		_vsnprintf_s(&buffer[prefixLength], nBytes, nBytes - 1, pszFmt, ptr);
+		_vsnprintf_s(&buffer[prefixLength], nBytes, nBytes - 2, pszFmt, ptr);
         va_end(ptr);
 
+        buffer[prefixLength + nBytes - 1] = '\n';
+        
         ::OutputDebugStringA(&buffer[0]);
+
 	}
 #pragma warning(pop)
 
@@ -45,7 +48,7 @@ class CReleaseTrace
 		...) const
 	{
 		va_list ptr; va_start(ptr, pszFmt);
-        int nBytes = _vscwprintf(pszFmt, ptr) + 1;
+        int nBytes = _vscwprintf(pszFmt, ptr) + 2;
         va_end(ptr);
 
 		auto prefixLength = wcslen(WPREFIX);
@@ -53,8 +56,10 @@ class CReleaseTrace
 		swprintf_s(&buffer[0], prefixLength + 1, L"%s", WPREFIX);
 		
         va_start(ptr, pszFmt);
-		_vsnwprintf_s(&buffer[prefixLength], nBytes, nBytes - 1, pszFmt, ptr);
+		_vsnwprintf_s(&buffer[prefixLength], nBytes, nBytes - 2, pszFmt, ptr);
         va_end(ptr);
+
+        buffer[prefixLength + nBytes - 1] = L'\n';
 
         ::OutputDebugStringW(&buffer[0]);
 	}
