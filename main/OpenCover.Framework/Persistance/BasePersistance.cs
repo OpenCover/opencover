@@ -535,7 +535,6 @@ namespace OpenCover.Framework.Persistance
             var sessionModulesQuery = CoverageSession.Modules.Where(module => !module.ShouldSerializeSkippedDueTo());
             foreach(var module in sessionModulesQuery) {
 
-            	// Queries
                 var moduleClassesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
                 var moduleMethodsQuery = moduleClassesQuery.SelectMany(@class => (@class.Methods ?? new Method[0])).Where(x => !x.ShouldSerializeSkippedDueTo());
                 var methods = moduleMethodsQuery.ToArray();
