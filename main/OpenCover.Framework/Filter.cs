@@ -336,7 +336,7 @@ namespace OpenCover.Framework
             }
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForProcessName(processName);
-            return matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.AssemblyName == ".*" || inclusionFilter.ClassName == ".*");
+            return matchingInclusionFilters.Any();
         }
 
         /// <summary>
