@@ -283,7 +283,7 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]].*)";
+            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]][^\x22]*)";
             const RegexOptions myRegexOptions = RegexOptions.None;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
