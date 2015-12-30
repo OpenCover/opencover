@@ -140,7 +140,7 @@ namespace OpenCover.Framework
 
             if (!RegExFilters)
             {
-                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape();
+                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("/?\"<>|}{");
                 assemblyName = assemblyName.ValidateAndEscape();
                 className = className.ValidateAndEscape();
             }
@@ -319,24 +319,44 @@ namespace OpenCover.Framework
         /// <summary>
         /// Should we instrument this asssembly
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <returns></returns>
-        public bool InstrumentProcess(string processName)
+        public bool InstrumentProcess(string processPath)
         {
-            if (string.IsNullOrEmpty(processName))
+            if (string.IsNullOrEmpty(processPath))
             {
                 return false;
             }
+            if (!ExclusionFilters.Any() && !InclusionFilters.Any()) return true;
 
-            processName = Path.GetFileNameWithoutExtension(processName);
-            var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForProcessName(processName);
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*"))
-            {
-                return false;
+            var processName = Path.GetFileNameWithoutExtension(processPath); // can return null!
+            if (ExclusionFilters.Any()) {
+                var matchingExclusionFilters = new List<AssemblyAndClassFilter>(ExclusionFilters.GetMatchingFiltersForProcessName(processPath));
+                if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
+                	matchingExclusionFilters.AddRange(ExclusionFilters.GetMatchingFiltersForProcessName(processName));
+                }
+                if (matchingExclusionFilters.Any
+                        ( exclusionFilter =>
+                             // class-filter is .* and assembly-filter is matching processName 
+                             // this does not match default exclude filters like {.*}[mscorlib].* or {.*}[system].*
+                             // but does match {.*}[.*].* or {.*}[processNa*].* or {.*}[processName].* where assemblyName == processName
+                             exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingAssemblyName (processName)
+                        )
+                    )
+                {
+                    return false;
+                }
             }
 
-            var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForProcessName(processName);
-            return matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.AssemblyName == ".*" || inclusionFilter.ClassName == ".*");
+            if (InclusionFilters.Any()) {
+                var matchingInclusionFilters = new List<AssemblyAndClassFilter>(InclusionFilters.GetMatchingFiltersForProcessName(processPath));
+                if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
+                    matchingInclusionFilters.AddRange(InclusionFilters.GetMatchingFiltersForProcessName(processName));
+                }
+                return matchingInclusionFilters.Any();
+            }
+
+            return true; // not excluded and no inclusion filters
         }
 
         /// <summary>

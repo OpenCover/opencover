@@ -796,31 +796,85 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        [TestCase("+{*}[*]*", null, true, false)]
-        [TestCase("-{*}[*]*", "process.exe", true, false)]
-        [TestCase("-{pro*}[*]*", "process.exe", true, false)]
-        [TestCase("-{*cess}[*]*", "process.exe", true, false)]
+        // TestCase semantic changed!
+        // first boolean is expected value when default filters disabled
+        // second boolean is expected value when default filters enabled
+        [TestCase("+{*}[*]*", null, false, false)]
+        [TestCase("-{*}[*]*", "process.exe", false, false)]
+        [TestCase("-{pro*}[*]*", "process.exe", false, false)]
+        [TestCase("-{*cess}[*]*", "process.exe", false, false)]
         [TestCase("+{*}[*]*", "process.exe", true, true)]
         [TestCase("+{pro*}[*]*", "process.exe", true, true)]
         [TestCase("+{*cess}[*]*", "process.exe", true, true)]
-        [TestCase("-{*}[*]* +{pro*}[*]*", "process.exe", true, false)]
+        [TestCase("+[ABC*]*", "nunit-executable.exe", true, true)]
+        [TestCase("+[*]DEF.*", "nunit-executable.exe", true, true)]
+        [TestCase("+[*]*", "process.exe", true, true)]
+        [TestCase("-[ABC*]*", "nunit-executable.exe", true, true)] // not excluded when no default include filters, included with default include filter
+        [TestCase("-[*]DEF.*", "nunit-executable.exe", true, true)] // not excluded when no default include filters, included with default include filter
+        [TestCase("-[*]*", "process.exe", false, false)]
+        [TestCase("-{*}[*]* +{pro*}[*]*", "process.exe", false, false)]
         [TestCase("+{abc*}[*]* +{pro*}[*]*", "process.exe", true, true)]
         [TestCase("-{*}[ABC*]* +[*]*", "process.exe", true, true)]
-        [TestCase("-{*}[ABC*]* +{*}[*]*", "process.exe", false, true)]
-        [TestCase("-{pro*}[D*F]* +[*]*", "process.exe", false, true)]
-        [TestCase("-{*cess}[*GHI]* +[*]*", "process.exe", false, true)]
+        [TestCase("-{*}[ABC*]* +{*}[*]*", "process.exe", true, true)]
+        [TestCase("-{pro*}[D*F]* +[*]*", "process.exe", true, true)]
+        [TestCase("-{*cess}[*GHI]* +[*]*", "process.exe", true, true)]
         [TestCase("+{ABC}[*]*", "process.exe", false, false)]
-        [TestCase("+{pro*}[*]*", "process.exe", false, true)]
-        public void CanFilterByProcessName(string filterArg, string processName, bool defaultFilters, bool expected)
+        [TestCase("+{pro*}[*]*", "process.exe", true, true)]
+
+        // Instead of matching path, matches extracted "processName" same as above
+        [TestCase("-{pro*}[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase("+{pro*}[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase("-{*cess}[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase("+{*cess}[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase("-{pro*}[*]*", @"C:\Release\process.dll", false, false)]
+        [TestCase("+{pro*}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase("-{*cess}[*]*", @"C:\Release\process.dll", false, false)]
+        [TestCase("+{*cess}[*]*", @"C:\Release\process.dll", true, true)]
+
+        // Match only full name (path\name\ext)
+        [TestCase(@"-{C:\Debug\pro*}[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase(@"+{C:\Debug\pro*}[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-{*cess.exe}[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase(@"+{*cess.exe}[*]*", @"C:\Debug\process.exe", true, true)]
+
+        // EXCLUDE MISMATCH test. 
+        // if not excluded and no include filters, then match
+        // if not excluded and include filters, then match include filtres
+        [TestCase(@"-{C:\Debug\pro*}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{C:\Debug\pro*}[*]* +{C:\Release\*}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{C:\Debug\pro*}[*]* +{process}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{C:\Debug\pro*}[*]* +{noprocess}[*]*", @"C:\Release\process.dll", false, false)]
+
+        [TestCase(@"-{*cess.exe}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{*cess.exe}[*]* +{process}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{*cess.exe}[*]* +{process}[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-{*cess.exe}[*]* +{noprocess}[*]*", @"C:\Release\process.dll", false, false)]
+
+        [TestCase(@"+{C:\Debug\pro*}[*]*", @"C:\Release\process.dll", false, false)]
+        [TestCase(@"+{*cess.exe}[*]*", @"C:\Release\process.dll", false, false)]
+
+        // matches default exclusion filters when enabled
+        [TestCase(@"-{C:\Debug\pro*}[*]*", @"C:\dotNet\mscorlib.dll", true, false)]
+
+        public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
-            // arrange
-            var filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, defaultFilters).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
+            // arrange without default filters
+            var filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
 
             // act
             var instrument = filter.InstrumentProcess(processName);
 
             // assert
-            Assert.AreEqual(expected, instrument);
+            Assert.AreEqual(expectedNoDefaultFilters, instrument);
+
+            // arrange again with default filters
+            filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, true).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
+
+            // act
+            instrument = filter.InstrumentProcess(processName);
+
+            // assert
+            Assert.AreEqual(expectedWithDefaultFilters, instrument);
         }
 
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
@@ -829,7 +883,5 @@ namespace OpenCover.Test.Framework
             yield return string.Format("-filter:\"{0}\"", filterArg);
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
-
-        
     }
 }

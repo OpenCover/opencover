@@ -27,9 +27,6 @@ namespace OpenCover.Framework.Utility
 		{
 		}
 
-        private uint fileID_cache = 0;
-        private CodeCoverageStringTextSource textSource_cache = null;
-
         /// <summary>
         /// Get string Text Source by FileID
         /// </summary>
@@ -38,15 +35,7 @@ namespace OpenCover.Framework.Utility
         public CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
             CodeCoverageStringTextSource source = null;
             if (fileId != 0) {
-                if (fileID_cache == fileId) {
-                    source = textSource_cache;
-                } else {
-                    this.TryGetValue (fileId, out source);
-                    if (source != null) {
-                        fileID_cache = fileId;
-                        textSource_cache = source;
-                    }
-                }
+                this.TryGetValue (fileId, out source);
             }
             return source;
         }
