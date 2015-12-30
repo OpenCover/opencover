@@ -796,6 +796,9 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        // TestCase semantic changed!
+        // first boolean is expected value when default filters disabled
+        // second boolean is expected value when default filters enabled
         [TestCase("+{*}[*]*", null, false, false)]
         [TestCase("-{*}[*]*", "process.exe", false, false)]
         [TestCase("-{pro*}[*]*", "process.exe", false, false)]
@@ -823,7 +826,6 @@ namespace OpenCover.Test.Framework
         [TestCase("+{pro*}[*]*", @"C:\Debug\process.exe", true, true)]
         [TestCase("-{*cess}[*]*", @"C:\Debug\process.exe", false, false)]
         [TestCase("+{*cess}[*]*", @"C:\Debug\process.exe", true, true)]
-
         [TestCase("-{pro*}[*]*", @"C:\Release\process.dll", false, false)]
         [TestCase("+{pro*}[*]*", @"C:\Release\process.dll", true, true)]
         [TestCase("-{*cess}[*]*", @"C:\Release\process.dll", false, false)]
@@ -850,6 +852,9 @@ namespace OpenCover.Test.Framework
 
         [TestCase(@"+{C:\Debug\pro*}[*]*", @"C:\Release\process.dll", false, false)]
         [TestCase(@"+{*cess.exe}[*]*", @"C:\Release\process.dll", false, false)]
+
+        // matches default exclusion filters when enabled
+        [TestCase(@"-{C:\Debug\pro*}[*]*", @"C:\dotNet\mscorlib.dll", true, false)]
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
