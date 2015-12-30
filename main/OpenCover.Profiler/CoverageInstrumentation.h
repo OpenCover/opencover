@@ -16,7 +16,7 @@ namespace CoverageInstrumentation
     inline void AddSequenceCoverage(IM instrumentMethod, Method& method, std::vector<SequencePoint> points)
     {
         if (points.size() == 0) return;
-        for (auto it = points.begin(); it != points.end(); it++)
+        for (auto it = points.begin(); it != points.end(); ++it)
         {
             InstructionList instructions;
             instrumentMethod(instructions, (*it).UniqueId);
@@ -59,7 +59,7 @@ namespace CoverageInstrumentation
                     instructions.push_back(pJumpNext);
 
                     // collect branches instrumentation
-                    for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); sbit++)
+                    for(auto sbit = pCurrent->m_branches.begin(); sbit != pCurrent->m_branches.end(); ++sbit)
                     {
                         idx++;
                         uniqueId = (*std::find_if(points.begin(), points.end(), [pCurrent, idx](BranchPoint &bp){return bp.Offset == pCurrent->m_origOffset && bp.Path == idx;})).UniqueId;
@@ -89,7 +89,9 @@ namespace CoverageInstrumentation
                     Instruction* pElse = instrumentMethod(instructions, storedId);
                     pJumpNext->m_branches[0] = pElse; // rewire pJumpNext
 
+                    // ReSharper disable once CppPossiblyErroneousEmptyStatements
                     for (it = method.m_instructions.begin(); *it != pNext; ++it);
+
                     method.m_instructions.insert(it, instructions.begin(), instructions.end());
                     
                     // restore 'it' position

@@ -36,6 +36,7 @@
     <file src="main\bin\Release\OpenCover.Extensions.pdb" target="tools"/>
     <file src="main\bin\Release\log4net.config" target="tools"/>
     <file src="main\bin\Release\log4net.dll" target="tools"/>
+    <file src="main\bin\Release\CrashReporter.NET.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>

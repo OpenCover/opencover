@@ -113,7 +113,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
-            builder.AppendLine("    [-servicestarttimeout:1m23s");
+            builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
+            builder.AppendLine("    [-communicationtimeout:<integer, e.g. 10000>");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
@@ -189,6 +190,11 @@ namespace OpenCover.Framework
                         ReturnTargetCode = true;
                         ReturnCodeOffset = ExtractValue<int>("returntargetcode", () =>
                             { throw new InvalidOperationException("The return target code offset must be an integer"); });
+                        break;
+                    case "communicationtimeout":
+                        CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
+                        { throw new InvalidOperationException(string.Format("The communication timeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
+                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
@@ -277,7 +283,7 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]].*)";
+            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]][^\x22]*)";
             const RegexOptions myRegexOptions = RegexOptions.None;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
@@ -511,6 +517,11 @@ namespace OpenCover.Framework
         /// Instructs the console to print its version and exit
         /// </summary>
         public bool PrintVersion { get; private set; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host (normally 10000ms)
+        /// </summary>
+        public int CommunicationTimeout { get; private set; }
     }
 
 }

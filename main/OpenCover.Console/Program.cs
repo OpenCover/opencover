@@ -74,7 +74,7 @@ namespace OpenCover.Console
                 {
                     Logger.FatalFormat("An exception occured: {0}", ex.Message);
                     Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                    Logger.FatalFormat("A report has been sent to the OenCover development team...");
+                    Logger.FatalFormat("A report has been sent to the OpenCover development team...");
                 }
 
                 ReportCrash(ex);
@@ -109,7 +109,7 @@ namespace OpenCover.Console
 
                 uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(true));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 System.Console.WriteLine("Failed to send crash report :(");
             }
@@ -303,7 +303,7 @@ namespace OpenCover.Console
                 // Stopping w3svc host
                 if (parser.Target.ToLower().Equals("w3svc"))
                 {
-                    logger.InfoFormat("Stopping svchost to clean up environment variables for w3svc", parser.Target);
+                    logger.InfoFormat("Stopping svchost to clean up environment variables for {0}", parser.Target);
                     if (ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
                     {
                         logger.InfoFormat("Please note that the 'w3svc' service may automatically start");

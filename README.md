@@ -1,3 +1,5 @@
+OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO), with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
+
 The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
 [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover)
@@ -28,6 +30,9 @@ If anyone is aware of any licence violations that this code may be making please
 ### Integration Test support
 OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
 
+#### Mono support
+It isn't sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the windows platform.
+
 #### IIS support
 Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/wiki/IIS-Support)
 
@@ -49,6 +54,7 @@ You will need:
 1. Visual Studio VS2013 (Community Edition) or later with C# and C++
 2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/136891)
 3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 
 
@@ -84,10 +90,13 @@ No Git? Don't worry you can download the latest code as a [zip file](http://gith
 I would like to thank 
 
 * JetBrains for my Open Source [ReSharper licence](http://www.jetbrains.com/resharper/),
+<img src="http://www.jetbrains.com/company/docs/logo_jetbrains.png"/>
+
 * [AppVeyor](https://ci.appveyor.com/project/sawilde/opencover) for allowing free build CI services for Open Source projects,
 * [Coveralls](https://coveralls.io/r/OpenCover/opencover) for allowing free services for Open Source projects,
 * NDepend for my [NDepend licence](http://www.ndepend.com/),
 * the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the VS2013 Community Edition), 
 * the [NextGenUG](http://www.nxtgenug.net/) and their free swag from where I got lots of useful tools,
+
 
 I'd also like to thank my family, employers, colleagues and friends for all their support. 

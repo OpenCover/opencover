@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UITesting;
+//using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
@@ -9,7 +9,7 @@ namespace OpenCover.UITest
     /// <summary>
     /// Summary description for CodedUITest1
     /// </summary>
-    [CodedUITest]
+    //[CodedUITest]
     public class LaunchSimpleTest
     {
         public LaunchSimpleTest()
@@ -29,8 +29,8 @@ namespace OpenCover.UITest
             pi.EnvironmentVariables["Stuff"] = "1";
             pi.UseShellExecute = false;
             //pi.LoadUserProfile = true;
-            var application = ApplicationUnderTest.Launch(pi);
-            application.Process.WaitForExit(10000);
+            //var application = ApplicationUnderTest.Launch(pi);
+            //application.Process.WaitForExit(10000);
         }
 
         #region Additional test attributes

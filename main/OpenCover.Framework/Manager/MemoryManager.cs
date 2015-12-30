@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 using System.Linq;
@@ -28,7 +27,12 @@ namespace OpenCover.Framework.Manager
         /// </summary>
         public class ManagedBlock
         {
+            /// <summary>
+            /// </summary>
             protected string Namespace;
+
+            /// <summary>
+            /// </summary>
             protected string Key;
 
             /// <summary>
@@ -343,6 +347,10 @@ namespace OpenCover.Framework.Manager
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             lock (_lockObject)

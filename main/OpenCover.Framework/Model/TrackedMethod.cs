@@ -18,7 +18,9 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("uid")]
         public UInt32 UniqueId { get; set; }
 
-        // visit count
+        /// <summary>
+        /// The visit count
+        /// </summary>
         [XmlAttribute("vc")]
         public int VisitCount { get; set; }
 

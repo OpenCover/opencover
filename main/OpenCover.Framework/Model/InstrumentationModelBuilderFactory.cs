@@ -35,6 +35,12 @@ namespace OpenCover.Framework.Model
             _trackedMethodStrategyManager = trackedMethodStrategyManager;
         }
 
+        /// <summary>
+        /// Create a Model Builder for a module
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <param name="moduleName"></param>
+        /// <returns></returns>
         public IInstrumentationModelBuilder CreateModelBuilder(string modulePath, string moduleName)
         {
             var manager = new CecilSymbolManager(_commandLine, _filter, _logger, _trackedMethodStrategyManager);
