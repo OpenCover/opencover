@@ -590,7 +590,7 @@ namespace OpenCover.Test.Framework.Persistance
                 TrackedMethods =
                     new[]
                     {
-                        new TrackedMethod {MetadataToken = 1234, Name = "MethodName", UniqueId = 5678}
+                        new TrackedMethod {MetadataToken = 1234, FullName = "MethodName", UniqueId = 5678}
                     }
             };
             module.Aliases.Add("ModulePath");
@@ -614,7 +614,7 @@ namespace OpenCover.Test.Framework.Persistance
                 TrackedMethods =
                     new[]
                     {
-                        new TrackedMethod {MetadataToken = 1234, Name = "MethodName", UniqueId = 5678}
+                        new TrackedMethod {MetadataToken = 1234, FullName = "MethodName", UniqueId = 5678}
                     }
             };
             module.Aliases.Add("ModulePath");
@@ -650,7 +650,7 @@ namespace OpenCover.Test.Framework.Persistance
                     new Class
                     {
                         FullName = "RemoveClassThoughSkippedAttribute",
-                        Methods = new[] {new Method {Name = "SkippedMethod", FileRef = new FileRef()}}
+                        Methods = new[] {new Method {FullName = "SkippedMethod", FileRef = new FileRef()}}
                     },
                     new Class
                     {
@@ -658,8 +658,8 @@ namespace OpenCover.Test.Framework.Persistance
                         Methods =
                             new[]
                             {
-                                new Method {Name = "SkippedMethod", FileRef = new FileRef()},
-                                new Method {Name = "KeepMethod", FileRef = new FileRef()}
+                                new Method {FullName = "SkippedMethod", FileRef = new FileRef()},
+                                new Method {FullName = "KeepMethod", FileRef = new FileRef()}
                             }
                     }
                 }
@@ -678,7 +678,7 @@ namespace OpenCover.Test.Framework.Persistance
             // assert
             Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes.Count());
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[1].Methods.Count());
-            Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[1].Methods[0].Name);
+            Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[1].Methods[0].FullName);
         }
 
         [Test]
@@ -689,7 +689,7 @@ namespace OpenCover.Test.Framework.Persistance
                 .SetupGet(x => x.HideSkipped)
                 .Returns(new List<SkippedMethod> {SkippedMethod.File});
 
-            var method = new Method {Name = "SkippedMethod", FileRef = new FileRef {UniqueId = 2}};
+            var method = new Method {FullName = "SkippedMethod", FileRef = new FileRef {UniqueId = 2}};
             method.MarkAsSkipped(SkippedMethod.File);
 
             Instance.PersistModule(new Module
@@ -705,7 +705,7 @@ namespace OpenCover.Test.Framework.Persistance
                             new[]
                             {
                                 method,
-                                new Method {Name = "KeepMethod", FileRef = new FileRef {UniqueId = 1}}
+                                new Method {FullName = "KeepMethod", FileRef = new FileRef {UniqueId = 1}}
                             }
                     }
                 }
@@ -759,7 +759,7 @@ namespace OpenCover.Test.Framework.Persistance
                 .SetupGet(x => x.HideSkipped)
                 .Returns(new List<SkippedMethod> {reason});
 
-            var method = new Method {Name = "SkippedMethod", FileRef = new FileRef()};
+            var method = new Method {FullName = "SkippedMethod", FileRef = new FileRef()};
             method.MarkAsSkipped(reason);
 
             var module = new Module
@@ -775,7 +775,7 @@ namespace OpenCover.Test.Framework.Persistance
                     new Class
                     {
                         FullName = "KeepClass",
-                        Methods = new[] {method, new Method {Name = "KeepMethod", FileRef = new FileRef()}}
+                        Methods = new[] {method, new Method {FullName = "KeepMethod", FileRef = new FileRef()}}
                     }
                 }
             };
@@ -790,7 +790,7 @@ namespace OpenCover.Test.Framework.Persistance
             // assert
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Count());
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods.Count());
-            Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Name);
+            Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[0].Methods[0].FullName);
         }
 
         [Test]

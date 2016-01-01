@@ -26,7 +26,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
 
             // assert
-            Assert.True(methods.Any(x => x.Name.EndsWith("SimpleNUnit::ASingleTest()")));
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::ASingleTest()")));
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
 
             // assert
-            Assert.True(methods.Any(x => x.Name.EndsWith("SimpleNUnit::ASingleTestCase()")));
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::ASingleTestCase()")));
         }
 
 
@@ -51,7 +51,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
 
             // assert
-            Assert.True(methods.Any(x => x.Name.EndsWith("SimpleNUnit::TheoryTest(System.Double)")));
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::TheoryTest(System.Double)")));
         }
 
 
@@ -64,7 +64,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
 
             // assert
-            Assert.False(methods.Any(x => x.Name.EndsWith("SimpleNUnit::RepeatWithoutTest()")));
+            Assert.False(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::RepeatWithoutTest()")));
         }
     }
 }

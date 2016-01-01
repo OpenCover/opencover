@@ -399,7 +399,7 @@ namespace OpenCover.Framework.Persistance
             var method = GetMethod(modulePath, functionToken, out @class);
             if (method !=null && method.SequencePoints != null)
             {
-                System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.Name, method.MetadataToken);
+                System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.FullName, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
                 if (!(method.MethodPoint is SequencePoint))
                     points.Add(method.MethodPoint);
@@ -424,7 +424,7 @@ namespace OpenCover.Framework.Persistance
             var method = GetMethod(modulePath, functionToken, out @class);
             if (method != null && method.BranchPoints != null)
             {
-                System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.Name, method.MetadataToken);
+                System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.FullName, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();
                 return true;
             }
@@ -546,8 +546,8 @@ namespace OpenCover.Framework.Persistance
 	                TransformSequences_JoinWithBranches (methods);
 	                TransformSequences_AddSources (module.Files, methods, sourceRepository);
 	                TransformSequences_RemoveBranchesOutOfOffset  (methods, sourceRepository);
-	                TransformSequences_RemoveUnvisitedDuplicates (methods);		
-	                TransformSequences_NormalizeBranches (methods); // last 
+	                TransformSequences_RemoveFalsePositiveUnvisited (methods, sourceRepository);		
+	                TransformSequences_NormalizeBranches (methods); // last
 				}
             }
 		}
@@ -638,15 +638,15 @@ namespace OpenCover.Framework.Persistance
 						// method.sp; leftBrace.sp ... rightBrace.sp
 
 						// getter/setter/static-method {
-						if (sourceRepository.isLeftBraceSequencePoint(sourceLineOrderedSps[0])) {
+						if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
 							startOffset = sourceLineOrderedSps[0].Offset;
 						}
 						// method { 
-						else if (sourceRepository.isLeftBraceSequencePoint(sourceLineOrderedSps[1])) {
+						else if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
 							startOffset = sourceLineOrderedSps[1].Offset;
 						}
 						// method }
-						if (sourceRepository.isRightBraceSequencePoint(sourceLineOrderedSps.Last())) {
+						if (sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
 							finalOffset = sourceLineOrderedSps.Last().Offset;
 						}
 					}
@@ -708,63 +708,104 @@ namespace OpenCover.Framework.Persistance
 			}
 		}
 
-		static void TransformSequences_RemoveUnvisitedDuplicates (IEnumerable<Method> methods)
-		{
-			var sequencePointsQuery = methods
-				.Where(m => m != null 
-				       && m.FileRef != null 
-				       && m.FileRef.UniqueId != 0)
-				.SelectMany (m=>m.SequencePoints)
-				.Where(sp=>sp.FileId != 0 && sp.VisitCount != 0);
+		
+        static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository)
+        {
+            // From Methods with Source and visited SequencePoints
+            var sequencePointsQuery = methods
+                .Where(m => m != null
+                       && m.FileRef != null 
+                       && m.FileRef.UniqueId != 0
+            	       && m.SequencePoints != null
+            	       && m.SequencePoints.Length != 0
+                )
+                .SelectMany (m => m.SequencePoints)
+                .Where(sp => sp.FileId != 0 && sp.VisitCount != 0);
 
-			var sequencePointsSet = new HashSet<SequencePoint>();
-			var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
+            var sequencePointsSet = new HashSet<SequencePoint>();
+            var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
 
-			// From all Methods with Source
-			// add all visited SequencePoints with source to HashSet
-			foreach (var sp in sequencePointsQuery) {
-				if (!sequencePointsSet.Contains(sp)) {
-					sequencePointsSet.Add(sp);
-				}
-			}
-			// From generated Metods with Source, 
-			// check for duplicate unvisited SequencePoints with source
-			foreach (var m in methods
-			    .Where(m=> m != null 
-			            && m.FileRef != null 
-			            && m.FileRef.UniqueId != 0 
-			            && m.isGenerated)) {
-				foreach (var sp in m.SequencePoints
-				         .Where(sp=>sp != null && sp.FileId != 0 && sp.VisitCount == 0)) {
-					if (sequencePointsSet.Contains(sp)) {
-						// Unvisited duplicate found, add to remove list
-						toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(m,sp));
-					}
-				}
-			}
-			// Remove duplicate SequencePoints
-			foreach (var tuple in toRemoveMethodSequencePoint) {
-				var cleanSequencePoints = new List<SequencePoint>();
-				foreach (var sp in tuple.Item1.SequencePoints.Where(s=>!s.Equals(tuple.Item2))) {
-					cleanSequencePoints.Add(sp);
-				}
-				tuple.Item1.SequencePoints = cleanSequencePoints.ToArray();
-			}
+            // Add unique visited SequencePoints to HashSet
+            foreach (var sp in sequencePointsQuery) {
+                if (!sequencePointsSet.Contains(sp)) {
+                    sequencePointsSet.Add(sp);
+                }
+            }
+
+            // select false-positive-unvisited
+            foreach (var method in methods
+                .Where (m => m != null
+                    && m.FileRef != null 
+                    && m.FileRef.UniqueId != 0 
+                    && m.SequencePoints != null
+                    && m.SequencePoints.Length != 0
+                    && m.IsGenerated)) {
+
+            	// Select duplicate and false unvisited sequence points
+                // (Sequence point duplicated by generated method and left unvisited)
+                foreach (var sp in method.SequencePoints
+                         .Where(sp => sp != null && sp.FileId != 0 && sp.VisitCount == 0)) {
+                    if (sequencePointsSet.Contains(sp)) {
+                        // Unvisited duplicate found, add to remove list
+                        toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method,sp));
+                    }
+                }
+
+                // Select false unvisited right-curly-braces at generated "MoveNext" method
+                // (Curly braces stolen by generated "MoveNext" method and left unvisited)
+                if (method.CallName == "MoveNext") {
+                    int countDown = 2; // remove up to two last right-curly-braces 
+                    foreach (var sp in method.SequencePoints
+                             .Where (sp => sp != null 
+                                     && sp.FileId != 0
+                                     && sp.StartLine == sp.EndLine
+                                     && sp.StartColumn + 1 == sp.EndColumn
+                                     && sp.VisitCount == 0).Reverse()
+                            ) {
+                        if (countDown > 0) {
+                            if (sourceRepository.IsRightCurlyBraceSequencePoint(sp)) {
+                                toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method, sp));
+                                countDown -= 1;
+                            }
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Remove selected SequencePoints
+            foreach (var tuple in toRemoveMethodSequencePoint) {
+                var cleanSequencePoints = new List<SequencePoint>();
+                foreach (var sp in tuple.Item1.SequencePoints.Where(sp => sp != tuple.Item2)) {
+                    cleanSequencePoints.Add(sp);
+                }
+                tuple.Item1.SequencePoints = cleanSequencePoints.ToArray();
+            }
 
 			#region ToDo
 			/* Problems:
-		                 * 1) Compiler can duplicate sequence point (found in DBCL project)
-		                 * Solution:
-		                 *  Remove unvisited duplicate?
-		                 * 
-		                 * 2) Compiler can move SequencePoint into compiler generated method
-		                 * Solution?  
-		                 *  Identify compiler generated methods
-		                 *   Match each with user method
-		                 *    Move SequencePoints & branches into user method 
-		                 * 
-		                 */
-			#endregion
+                         *  
+                         * 
+                         * 1) Compiler can duplicate sequence point (found in DBCL project)
+                         * Solution: DONE
+                         *  Remove unvisited duplicate?
+                         * 
+                         * 2) Compiler can move SequencePoint into compiler generated method
+                         * Solution?  
+                         *  Identify compiler generated methods
+                         *   Match each with user method
+                         *    Move SequencePoints & branches into user method
+                         *  
+                         * 3) Right braces at IEnumerator<KeyValuePair shown as unvisited
+                         * Solution? DONE 
+                         *  
+                         * 
+                         *  
+                         * 
+                         */
+            #endregion
 
 			#region Examples
 			            /* Duplicate SequencePoint Example 

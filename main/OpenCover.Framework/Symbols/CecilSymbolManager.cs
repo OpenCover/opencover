@@ -283,7 +283,7 @@ namespace OpenCover.Framework.Symbols
         {
             var method = new Method
             {
-                Name = methodDefinition.FullName,
+                FullName = methodDefinition.FullName,
                 IsConstructor = methodDefinition.IsConstructor,
                 IsStatic = methodDefinition.IsStatic,
                 IsGetter = methodDefinition.IsGetter,
@@ -389,7 +389,7 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private static Regex isMovenext = new Regex(@"\<[^\s|>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static Regex isMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
