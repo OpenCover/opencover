@@ -33,7 +33,7 @@ namespace OpenCover.Extensions.Strategy
                     select new TrackedMethod
                     {
                         MetadataToken = methodDefinition.MetadataToken.ToInt32(),
-                        Name = methodDefinition.FullName,
+                        FullName = methodDefinition.FullName,
                         Strategy = StrategyName
                     });
         }

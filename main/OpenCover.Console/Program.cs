@@ -405,7 +405,7 @@ namespace OpenCover.Console
                         }
                         else if (method.FileRef != null)
                         {
-                            unvisitedMethods.Add(string.Format("{0}", method.Name));
+                            unvisitedMethods.Add(string.Format("{0}", method.FullName));
                         }
 
                         altTotalMethods += 1;
