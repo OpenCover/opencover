@@ -122,6 +122,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// True if this.FullName matches generated-method-regex-pattern 
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal bool IsGenerated {
             get {
         		if (_resolvedIsGenerated == null) {
@@ -136,6 +137,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Method "::CallName(". (Name excluding return type, namespace and arguments)
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string CallName {
             get {
                 if (_resolvedCallName != null) { return _resolvedCallName; } // cached
@@ -165,6 +167,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// returnType in Regex(returnType namespacePrefix::methodName([argumentTypes])
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string RegexReturnType {
             get {
                 extractSignature();
@@ -175,6 +178,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// nameSpacePrefix in Regex(returnType namespacePrefix::methodName([argumentTypes])
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string RegexNameSpaceAndClass {
             get {
                 extractSignature();
@@ -185,6 +189,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// methodName in Regex(returnType namespacePrefix::methodName([argumentTypes])
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string RegexCallName {
             get {
                 extractSignature();
@@ -195,6 +200,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// optional argumentTypes in Regex(returnType namespacePrefix::methodName([argumentTypes])
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string RegexArgumentTypes {
             get {
                 extractSignature();
@@ -205,6 +211,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// RegexReplacedName != String.Empty
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal bool RegexIsGenerated {
         	get {
                 extractSignature();
@@ -215,6 +222,7 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Original method name that is replaced by new generated methodName
         /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string RegexReplacedName {
             get {
                 extractSignature();
