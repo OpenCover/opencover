@@ -283,8 +283,14 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]][^\x22]*)";
-            const RegexOptions myRegexOptions = RegexOptions.None;
+            // always starts wih +-
+            // followed by optional "<filter-expr>" process-filter, where optional "filter-expr" excludes "<>" 
+            // followed by required "[filter-expr]" assembly-filter, where optional "filter-expr" excludes "[]" 
+            // followed by optional "filter-expr" class-filter, where optional "filter-expr" excludes +,-,space,doublequote
+            // followed by optional space 
+            // NOTE: double-quote character from test-values somehow sneaks into filter as last character?
+            const string strRegex = @"[-\+](<[^<>]*>)?\[[^\[\]]*\][^-\+\s\x22]*\s*";
+            const RegexOptions myRegexOptions = RegexOptions.Singleline | RegexOptions.ExplicitCapture;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();

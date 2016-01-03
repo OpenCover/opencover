@@ -772,15 +772,23 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        [TestCase("-{nunit-console*}[*]* -{pdb*}[*]* -{nunit-agent*}[*]*")]
+        [TestCase("-<nunit-console*>[*]* -<pdb*>[*]* -<nunit-agent*>[*]*")]
         [TestCase("-[System*]* -[Xyz*]* -[Zap*]*")]
-        [TestCase("-{nunit-console*}[System*]* -[Xyz*]* -{nunit-agent*}[Zap*]*")]
+        [TestCase("-<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*")]
+        [TestCase(" -<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*")]
+        [TestCase("  -<nunit-console*>[System*]*  -[Xyz*]* -<nunit-agent*>[Zap*]*\"")]
+        [TestCase("-<nunit-console*>[System*]*-[Xyz*]*-<nunit-agent*>[Zap*]*\"")]
+        [TestCase("   -<nunit-console*>[System*]*-[Xyz*]*    -<nunit-agent*>[Zap*]*  \"   ")]
+        [TestCase("   -<>[]*+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ")]
+        [TestCase("   -<>[]+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ")]
+        [TestCase("   -<>[]+[]abc*\"-<nunit-agent*>[]\"   ")]
+        [TestCase("+<>[]+[]abc*\"-<nunit-agent*>[]")]
         public void FilterParsing_NonGreedy(string filterArg)
         {
             var parser = new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments());
 
             // assert
-            Assert.AreEqual(3, parser.Filters.Count);
+            Assert.AreEqual(3, parser.Filters.Count, filterArg);
         }
 
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
