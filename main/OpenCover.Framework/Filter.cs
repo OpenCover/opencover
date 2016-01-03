@@ -157,9 +157,9 @@ namespace OpenCover.Framework
         {
             className = string.Empty;
             assemblyName = string.Empty;
-            var regEx = new Regex(@"^(?<type>([+-]))(\{(?<process>(.+))\})?(\[(?<assembly>(.+))\])(?<class>(.+))$");
+            var regEx = new Regex(@"^(?<type>([+-]))(<(?<process>(.+))>)?(\[(?<assembly>(.+))\])(?<class>(.+))$");
             if (useRegEx)
-                regEx = new Regex(@"^(?<type>([+-]))(\{\((?<process>(.+))\)\})?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
+                regEx = new Regex(@"^(?<type>([+-]))(<\((?<process>(.+))\)>)?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
 
             var match = regEx.Match(assemblyClassName);
             if (match.Success)
