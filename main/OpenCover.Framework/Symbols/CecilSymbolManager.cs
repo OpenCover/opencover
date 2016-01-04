@@ -283,7 +283,7 @@ namespace OpenCover.Framework.Symbols
         {
             var method = new Method
             {
-                Name = methodDefinition.FullName,
+                FullName = methodDefinition.FullName,
                 IsConstructor = methodDefinition.IsConstructor,
                 IsStatic = methodDefinition.IsStatic,
                 IsGetter = methodDefinition.IsGetter,
@@ -389,6 +389,7 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
+        private static Regex isMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
@@ -399,7 +400,7 @@ namespace OpenCover.Framework.Symbols
                 var instructions = methodDefinition.SafeGetMethodBody().Instructions;
                 
                 // if method is a generated MoveNext skip first branch (could be a switch or a branch)
-                var skipFirstBranch = Regex.IsMatch(methodDefinition.FullName, @"\<.+\>d__\d+::MoveNext\(\)$");
+                var skipFirstBranch = isMovenext.IsMatch(methodDefinition.FullName);
 
                 foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {

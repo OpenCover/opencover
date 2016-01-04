@@ -1,3 +1,5 @@
+OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO), with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
+
 The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
 [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover)
@@ -27,6 +29,9 @@ If anyone is aware of any licence violations that this code may be making please
 
 ### Integration Test support
 OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
+
+#### Mono support
+It isn't sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the windows platform.
 
 #### IIS support
 Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/wiki/IIS-Support)

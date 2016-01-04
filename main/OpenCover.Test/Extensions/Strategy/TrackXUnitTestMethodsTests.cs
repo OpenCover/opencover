@@ -20,7 +20,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(def.MainModule.Types);
 
             // assert
-            Assert.True(methods.Any(x => x.Name.EndsWith("SimpleXUnit::AddAttributeExclusionFilters_Handles_Null_Elements()")));
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleXUnit::AddAttributeExclusionFilters_Handles_Null_Elements()")));
         }
     }
 }

@@ -3,7 +3,8 @@
 //
 // This source code is released under the MIT License; see the accompanying license file.
 //
-
+using System;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -20,9 +21,10 @@ namespace OpenCover.Framework.Model
         public int MetadataToken { get; set; }
 
         /// <summary>
-        /// The name of the method including namespace, return type and arguments
+        /// The full name of the method (method-definition), includes return-type namespace-class::call-name(argument-types)
         /// </summary>
-        public string Name { get; set; }
+        [XmlElement("Name")]
+        public string FullName { get; set; }
 
         /// <summary>
         /// A reference to a file in the file collection (used to help visualisation)
@@ -56,6 +58,13 @@ namespace OpenCover.Framework.Model
         /// <remarks>Calculated using the Gendarme rules library</remarks>
         [XmlAttribute("cyclomaticComplexity")]
         public int CyclomaticComplexity { get; set; }
+
+        /// <summary>
+        /// What is the NPath complexity of this method.
+        /// </summary>
+        /// <remarks>Product of path branches (ie:path0=2;path1=3;path2=2 =&gt;2*3*2==12</remarks>
+        [XmlAttribute("nPathComplexity")]
+        public int NPathComplexity { get; set; }
 
         /// <summary>
         /// What is the sequence coverage of this method
@@ -107,5 +116,166 @@ namespace OpenCover.Framework.Model
             SequencePoints = null;
             BranchPoints = null;
         }
+
+        #region IsGenerated & CallName  
+
+        /// <summary>
+        /// True if this.FullName matches generated-method-regex-pattern 
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal bool IsGenerated {
+            get {
+        		if (_resolvedIsGenerated == null) {
+        			_resolvedIsGenerated = !String.IsNullOrWhiteSpace(this.FullName)
+                        && this.FullName.Contains("__") // quick test before using regex heavy weapon
+                        && isGeneratedMethodRegex.IsMatch(this.FullName); 
+        		}
+        		return _resolvedIsGenerated == true;
+            }
+        }
+
+        /// <summary>
+        /// Method "::CallName(". (Name excluding return type, namespace and arguments)
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string CallName {
+            get {
+                if (_resolvedCallName != null) { return _resolvedCallName; } // cached
+                _resolvedCallName = String.Empty; // init resolve value
+                if (!String.IsNullOrWhiteSpace(this.FullName)) {
+                    int startIndex = this.FullName.IndexOf("::", StringComparison.Ordinal);
+                    startIndex += 2;
+                    int finalIndex = this.FullName.IndexOf('(', startIndex);
+                    if (startIndex > 1 && finalIndex > startIndex) {
+                        _resolvedCallName = this.FullName // resolve cache
+                            .Substring(startIndex, finalIndex - startIndex);
+                    }
+                }
+                return _resolvedCallName;
+            }
+        }
+
+        private bool? _resolvedIsGenerated = null;
+        private string _resolvedCallName = null;
+        private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        private static readonly Regex isGeneratedMethodRegex = new Regex(@"(<[^\s:>]+>\w__\w)", regexOptions);
+
+        #endregion
+
+        #region Extracting structure from FullName using Regex
+
+        /// <summary>
+        /// returnType in Regex(returnType namespacePrefix::methodName([argumentTypes])
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string RegexReturnType {
+            get {
+                extractSignature();
+                return _returnType;
+            }
+        }
+
+        /// <summary>
+        /// nameSpacePrefix in Regex(returnType namespacePrefix::methodName([argumentTypes])
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string RegexNameSpaceAndClass {
+            get {
+                extractSignature();
+                return _nameSpaceAndClass;
+            }
+        }
+
+        /// <summary>
+        /// methodName in Regex(returnType namespacePrefix::methodName([argumentTypes])
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string RegexCallName {
+            get {
+                extractSignature();
+                return _callName;
+            }
+        }
+
+        /// <summary>
+        /// optional argumentTypes in Regex(returnType namespacePrefix::methodName([argumentTypes])
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string RegexArgumentTypes {
+            get {
+                extractSignature();
+                return _argumentTypes;
+            }
+        }
+
+        /// <summary>
+        /// RegexReplacedName != String.Empty
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal bool RegexIsGenerated {
+        	get {
+                extractSignature();
+                return _originalCallName != String.Empty;
+        	}
+        }
+
+        /// <summary>
+        /// Original method name that is replaced by new generated methodName
+        /// </summary>
+        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
+        internal string RegexReplacedName {
+            get {
+                extractSignature();
+                return _originalCallName;
+            }
+        }
+
+        private void extractSignature () {
+
+            if (!_methodSignatureExtracted) { // not yet extracted?
+                _methodSignatureExtracted = true;
+
+                if (string.IsNullOrWhiteSpace(this.FullName)) {
+                    return; // method name is null or empty or white-space
+                }
+
+                var match = methodItemsRegex.Match(this.FullName);
+                if (match.Success) {
+                    foreach (var groupName in methodItemsRegex.GetGroupNames()) {
+                        switch (groupName) {
+                            case "returnType":
+                                _returnType = match.Groups[groupName].Value;
+                                break;
+                            case "nameSpaceAndClass":
+                                _nameSpaceAndClass = match.Groups[groupName].Value;
+                                break;
+                            case "callName":
+                                _callName = match.Groups[groupName].Value;
+                                break;
+                            case "argumentTypes":
+                                _argumentTypes = match.Groups[groupName].Value;
+                                break;
+                        }
+                    }
+
+                    var subMatch = replacedNameRegex.Match(this.FullName);
+                    if (subMatch.Success) {
+                        _originalCallName = subMatch.Groups["originalCallName"].Value;
+                    }
+                }
+            }
+        }
+
+        private static readonly Regex methodItemsRegex = new Regex(@"^(?<returnType>[^\s]+)\s(?<nameSpaceAndClass>[^\s:]+)::(?<callName>[^\(]+)\((?<argumentTypes>[^\)]+)?\)$", regexOptions);
+        private static readonly Regex replacedNameRegex = new Regex(@"<(?<originalCallName>[^\s:>]+)>\w__\w", regexOptions);
+
+        private bool _methodSignatureExtracted = false;
+        private string _returnType = String.Empty;
+        private string _nameSpaceAndClass = String.Empty;
+        private string _callName = String.Empty;
+        private string _argumentTypes = String.Empty;
+        private string _originalCallName = String.Empty;
+
+        #endregion
     }
 }
