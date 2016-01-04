@@ -772,23 +772,79 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
-        [TestCase("-<nunit-console*>[*]* -<pdb*>[*]* -<nunit-agent*>[*]*")]
-        [TestCase("-[System*]* -[Xyz*]* -[Zap*]*")]
-        [TestCase("-<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*")]
-        [TestCase(" -<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*")]
-        [TestCase("  -<nunit-console*>[System*]*  -[Xyz*]* -<nunit-agent*>[Zap*]*\"")]
-        [TestCase("-<nunit-console*>[System*]*-[Xyz*]*-<nunit-agent*>[Zap*]*\"")]
-        [TestCase("   -<nunit-console*>[System*]*-[Xyz*]*    -<nunit-agent*>[Zap*]*  \"   ")]
-        [TestCase("   -<>[]*+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ")]
-        [TestCase("   -<>[]+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ")]
-        [TestCase("   -<>[]+[]abc*\"-<nunit-agent*>[]\"   ")]
-        [TestCase("+<>[]+[]abc*\"-<nunit-agent*>[]")]
-        public void FilterParsing_NonGreedy(string filterArg)
+        [TestCase("-<nunit-console*>[*]* -<pdb*>[*]* -<nunit-agent*>[*]*", 
+                  "-<nunit-console*>[*]*", 
+                  "-<pdb*>[*]*", 
+                  "-<nunit-agent*>[*]*")]
+        [TestCase("-[System*]* -[Xyz*]* -[Zap*]*", 
+                  "-[System*]*", 
+                  "-[Xyz*]*", 
+                  "-[Zap*]*")]
+        [TestCase("-<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase(" -<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("  -<nunit-console*>[System*]*  -[Xyz*]* -<nunit-agent*>[Zap*]*\"", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+
+        // accepts filters not separated by single space
+        [TestCase("-<nunit-console*>[System*]*-[Xyz*]*-<nunit-agent*>[Zap*]*\"", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<nunit-console*>[System*]*-[Xyz*]*    -<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<>[]*+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<>[]*", 
+                  "+[Xyz*]", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<>[]+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<>[]", 
+                  "+[Xyz*]", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   \"-<>[]+[]abc*\"-<nunit-agent*>[]\"   ", 
+                  "-<>[]", 
+                  "+[]abc*", 
+                  "-<nunit-agent*>[]")]
+        [TestCase("+<>[]+[]abc*\"-<nunit-agent*>[]", 
+                  "+<>[]", 
+                  "+[]abc*", 
+                  "-<nunit-agent*>[]")]
+
+        // accepts any character sequence between <> or []  (for regex expression)  
+        [TestCase("+<()>[()]+[()]abc*\"-<nunit-agent*>[]",                           
+                  "+<()>[()]", 
+                  "+[()]abc*", 
+                  "-<nunit-agent*>[]")]
+        [TestCase(@"  +<([\[{}-<(>)>mx<)>[[[[+[]]+[]abc*""-<(nunit-agent.*)>[([])]", 
+                  @"+<([\[{}-<(>)>mx<)>[[[[+[]]", 
+                  "+[]abc*", 
+                  "-<(nunit-agent.*)>[([])]")]
+        [TestCase(@"  ""+<([\[{ }]""  -<(>)>mx<)>[[[[+[]abc.*""+[]abc*""-<(nunit-agent.*)>[([])]", 
+                  @"+<([\[{ }]""  -<(>)>mx<)>[[[[+[]abc.*", 
+                  "+[]abc*", 
+                  "-<(nunit-agent.*)>[([])]")]
+
+        public void FilterParsing_NonGreedy(string filterArg, string filter0, string filter1, string filter2)
         {
             var parser = new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments());
 
             // assert
             Assert.AreEqual(3, parser.Filters.Count, filterArg);
+            if (parser.Filters.Count == 3) {
+                Assert.AreEqual (filter0, parser.Filters[0], parser.Filters[0]);
+                Assert.AreEqual (filter1, parser.Filters[1], parser.Filters[1]);
+                Assert.AreEqual (filter2, parser.Filters[2], parser.Filters[2]);
+            	
+            }
         }
 
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
