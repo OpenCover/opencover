@@ -839,12 +839,9 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual(3, parser.Filters.Count, filterArg);
-            if (parser.Filters.Count == 3) {
-                Assert.AreEqual (filter0, parser.Filters[0], parser.Filters[0]);
-                Assert.AreEqual (filter1, parser.Filters[1], parser.Filters[1]);
-                Assert.AreEqual (filter2, parser.Filters[2], parser.Filters[2]);
-            	
-            }
+			Assert.AreEqual (filter0, parser.Filters[0], parser.Filters[0]);
+			Assert.AreEqual (filter1, parser.Filters[1], parser.Filters[1]);
+			Assert.AreEqual (filter2, parser.Filters[2], parser.Filters[2]);
         }
 
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
