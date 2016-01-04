@@ -140,7 +140,7 @@ namespace OpenCover.Framework
 
             if (!RegExFilters)
             {
-                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("/?\"<>|}{");
+                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // invalid dir\filename characters 
                 assemblyName = assemblyName.ValidateAndEscape();
                 className = className.ValidateAndEscape();
             }
