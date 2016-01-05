@@ -58,3 +58,4 @@ ReleaseNotes.txt
 /fakes/**/FakesAssemblies/**/*
 /fakes/packages
 !fakes/packages/repositories.config
+cov-int*
