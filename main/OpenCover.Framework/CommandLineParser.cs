@@ -289,7 +289,7 @@ namespace OpenCover.Framework
             // followed by optional class-filter, where class-filter excludes -+" and space characters
             // followed by optional space 
             // NOTE: double-quote character from test-values somehow sneaks into default filter as last character?
-            const string strRegex = @"[\-\+](<.*?>)?(\[.*?\])[^\-\+\s\x22]*\s*";
+            const string strRegex = @"[\-\+](<.*?>)?\[.*?\][^\-\+\s\x22]*";
             const RegexOptions myRegexOptions = RegexOptions.Singleline | RegexOptions.ExplicitCapture;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
