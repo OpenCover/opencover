@@ -1,6 +1,6 @@
 version: 4.6.{build}
 skip_tags: true
-os: Unstable
+os: Visual Studio 2013
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
@@ -8,6 +8,8 @@ environment:
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
+before_build:
+- ps: nuget restore
 nuget:
   disable_publish_on_pr: true
 build_script:
