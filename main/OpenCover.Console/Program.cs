@@ -175,9 +175,8 @@ namespace OpenCover.Console
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
             var searcher = new ManagementObjectSearcher(wmiQuery);
             ManagementObjectCollection retObjectCollection = searcher.Get();
-            foreach (var o in retObjectCollection)
+            foreach (var retObject in retObjectCollection)
             {
-                var retObject = (ManagementObject) o;
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
                 {
@@ -208,7 +207,7 @@ namespace OpenCover.Console
             while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
                 retObjectCollection = searcher.Get();
-                foreach (ManagementObject retObject in retObjectCollection)
+                foreach (var retObject in retObjectCollection)
                 {
                     var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
                     if (cmdLine.EndsWith("-k iissvcs"))
