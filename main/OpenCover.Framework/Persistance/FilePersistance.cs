@@ -82,10 +82,12 @@ namespace OpenCover.Framework.Persistance
         {
             var serializer = new XmlSerializer(typeof (CoverageSession),
                                                new[] {typeof (Module), typeof (Model.File), typeof (Class)});
-            var fs = new FileStream(_fileName, FileMode.Create);
-            var writer = new StreamWriter(fs, new UTF8Encoding());
-            serializer.Serialize(writer, CoverageSession);
-            writer.Close();
+
+            using (var fs = new FileStream(_fileName, FileMode.Create))
+            using (var writer = new StreamWriter(fs, new UTF8Encoding()))
+            {
+                serializer.Serialize(writer, CoverageSession);
+            }
         }
     }
 }
