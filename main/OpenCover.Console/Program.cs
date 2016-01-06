@@ -180,13 +180,13 @@ namespace OpenCover.Console
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
                 {
-                    var proc = (uint)retObject["ProcessId"];
+                    var proc = (int)retObject["ProcessId"];
 
                     // Terminate, the restart is done automatically
                     logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
                     try
                     {
-                        Process.GetProcessById((int)proc).Kill();
+                        Process.GetProcessById(proc).Kill();
                         logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
                     }
                     catch (Exception e)
