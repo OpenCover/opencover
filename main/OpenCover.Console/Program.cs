@@ -20,6 +20,8 @@ using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 using log4net;
 using System.Management;
+using OpenCover.Framework.Model;
+using File = System.IO.File;
 
 namespace OpenCover.Console
 {
@@ -149,7 +151,7 @@ namespace OpenCover.Console
                     }
                 }, servicePrincipal);
 
-                DisplayResults(persistance, parser, Logger);
+                DisplayResults(persistance.CoverageSession, parser, Logger);
             }
             catch (Exception ex)
             {
@@ -354,12 +356,9 @@ namespace OpenCover.Console
             return returnCode;
         }
 
-        private static void DisplayResults(IPersistance persistance, ICommandLine parser, ILog logger)
+        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
         {
             if (!logger.IsInfoEnabled) return;
- 
-            var coverageSession = persistance.CoverageSession;
-
 
             var altTotalClasses = 0;
             var altVisitedClasses = 0;
