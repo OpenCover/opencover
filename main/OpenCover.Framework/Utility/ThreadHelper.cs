@@ -15,13 +15,5 @@ namespace OpenCover.Framework.Utility
                 Thread.Sleep(millisecondsInTimeout);
             }
         }
-
-        public static void YieldOrSleep(TimeSpan timespan)
-        {
-            if (!Thread.Yield())
-            {
-                Thread.Sleep(timespan);
-            }
-        }
     }
 }
