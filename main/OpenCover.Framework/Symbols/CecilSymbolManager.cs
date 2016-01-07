@@ -68,11 +68,23 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-        private SymbolFolder FindSymbolsFolder()
+        private SymbolFolder FindSymbolFolder()
         {
             var origFolder = Path.GetDirectoryName(ModulePath);
 
-            return FindSymbolsFolder(ModulePath, origFolder) ?? FindSymbolsFolder(ModulePath, _commandLine.TargetDir) ?? FindSymbolsFolder(ModulePath, Environment.CurrentDirectory);
+            var searchFolders = new List<string>() { origFolder, _commandLine.TargetDir };
+            if (_commandLine.SearchDirs != null)
+                searchFolders.AddRange(_commandLine.SearchDirs);
+            searchFolders.Add(Environment.CurrentDirectory);
+
+            foreach (var searchFolder in searchFolders)
+            {
+                var symbolFolder = FindSymbolsFolder(ModulePath, searchFolder);
+                if (symbolFolder != null) 
+                    return symbolFolder;
+            }
+
+            return null;
         }
 
         private static SymbolFolder FindSymbolsFolder(string fileName, string targetfolder)
@@ -104,7 +116,7 @@ namespace OpenCover.Framework.Symbols
         {
             try
             {
-                var symbolFolder = FindSymbolsFolder();
+                var symbolFolder = FindSymbolFolder();
                 if (symbolFolder == null) return;
                 var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
 
