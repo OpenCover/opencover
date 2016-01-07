@@ -72,12 +72,10 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
-                if (Logger.IsFatalEnabled)
-                {
-                    Logger.FatalFormat("An exception occured: {0}", ex.Message);
-                    Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                    Logger.FatalFormat("A report has been sent to the OpenCover development team...");
-                }
+                Logger.Fatal("Main catch (Exception ex)");
+                Logger.FatalFormat("An exception occured: {0}", ex.Message);
+                Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                //Logger.FatalFormat("A report has been sent to the OpenCover development team...");
 
                 ReportCrash(ex);
 
@@ -89,7 +87,14 @@ namespace OpenCover.Console
 
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
+            var ex = (Exception)unhandledExceptionEventArgs.ExceptionObject;
+            Logger.Fatal("CurrentDomainOnUnhandledException");
+            Logger.FatalFormat("An exception occured: {0}", ex.Message);
+            Logger.FatalFormat("stack: {0}", ex.StackTrace);
+            //Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+
             ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
+
             Environment.Exit(0);
         }
 
@@ -156,7 +161,7 @@ namespace OpenCover.Console
             catch (Exception ex)
             {
                 Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
-                throw;
+				throw;
             }
             finally
             {
