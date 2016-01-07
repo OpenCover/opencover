@@ -86,5 +86,18 @@ namespace OpenCover.Framework
         {
             return Path.Combine(GetAssemblyLocation(), is64 ? "x64" : "x86") + @"\OpenCover.Profiler.dll";
         }
+
+        public static string GetProfilerPath(Registration registration)
+        {
+            switch (registration)
+            {
+                case Registration.Path32:
+                    return GetProfilerPath(false);                    
+                case Registration.Path64:
+                    return GetProfilerPath(true);
+                default:
+                    return null;
+            }
+        }
     }
 }

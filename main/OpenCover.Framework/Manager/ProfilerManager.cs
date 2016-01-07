@@ -133,18 +133,11 @@ namespace OpenCover.Framework.Manager
             if (_commandLine.CommunicationTimeout > 0)
                 dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
 
-            switch (_commandLine.Registration)
+            var profilerPath = ProfilerRegistration.GetProfilerPath(_commandLine.Registration);
+            if (profilerPath != null)
             {
-                case Registration.Path32:
-                    string profilerPath32 = ProfilerRegistration.GetProfilerPath(false);
-                    dictionary["Cor_Profiler_Path"] = profilerPath32;
-                    dictionary["CorClr_Profiler_Path"] = profilerPath32;
-                    break;
-                case Registration.Path64:
-                    string profilerPath64 = ProfilerRegistration.GetProfilerPath(true);
-                    dictionary["Cor_Profiler_Path"] = profilerPath64;
-                    dictionary["CorClr_Profiler_Path"] = profilerPath64;
-                    break;
+                dictionary["Cor_Profiler_Path"] = profilerPath;
+                dictionary["CorClr_Profiler_Path"] = profilerPath;
             }
         }
 

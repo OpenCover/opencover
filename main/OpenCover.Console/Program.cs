@@ -20,6 +20,8 @@ using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 using log4net;
 using System.Management;
+using OpenCover.Framework.Model;
+using File = System.IO.File;
 
 namespace OpenCover.Console
 {
@@ -149,7 +151,7 @@ namespace OpenCover.Console
                     }
                 }, servicePrincipal);
 
-                DisplayResults(persistance, parser, Logger);
+                DisplayResults(persistance.CoverageSession, parser, Logger);
             }
             catch (Exception ex)
             {
@@ -175,19 +177,18 @@ namespace OpenCover.Console
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
             var searcher = new ManagementObjectSearcher(wmiQuery);
             ManagementObjectCollection retObjectCollection = searcher.Get();
-            foreach (var o in retObjectCollection)
+            foreach (var retObject in retObjectCollection)
             {
-                var retObject = (ManagementObject) o;
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
                 {
-                    var proc = (uint)retObject["ProcessId"];
+                    var proc = (int)retObject["ProcessId"];
 
                     // Terminate, the restart is done automatically
                     logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
                     try
                     {
-                        Process.GetProcessById((int)proc).Kill();
+                        Process.GetProcessById(proc).Kill();
                         logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
                     }
                     catch (Exception e)
@@ -208,7 +209,7 @@ namespace OpenCover.Console
             while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
                 retObjectCollection = searcher.Get();
-                foreach (ManagementObject retObject in retObjectCollection)
+                foreach (var retObject in retObjectCollection)
                 {
                     var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
                     if (cmdLine.EndsWith("-k iissvcs"))
@@ -355,12 +356,9 @@ namespace OpenCover.Console
             return returnCode;
         }
 
-        private static void DisplayResults(IPersistance persistance, ICommandLine parser, ILog logger)
+        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
         {
             if (!logger.IsInfoEnabled) return;
- 
-            var coverageSession = persistance.CoverageSession;
-
 
             var altTotalClasses = 0;
             var altVisitedClasses = 0;
