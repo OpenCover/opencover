@@ -297,33 +297,39 @@ namespace OpenCover.Framework.Manager
                 };
                 threadActivatedEvent.Set();
 
-                while (block.Active)
+                try
                 {
-                    switch (WaitHandle.WaitAny(processEvents))
+                    while (block.Active)
                     {
-                        case 0:
-                            _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
-                            break;
-                        case 1:
-                            var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
-                            // don't let the queue get too big as using too much memory causes 
-                            // problems i.e. the target process closes down but the host takes 
-                            // ages to shutdown; this is a compromise. 
-                            _messageQueue.Enqueue(data);
-                            if (_messageQueue.Count > 400)
-                            {
-                                do
+                        switch (WaitHandle.WaitAny(processEvents))
+                        {
+                            case 0:
+                                _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
+                                break;
+                            case 1:
+                                var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
+                                // don't let the queue get too big as using too much memory causes 
+                                // problems i.e. the target process closes down but the host takes 
+                                // ages to shutdown; this is a compromise. 
+                                _messageQueue.Enqueue(data);
+                                if (_messageQueue.Count > 400)
                                 {
-                                    ThreadHelper.YieldOrSleep(100);
-                                } while (_messageQueue.Count > 200);
-                            }
-                            break;
-                        case 2:
-                            threadTermination.ThreadFinishedEvent.Set();
-                            return;
+                                    do
+                                    {
+                                        ThreadHelper.YieldOrSleep(100);
+                                    } while (_messageQueue.Count > 200);
+                                }
+                                break;
+                            case 2:
+                                return;
+                        }
                     }
+                    _memoryManager.RemoveDeactivatedBlocks();
                 }
-                _memoryManager.RemoveDeactivatedBlocks();
+                finally
+                {
+                    threadTermination.ThreadFinishedEvent.Set();    
+                }
             };
         }
     }
