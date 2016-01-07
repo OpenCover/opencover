@@ -71,9 +71,9 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Property
         /// </summary>
-        public bool isSingleCharSequencePoint {
+        public bool IsSingleCharSequencePoint {
         	get {
-	            return (this.StartLine == this.EndLine) && (this.EndColumn - this.StartColumn) == 1;
+	            return (StartLine == EndLine) && (EndColumn - StartColumn) == 1;
         	}
         }
 
@@ -84,7 +84,7 @@ namespace OpenCover.Framework.Model
 		/// </summary>
 		/// <returns>int</returns>
         public override int GetHashCode () {
-			return unchecked (this.StartLine << 3) ^ unchecked (this.EndLine << 2) ^ unchecked (this.StartColumn << 1) ^ (this.EndColumn);
+			return unchecked (StartLine << 3) ^ unchecked (EndLine << 2) ^ unchecked (StartColumn << 1) ^ (EndColumn);
         }
 		
 		/// <summary>
@@ -92,9 +92,9 @@ namespace OpenCover.Framework.Model
 		/// </summary>
 		/// <param name="obj">Object</param>
 		/// <returns>bool</returns>
-        public override bool Equals (Object obj) {
+        public override bool Equals (object obj) {
             var that = obj as SequencePoint;
-            return !ReferenceEquals(that, null) && (ReferenceEquals(this, that) || this.Equals(that));
+            return !ReferenceEquals(that, null) && (ReferenceEquals(this, that) || (this as IEquatable<SequencePoint>).Equals(that));
         }
 
 		/// <summary>
@@ -105,12 +105,12 @@ namespace OpenCover.Framework.Model
 		bool IEquatable<SequencePoint>.Equals(SequencePoint other)
 		{
 			return !ReferenceEquals(other, null)
-				&& this.FileId != 0
-				&& this.FileId == other.FileId
-				&& this.StartLine == other.StartLine
-				&& this.StartColumn == other.StartColumn
-				&& this.EndLine == other.EndLine
-				&& this.EndColumn == other.EndColumn;
+				&& FileId != 0
+				&& FileId == other.FileId
+				&& StartLine == other.StartLine
+				&& StartColumn == other.StartColumn
+				&& EndLine == other.EndLine
+				&& EndColumn == other.EndColumn;
 		}
 
 		#endregion

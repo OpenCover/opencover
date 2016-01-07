@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
@@ -50,7 +49,8 @@ namespace OpenCover.Framework.Persistance
         /// <param name="module"></param>
         public void PersistModule(Module module)
         {
-            if (module == null) return;
+            if (module == null) 
+                return;
             module.Classes = module.Classes ?? new Class[0];
             if (CommandLine.MergeByHash)
             {
