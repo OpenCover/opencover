@@ -47,3 +47,5 @@
 #else
 #define tstring std::string
 #endif
+
+#include "ReleaseTrace.h"

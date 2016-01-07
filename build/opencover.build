@@ -172,7 +172,7 @@
 
     <property name="configuration" value="release" />
     
-    <exec program="${solution.folder}/bin/${configuration}/dogfood.cmd"
+    <exec program="${solution.folder}/bin/${configuration}/dogfood_exattr.cmd"
       workingdir="${solution.folder}/bin/${configuration}"	/>
 
     <exec program="${solution.folder}/bin/${configuration}/uitest.opencover.cmd"

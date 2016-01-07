@@ -5,8 +5,6 @@
 //
 #pragma once
 
-#include "ReleaseTrace.h"
-
 class CMutex
 {
 public:
@@ -51,12 +49,12 @@ public:
             LONG prevCount = -1;
             if (::ReleaseSemaphore(m_hSemaphore, 1, &prevCount) && prevCount == 0){ // +1
                 if (::WaitForSingleObject(m_hSemaphore, 1000) == WAIT_TIMEOUT){     // -1
-                    RELTRACE(_T("Semaphore wait timed out => %s\n"), _handleName.c_str());
+                    RELTRACE(_T("Semaphore wait timed out => %s"), _handleName.c_str());
                     return -1;
                 }
             }
             else {
-                RELTRACE(_T("Semaphore count failed => %s, %d\n"), _handleName.c_str(), prevCount);
+                RELTRACE(_T("Semaphore count failed => %s, %d"), _handleName.c_str(), prevCount);
             }
             return prevCount;
         }

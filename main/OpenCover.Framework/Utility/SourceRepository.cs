@@ -60,7 +60,7 @@ namespace OpenCover.Framework.Utility
         /// <param name="sp"></param>
         /// <returns></returns>
         internal bool IsLeftCurlyBraceSequencePoint (SequencePoint sp) {
-            return sp.isSingleCharSequencePoint && this.getSequencePointText(sp) == "{";
+            return sp.IsSingleCharSequencePoint && this.getSequencePointText(sp) == "{";
         }
         /// <summary>
         /// True if SequencePoint source-string == "}"
@@ -69,7 +69,7 @@ namespace OpenCover.Framework.Utility
         /// <param name="sp"></param>
         /// <returns></returns>
         internal bool IsRightCurlyBraceSequencePoint (SequencePoint sp) {
-            return sp.isSingleCharSequencePoint && this.getSequencePointText(sp) == "}";
+            return sp.IsSingleCharSequencePoint && this.getSequencePointText(sp) == "}";
         }
 
         #region IDictionary implementation

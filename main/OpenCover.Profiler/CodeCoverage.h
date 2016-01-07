@@ -16,7 +16,6 @@
 
 #include <unordered_map>
 
-#include "ReleaseTrace.h"
 #include <memory>
 
 using namespace ATL;

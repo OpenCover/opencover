@@ -144,6 +144,21 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void HandlesTheSearchDirsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-searchdirs:XXX;YYY", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.SearchDirs.Length);
+            Assert.AreEqual("XXX", parser.SearchDirs[0]);
+            Assert.AreEqual("YYY", parser.SearchDirs[1]);
+        }
+
+        [Test]
         public void HandlesTheTargetArgsArgumentWithSuppliedValue()
         {
             // arrange  
