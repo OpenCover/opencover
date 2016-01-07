@@ -686,11 +686,11 @@ namespace OpenCover.Framework.Persistance
                                 sp.BranchPoints = new List<BranchPoint>();
                             } else {
                                 var trimmed = sourceRepository.getSequencePointText(sp).Trim();
-                                if (trimmed.Length > 18) {
-                                    if (trimmed.StartsWith ("Contract.Requires<", StringComparison.Ordinal) ) {
+                                if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
+                                    if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
                                         sp.BranchPoints = new List<BranchPoint>();
                                     }
-                                    else if (trimmed.StartsWith ("Contract.EnsuresOnThrow<", StringComparison.Ordinal) ) {
+                                    else if (trimmed.StartsWith ("Contract.Ensures", StringComparison.Ordinal) ) {
                                         sp.BranchPoints = new List<BranchPoint>();
                                     }
                                 }
