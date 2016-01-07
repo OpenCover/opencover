@@ -96,7 +96,7 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    [\"]-target:<target application>[\"]");
             builder.AppendLine("    [[\"]-targetdir:<target directory>[\"]]");
-            builder.AppendLine("    [[\"]-searchdirs:<additonal PDB directory>[;<additonal PDB directory>][;<additonal PDB directory>][\"]]");
+            builder.AppendLine("    [[\"]-searchdirs:<additional PDB directory>[;<additional PDB directory>][;<additional PDB directory>][\"]]");
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
