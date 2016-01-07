@@ -26,7 +26,7 @@ namespace OpenCover.Framework.Manager
     /// <remarks>It probably does too much!</remarks>
     public class ProfilerManager : IProfilerManager
     {
-        const int MaxMsgSize = 65536;
+        private const int MaxMsgSize = 65536;
         private const int NumHandlesPerBlock = 32;
         private const string ProfilerGuid = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
 
@@ -41,6 +41,19 @@ namespace OpenCover.Framework.Manager
 
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
+        class ThreadTermination
+        {
+            public ThreadTermination()
+            {
+                // we do not dispose these events due to a race condition during shutdown
+                CancelThreadEvent = new ManualResetEvent(false);
+                ThreadFinishedEvent = new ManualResetEvent(false);
+            }
+
+            public ManualResetEvent CancelThreadEvent { get; private set; }
+            public ManualResetEvent ThreadFinishedEvent { get; private set; }
+        }
+
         /// <summary>
         /// Create an instance of the profiler manager
         /// </summary>
@@ -49,7 +62,7 @@ namespace OpenCover.Framework.Manager
         /// <param name="memoryManager"></param>
         /// <param name="commandLine"></param>
         /// <param name="perfCounters"></param>
-        public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance, 
+        public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance,
             IMemoryManager memoryManager, ICommandLine commandLine, IPerfCounters perfCounters)
         {
             _communicationManager = communicationManager;
@@ -77,7 +90,7 @@ namespace OpenCover.Framework.Manager
             using (var queueMgmt = new AutoResetEvent(false))
             using (var environmentKeyRead = new AutoResetEvent(false))
             {
-                var handles = new List<WaitHandle> { processMgmt, _mcb.ProfilerRequestsInformation };
+                var handles = new List<WaitHandle> {processMgmt, _mcb.ProfilerRequestsInformation};
 
                 ThreadPool.QueueUserWorkItem(
                     SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
@@ -92,7 +105,7 @@ namespace OpenCover.Framework.Manager
             }
         }
 
-        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, 
+        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey,
             string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
         {
             return state =>
@@ -114,7 +127,8 @@ namespace OpenCover.Framework.Manager
             };
         }
 
-        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace, StringDictionary dictionary)
+        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace,
+            StringDictionary dictionary)
         {
             dictionary[@"OpenCover_Profiler_Key"] = profilerKey;
             dictionary[@"OpenCover_Profiler_Namespace"] = profilerNamespace;
@@ -174,7 +188,7 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(WaitHandle[] handles)
         {
-            var threadHandles = new List<Tuple<EventWaitHandle, EventWaitHandle>>();
+            var threadHandles = new List<ThreadTermination>();
             do
             {
                 switch (WaitHandle.WaitAny(handles))
@@ -200,7 +214,8 @@ namespace OpenCover.Framework.Manager
             var i = 0;
             while (i < BufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
             {
-                DebugLogger.InfoFormat("Waiting for {0} processes to close", _memoryManager.GetBlocks.Count(b => b.Active));
+                DebugLogger.InfoFormat("Waiting for {0} processes to close",
+                    _memoryManager.GetBlocks.Count(b => b.Active));
                 Thread.Sleep(500);
                 i++;
             }
@@ -219,28 +234,20 @@ namespace OpenCover.Framework.Manager
                 if (threadHandles.Any())
                 {
                     var tasks = threadHandles
-                        .Select((e, index) => new {Pair = e, Block = index/NumHandlesPerBlock})
+                        .Select((e, index) => new {ThreadTermination = e, Block = index/NumHandlesPerBlock})
                         .GroupBy(g => g.Block)
-                        .Select(g => g.Select(a => a.Pair).ToList())
+                        .Select(g => g.Select(a => a.ThreadTermination).ToList())
                         .Select(g => Task.Factory.StartNew(() =>
                         {
                             ConsumeException(() =>
                             {
-                                g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                                WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                                g.Select(h => h.CancelThreadEvent).ToList().ForEach(h => h.Set());
+                                WaitHandle.WaitAll(g.Select(h => h.ThreadFinishedEvent).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
                             });
                         })).ToArray();
+
                     Task.WaitAll(tasks);
 
-                    foreach (var threadHandle in threadHandles)
-                    {
-                        var handle = threadHandle;
-                        ConsumeException(() =>
-                        {
-                            handle.Item1.Dispose();
-                            handle.Item2.Dispose();
-                        });
-                    }
                     threadHandles.Clear();
                 }
             }
@@ -260,36 +267,37 @@ namespace OpenCover.Framework.Manager
                 DebugLogger.Error("An unexpected exception was encountered but consumed.", ex);
             }
         }
-        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(ManagedBufferBlock block)
+
+        private ThreadTermination StartProcessingThread(ManagedBufferBlock block)
         {
             DebugLogger.InfoFormat("Starting Process Block => {0}", block.BufferId);
-            var terminateThread = new ManualResetEvent(false);
-            var threadTerminated = new ManualResetEvent(false);
 
-            using (var threadActivated = new AutoResetEvent(false))
+            var threadTermination = new ThreadTermination();
+
+            using (var threadActivatedEvent = new AutoResetEvent(false))
             {
-                ThreadPool.QueueUserWorkItem(ProcessBlock(block, terminateThread,
-                    threadActivated, threadTerminated));
-                threadActivated.WaitOne();
+                ThreadPool.QueueUserWorkItem(ProcessBlock(block, threadActivatedEvent, threadTermination));
+                threadActivatedEvent.WaitOne();
             }
+
             DebugLogger.InfoFormat("Started Process Block => {0}", block.BufferId);
-            return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
+            return threadTermination;
         }
 
         private WaitCallback ProcessBlock(ManagedBufferBlock block,
-            WaitHandle terminateThread, EventWaitHandle threadActivated, EventWaitHandle threadTerminated)
+            EventWaitHandle threadActivatedEvent, ThreadTermination threadTermination)
         {
             return state =>
             {
-                var processEvents = new []
+                var processEvents = new WaitHandle[]
                 {
                     block.CommunicationBlock.ProfilerRequestsInformation,
                     block.MemoryBlock.ProfilerHasResults,
-                    terminateThread
+                    threadTermination.CancelThreadEvent
                 };
-                threadActivated.Set();
-                
-                while(block.Active)
+                threadActivatedEvent.Set();
+
+                while (block.Active)
                 {
                     switch (WaitHandle.WaitAny(processEvents))
                     {
@@ -311,11 +319,10 @@ namespace OpenCover.Framework.Manager
                             }
                             break;
                         case 2:
-                            threadTerminated.Set();
+                            threadTermination.ThreadFinishedEvent.Set();
                             return;
                     }
                 }
-                threadTerminated.Set();
                 _memoryManager.RemoveDeactivatedBlocks();
             };
         }
