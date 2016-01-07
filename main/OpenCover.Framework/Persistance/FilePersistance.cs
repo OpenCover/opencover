@@ -53,13 +53,13 @@ namespace OpenCover.Framework.Persistance
             {
                 _logger.Info(string.Format("Loading coverage file {0}", _fileName));
                 ClearCoverageSession();
-                var serializer = new XmlSerializer(typeof(CoverageSession),
+                var serializer = new XmlSerializer (typeof(CoverageSession),
                                                     new[] { typeof(Module), typeof(Model.File), typeof(Class) });
-                var fs = new FileStream(_fileName, FileMode.Open);
-                var reader = new StreamReader(fs, new UTF8Encoding());
-                var session = (CoverageSession)serializer.Deserialize(reader);
-                reader.Close();
-                ReassignCoverageSession(session);
+                using (var fs = new FileStream(_fileName, FileMode.Open)) {
+                    using (var reader = new StreamReader(fs, new UTF8Encoding())) {
+                        ReassignCoverageSession((CoverageSession)serializer.Deserialize(reader));
+                    }
+                }
             }
             catch(Exception ex)
             {
@@ -82,10 +82,12 @@ namespace OpenCover.Framework.Persistance
         {
             var serializer = new XmlSerializer(typeof (CoverageSession),
                                                new[] {typeof (Module), typeof (Model.File), typeof (Class)});
-            var fs = new FileStream(_fileName, FileMode.Create);
-            var writer = new StreamWriter(fs, new UTF8Encoding());
-            serializer.Serialize(writer, CoverageSession);
-            writer.Close();
+
+            using (var fs = new FileStream(_fileName, FileMode.Create))
+            using (var writer = new StreamWriter(fs, new UTF8Encoding()))
+            {
+                serializer.Serialize(writer, CoverageSession);
+            }
         }
     }
 }

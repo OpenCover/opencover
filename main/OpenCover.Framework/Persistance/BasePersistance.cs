@@ -266,21 +266,21 @@ namespace OpenCover.Framework.Persistance
 
         private void CalculateCoverage()
         {
-            foreach (var module in CoverageSession.Modules.Where(x => !x.ShouldSerializeSkippedDueTo()))
+            foreach (var module in CoverageSession.Modules.Where(x => x != null && !x.ShouldSerializeSkippedDueTo()))
             {
-                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
+                foreach (var @class in (module.Classes ?? new Class[0]).Where(x => x != null && !x.ShouldSerializeSkippedDueTo()))
                 {
-                    foreach (var method in (@class.Methods ?? new Method[0]).Where(x => !x.ShouldSerializeSkippedDueTo()))
+                    foreach (var method in (@class.Methods ?? new Method[0]).Where(x => x != null && !x.ShouldSerializeSkippedDueTo()))
                     {
                         if (method.MethodPoint != null)
                         {
                             method.Visited = (method.MethodPoint.VisitCount > 0);
                         }
 
-                        method.Summary.NumBranchPoints = method.BranchPoints.Count();
-                        method.Summary.VisitedBranchPoints = method.BranchPoints.Count(pt => pt.VisitCount != 0);
-                        method.Summary.NumSequencePoints = method.SequencePoints.Count();
-                        method.Summary.VisitedSequencePoints = method.SequencePoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumBranchPoints = method.BranchPoints == null ? 0 : method.BranchPoints.Count();
+                        method.Summary.VisitedBranchPoints = method.BranchPoints == null ? 0 : method.BranchPoints.Count(pt => pt.VisitCount != 0);
+                        method.Summary.NumSequencePoints = method.SequencePoints == null ? 0 : method.SequencePoints.Count();
+                        method.Summary.VisitedSequencePoints = method.SequencePoints == null ? 0 : method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
                         if (method.Summary.NumSequencePoints > 0)
                             method.Summary.NumBranchPoints += 1;
@@ -304,11 +304,13 @@ namespace OpenCover.Framework.Persistance
 
                         method.NPathComplexity = 0;
                         var nPaths = new Dictionary<int, int>();
-                        foreach (var bp in method.BranchPoints) {
-                            if (!Object.ReferenceEquals(bp, null) && nPaths.ContainsKey(bp.Offset)) {
-                                nPaths[bp.Offset] += 1;
-                            } else {
-                                nPaths.Add(bp.Offset, 1);
+                        if (method.BranchPoints != null && method.BranchPoints.Length != 0) {
+                            foreach (var bp in method.BranchPoints) {
+                                if (!Object.ReferenceEquals(bp, null) && nPaths.ContainsKey(bp.Offset)) {
+                                    nPaths[bp.Offset] += 1;
+                                } else {
+                                    nPaths.Add(bp.Offset, 1);
+                                }
                             }
                         }
                         foreach(var branches in nPaths.Values) {
@@ -532,11 +534,11 @@ namespace OpenCover.Framework.Persistance
 
         private void TransformSequences() {
 
-            var sessionModulesQuery = CoverageSession.Modules.Where(module => !module.ShouldSerializeSkippedDueTo());
+            var sessionModulesQuery = CoverageSession.Modules.Where(module => module != null && !module.ShouldSerializeSkippedDueTo());
             foreach(var module in sessionModulesQuery) {
 
-                var moduleClassesQuery = (module.Classes ?? new Class[0]).Where(x => !x.ShouldSerializeSkippedDueTo());
-                var moduleMethodsQuery = moduleClassesQuery.SelectMany(@class => (@class.Methods ?? new Method[0])).Where(x => !x.ShouldSerializeSkippedDueTo());
+                var moduleClassesQuery = (module.Classes ?? new Class[0]).Where(x => x != null && !x.ShouldSerializeSkippedDueTo());
+                var moduleMethodsQuery = moduleClassesQuery.SelectMany(@class => (@class.Methods ?? new Method[0])).Where(x => x != null && !x.ShouldSerializeSkippedDueTo());
                 var methods = moduleMethodsQuery.ToArray();
 
                 if (methods.Any()) {
@@ -626,7 +628,16 @@ namespace OpenCover.Framework.Persistance
 
         private static void TransformSequences_RemoveBranchesOutOfOffset (IEnumerable<Method> methods, SourceRepository sourceRepository)
         {
-            foreach (var method in methods.Where(m => m != null && m.FileRef != null && m.FileRef.UniqueId != 0)) {
+            foreach (var method in methods) {
+            
+                if (method != null
+                    && method.FileRef != null
+                    && method.FileRef.UniqueId != 0
+                    && method.SequencePoints != null
+                    && method.SequencePoints.Length != 0) {
+                } else {
+                    continue;
+                }
 
                 long startOffset = long.MinValue;
                 long finalOffset = long.MaxValue;
@@ -635,51 +646,60 @@ namespace OpenCover.Framework.Persistance
 
                     #region Use Offset To Remove Compiler Generated Branches
 
-                    var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
-                    if (sourceLineOrderedSps.Length >= 2) {
-                        // leftBrace.sp, [any.sp] ...  rightBrace.sp
-                        // method.sp; leftBrace.sp ... rightBrace.sp
-
+                    if (method.SequencePoints != null && method.SequencePoints.Length != 0) {
+                        
+                        var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
+    
                         // getter/setter/static-method {
+                        
                         if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
                             startOffset = sourceLineOrderedSps[0].Offset;
+                            // method }
+                            if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
                         }
                         // method {
-                        else if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
+                        else if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
                             startOffset = sourceLineOrderedSps[1].Offset;
+                            // method }
+                            if (sourceLineOrderedSps.Length > 2 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
+                        } else { // "{" not found, try "} only"
+                            if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
                         }
-                        // method }
-                        if (sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
-                            finalOffset = sourceLineOrderedSps.Last().Offset;
-                        }
-                    }
-                    if (startOffset != long.MinValue || finalOffset != long.MaxValue) {
+    
                         // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
-                        // this will exclude "{" "}" compiler generated branches and ccrewrite Code Contract's
+                        // this will exclude "{" "}" compiler generated branches and some of ccrewrite Code Contract's
                         foreach (var sp in method.SequencePoints) {
-                            if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
-                                if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
-                                    sp.BranchPoints = new List<BranchPoint>();
+                            if (sp != null
+                                && sp.FileId == method.FileRef.UniqueId
+                                && sp.BranchPoints != null
+                                && sp.BranchPoints.Count != 0) {
+                            } else {
+                                continue;
+                            }
+                            if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
+                                sp.BranchPoints = new List<BranchPoint>();
+                            } else {
+                                var trimmed = sourceRepository.getSequencePointText(sp).Trim();
+                                if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
+                                    if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
+                                        sp.BranchPoints = new List<BranchPoint>();
+                                    }
+                                    else if (trimmed.StartsWith ("Contract.Ensures", StringComparison.Ordinal) ) {
+                                        sp.BranchPoints = new List<BranchPoint>();
+                                    }
                                 }
                             }
                         }
                     }
-                    #endregion
-
-                    #region Use source matching only if offset matching fails ("{" not found)
-
-                    if (startOffset == long.MinValue) { // Method leftCurlyBrace not found, it is moved to another (generated) method
-                        foreach (var sp in method.SequencePoints) {
-                            if (sp != null && sp.BranchPoints != null && sp.BranchPoints.Count != 0 && sp.FileId == method.FileRef.UniqueId) {
-                                if (sourceRepository.getSequencePointText(sp)
-                                    .Trim().StartsWith ("Contract.Requires<", StringComparison.Ordinal) ) {
-                                    sp.BranchPoints = new List<BranchPoint>();
-                                }
-                            }
-                        }
-                    }
 
                     #endregion
+
                 }
             }
         }
@@ -688,7 +708,7 @@ namespace OpenCover.Framework.Persistance
         {
             foreach (var method in methods) {
 
-        		#region Merge Branch-Exits for each Sequence
+                #region Merge Branch-Exits for each Sequence
 
                 // Collection of validBranchPoints (child/connected to parent SequencePoint)
                 var validBranchPoints = new List<BranchPoint>();
@@ -717,7 +737,6 @@ namespace OpenCover.Framework.Persistance
                         // Add to validBranchPoints
                         validBranchPoints.AddRange(sp.BranchPoints);
                         sp.BranchPoints = new List<BranchPoint>();
-                        // clear
                     }
                 }
                 // Replace original method branchPoints with valid (filtered and joined) branches.
@@ -741,7 +760,7 @@ namespace OpenCover.Framework.Persistance
                        && m.SequencePoints.Length != 0
                 )
                 .SelectMany (m => m.SequencePoints)
-                .Where(sp => sp.FileId != 0 && sp.VisitCount != 0);
+                .Where(sp => sp != null && sp.FileId != 0 && sp.VisitCount != 0);
 
             var sequencePointsSet = new HashSet<SequencePoint>();
             var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
@@ -754,49 +773,54 @@ namespace OpenCover.Framework.Persistance
             }
 
             // select false-positive-unvisited
-            foreach (var method in methods
-                // ATTN: in .Where do not use enything but simple properties!
-                // ATTN: Because Commit will lock or fail silently
-                .Where (m => m != null
-                    && m.FileRef != null
-                    && m.FileRef.UniqueId != 0
-                    && m.SequencePoints != null
-                    && m.SequencePoints.Length != 0)) {
-                if (method.IsGenerated) {
-                    // Select duplicate and false unvisited sequence points
-                    // (Sequence point duplicated by generated method and left unvisited)
-                    foreach (var sp in method.SequencePoints
-                             // ATTN: in .Where do not use enything but simple properties!
-                             // ATTN: Because Commit will lock or fail silently
-                             .Where(sp => sp != null && sp.FileId != 0 && sp.VisitCount == 0)) {
-                        if (sequencePointsSet.Contains(sp)) {
-                            // Unvisited duplicate found, add to remove list
-                            toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method,sp));
-                        }
+            foreach (var method in methods) {
+                if (method != null
+                    && method.FileRef != null
+                    && method.FileRef.UniqueId != 0
+                    && method.SequencePoints != null
+                    && method.SequencePoints.Length != 0
+                    && method.IsGenerated) {
+                } else {
+                    continue;
+                }
+
+                // Select duplicate and false-positive unvisited sequence points
+                // (Sequence point duplicated by generated method and left unvisited)
+                foreach (var sp in method.SequencePoints) {
+                    if (sp != null
+                        && sp.FileId == method.FileRef.UniqueId
+                        && sp.VisitCount == 0) { // unvisited only
+                    } else {
+                        continue;
                     }
-    
-                    // Select false unvisited right-curly-braces at generated "MoveNext" method
-                    // (Curly braces moved to generated "MoveNext" method and left unvisited)
-                    if (method.CallName == "MoveNext") {
-                        int countDown = 2; // remove up to two last right-curly-braces
-                        foreach (var sp in method.SequencePoints
-                                 // ATTN: in .Where do not use enything but simple properties!
-                                 // ATTN: Because Commit will lock or fail silently
-                                 .Where (sp => sp != null
-                                         && sp.FileId != 0
-                                         && sp.StartLine == sp.EndLine
-                                         && sp.StartColumn + 1 == sp.EndColumn
-                                         && sp.VisitCount == 0).Reverse()
-                                ) {
-                            if (countDown > 0) {
-                                if (sourceRepository.IsRightCurlyBraceSequencePoint(sp)) {
-                                    toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method, sp));
-                                    countDown -= 1;
-                                }
+                    if (sequencePointsSet.Contains(sp)) {
+                        // Unvisited duplicate found, add to remove list
+                        toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method,sp));
+                    }
+                }
+
+                // Select false unvisited right-curly-braces at generated "MoveNext" method
+                // (Curly braces moved to generated "MoveNext" method and left unvisited)
+                if (method.CallName == "MoveNext") {
+                    int countDown = 2; // remove up to two last right-curly-braces
+                    foreach (var sp in method.SequencePoints.Reverse()) {
+                        if (sp != null
+                            && sp.FileId != 0
+                            && sp.StartLine == sp.EndLine
+                            && sp.StartColumn + 1 == sp.EndColumn
+                            && sp.VisitCount == 0 // unvisited only
+                           ) {
+                        } else {
+                            continue;
+                        }
+                        if (countDown > 0) {
+                            if (sourceRepository.IsRightCurlyBraceSequencePoint(sp)) {
+                                toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method, sp));
+                                countDown -= 1;
                             }
-                            else {
-                                break;
-                            }
+                        }
+                        else {
+                            break;
                         }
                     }
                 }

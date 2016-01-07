@@ -10,34 +10,34 @@ using OpenCover.Framework.Model;
 
 namespace OpenCover.Framework.Utility
 {
-	/// <summary>
-	/// FileType enum
-	/// </summary>
-	public enum FileType : byte {
-		/// <summary>
-		/// Unsupported file extension
-		/// </summary>
-		Unsupported,
+    /// <summary>
+    /// FileType enum
+    /// </summary>
+    public enum FileType : byte {
+        /// <summary>
+        /// Unsupported file extension
+        /// </summary>
+        Unsupported,
 
-		/// <summary>
-		/// File extension is ".cs"
-		/// </summary>
-		CSharp,
+        /// <summary>
+        /// File extension is ".cs"
+        /// </summary>
+        CSharp,
 
-		/// <summary>
-		/// File extension is ".vb"
-		/// </summary>
-		VBasic
-	}
+        /// <summary>
+        /// File extension is ".vb"
+        /// </summary>
+        VBasic
+    }
     /// <summary>StringTextSource (ReadOnly)
-	/// <remarks>Line and column counting starts at 1.</remarks>
+    /// <remarks>Line and column counting starts at 1.</remarks>
     /// </summary>
     public class CodeCoverageStringTextSource
     {
-    	/// <summary>
-    	/// File Type by file name extension
-    	/// </summary>
-    	public FileType FileType = FileType.Unsupported;
+        /// <summary>
+        /// File Type by file name extension
+        /// </summary>
+        public FileType FileType = FileType.Unsupported;
         private readonly string textSource;
         private struct lineInfo {
             public int Offset;
@@ -50,7 +50,11 @@ namespace OpenCover.Framework.Utility
         /// <param name="source"></param>
         public CodeCoverageStringTextSource(string source)
         {
-            this.textSource = source;
+            if (string.IsNullOrEmpty(source)) {
+                this.textSource = string.Empty;
+            } else {
+                this.textSource = source;
+            }
 
             lineInfo line;
             var lineInfoList = new List<lineInfo>();
@@ -60,49 +64,51 @@ namespace OpenCover.Framework.Utility
             bool cr = false;
             bool lf = false;
 
-            foreach ( ushort ch in textSource ) {
-                switch (ch) {
-                    case 0xD:
-                        if (lf||cr) {
-                            newLine = true; // cr after cr|lf
-                        } else {
-                            cr = true; // cr found
-                        }
-                        break;
-                    case 0xA:
-                        if (lf) {
-                            newLine = true; // lf after lf
-                        } else {
-                            lf = true; // lf found
-                        }
-                        break;
-                    default:
-                        if (cr||lf) {
-                            newLine = true; // any non-line-end char after any line-end
-                        }
-                        break;
+            if (textSource != string.Empty) {
+                foreach ( ushort ch in textSource ) {
+                    switch (ch) {
+                        case 0xD:
+                            if (lf||cr) {
+                                newLine = true; // cr after cr|lf
+                            } else {
+                                cr = true; // cr found
+                            }
+                            break;
+                        case 0xA:
+                            if (lf) {
+                                newLine = true; // lf after lf
+                            } else {
+                                lf = true; // lf found
+                            }
+                            break;
+                        default:
+                            if (cr||lf) {
+                                newLine = true; // any non-line-end char after any line-end
+                            }
+                            break;
+                    }
+                    if (newLine) { // newLine detected - add line
+                        line = new lineInfo();
+                        line.Offset = offset;
+                        line.Length = counter - offset;
+                        lineInfoList.Add(line);
+                        offset = counter;
+                        cr = false;
+                        lf = false;
+                        newLine = false;
+                    }
+                    ++counter;
                 }
-                if (newLine) { // newLine detected - add line
-                    line = new lineInfo();
-                    line.Offset = offset;
-                    line.Length = counter - offset;
-                    lineInfoList.Add(line);
-                    offset = counter;
-                    cr = false;
-                    lf = false;
-                    newLine = false;
-                }
-                ++counter;
+                
+                // Add last line
+                line = new lineInfo();
+                line.Offset = offset;
+                line.Length = counter - offset;
+                lineInfoList.Add(line);
+    
+                // Store to readonly field
+                lines = lineInfoList.ToArray();
             }
-            
-            // Add last line
-            line = new lineInfo();
-            line.Offset = offset;
-            line.Length = counter - offset;
-            lineInfoList.Add(line);
-
-            // Store to readonly field
-            lines = lineInfoList.ToArray();
         }
 
         /// <summary>Return text/source using SequencePoint line/col info
@@ -217,7 +223,7 @@ namespace OpenCover.Framework.Utility
         }
         
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="ToIndent"></param>
         /// <param name="TabSize"></param>
@@ -238,7 +244,7 @@ namespace OpenCover.Framework.Utility
                         indented.Append( ' ', repeat );
                     } else {
                         indented.Append ( currChar, 1 );
-                        if ( char.IsLowSurrogate(currChar) 
+                        if ( char.IsLowSurrogate(currChar)
                             && char.IsHighSurrogate(prevChar)
                            ) { --counter; }
                     }
@@ -255,33 +261,33 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
-		public static CodeCoverageStringTextSource GetSource(string filename) {
+        public static CodeCoverageStringTextSource GetSource(string filename) {
 
-			var retSource = (CodeCoverageStringTextSource)null;
-			try {
-				using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
-					try {
-						stream.Position = 0;
-						using (var reader = new StreamReader (stream, Encoding.Default, true)) {
-							retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
-							switch (Path.GetExtension(filename).ToLowerInvariant()) {
-								case ".cs":
-									retSource.FileType = FileType.CSharp;
-									break;
-								case ".vb":
-									retSource.FileType = FileType.VBasic;
-									break;
-								default:
-									retSource.FileType = FileType.Unsupported;
-									break;
-							}
-						}
-					} catch (Exception) {}
-				}
-			} catch (Exception) {}
+            var retSource = new CodeCoverageStringTextSource (string.Empty);
+            try {
+                using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
+                    try {
+                        stream.Position = 0;
+                        using (var reader = new StreamReader (stream, Encoding.Default, true)) {
+                            retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
+                            switch (Path.GetExtension(filename).ToLowerInvariant()) {
+                                case ".cs":
+                                    retSource.FileType = FileType.CSharp;
+                                    break;
+                                case ".vb":
+                                    retSource.FileType = FileType.VBasic;
+                                    break;
+                                default:
+                                    retSource.FileType = FileType.Unsupported;
+                                    break;
+                            }
+                        }
+                    } catch {}
+                }
+            } catch {}
 
-			return retSource;
-		}
+            return retSource;
+        }
 
     }
 }

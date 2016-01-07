@@ -717,7 +717,6 @@ void Method::InsertInstructionsAtOffset(long offset, const InstructionList &inst
 /// copy the data between them</remarks>
 void Method::InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions)
 {
-#define MOVE_TO_ENDOFBRANCH FALSE
     InstructionList clone;
     for (auto it = instructions.begin(); it != instructions.end(); ++it)
     {
@@ -812,28 +811,4 @@ void Method::PopulateILMap(ULONG mapSize, COR_IL_MAP* maps)
         }
     }
 }
-
-
-Instruction* Method::EndOfBranch(Instruction* toFollow)
-    {
-        Instruction* next = toFollow;
-        next->m_jump = nullptr;
-        Instruction* jump;
-        Instruction* jumpTo;
-        if (next != nullptr)
-        {
-            while ( next->m_operation == CEE_BR || next->m_operation == CEE_BR_S ) {
-                _ASSERTE(next->m_isBranch);
-                _ASSERTE(next->m_branches.size() == 1);
-                _ASSERTE(next->m_branches[0] != NULL);
-                jumpTo = next->m_branches[0];
-                _ASSERTE(jumpTo != NULL);
-                if ( jumpTo == nullptr ) break;
-                jump = next; // store last BR instruction
-                next = jumpTo; // store last BR jump-target instruction found (so far) 
-                next->m_jump = jump; // set m_jump to last BR instruction
-            }
-        }
-        return next == nullptr ? toFollow : next;
-    }
 

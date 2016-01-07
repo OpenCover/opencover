@@ -101,7 +101,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    _host = std::make_shared<ProfilerCommunication>(ProfilerCommunication(_shortwait));
+    _host = std::make_shared<ProfilerCommunication>(_shortwait);
 
     if (!_host->Initialise(key, ns, szExeName))
     {
