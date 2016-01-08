@@ -547,9 +547,9 @@ namespace OpenCover.Framework.Persistance
                     TransformSequences_Initialize (methods);
                     TransformSequences_JoinWithBranches (methods);
                     TransformSequences_AddSources (module.Files, methods, sourceRepository);
-                    TransformSequences_RemoveBranchesOutOfOffset  (methods, sourceRepository);
+                    TransformSequences_RemoveCompilerGeneratedBranches  (methods, sourceRepository);
                     TransformSequences_RemoveFalsePositiveUnvisited (methods, sourceRepository);
-                    TransformSequences_NormalizeBranches (methods); // last
+                    TransformSequences_ReduceBranches (methods); // last
                 }
             }
         }
@@ -626,7 +626,7 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        private static void TransformSequences_RemoveBranchesOutOfOffset (IEnumerable<Method> methods, SourceRepository sourceRepository)
+        private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository)
         {
             foreach (var method in methods) {
             
@@ -644,7 +644,7 @@ namespace OpenCover.Framework.Persistance
                 CodeCoverageStringTextSource source = sourceRepository.getCodeCoverageStringTextSource(method.FileRef.UniqueId);
                 if (source != null && source.FileType == FileType.CSharp && !method.IsGenerated) {
 
-                    #region Use Offset To Remove Compiler Generated Branches
+                    #region Use Offset and source To Remove Compiler Generated Branches
 
                     if (method.SequencePoints != null && method.SequencePoints.Length != 0) {
                         
@@ -693,6 +693,8 @@ namespace OpenCover.Framework.Persistance
                                     else if (trimmed.StartsWith ("Contract.Ensures", StringComparison.Ordinal) ) {
                                         sp.BranchPoints = new List<BranchPoint>();
                                     }
+                                } else if (trimmed == "in") {
+                                    sp.BranchPoints = new List<BranchPoint>();
                                 }
                             }
                         }
@@ -704,7 +706,12 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        private static void TransformSequences_NormalizeBranches (IEnumerable<Method> methods)
+        /// <summary>
+        /// Computes reduced SequencePoint branch coverage  
+        /// by finding common exit offset (switch/case)
+        /// </summary>
+        /// <param name="methods"></param>
+        private static void TransformSequences_ReduceBranches (IEnumerable<Method> methods)
         {
             foreach (var method in methods) {
 
