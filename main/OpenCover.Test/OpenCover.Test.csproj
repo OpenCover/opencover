@@ -152,6 +152,7 @@
     <Compile Include="Framework\Model\InstrumentationPointTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Model\MethodTest.cs" />
     <Compile Include="Framework\Model\SequencePointTests.cs" />
     <Compile Include="Framework\Model\SummarySkippedEntityTests.cs" />
     <Compile Include="Framework\Persistance\BasePersistenceTests.cs" />

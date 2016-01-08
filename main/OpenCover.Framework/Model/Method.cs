@@ -122,7 +122,6 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// True if this.FullName matches generated-method-regex-pattern 
         /// </summary>
-        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal bool IsGenerated {
             get {
         		if (_resolvedIsGenerated == null) {
@@ -137,7 +136,6 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Method "::CallName(". (Name excluding return type, namespace and arguments)
         /// </summary>
-        /// <remarks>ATTN: Do not use as .Where predicate</remarks>
         internal string CallName {
             get {
                 if (_resolvedCallName != null) { return _resolvedCallName; } // cached
