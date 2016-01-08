@@ -707,7 +707,8 @@ namespace OpenCover.Framework.Persistance
         }
 
         /// <summary>
-        /// Reduces number of CIL branches to real number by finding common exit offset (switch/case)
+        /// Computes reduced SequencePoint branch coverage  
+        /// by finding common exit offset (switch/case)
         /// </summary>
         /// <param name="methods"></param>
         private static void TransformSequences_ReduceBranches (IEnumerable<Method> methods)
