@@ -234,6 +234,9 @@ namespace OpenCover.Test.Framework.Communication
         {
             var size = Instance.ReadSize;
             Assert.AreNotEqual(0, size);
+            size = Instance.ReadSize; // cover cached size by reading twice
+            Assert.AreNotEqual(0, size);
+            
         }
 
         [Test]
