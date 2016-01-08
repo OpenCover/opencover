@@ -22,12 +22,8 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// File extension is ".cs"
         /// </summary>
-        CSharp,
+        CSharp
 
-        /// <summary>
-        /// File extension is ".vb"
-        /// </summary>
-        VBasic
     }
     /// <summary>StringTextSource (ReadOnly)
     /// <remarks>Line and column counting starts at 1.</remarks>
@@ -43,7 +39,8 @@ namespace OpenCover.Framework.Utility
             public int Offset;
             public int Length;
         }
-        private readonly lineInfo[] lines;
+        private readonly lineInfo[] lines = new lineInfo[0];
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -63,18 +60,21 @@ namespace OpenCover.Framework.Utility
             bool newLine = false;
             bool cr = false;
             bool lf = false;
+            const ushort carriageReturn = 0xD;
+            const ushort lineFeed = 0xA;
 
             if (textSource != string.Empty) {
                 foreach ( ushort ch in textSource ) {
                     switch (ch) {
-                        case 0xD:
+                        case carriageReturn:
                             if (lf||cr) {
+                                lf = false;
                                 newLine = true; // cr after cr|lf
                             } else {
                                 cr = true; // cr found
                             }
                             break;
-                        case 0xA:
+                        case lineFeed:
                             if (lf) {
                                 newLine = true; // lf after lf
                             } else {
@@ -83,19 +83,19 @@ namespace OpenCover.Framework.Utility
                             break;
                         default:
                             if (cr||lf) {
+                                cr = false;
+                                lf = false;
                                 newLine = true; // any non-line-end char after any line-end
                             }
                             break;
                     }
                     if (newLine) { // newLine detected - add line
+                        newLine = false;
                         line = new lineInfo();
                         line.Offset = offset;
                         line.Length = counter - offset;
                         lineInfoList.Add(line);
                         offset = counter;
-                        cr = false;
-                        lf = false;
-                        newLine = false;
                     }
                     ++counter;
                 }
@@ -138,16 +138,11 @@ namespace OpenCover.Framework.Utility
                 #region One-Line request
                 line = GetLine(Line);
 
-                //Debug.Assert(!(Column < 1), "Column < 1");
-                //Debug.Assert(!(Column > EndColumn), "Column > EndColumn");
-                //Debug.Assert(!(EndColumn > line.Length + 1), string.Format ("Single Line EndColumn({0}) > line.Length({1})",EndColumn, line.Length ));
-                //Debug.Assert(!(EndColumn > line.Length + 1), line);
-
-                argOutOfRange = Column < 1
-                    ||   Column > EndColumn
-                    ||   EndColumn > line.Length;
+                argOutOfRange = Column > EndColumn || Column > line.Length;
                 if (!argOutOfRange) {
-                    text.Append(line.Substring(Column-1,EndColumn-Column));
+                    if (Column < 1) { Column = 1; }
+                    if (EndColumn > line.Length + 1) { EndColumn = line.Length + 1; }
+                    text.Append(line.Substring (Column-1, EndColumn-Column));
                 }
                 #endregion
 
@@ -158,18 +153,15 @@ namespace OpenCover.Framework.Utility
                 #region First line
                 line = GetLine(Line);
 
-                //Debug.Assert(!(Column < 1), "Column < 1");
-                //Debug.Assert(!(Column > line.Length), string.Format ("First MultiLine EndColumn({0}) > line.Length({1})",EndColumn, line.Length ));
-
-                argOutOfRange = Column < 1
-                    ||   Column > line.Length;
+                argOutOfRange = Column > line.Length;
                 if (!argOutOfRange) {
-                    text.Append(line.Substring(Column-1));
+                    if (Column < 1) { Column = 1; }
+                    text.Append (line.Substring (Column-1));
                 }
                 #endregion
 
                 #region More than two lines
-                for ( int lineIndex = Line+1; lineIndex < EndLine; lineIndex++ ) {
+                for ( int lineIndex = Line + 1; lineIndex < EndLine; lineIndex++ ) {
                     text.Append ( GetLine ( lineIndex ) );
                 }
                 #endregion
@@ -177,20 +169,17 @@ namespace OpenCover.Framework.Utility
                 #region Last line
                 line = GetLine(EndLine);
 
-                //Debug.Assert(!(EndColumn < 1), "EndColumn < 1");
-                //Debug.Assert(!(EndColumn > line.Length), string.Format ("Last MultiLine EndColumn({0}) > line.Length({1})",EndColumn, line.Length ));
-
-                argOutOfRange = EndColumn < 1
-                    ||   EndColumn > line.Length;
+                argOutOfRange = EndColumn < 1;
                 if (!argOutOfRange) {
-                    text.Append(line.Substring(0,EndColumn));
+                    if (EndColumn > line.Length + 1) { EndColumn = line.Length + 1; }
+                    text.Append(line.Substring(0,EndColumn-1));
                 }
                 #endregion
 
                 #endregion
 
             } else {
-                //Debug.Fail("Line > EndLine");
+                ;
             }
             return text.ToString();
         }
@@ -223,40 +212,6 @@ namespace OpenCover.Framework.Utility
         }
         
         /// <summary>
-        ///
-        /// </summary>
-        /// <param name="ToIndent"></param>
-        /// <param name="TabSize"></param>
-        /// <returns></returns>
-        public static string IndentTabs ( string ToIndent, int TabSize ) {
-            
-            string retString = ToIndent;
-            if ( ToIndent.Contains ( "\t" ) ) {
-                int counter = 0;
-                int remains = 0;
-                int repeat = 0;
-                char prevChar = char.MinValue;
-                var indented = new StringBuilder();
-                foreach ( char currChar in ToIndent ) {
-                    if ( currChar == '\t' ) {
-                        remains = counter % TabSize;
-                        repeat = remains == 0 ? TabSize : remains;
-                        indented.Append( ' ', repeat );
-                    } else {
-                        indented.Append ( currChar, 1 );
-                        if ( char.IsLowSurrogate(currChar)
-                            && char.IsHighSurrogate(prevChar)
-                           ) { --counter; }
-                    }
-                    prevChar = currChar;
-                    ++counter;
-                }
-                retString = indented.ToString();
-            }
-            return retString;
-        }
-
-        /// <summary>
         /// Get line-parsed source from file name
         /// </summary>
         /// <param name="filename"></param>
@@ -264,28 +219,26 @@ namespace OpenCover.Framework.Utility
         public static CodeCoverageStringTextSource GetSource(string filename) {
 
             var retSource = new CodeCoverageStringTextSource (string.Empty);
-            try {
-                using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
-                    try {
-                        stream.Position = 0;
-                        using (var reader = new StreamReader (stream, Encoding.Default, true)) {
-                            retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
-                            switch (Path.GetExtension(filename).ToLowerInvariant()) {
-                                case ".cs":
-                                    retSource.FileType = FileType.CSharp;
-                                    break;
-                                case ".vb":
-                                    retSource.FileType = FileType.VBasic;
-                                    break;
-                                default:
-                                    retSource.FileType = FileType.Unsupported;
-                                    break;
+            if (System.IO.File.Exists(filename)) {
+                try {
+                    using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read)) {
+                        try {
+                            stream.Position = 0;
+                            using (var reader = new StreamReader (stream, Encoding.Default, true)) {
+                                retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
+                                switch (Path.GetExtension(filename).ToLowerInvariant()) {
+                                    case ".cs":
+                                        retSource.FileType = FileType.CSharp;
+                                        break;
+                                    default:
+                                        retSource.FileType = FileType.Unsupported;
+                                        break;
+                                }
                             }
-                        }
-                    } catch {}
-                }
-            } catch {}
-
+                        } catch {}
+                    }
+                } catch {}
+            }
             return retSource;
         }
 
