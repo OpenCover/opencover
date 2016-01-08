@@ -769,7 +769,7 @@ namespace OpenCover.Framework.Persistance
                 .SelectMany (m => m.SequencePoints)
                 .Where(sp => sp != null && sp.FileId != 0 && sp.VisitCount != 0);
 
-            var sequencePointsSet = new HashSet<SequencePoint>();
+            var sequencePointsSet = new HashSet<SequencePoint>(new SequencePointComparer());
             var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
 
             // Add unique visited SequencePoints to HashSet

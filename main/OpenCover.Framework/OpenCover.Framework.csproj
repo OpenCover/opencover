@@ -148,6 +148,7 @@
     <Compile Include="Utility\CodeCoverageStringTextSource.cs" />
     <Compile Include="Utility\IPerfCounters.cs" />
     <Compile Include="Utility\PerfCounters.cs" />
+    <Compile Include="Utility\SequencePointComparer.cs" />
     <Compile Include="Utility\ThreadHelper.cs" />
     <Compile Include="Utility\SourceRepository.cs" />
   </ItemGroup>
