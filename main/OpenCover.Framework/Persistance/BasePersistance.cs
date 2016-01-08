@@ -741,7 +741,7 @@ namespace OpenCover.Framework.Persistance
                             sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
                         }
                         // Add to validBranchPoints
-                        validBranchPoints.AddRange(branchExits.Values.ToList());
+                        validBranchPoints.AddRange(sp.BranchPoints);
                         sp.BranchPoints = new List<BranchPoint>();
                     }
                 }
