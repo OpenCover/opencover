@@ -13,7 +13,7 @@ namespace OpenCover.Framework.Model
     /// <summary>
     /// a sequence point
     /// </summary>
-    public class SequencePoint : InstrumentationPoint, IDocumentReference, IEquatable<SequencePoint>
+    public class SequencePoint : InstrumentationPoint, IDocumentReference
     {        
         /// <summary>
         /// The start line of the sequence point
@@ -76,43 +76,5 @@ namespace OpenCover.Framework.Model
 	            return (StartLine == EndLine) && (EndColumn - StartColumn) == 1;
         	}
         }
-
-		#region IEquatable implementation
-
-		/// <summary>
-		/// Override GetHashCode
-		/// </summary>
-		/// <returns>int</returns>
-        public override int GetHashCode () {
-			return unchecked (StartLine << 3) ^ unchecked (EndLine << 2) ^ unchecked (StartColumn << 1) ^ (EndColumn);
-        }
-		
-		/// <summary>
-		/// Override Equals
-		/// </summary>
-		/// <param name="obj">Object</param>
-		/// <returns>bool</returns>
-        public override bool Equals (object obj) {
-            var that = obj as SequencePoint;
-            return !ReferenceEquals(that, null) && (ReferenceEquals(this, that) || (this as IEquatable<SequencePoint>).Equals(that));
-        }
-
-		/// <summary>
-		/// IEquatable&lt;SequencePoint&gt;.Equals implementation
-		/// </summary>
-		/// <param name="other">SequencePoint</param>
-		/// <returns>bool</returns>
-		bool IEquatable<SequencePoint>.Equals(SequencePoint other)
-		{
-			return !ReferenceEquals(other, null)
-				&& FileId != 0
-				&& FileId == other.FileId
-				&& StartLine == other.StartLine
-				&& StartColumn == other.StartColumn
-				&& EndLine == other.EndLine
-				&& EndColumn == other.EndColumn;
-		}
-
-		#endregion
     }
 }
