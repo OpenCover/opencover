@@ -641,7 +641,7 @@ namespace OpenCover.Framework.Persistance
 
                 long startOffset = long.MinValue;
                 long finalOffset = long.MaxValue;
-                CodeCoverageStringTextSource source = sourceRepository.getCodeCoverageStringTextSource(method.FileRef.UniqueId);
+                CodeCoverageStringTextSource source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
                 if (source != null && source.FileType == FileType.CSharp && !method.IsGenerated) {
 
                     #region Use Offset and source To Remove Compiler Generated Branches
@@ -685,7 +685,7 @@ namespace OpenCover.Framework.Persistance
                             if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
                                 sp.BranchPoints = new List<BranchPoint>();
                             } else {
-                                var trimmed = sourceRepository.getSequencePointText(sp).Trim();
+                                var trimmed = sourceRepository.GetSequencePointText(sp).Trim();
                                 if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
                                     if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
                                         sp.BranchPoints = new List<BranchPoint>();
