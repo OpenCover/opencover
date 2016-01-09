@@ -6,6 +6,7 @@
  * 
  */
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -61,7 +62,26 @@ namespace OpenCover.Test.Framework.Utility
             };
 
             Assert.IsFalse(comparer.Equals(point1, point2));
+            
         }
 
+        [Test]
+        public void UsageThatCoversGetHashCode() {
+
+            var sequencePointsSet = new HashSet<SequencePoint>(comparer);
+            var point1 = new SequencePoint {FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1};
+            var point2 = new SequencePoint {FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1};
+            var point3 = new SequencePoint {FileId = 2, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1};
+
+            Assert.True (sequencePointsSet.Add(point1));
+            Assert.False (sequencePointsSet.Add(point1));
+
+            Assert.True (sequencePointsSet.Contains(point2));
+            Assert.False (sequencePointsSet.Add(point2));
+
+            Assert.False (sequencePointsSet.Contains(point3));
+            Assert.True (sequencePointsSet.Add(point3));
+
+        }
     }
 }
