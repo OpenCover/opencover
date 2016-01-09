@@ -91,52 +91,6 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
-        public void DoesNotEqualNull()
-        {
-            var point = new SequencePoint();
-
-            Assert.IsFalse(point.Equals(null));
-        }
-
-        [Test]
-        public void DoesEqualSelf()
-        {
-            var point = new SequencePoint();
-
-            Assert.IsTrue(point.Equals(point));
-        }
-
-        [Test]
-        public void DoesEqualSimilar()
-        {
-            var point1 = new SequencePoint {FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1};
-            var point2 = new SequencePoint {FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1};
-
-            Assert.IsTrue(point1.Equals(point2));
-        }
-
-        [Test]
-        [TestCase(0, 1, 1, 1, 1)]
-        [TestCase(1, 2, 1, 1, 1)]
-        [TestCase(1, 1, 3, 1, 1)]
-        [TestCase(1, 1, 1, 4, 1)]
-        [TestCase(1, 1, 1, 1, 5)]
-        public void DoesNotEqualDisimilar(int fileId, int startLine, int startColumn, int endLine, int endColumn)
-        {
-            var point1 = new SequencePoint { FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 1 };
-            var point2 = new SequencePoint
-            {
-                FileId = (uint)fileId,
-                StartLine = startLine,
-                StartColumn = startColumn,
-                EndLine = endLine,
-                EndColumn = endColumn
-            };
-
-            Assert.IsFalse(point1.Equals(point2));
-        }
-
-        [Test]
         public void CanDetermineSingleCharSequencePoint()
         {
             Assert.IsTrue(new SequencePoint { FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 2 }.IsSingleCharSequencePoint);
