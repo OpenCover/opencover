@@ -328,7 +328,12 @@ namespace OpenCover.Framework.Manager
                 }
                 finally
                 {
-                    threadTermination.ThreadFinishedEvent.Set();    
+                    // we can now dispose these events as we no longer need them
+                    block.CommunicationBlock.ProfilerRequestsInformation.Dispose();
+                    block.MemoryBlock.ProfilerHasResults.Dispose();
+                    
+                    threadTermination.ThreadFinishedEvent.Set();  
+  
                 }
             };
         }
