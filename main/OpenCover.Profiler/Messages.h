@@ -15,12 +15,14 @@
 
 struct SequencePoint
 {
+    SequencePoint() : UniqueId(0), Offset(0) {}
     ULONG UniqueId;
     long Offset;
 };
 
 struct BranchPoint
 {
+    BranchPoint() : UniqueId(0), Offset(0), Path(0) {}
     ULONG UniqueId;
     long Offset;
     long Path; // for a branch 0 == false, 1 == true ; for a switch it is ...
@@ -28,6 +30,7 @@ struct BranchPoint
 
 struct VisitPoint
 {
+    VisitPoint() : UniqueId(0) {}
     ULONG UniqueId;
 };
 
