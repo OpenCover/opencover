@@ -333,17 +333,14 @@ namespace OpenCover.Framework.Manager
         /// <summary>
         /// remove deactivated blocks
         /// </summary>
-        public void RemoveDeactivatedBlocks()
+        public void RemoveDeactivatedBlock(ManagedBufferBlock block)
         {
             lock (_lockObject)
             {
-                var list = _blocks.Where(b => !b.Active).ToList();
-                foreach (var b in list)
-                {
-                    b.CommunicationBlock.Do(x => x.Dispose());
-                    b.MemoryBlock.Do(x => x.Dispose());
-                    _blocks.RemoveAt(_blocks.IndexOf(b));
-                }
+                if (block.Active) return;
+                block.CommunicationBlock.Do(x => x.Dispose());
+                block.MemoryBlock.Do(x => x.Dispose());
+                _blocks.RemoveAt(_blocks.IndexOf(block));
             }
         }
 
