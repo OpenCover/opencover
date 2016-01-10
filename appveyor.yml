@@ -16,7 +16,7 @@ nuget:
   disable_publish_on_pr: true
 build_script:
 - cmd: >-
-    if "%APPVEYOR_REPO_BRANCH%" = "coverity" (
+    if %APPVEYOR_REPO_BRANCH% == coverity (
       build create-coverity-release
     ) else (
       build create-release
