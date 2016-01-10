@@ -67,7 +67,7 @@
 		<call target="test-bdd" />
 	</target>
   
-  <target name="create-coverity-release" depends="clean-all, build-environment" if="${property::exists('coverity.folder')}">
+  <target name="create-coverity-release" depends="clean-all, build-environment" if="${property::exists('coverity.exe')}">
     
     <exec program="${coverity.exe}" commandline="--dir cov-int --encoding=UTF-8 build.bat build-release-platforms-x64" />
 
