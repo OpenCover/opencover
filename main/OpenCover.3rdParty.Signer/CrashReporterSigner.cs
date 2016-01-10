@@ -1,6 +1,4 @@
 ﻿using System.IO;
-using System.Linq;
-using System.Reflection;
 using Mono.Cecil;
 
 namespace OpenCover.ThirdParty.Signer
@@ -45,8 +43,8 @@ namespace OpenCover.ThirdParty.Signer
 
             File.Copy(assembly, newAssembly, true);
             var definition = AssemblyDefinition.ReadAssembly(newAssembly);
-            var keyPair = new StrongNameKeyPair(new FileStream(key, FileMode.Open, FileAccess.Read));
-            definition.Write(newAssembly, new WriterParameters() { StrongNameKeyPair = keyPair });
+            
+            definition.SignFile(newAssembly, key);
         }
     }
 }
