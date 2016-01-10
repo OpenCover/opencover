@@ -15,6 +15,8 @@
 #define COM_WAIT_LONG 60000
 #define COM_WAIT_VSHORT 3000
 
+#define MSG_UNION_SIZE sizeof(MSG_Union)
+
 ProfilerCommunication::ProfilerCommunication(DWORD short_wait) 
 {
     _bufferId = 0;
@@ -22,6 +24,7 @@ ProfilerCommunication::ProfilerCommunication(DWORD short_wait)
     _pVisitPoints = nullptr;
     _hostCommunicationActive = false;
     _short_wait = short_wait;
+    ATLASSERT(MAX_MSG_SIZE >= sizeof(MSG_Union));
 }
 
 ProfilerCommunication::~ProfilerCommunication()
@@ -349,7 +352,7 @@ bool ProfilerCommunication::GetSequencePoints(mdToken functionToken, WCHAR* pMod
             for (int i = 0; i < _pMSG->getSequencePointsResponse.count; i++)
                 points.push_back(_pMSG->getSequencePointsResponse.points[i]);
             BOOL hasMore = _pMSG->getSequencePointsResponse.hasMore;
-            ::ZeroMemory(_pMSG, MAX_MSG_SIZE);
+            ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
             return hasMore;
         }
         , _short_wait
@@ -386,7 +389,7 @@ bool ProfilerCommunication::GetBranchPoints(mdToken functionToken, WCHAR* pModul
             for (int i=0; i < _pMSG->getBranchPointsResponse.count;i++)
                 points.push_back(_pMSG->getBranchPointsResponse.points[i]); 
             BOOL hasMore = _pMSG->getBranchPointsResponse.hasMore;
- 		    ::ZeroMemory(_pMSG, MAX_MSG_SIZE);
+            ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
 			return hasMore;
         }
         , _short_wait
@@ -413,7 +416,7 @@ bool ProfilerCommunication::TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyNa
         [=, &response]()->BOOL
         {
             response =  _pMSG->trackAssemblyResponse.bResponse == TRUE;
-			::ZeroMemory(_pMSG, MAX_MSG_SIZE);
+            ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
             return FALSE;
         }
         , COM_WAIT_LONG
@@ -440,7 +443,7 @@ bool ProfilerCommunication::TrackMethod(mdToken functionToken, WCHAR* pModulePat
         {
             response =  _pMSG->trackMethodResponse.bResponse == TRUE;
             uniqueId = _pMSG->trackMethodResponse.ulUniqueId;
-			::ZeroMemory(_pMSG, MAX_MSG_SIZE);
+            ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
             return FALSE;
         }
         , _short_wait
@@ -470,7 +473,7 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
             {
                 response =  _pMSG->allocateBufferResponse.bResponse == TRUE;
                 bufferId = _pMSG->allocateBufferResponse.ulBufferId;
-			    ::ZeroMemory(_pMSG, MAX_MSG_SIZE);
+                ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
                 return FALSE;
             }
             , COM_WAIT_VSHORT
