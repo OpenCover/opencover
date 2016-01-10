@@ -328,7 +328,7 @@ namespace OpenCover.Framework.Manager
                                     return;
                             }
                         }
-                        _memoryManager.RemoveDeactivatedBlocks();
+                        _memoryManager.RemoveDeactivatedBlock(block);
                     }
                     finally
                     {

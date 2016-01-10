@@ -73,6 +73,6 @@ namespace OpenCover.Framework.Manager
         /// <summary>
         /// Remove all deactivated blocks
         /// </summary>
-        void RemoveDeactivatedBlocks();
+        void RemoveDeactivatedBlock(ManagedBufferBlock block);
     }
 }

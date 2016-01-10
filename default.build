@@ -78,7 +78,7 @@
 		</exec>
         
     <exec program="${curl.exe}" 
-      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="test1" --form description="Description" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
+      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="${ci.buildNumber}" --form description="${ci.buildNumber}" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
 
   </target>
   

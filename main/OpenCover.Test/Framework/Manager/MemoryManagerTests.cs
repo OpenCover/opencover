@@ -40,7 +40,7 @@ namespace OpenCover.Test.Framework.Manager
         }
 
         [Test]
-        public void RemoveDeactivatedBlocks_RemovesAllBlocks_ThatHaveActiveFalse()
+        public void RemoveDeactivatedBlocs_RemovesNonActiveBlock()
         {
             // arrange
             uint bufferId;
@@ -53,11 +53,31 @@ namespace OpenCover.Test.Framework.Manager
             Assert.AreEqual(1, _manager.GetBlocks.Count(b => b.Active));
             
             // act
-            _manager.RemoveDeactivatedBlocks();
+            var block = _manager.GetBlocks.First(b => !b.Active);
+            _manager.RemoveDeactivatedBlock(block);
 
             // assert
             Assert.AreEqual(1, _manager.GetBlocks.Count);
             Assert.AreEqual(1, _manager.GetBlocks.Count(b => b.Active));
         }
+
+        [Test]
+        public void Cannot_RemoveDeactivatedBlock_OnActiveBlock()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+            Assert.AreEqual(1, _manager.GetBlocks.Count);
+            Assert.AreEqual(1, _manager.GetBlocks.Count(b => b.Active));
+
+            // act
+            var block = _manager.GetBlocks.First();
+            _manager.RemoveDeactivatedBlock(block);
+
+            // assert
+            Assert.AreEqual(1, _manager.GetBlocks.Count);
+            Assert.AreEqual(1, _manager.GetBlocks.Count(b => b.Active));
+        }
+
     }
 }
