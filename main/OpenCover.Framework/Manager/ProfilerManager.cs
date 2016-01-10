@@ -41,7 +41,7 @@ namespace OpenCover.Framework.Manager
 
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
-        class ThreadTermination
+        private class ThreadTermination
         {
             public ThreadTermination()
             {
@@ -85,7 +85,8 @@ namespace OpenCover.Framework.Manager
             _memoryManager.Initialise(@namespace, key, servicePrincipal);
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal))
+            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal)
+                )
             using (var processMgmt = new AutoResetEvent(false))
             using (var queueMgmt = new AutoResetEvent(false))
             using (var environmentKeyRead = new AutoResetEvent(false))
@@ -242,7 +243,8 @@ namespace OpenCover.Framework.Manager
                             ConsumeException(() =>
                             {
                                 g.Select(h => h.CancelThreadEvent).ToList().ForEach(h => h.Set());
-                                WaitHandle.WaitAll(g.Select(h => h.ThreadFinishedEvent).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                                WaitHandle.WaitAll(g.Select(h => h.ThreadFinishedEvent).ToArray<WaitHandle>(),
+                                    new TimeSpan(0, 0, 20));
                             });
                         })).ToArray();
 
@@ -289,51 +291,53 @@ namespace OpenCover.Framework.Manager
         {
             return state =>
             {
-                var processEvents = new WaitHandle[]
-                {
-                    block.CommunicationBlock.ProfilerRequestsInformation,
-                    block.MemoryBlock.ProfilerHasResults,
-                    threadTermination.CancelThreadEvent
-                };
-                threadActivatedEvent.Set();
-
                 try
                 {
-                    while (block.Active)
+                    var processEvents = new WaitHandle[]
                     {
-                        switch (WaitHandle.WaitAny(processEvents))
+                        block.CommunicationBlock.ProfilerRequestsInformation,
+                        block.MemoryBlock.ProfilerHasResults,
+                        threadTermination.CancelThreadEvent
+                    };
+                    threadActivatedEvent.Set();
+
+                    try
+                    {
+                        while (block.Active)
                         {
-                            case 0:
-                                _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
-                                break;
-                            case 1:
-                                var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
-                                // don't let the queue get too big as using too much memory causes 
-                                // problems i.e. the target process closes down but the host takes 
-                                // ages to shutdown; this is a compromise. 
-                                _messageQueue.Enqueue(data);
-                                if (_messageQueue.Count > 400)
-                                {
-                                    do
+                            switch (WaitHandle.WaitAny(processEvents))
+                            {
+                                case 0:
+                                    _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
+                                    break;
+                                case 1:
+                                    var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
+                                    // don't let the queue get too big as using too much memory causes 
+                                    // problems i.e. the target process closes down but the host takes 
+                                    // ages to shutdown; this is a compromise. 
+                                    _messageQueue.Enqueue(data);
+                                    if (_messageQueue.Count > 400)
                                     {
-                                        ThreadHelper.YieldOrSleep(100);
-                                    } while (_messageQueue.Count > 200);
-                                }
-                                break;
-                            case 2:
-                                return;
+                                        do
+                                        {
+                                            ThreadHelper.YieldOrSleep(100);
+                                        } while (_messageQueue.Count > 200);
+                                    }
+                                    break;
+                                case 2:
+                                    return;
+                            }
                         }
+                        _memoryManager.RemoveDeactivatedBlocks();
                     }
-                    _memoryManager.RemoveDeactivatedBlocks();
+                    finally
+                    {
+                        threadTermination.ThreadFinishedEvent.Set();
+                    }
                 }
-                finally
+                catch (ObjectDisposedException)
                 {
-                    // we can now dispose these events as we no longer need them
-                    block.CommunicationBlock.ProfilerRequestsInformation.Dispose();
-                    block.MemoryBlock.ProfilerHasResults.Dispose();
-                    
-                    threadTermination.ThreadFinishedEvent.Set();  
-  
+                    /* an attempt to close thread has probably happened and the events disposed */
                 }
             };
         }
