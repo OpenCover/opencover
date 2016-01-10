@@ -115,6 +115,9 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="OpenCover.Console.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

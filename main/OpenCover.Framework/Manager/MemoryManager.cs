@@ -145,7 +145,7 @@ namespace OpenCover.Framework.Manager
                     s.Release(1);
                     s.Dispose();
                 });
-                //ProfilerHasResults.Do(e => e.Dispose());
+                ProfilerHasResults.Do(e => e.Dispose());
                 ResultsHaveBeenReceived.Do(e => e.Dispose());
                 StreamAccessorResults.Do(r => r.Dispose());
                 _mmfResults.Do(r => r.Dispose());
@@ -252,7 +252,7 @@ namespace OpenCover.Framework.Manager
                     s.Release(1);
                     s.Dispose();
                 });
-                //ProfilerRequestsInformation.Do(e => e.Dispose());
+                ProfilerRequestsInformation.Do(e => e.Dispose());
                 InformationReadyForProfiler.Do(e => e.Dispose());
                 InformationReadByProfiler.Do(e => e.Dispose());
                 StreamAccessorComms.Do(r => r.Dispose());
