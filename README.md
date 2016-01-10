@@ -4,7 +4,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 
 [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover)
 [![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)
-[![Coverity](https://scan.coverity.com/projects/7484/badge.svg)](https://scan.coverity.com/projects/ddur-opencover)
+[![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover)
 [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover)
 [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover)
 [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover)
