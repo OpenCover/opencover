@@ -34,8 +34,9 @@ class CReleaseTrace
 		_vsnprintf_s(&buffer[prefixLength], nBytes, nBytes - 2, pszFmt, ptr);
         va_end(ptr);
 
-        buffer[prefixLength + nBytes - 1] = '\n';
-        
+        buffer[prefixLength + nBytes - 2] = '\n';
+        buffer[prefixLength + nBytes - 1] = '\0';
+
         ::OutputDebugStringA(&buffer[0]);
 
 	}
@@ -59,7 +60,8 @@ class CReleaseTrace
 		_vsnwprintf_s(&buffer[prefixLength], nBytes, nBytes - 2, pszFmt, ptr);
         va_end(ptr);
 
-        buffer[prefixLength + nBytes - 1] = L'\n';
+        buffer[prefixLength + nBytes - 2] = L'\n';
+        buffer[prefixLength + nBytes - 1] = L'\0';
 
         ::OutputDebugStringW(&buffer[0]);
 	}
