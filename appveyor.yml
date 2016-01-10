@@ -15,12 +15,7 @@ cache:
 nuget:
   disable_publish_on_pr: true
 build_script:
-- cmd: >-
-    if %APPVEYOR_REPO_BRANCH% == coverity (
-      build create-coverity-release
-    ) else (
-      build create-release
-    )
+- cmd: if "%APPVEYOR_REPO_BRANCH%" == "coverity" ( build create-coverity-release ) else ( build create-release )
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
