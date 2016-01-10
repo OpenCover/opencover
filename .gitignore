@@ -61,6 +61,7 @@ ReleaseNotes.txt
 
 #Coverity
 cov-int*
+coverity.zip
 
 #SharpDevelop
 /**/OpenCover/coverage.xml

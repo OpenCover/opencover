@@ -177,6 +177,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
     if (m_chainedProfiler != nullptr)
 		m_chainedProfiler->Shutdown();
 
+    if (chained_module_ != nullptr)
+        FreeLibrary(chained_module_);
+
     _host->CloseChannel(m_tracingEnabled);
 
     WCHAR szExeName[MAX_PATH];

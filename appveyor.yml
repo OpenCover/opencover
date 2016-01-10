@@ -5,13 +5,17 @@ shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
     secure: BBBH4QgZXCnE6nFrux34cLWWO5GXrnMU9OZJGJdNePovxJZFzBcm3FsaESNA6zWj
+  COVERITY_TOKEN:
+    secure: rw3Pk+YPWTG7xG7AaJx8wpxnYAOXM1/7HTRahQGuCHc=
+  COVERITY_EMAIL:
+    secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
 nuget:
   disable_publish_on_pr: true
 build_script:
-- build create-release
+- cmd: if "%APPVEYOR_REPO_BRANCH%" == "coverity" ( build create-coverity-release ) else ( build create-release )
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
@@ -61,4 +65,4 @@ notifications:
   on_build_failure: true
   on_build_status_changed: true
 on_success:
-- build dogfood-release
+- cmd: build dogfood-release

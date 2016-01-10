@@ -92,52 +92,54 @@ EXTERN_C HRESULT STDAPICALLTYPE LoadOpenCoverSupportAssembly(IUnknown *pUnk)
 }
 
 HRESULT CCodeCoverage::OpenCoverSupportInitialize(
-	/* [in] */ IUnknown *pICorProfilerInfoUnk)
-{
-	TCHAR ext[1024] = { 0 };
-	::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER"), ext, 1024);
-	if (ext[0] != 0)
-	{
-		ATLTRACE(_T("::OpenCoverSupportInitialize"));
+    /* [in] */ IUnknown *pICorProfilerInfoUnk) {
+    TCHAR ext[1024] = { 0 };
+    ::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER"), ext, 1024);
+    if (ext[0] != 0) {
+        ATLTRACE(_T("::OpenCoverSupportInitialize"));
 
-		ATLTRACE(_T("    ::Initialize(...) => ext = %s"), ext);
+        ATLTRACE(_T("    ::OpenCoverSupportInitialize(...) => ext = %s"), ext);
 
-		TCHAR loc[1024] = { 0 };
-		::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER_LOCATION"), loc, 1024);
-		ATLTRACE(_T("    ::Initialize(...) => loc = %s"), loc);
+        TCHAR loc[1024] = { 0 };
+        ::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER_LOCATION"), loc, 1024);
+        ATLTRACE(_T("    ::OpenCoverSupportInitialize(...) => loc = %s"), loc);
 
-		CLSID clsid;
-		HRESULT hr = CLSIDFromString(T2OLE(ext), &clsid);
-		ATLASSERT(hr == S_OK);
+        if (PathFileExists(loc)) {
+            CLSID clsid;
+            HRESULT hr = CLSIDFromString(T2OLE(ext), &clsid);
+            ATLASSERT(hr == S_OK);
 
-		HMODULE hmodule = LoadLibrary(loc);
-		ATLASSERT(hmodule != NULL);
+            chained_module_ = LoadLibrary(loc);
+            ATLASSERT(chained_module_ != NULL);
 
-		BOOL(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
-			(BOOL(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
-		ATLASSERT(DllGetClassObject != NULL);
+            BOOL(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
+                (BOOL(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(chained_module_, "DllGetClassObject");
+            ATLASSERT(DllGetClassObject != NULL);
 
-		CComPtr<IClassFactory> pClassFactory;
-		hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
-		ATLASSERT(hr == S_OK);
+            CComPtr<IClassFactory> pClassFactory;
+            hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
+            ATLASSERT(hr == S_OK);
+            
+            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
+            ATLASSERT(hr == S_OK);
 
+            HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
+            ULONG count = m_infoHook->AddRef();
 
-		hr = pClassFactory->CreateInstance(NULL, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
-		ATLASSERT(hr == S_OK);
+            m_infoHook->m_pProfilerHook = this;
 
-		HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
-		ULONG count = m_infoHook->AddRef();
+            m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
 
-		m_infoHook->m_pProfilerHook = this;
+            hr = m_chainedProfiler->Initialize(m_infoHook);
 
-		m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
+            ATLTRACE(_T("    ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
+        }
+        else {
+            RELTRACE(_T("    ::OpenCoverSupportInitialize => Failed to locate external profiler at '%s'"), loc);
+        }
+    }
 
-		hr = m_chainedProfiler->Initialize(m_infoHook);
-
-		ATLTRACE(_T("  ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
-	}
-	
-	return S_OK;
+    return S_OK;
 }
 
 mdMethodDef CCodeCoverage::CreatePInvokeHook(ModuleID moduleId){

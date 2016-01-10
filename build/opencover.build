@@ -72,6 +72,12 @@
     <call target="build.opencover" />
   </target>
 
+  <target name="build-release-platforms-x64" description="Build x64 release platform">
+    <property name="configuration" value="release" />
+    <property name="platform" value="x64" />
+    <call target="build.opencover" />
+  </target>
+  
   <target name="build-debug-platforms" description="Build all debug platform flavours">
     <property name="configuration" value="debug" />
     <property name="platform" value="x64" />
