@@ -40,6 +40,10 @@ namespace OpenCover.Framework.Manager
         private ConcurrentQueue<byte[]> _messageQueue;
 
         private readonly object syncRoot = new object ();
+
+        /// <summary>
+        /// Syncronisation Root
+        /// </summary>
         public object SyncRoot {
             get {
                 return syncRoot;

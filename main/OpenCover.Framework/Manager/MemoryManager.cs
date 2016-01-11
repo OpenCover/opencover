@@ -273,11 +273,14 @@ namespace OpenCover.Framework.Manager
         /// <param name="servicePrincipal"></param>
         public void Initialise(string @namespace, string key, IEnumerable<string> servicePrincipal)
         {
-            if (_isIntialised) return;
-            _namespace = @namespace;
-            _key = key;
-            _servicePrincipal = servicePrincipal.ToArray();
-            _isIntialised = true;
+            lock (_lockObject)
+            {
+                if (_isIntialised) return;
+                _namespace = @namespace;
+                _key = key;
+                _servicePrincipal = servicePrincipal.ToArray();
+                _isIntialised = true;
+            }
         }
 
         /// <summary>
@@ -313,7 +316,9 @@ namespace OpenCover.Framework.Manager
         /// </summary>
         public IList<ManagedBufferBlock> GetBlocks
         {
-            get { return _blocks; }
+            get { 
+                lock (_lockObject) { return _blocks; }
+            }
         }
 
         /// <summary>

@@ -79,14 +79,20 @@ namespace OpenCover.Framework
         }
 
         /// <summary>
-        /// 
+        /// GetProfilerPath
         /// </summary>
+        /// <param name="is64"></param>
         /// <returns></returns>
         public static string GetProfilerPath(bool is64)
         {
             return Path.Combine(GetAssemblyLocation(), is64 ? "x64" : "x86") + @"\OpenCover.Profiler.dll";
         }
 
+        /// <summary>
+        /// GetProfilerPath
+        /// </summary>
+        /// <param name="registration"></param>
+        /// <returns></returns>
         public static string GetProfilerPath(Registration registration)
         {
             switch (registration)
