@@ -75,7 +75,7 @@ namespace OpenCover.Console
                 Logger.Fatal("Main catch (Exception ex)");
                 Logger.FatalFormat("An exception occured: {0}", ex.Message);
                 Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                //Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+                Logger.FatalFormat("A report has been sent to the OpenCover development team...");
 
                 ReportCrash(ex);
 
@@ -91,7 +91,7 @@ namespace OpenCover.Console
             Logger.Fatal("CurrentDomainOnUnhandledException");
             Logger.FatalFormat("An exception occured: {0}", ex.Message);
             Logger.FatalFormat("stack: {0}", ex.StackTrace);
-            //Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+            Logger.FatalFormat("A report has been sent to the OpenCover development team...");
 
             ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
 
@@ -102,19 +102,20 @@ namespace OpenCover.Console
         {
             try
             {
-                var uploader = new HttpsCrashReporterReportUploader();
+                using (var uploader = new HttpsCrashReporterReportUploader()) {
 
-                var state = new SendRequestState
-                {
-                    AnonymousData = new AnonymousData
+                    var state = new SendRequestState
                     {
-                        ApplicationGuid = new Guid("e3933a4b-368b-4256-ad42-777bc60a9558"),
-                        Exception = exception,
-                        ToEmail = ""
-                    }
-                };
-
-                uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(true));
+                        AnonymousData = new AnonymousData
+                        {
+                            ApplicationGuid = new Guid("e3933a4b-368b-4256-ad42-777bc60a9558"),
+                            Exception = exception,
+                            ToEmail = ""
+                        }
+                    };
+    
+                    uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(true));
+                }
             }
             catch (Exception)
             {
@@ -435,9 +436,9 @@ namespace OpenCover.Console
                 logger.InfoFormat(
                     "==== Alternative Results (includes all methods including those without corresponding source) ====");
                 logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
-                                  altTotalClasses, Math.Round(altVisitedClasses * 100.0 / altTotalClasses, 2));
+                                  altTotalClasses, altTotalClasses == 0 ? 0 : Math.Round(altVisitedClasses * 100.0 / altTotalClasses, 2));
                 logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
-                                  altTotalMethods, Math.Round(altVisitedMethods * 100.0 / altTotalMethods, 2));
+                                  altTotalMethods, altTotalMethods == 0 ? 0 : Math.Round(altVisitedMethods * 100.0 / altTotalMethods, 2));
 
                 if (parser.ShowUnvisited)
                 {
