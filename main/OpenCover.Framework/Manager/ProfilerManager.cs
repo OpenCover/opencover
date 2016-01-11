@@ -39,6 +39,13 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
+        private readonly object syncRoot = new object ();
+        public object SyncRoot {
+            get {
+                return syncRoot;
+            }
+        }
+
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
         private class ThreadTermination
@@ -202,7 +209,7 @@ namespace OpenCover.Framework.Manager
                         _communicationManager.HandleCommunicationBlock(_mcb,
                             block => Task.Factory.StartNew(() =>
                             {
-                                lock (threadHandles)
+                                lock (SyncRoot)
                                 {
                                     threadHandles.Add(StartProcessingThread(block));
                                 }
@@ -230,7 +237,7 @@ namespace OpenCover.Framework.Manager
                 _messageQueue.Enqueue(data);
             }
 
-            lock (threadHandles)
+            lock (SyncRoot)
             {
                 if (threadHandles.Any())
                 {
