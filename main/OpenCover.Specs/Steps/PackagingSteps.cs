@@ -63,9 +63,10 @@ namespace OpenCover.Specs.Steps
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
             if (Directory.Exists(folder)) Directory.Delete(folder, true);
-            var zip = new ZipFile((string)ScenarioContext.Current["targetZip"]);
-            zip.ExtractAll(folder);
-            zip.Dispose();
+            using (var zip = new ZipFile((string) ScenarioContext.Current["targetZip"]))
+            {
+                zip.ExtractAll(folder);
+            }
         }
 
         [Given(@"I have a valid nugetpackage in the output folder")]

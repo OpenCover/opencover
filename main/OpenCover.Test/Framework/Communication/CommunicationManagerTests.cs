@@ -33,7 +33,7 @@ namespace OpenCover.Test.Framework.Communication
         public void HandleMemoryBlock_Returns_Block_Informs_Profiler_When_Read()
         {
             // arrange
-            var wait = new AutoResetEvent(false);
+            using (var wait = new AutoResetEvent(false))
             using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
             {
                 // act
