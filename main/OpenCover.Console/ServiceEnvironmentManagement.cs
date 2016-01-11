@@ -33,13 +33,13 @@ namespace OpenCover.Console
         public static bool IsServiceDisabled(string serviceName)
         {
             var entry = GetServiceKey(serviceName);
-            return (int)entry.GetValue("Start") == 4;
+            return entry != null && (int)entry.GetValue("Start") == 4;
         }
 
         public static bool IsServiceStartAutomatic(string serviceName)
         {
             var entry = GetServiceKey(serviceName);
-            return (int)entry.GetValue("Start") == 2;
+            return entry != null && (int)entry.GetValue("Start") == 2;
         }
     }
 
@@ -78,7 +78,7 @@ namespace OpenCover.Console
 
         public static string MachineQualifiedServiceAccountName(string serviceName)
         {
-            string serviceAccountName = GetServiceAccountName(serviceName);
+            string serviceAccountName = GetServiceAccountName(serviceName) ?? string.Empty;
             if (serviceAccountName.StartsWith(@".\"))
             {
                 serviceAccountName = Environment.MachineName + serviceAccountName.Substring(1);
