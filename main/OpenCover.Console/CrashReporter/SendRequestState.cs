@@ -34,6 +34,7 @@ namespace OpenCover.Console.CrashReporter
         {
             var googleDns = new System.Net.Sockets.UdpClient("8.8.8.8", 53);
             var localAddress = ((IPEndPoint)googleDns.Client.LocalEndPoint).Address;
+            googleDns.Close();
 
             foreach (var netInterface in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
             {

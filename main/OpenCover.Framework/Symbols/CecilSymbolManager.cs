@@ -409,7 +409,9 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 UInt32 ordinal = 0;
-                var instructions = methodDefinition.SafeGetMethodBody().Instructions;
+                var safeMethodBody = methodDefinition.SafeGetMethodBody();
+                if (safeMethodBody == null) return;
+                var instructions = safeMethodBody.Instructions;
                 
                 // if method is a generated MoveNext skip first branch (could be a switch or a branch)
                 var skipFirstBranch = isMovenext.IsMatch(methodDefinition.FullName);
