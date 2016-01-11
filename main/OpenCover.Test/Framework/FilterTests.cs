@@ -844,6 +844,8 @@ namespace OpenCover.Test.Framework
         [TestCase(@"-<*cess.exe>[*]* +<noprocess>[*]*", @"C:\Release\process.exe", false, false)]
 
         [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", false, false)]
+        
+        // issue found by user #329
         [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
