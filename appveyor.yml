@@ -17,9 +17,9 @@ nuget:
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
-      & build create-coverity-release
+      & .\build.bat create-coverity-release
     } else {
-      & build dogfood-release
+      & .\build.bat dogfood-release
     }
 test: off
 artifacts:
@@ -72,5 +72,5 @@ notifications:
 on_success:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
-      & build dogfood-release
+      & .\build.bat dogfood-release
     }
