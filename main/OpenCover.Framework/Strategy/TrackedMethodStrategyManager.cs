@@ -31,7 +31,7 @@ namespace OpenCover.Framework.Strategy
             public TrackedMethod[] GetTrackedMethods(string assembly)
             {
                 var definition = AssemblyDefinition.ReadAssembly(assembly);
-                if (definition == null) return null;
+                if (definition == null) return new TrackedMethod[0];
                 
                 var trackedmethods = new List<TrackedMethod>();
                 foreach (var trackedMethodStrategy in _strategies)
