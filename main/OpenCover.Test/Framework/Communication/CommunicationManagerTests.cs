@@ -33,23 +33,24 @@ namespace OpenCover.Test.Framework.Communication
         public void HandleMemoryBlock_Returns_Block_Informs_Profiler_When_Read()
         {
             // arrange
-            var wait = new AutoResetEvent(false);
-            using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
-            {
-                // act
-                byte[] data = null;
-                mcb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
-                mcb.StreamAccessorResults.Write(BitConverter.GetBytes(24), 0, 4); // count + 24 entries == 100 bytes
-                ThreadPool.QueueUserWorkItem(state =>
-                    {
-                        data = Instance.HandleMemoryBlock(mcb);
-                        wait.Set();
-                    });
-                wait.WaitOne();
-                
-                // assert
-                Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
-                Assert.AreEqual(100, data.Count());
+            using (var wait = new AutoResetEvent(false)) {
+                using (var mcb = new MemoryManager.ManagedMemoryBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
+                {
+                    // act
+                    byte[] data = null;
+                    mcb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                    mcb.StreamAccessorResults.Write(BitConverter.GetBytes(24), 0, 4); // count + 24 entries == 100 bytes
+                    ThreadPool.QueueUserWorkItem(state =>
+                        {
+                            data = Instance.HandleMemoryBlock(mcb);
+                            wait.Set();
+                        });
+                    wait.WaitOne();
+                    
+                    // assert
+                    Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
+                    Assert.AreEqual(100, data.Count());
+                }
             }
         }
 
