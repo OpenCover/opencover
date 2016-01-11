@@ -19,7 +19,7 @@ build_script:
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
       & .\build.bat create-coverity-release
     } else {
-      & .\build.bat dogfood-release
+      & .\build.bat create-release
     }
 test: off
 artifacts:
