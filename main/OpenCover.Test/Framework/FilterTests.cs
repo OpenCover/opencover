@@ -853,9 +853,6 @@ namespace OpenCover.Test.Framework
         [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", false, false)]
         [TestCase(@"+<*cess.exe>[*]*", @"C:\Release\process.dll", false, false)]
 
-        // matches default exclusion filters when enabled
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\dotNet\mscorlib.dll", true, false)]
-
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
             // arrange without default filters
@@ -875,6 +872,31 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual(expectedWithDefaultFilters, instrument);
+        }
+
+        [Test]
+        public void Defect329()
+        {
+            var filterArg = "+[Open*]* -[OpenCover.T*]* -[*nunit*]*";
+            var processName = @"C:\path\nunit-console.exe";
+
+            // arrange without default filters
+            var filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
+
+            // act
+            var instrument = filter.InstrumentProcess(processName);
+
+            // assert
+            Assert.AreEqual(true, instrument);
+
+            // arrange again with default filters
+            filter = Filter.BuildFilter(new CommandLineParser(GetFilter(filterArg, true).ToArray()).Do(_ => _.ExtractAndValidateArguments()));
+
+            // act
+            instrument = filter.InstrumentProcess(processName);
+
+            // assert
+            Assert.AreEqual(true, instrument);
         }
 
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
