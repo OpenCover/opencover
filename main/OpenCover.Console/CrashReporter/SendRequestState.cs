@@ -15,7 +15,7 @@ namespace OpenCover.Console.CrashReporter
 
         public SendAnonymousReportCompletedEventArgs SendAnonymousReportResult { get; set; }
 
-        static private ExceptionInfo ConvertToExceptionInfo(Exception e, bool anonymous)
+        private static ExceptionInfo ConvertToExceptionInfo(Exception e, bool anonymous)
         {
             if (e == null)
                 return null;
@@ -30,11 +30,13 @@ namespace OpenCover.Console.CrashReporter
             };
         }
 
-        static private System.Net.NetworkInformation.PhysicalAddress GetMacAddress()
+        private static System.Net.NetworkInformation.PhysicalAddress GetMacAddress()
         {
-            var googleDns = new System.Net.Sockets.UdpClient("8.8.8.8", 53);
-            var localAddress = ((IPEndPoint)googleDns.Client.LocalEndPoint).Address;
-            googleDns.Close();
+            IPAddress localAddress;
+            using (var googleDns = new System.Net.Sockets.UdpClient("8.8.8.8", 53))
+            {
+                localAddress = ((IPEndPoint) googleDns.Client.LocalEndPoint).Address;
+            }
 
             foreach (var netInterface in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -115,7 +117,7 @@ namespace OpenCover.Console.CrashReporter
             };
         }
 
-        static internal ClientLib GetClientLib()
+        internal static ClientLib GetClientLib()
         {
             var clientVersion = typeof(ReportCrash).Assembly.GetName().Version;
             return new ClientLib
