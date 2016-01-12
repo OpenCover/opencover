@@ -826,36 +826,36 @@ namespace OpenCover.Test.Framework
 
         #region match no drive-path-extension, only process-name (same as above)
         [TestCase("-<pro*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase("+<pro*>[*]*", @"C:\Debug\process.dll", true, true)]
-        [TestCase("-<*cess>[*]*", @"C:\Debug\process.dll", false, false)]
+        [TestCase("+<pro*>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase("-<*cess>[*]*", @"C:\Debug\process.exe", false, false)]
         [TestCase("+<*cess>[*]*", @"C:\Debug\process.exe", true, true)]
         #endregion
 
         #region match full-path-process-name (path\name\ext)
         [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.dll", true, true)]
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
 
         [TestCase(@"-<*cess.exe>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"-<*cess.exe>[*]*", @"C:\Debug\process.dll", true, true)]
+        [TestCase(@"-<*cess.dll>[*]*", @"C:\Debug\process.exe", true, true)]
 
-        [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.dll", false, false)]
+        [TestCase(@"+<*cess.dll>[*]*", @"C:\Debug\process.exe", false, false)]
         [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.exe", true, true)]
         #endregion
 
         #region match when both filters, when no exclude filters, or when no include filters or when no filters at all
         // 1/1 match include filter if not excluded
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.exe", false, false)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.exe", true, true)]
 
         // 1/0 include if not excluded and no include filters
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", true, true)]
 
         // 0/1 match include filter if no exclude filters exists
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.dll", true, true)]
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", false, false)]
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
         
         // 0/0 always include if no exclude and no include filters
-        [TestCase(@"", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"", @"C:\Release\process.exe", true, true)]
         #endregion
 
         #region exclude only when filter does not ends with [*]*
@@ -877,6 +877,10 @@ namespace OpenCover.Test.Framework
 
         // issue found by user #329
         [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
+        #endregion
+
+        #region Cover last branches with invalid path chars (Path.GetInvalidPathChars)
+        [TestCase(@"+<*>[*]*", "C:\\Debug\\process.exe|<>\"", true, true)]
         #endregion
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)

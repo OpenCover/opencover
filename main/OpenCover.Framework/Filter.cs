@@ -140,7 +140,7 @@ namespace OpenCover.Framework
 
             if (!RegExFilters)
             {
-                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // invalid dir\filename characters 
+                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
                 assemblyName = assemblyName.ValidateAndEscape();
                 className = className.ValidateAndEscape();
             }
@@ -329,7 +329,10 @@ namespace OpenCover.Framework
             }
             if (!ExclusionFilters.Any() && !InclusionFilters.Any()) return true;
 
-            var processName = Path.GetFileNameWithoutExtension(processPath); // can return null!
+            var processName = string.Empty;
+            if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
+                processName = Path.GetFileNameWithoutExtension(processPath);
+            }
             if (ExclusionFilters.Any()) {
                 var matchingExclusionFilters = new List<AssemblyAndClassFilter>(ExclusionFilters.GetMatchingFiltersForProcessName(processPath));
                 if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
