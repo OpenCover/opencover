@@ -337,10 +337,8 @@ namespace OpenCover.Framework
                 }
                 if (matchingExclusionFilters.Any
                         ( exclusionFilter =>
-                             // class-filter is .* and assembly-filter is matching processName 
-                             // this does not match default exclude filters like {.*}[mscorlib].* or {.*}[system].*
-                             // but does match {.*}[.*].* or {.*}[processNa*].* or {.*}[processName].* where assemblyName == processName
-                             exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingAssemblyName (processName)
+                            // Excluded by all filters
+                            (exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*")
                         )
                     )
                 {
