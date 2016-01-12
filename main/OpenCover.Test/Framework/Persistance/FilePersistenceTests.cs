@@ -136,27 +136,6 @@ namespace OpenCover.Test.Framework.Persistance
         }
 
         [Test]
-        public void HandleFileAccess_SuppliedActionThrows_DirectoryNotFoundException_ReturnsFalse()
-        {
-            // arrange
-            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
-
-            // act
-            Assert.IsFalse(persistence.HandleFileAccess(() => { throw new DirectoryNotFoundException();}, "file_name"));
-
-        }
-
-        [Test]
-        public void HandleFileAccess_SuppliedActionThrows_IOException_ReturnsFalse()
-        {
-            // arrange
-            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
-
-            // act
-            Assert.IsFalse(persistence.HandleFileAccess(() => { throw new IOException(); }, "file_name"));
-        }
-
-        [Test]
         public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsException()
         {
             // arrange
@@ -168,6 +147,19 @@ namespace OpenCover.Test.Framework.Persistance
 
             // assert
             Assert.AreSame(expected, actual);
+        }
+
+        [Test]
+        [TestCase(typeof(DirectoryNotFoundException))]
+        [TestCase(typeof(IOException))]
+        [TestCase(typeof(UnauthorizedAccessException))]
+        public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsFalse(Type exception)
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsFalse(persistence.HandleFileAccess(() => { throw (Exception) Activator.CreateInstance(exception); }, "file_name"));
         }
     }
 }
