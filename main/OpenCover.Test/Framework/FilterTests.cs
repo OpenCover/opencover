@@ -846,7 +846,7 @@ namespace OpenCover.Test.Framework
         [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
 
         [TestCase(@"-<*cess.exe>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-<*cess.exe>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.dll", true, true)]
         [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
         [TestCase(@"-<*cess.exe>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
 
