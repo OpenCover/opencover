@@ -292,10 +292,10 @@ namespace OpenCover.Framework.Manager
         public ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, out uint bufferId)
         {
             bufferId = 0;
-            if (!_isIntialised) return null;
 
             lock (_lockObject)
             {
+                if (!_isIntialised) return null;
                 bufferId = _bufferId++;
                 var tuple = new ManagedBufferBlock
                 {
