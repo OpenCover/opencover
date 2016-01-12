@@ -38,13 +38,45 @@ namespace OpenCover.Framework.Persistance
         /// </summary>
         /// <param name="fileName">The filename to save to</param>
         /// <param name="loadExisting"></param>
-        public void Initialise(string fileName, bool loadExisting)
+        public bool Initialise(string fileName, bool loadExisting)
         {
-            _fileName = fileName;
-            if (loadExisting && File.Exists(fileName))
+            return HandleFileAccess(() => {
+                _fileName = fileName;
+                if (loadExisting && File.Exists(fileName))
+                {
+                    LoadCoverageFile();
+                }
+                // test the file location can be accessed
+                using (var fs = File.OpenWrite(fileName))
+                    fs.Close();
+            }, fileName);
+        }
+
+        internal bool HandleFileAccess(Action loadFile, string fileName)
+        {
+            try
             {
-                LoadCoverageFile();
+                loadFile();
             }
+            catch (DirectoryNotFoundException dex) // issue #456
+            {
+                _logger.Info(string.Format("Could not find the directory of the supplied coverage file '{0}', Please check the path and try again.", fileName));
+                _logger.Debug(dex.Message, dex);
+                return false;
+            }
+            catch (IOException iex) // issue #458
+            {
+                _logger.Info(string.Format("Could not access the location of the supplied coverage file '{0}', Please check the path and your permissions and try again.", fileName));
+                _logger.Debug(iex.Message, iex);
+                return false;
+            }
+            catch (UnauthorizedAccessException iex) // issue #458
+            {
+                _logger.Info(string.Format("Could not access the location of the supplied coverage file '{0}', Please check the path and your permissions and try again.", fileName));
+                _logger.Debug(iex.Message, iex);
+                return false;
+            }
+            return true;
         }
 
         private void LoadCoverageFile()
@@ -78,16 +110,18 @@ namespace OpenCover.Framework.Persistance
             SaveCoverageFile();
         }
 
-        private void SaveCoverageFile()
+        private bool SaveCoverageFile()
         {
-            var serializer = new XmlSerializer(typeof (CoverageSession),
-                                               new[] {typeof (Module), typeof (Model.File), typeof (Class)});
+            return HandleFileAccess(() => {
+                var serializer = new XmlSerializer(typeof(CoverageSession),
+                                                   new[] { typeof(Module), typeof(Model.File), typeof(Class) });
 
-            using (var fs = new FileStream(_fileName, FileMode.Create))
-            using (var writer = new StreamWriter(fs, new UTF8Encoding()))
-            {
-                serializer.Serialize(writer, CoverageSession);
-            }
+                using (var fs = new FileStream(_fileName, FileMode.Create))
+                using (var writer = new StreamWriter(fs, new UTF8Encoding()))
+                {
+                    serializer.Serialize(writer, CoverageSession);
+                }
+            }, _fileName);
         }
     }
 }

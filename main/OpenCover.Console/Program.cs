@@ -64,7 +64,9 @@ namespace OpenCover.Console
                 {
                     var persistance = new FilePersistance(parser, Logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
+                    if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
+                        return returnCodeOffset + 1;
+ 
                     returnCode = RunWithContainer(parser, container, persistance);
                 }
 
@@ -73,7 +75,7 @@ namespace OpenCover.Console
             catch (Exception ex)
             {
                 Logger.Fatal("Main catch (Exception ex)");
-                Logger.FatalFormat("An exception occured: {0}", ex.Message);
+                Logger.FatalFormat("An exception occured: {0}: {1}", ex.GetType().Name, ex.Message);
                 Logger.FatalFormat("stack: {0}", ex.StackTrace);
                 Logger.FatalFormat("A report has been sent to the OpenCover development team...");
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -124,6 +123,51 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Summary.NumSequencePoints);
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Classes[0].Summary.NumSequencePoints);
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.NumSequencePoints);
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionSuccess_ReturnsTrue()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsTrue(persistence.HandleFileAccess(() => { }, "file_name"));
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionThrows_DirectoryNotFoundException_ReturnsFalse()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsFalse(persistence.HandleFileAccess(() => { throw new DirectoryNotFoundException();}, "file_name"));
+
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionThrows_IOException_ReturnsFalse()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsFalse(persistence.HandleFileAccess(() => { throw new IOException(); }, "file_name"));
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsException()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            var expected = new Exception();
+            var actual = Assert.Throws<Exception>(() => persistence.HandleFileAccess(() => { throw expected; }, "file_name"));
+
+            // assert
+            Assert.AreSame(expected, actual);
         }
     }
 }
