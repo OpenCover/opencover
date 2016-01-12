@@ -799,6 +799,8 @@ namespace OpenCover.Test.Framework
         // TestCase semantic changed!
         // first boolean is expected value when default filters disabled
         // second boolean is expected value when default filters enabled
+
+        #region Initial test set
         [TestCase("+<*>[*]*", null, false, false)]
         [TestCase("-<*>[*]*", "process.exe", false, false)]
         [TestCase("-<pro*>[*]*", "process.exe", false, false)]
@@ -820,44 +822,87 @@ namespace OpenCover.Test.Framework
         [TestCase("-<*cess>[*GHI]* +[*]*", "process.exe", true, true)]
         [TestCase("+<ABC>[*]*", "process.exe", false, false)]
         [TestCase("+<pro*>[*]*", "process.exe", true, true)]
+        #endregion
 
-        // Instead of matching path, matches extracted "processName" same as above
+        #region match no drive-path-extension, only process-name (same as above)
         [TestCase("-<pro*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase("+<pro*>[*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase("-<*cess>[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase("+<pro*>[*]*", @"C:\Debug\process.dll", true, true)]
+        [TestCase("-<*cess>[*]*", @"C:\Debug\process.dll", false, false)]
         [TestCase("+<*cess>[*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase("-<pro*>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase("+<pro*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase("-<*cess>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase("+<*cess>[*]*", @"C:\Release\process.dll", true, true)]
+        #endregion
 
-        // Match only full name (path\name\ext)
+        #region match full-path-process-name (path\name\ext)
         [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Debug\process.dll", false, false)]
+
         [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.dll", true, true)]
+
         [TestCase(@"-<*cess.exe>[*]*", @"C:\Debug\process.exe", false, false)]
+        [TestCase(@"-<*cess.exe>[*]*", @"C:\Debug\process.dll", true, true)]
+
         [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.dll", false, false)]
+        #endregion
 
-        // EXCLUDE MISMATCH test. 
-        // if not excluded and no include filters, then match
-        // if not excluded and include filters, then match include filtres
+        #region match when no exclude filters, or when no include filters or when no filters at all
+        // if not excluded and no include filters exists, then match
+        // if not excluded and include filters exists, then match include filtres
         [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.exe", true, true)]
         [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
-
         [TestCase(@"-<*cess.exe>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
+        [TestCase(@"-<*cess.exe>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.dll", true, true)]
         [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
         [TestCase(@"-<*cess.exe>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
 
+        // if no exclude filters exists and include filters exists then always must match include filters
         [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", false, false)]
         [TestCase(@"+<*cess.exe>[*]*", @"C:\Release\process.dll", false, false)]
+        
+        // If no exclude and no include filters exists then always must match
+        [TestCase(@"", @"C:\Release\process.dll", true, true)]
+        #endregion
 
-        // does not match default exclusion filters when exclusion filters enabled
+        #region never exclude matching process when process filter does not ends with [*]*
+        [TestCase(@"-<C:\Debug\pro*>[*x*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*cess.exe>[*x*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*roces*>[*x*]*", @"C:\Debug\process.dll", true, true)]
+
+        [TestCase(@"-<C:\Debug\pro*>[*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*cess.exe>[*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*roces*>[*]*x*", @"C:\Debug\process.dll", true, true)]
+
+        [TestCase(@"-<C:\Debug\pro*>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*cess.exe>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"-<*roces*>[*x*]*x*", @"C:\Debug\process.dll", true, true)]
+        #endregion
+
+        #region always include matching process regardless how process filter ends ([*]*|[*x*]*x*)
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*roces*>[*]*", @"C:\Debug\process.dll", true, true)]
+
+        [TestCase(@"+<C:\Debug\pro*>[*x*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*cess.exe>[*x*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*roces*>[*x*]*", @"C:\Debug\process.dll", true, true)]
+
+        [TestCase(@"+<C:\Debug\pro*>[*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*cess.exe>[*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*roces*>[*]*x*", @"C:\Debug\process.dll", true, true)]
+
+        [TestCase(@"+<C:\Debug\pro*>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*cess.exe>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<*roces*>[*x*]*x*", @"C:\Debug\process.dll", true, true)]
+        #endregion
+
+        #region never exclude proces that matches default-assembly-exclusion-filters (ie "mscorlib" when exclusion filters enabled)
         [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\dotNet\mscorlib.dll", true, true)]
 
         // issue found by user #329
         [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
+        #endregion
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
