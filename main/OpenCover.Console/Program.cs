@@ -64,7 +64,9 @@ namespace OpenCover.Console
                 {
                     var persistance = new FilePersistance(parser, Logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
+                    if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
+                        return returnCodeOffset + 1;
+ 
                     returnCode = RunWithContainer(parser, container, persistance);
                 }
 
