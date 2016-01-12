@@ -879,6 +879,10 @@ namespace OpenCover.Test.Framework
         [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
         #endregion
 
+        #region Cover last branches with invalid path chars (Path.GetInvalidPathChars)
+        [TestCase(@"+<*>[*]*", "C:\\Debug\\process.exe|<>\"", true, true)]
+        #endregion
+
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
             // arrange without default filters
