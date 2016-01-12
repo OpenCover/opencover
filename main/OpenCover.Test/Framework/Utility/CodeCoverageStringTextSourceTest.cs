@@ -374,7 +374,7 @@ namespace OpenCover.Test.Framework.Utility
         [Test]
         public void GetSource()
         {
-            string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid().ToString();
+            string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid();
             string cSharpFileName = fileName+".cs";
             string vBasicFileName = fileName+".vb";
             string[] lines = { "First line", "Second line", "Third line" };
