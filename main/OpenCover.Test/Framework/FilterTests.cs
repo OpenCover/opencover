@@ -826,10 +826,6 @@ namespace OpenCover.Test.Framework
         [TestCase("+<pro*>[*]*", @"C:\Debug\process.exe", true, true)]
         [TestCase("-<*cess>[*]*", @"C:\Debug\process.exe", false, false)]
         [TestCase("+<*cess>[*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase("-<pro*>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase("+<pro*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase("-<*cess>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase("+<*cess>[*]*", @"C:\Release\process.dll", true, true)]
 
         // Match only full name (path\name\ext)
         [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", false, false)]
@@ -840,21 +836,17 @@ namespace OpenCover.Test.Framework
         // EXCLUDE MISMATCH test. 
         // if not excluded and no include filters, then match
         // if not excluded and include filters, then match include filtres
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
+        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<C:\Release\*>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.exe", false, false)]
 
-        [TestCase(@"-<*cess.exe>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<*cess.exe>[*]* +<process>[*]*", @"C:\Release\process.dll", true, true)]
-        [TestCase(@"-<*cess.exe>[*]* +<noprocess>[*]*", @"C:\Release\process.dll", false, false)]
+        [TestCase(@"-<*cess.exe>[*]* +<noprocess>[*]*", @"C:\Release\process.exe", false, false)]
 
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.dll", false, false)]
-        [TestCase(@"+<*cess.exe>[*]*", @"C:\Release\process.dll", false, false)]
-
-        // matches default exclusion filters when enabled
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\dotNet\mscorlib.dll", true, false)]
+        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", false, false)]
+        
+        // issue found by user #329
+        [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)
         {
