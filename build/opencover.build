@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project name="OpenCover" >
-
+ 
   <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
   <property name="platform" value="x86" unless="${property::exists('platform')}" />
   <property name="nunit.path" value="${solution.folder}/packages/NUnit.Runners.2.6.4/tools"/>
