@@ -38,7 +38,7 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
-            int returnCode;
+            var returnCode = 0;
             var returnCodeOffset = 0;
 
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
@@ -66,11 +66,15 @@ namespace OpenCover.Console
                     container.Initialise(filter, parser, persistance, perfCounter);
                     if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
                         return returnCodeOffset + 1;
- 
+
                     returnCode = RunWithContainer(parser, container, persistance);
                 }
 
                 perfCounter.ResetCounters();
+            }
+            catch (ExitApplicationWithoutReportingException eex)
+            {
+                returnCode = returnCodeOffset + 1;
             }
             catch (Exception ex)
             {
