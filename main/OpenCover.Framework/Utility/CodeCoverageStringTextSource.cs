@@ -204,8 +204,6 @@ namespace OpenCover.Framework.Utility
             if ( LineNo > 0 && LineNo <= lines.Length ) {
                 lineInfo lineInfo = lines[LineNo-1];
                 retString = textSource.Substring(lineInfo.Offset, lineInfo.Length);
-            } else {
-                //Debug.Fail( "Line number out of range" );
             }
 
             return retString;
