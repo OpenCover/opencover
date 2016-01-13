@@ -16,56 +16,47 @@ namespace OpenCover.Test.Framework.Manager
     
                 // arrange
                 uint bufferId;
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                Assert.AreEqual(0, _manager.GetBlocks.Count);
-    
-                // act
-                _manager.DeactivateMemoryBuffer(bufferId);
-    
-                // assert
-                Assert.AreEqual(0, _manager.GetBlocks.Count);
+
+                // act & assert
+                Assert.That (
+                    delegate { _manager.AllocateMemoryBuffer(100, out bufferId); },
+                    Throws.Nothing );
             }
         }
 
         [Test]
-        public void AllocateMemoryBuffer_WhenManagerInitialisedTwice_Ignored_OK()
+        public void InitialiseMemoryManagerTwice_Ignored_OK()
         {
             using (var _manager = new MemoryManager()) {
-                _manager.Initialise("Local", "C#", new String[0]);
-                _manager.Initialise("Local", "C#", new String[0]);
-    
+
                 // arrange
-                uint bufferId;
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                Assert.AreEqual(1, _manager.GetBlocks.Count);
+                _manager.Initialise("Local", "C#", new String[0]);
+
+                // act & assert
+                Assert.That (
+                    delegate { _manager.Initialise("Local", "C#", new String[0]); },
+                    Throws.Nothing );
     
-                // act
-                _manager.DeactivateMemoryBuffer(bufferId);
-    
-                // assert
-                Assert.IsFalse(_manager.GetBlocks.First().Active);
             }
         }
 
         [Test]
-        public void AllocateMemoryBuffer_Twice_ThisIsPotentialMemoryLeak_FAIL()
+        public void AllocateMemoryBufferTwice_NewBufferAllocated_OK()
         {
             // setup
             using (var _manager = new MemoryManager()) {
-                _manager.Initialise("Local", "C#", new String[0]);
-    
+
                 // arrange
+                _manager.Initialise("Local", "C#", new String[0]);
                 uint bufferId;
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                Assert.AreEqual(2, _manager.GetBlocks.Count);
-                Assert.IsTrue(_manager.GetBlocks.First().Active);
-    
+
                 // act
-                _manager.DeactivateMemoryBuffer(bufferId);
-    
-                // assert is WRONG
-                Assert.IsTrue(_manager.GetBlocks.First().Active);
+                _manager.AllocateMemoryBuffer(100, out bufferId);
+                _manager.AllocateMemoryBuffer(100, out bufferId);
+
+                // assert
+                Assert.AreEqual(2, _manager.GetBlocks.Count);
+
             }
         }
 
@@ -83,13 +74,37 @@ namespace OpenCover.Test.Framework.Manager
     
                 // act
                 _manager.DeactivateMemoryBuffer(bufferId);
-                _manager.DeactivateMemoryBuffer(bufferId);
-    
-                // assert
-                Assert.IsFalse(_manager.GetBlocks.First().Active);
+
+                // act & assert
+                Assert.That (
+                    delegate { _manager.DeactivateMemoryBuffer(bufferId); },
+                    Throws.Nothing );
             }
         }
 
+
+        [Test]
+        public void DeactivateMemoryBufferAfterDisposed_Ignored_OK()
+        {
+            using (var _manager = new MemoryManager()) {
+                _manager.Initialise("Local", "C#", new String[0]);
+    
+                // arrange
+                uint bufferId;
+                _manager.AllocateMemoryBuffer(100, out bufferId);
+                Assert.AreEqual(1, _manager.GetBlocks.Count);
+                Assert.IsTrue(_manager.GetBlocks.First().Active);
+    
+                // act
+                _manager.Dispose();
+                
+                // act & assert
+                Assert.That (
+                    delegate {
+                        _manager.DeactivateMemoryBuffer(bufferId); },
+                    Throws.Nothing );
+            }
+        }
     }
 
     [TestFixture]
