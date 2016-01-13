@@ -30,10 +30,17 @@ namespace OpenCover.Console.CrashReporter
             };
         }
 
+        static private IPAddress GetGoogleDnsAddress()
+        {
+            using (var googleDns = new System.Net.Sockets.UdpClient("8.8.8.8", 53))
+            {
+                return ((IPEndPoint) googleDns.Client.LocalEndPoint).Address;
+            }
+        }
+
         static private System.Net.NetworkInformation.PhysicalAddress GetMacAddress()
         {
-            var googleDns = new System.Net.Sockets.UdpClient("8.8.8.8", 53);
-            var localAddress = ((IPEndPoint)googleDns.Client.LocalEndPoint).Address;
+            var localAddress = GetGoogleDnsAddress();
 
             foreach (var netInterface in System.Net.NetworkInformation.NetworkInterface.GetAllNetworkInterfaces())
             {

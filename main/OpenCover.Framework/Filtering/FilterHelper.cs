@@ -34,15 +34,6 @@ namespace OpenCover.Framework.Filtering
             return matchingFilters;
         }
 
-        internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForProcessAssemblyName(this IEnumerable<AssemblyAndClassFilter> filters, string processName, string assemblyName)
-        {
-            var matchingFilters = filters
-                .Where(filter => filter.IsMatchingProcessName(processName))
-                .Where(filter => filter.IsMatchingAssemblyName(assemblyName))
-                .ToList();
-            return matchingFilters;
-        }
-
         internal static void AddFilters(this ICollection<RegexFilter> target, IEnumerable<string> filters, bool isRegexFilter)
         {
             if (filters == null)

@@ -161,7 +161,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSingleDecision")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSingleDecision")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -188,7 +188,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSimpleUsingStatement")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSimpleUsingStatement")).MetadataToken);
 
             Assert.AreEqual(2, points.Length);
         }
@@ -206,7 +206,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSimpleTaskWithLambda")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSimpleTaskWithLambda")).MetadataToken);
 
             Assert.AreEqual(0, points.Length);
         }
@@ -224,7 +224,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasTwoDecisions")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasTwoDecisions")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -248,7 +248,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasCompleteIf")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasCompleteIf")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -271,7 +271,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitch")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSwitch")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -299,7 +299,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithDefault")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSwitchWithDefault")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -327,7 +327,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithBreaks")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSwitchWithBreaks")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -355,7 +355,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::HasSwitchWithMultipleCases")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSwitchWithMultipleCases")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -388,7 +388,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.Name.Contains("::Equals")).MetadataToken);
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::Equals")).MetadataToken);
 
             // assert
             Assert.IsNotNull(points);
@@ -456,7 +456,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
-            var complexity = _reader.GetCyclomaticComplexityForToken(methods.First(x => x.Name.Contains("::HasTwoDecisions")).MetadataToken);
+            var complexity = _reader.GetCyclomaticComplexityForToken(methods.First(x => x.FullName.Contains("::HasTwoDecisions")).MetadataToken);
 
             // assert
             Assert.AreEqual(3, complexity);
@@ -592,7 +592,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0]);
 
             Assert.True(methods.Any());
-            Assert.True(methods.First(y => y.Name.EndsWith("::get_Name()")).SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(methods.First(y => y.FullName.EndsWith("::get_Name()")).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -613,7 +613,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0]);
 
             Assert.True(methods.Any());
-            Assert.True(methods.First(y => y.Name.EndsWith("::.ctor()")).SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(methods.First(y => y.FullName.EndsWith("::.ctor()")).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -634,7 +634,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0] );
 
             Assert.True(methods.Any());
-            Assert.True(methods.First(y => y.Name.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.Attribute);
+            Assert.True(methods.First(y => y.FullName.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.Attribute);
         }
 
         [Test]
@@ -654,7 +654,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(target, new File[0]);
 
             Assert.True(methods.Any());
-            Assert.True(methods.First(y => y.Name.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.File);
+            Assert.True(methods.First(y => y.FullName.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.File);
         }
 
         [Test]
@@ -680,8 +680,8 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.True(methods.Any());
-            Assert.AreEqual(SkippedMethod.AutoImplementedProperty, methods.First(y => y.Name.EndsWith("AutoProperty()")).SkippedDueTo);
-            Assert.AreEqual((SkippedMethod)0, methods.First(y => y.Name.EndsWith("PropertyWithBackingField()")).SkippedDueTo);
+            Assert.AreEqual(SkippedMethod.AutoImplementedProperty, methods.First(y => y.FullName.EndsWith("AutoProperty()")).SkippedDueTo);
+            Assert.AreEqual((SkippedMethod)0, methods.First(y => y.FullName.EndsWith("PropertyWithBackingField()")).SkippedDueTo);
         }
 
         [Test]
@@ -789,7 +789,7 @@ namespace OpenCover.Test.Framework.Symbols
             var types = _reader.GetInstrumentableTypes();
             var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
-            var token = methods.First(x => x.Name.Contains("::UsingWithException_Issue243")).MetadataToken;
+            var token = methods.First(x => x.FullName.Contains("::UsingWithException_Issue243")).MetadataToken;
             var assembly = AssemblyDefinition.ReadAssembly(_location);
             var md = assembly.MainModule.GetTypes()
                 .SelectMany(s => s.Methods)
@@ -822,7 +822,7 @@ namespace OpenCover.Test.Framework.Symbols
             var nested = typeof (Iterator).GetNestedTypes(BindingFlags.NonPublic).First();
             var type = types.First(x => x.FullName.EndsWith(nested.Name));
             var methods = _reader.GetMethodsForType(type, new File[0]);
-            var method = methods.First(x => x.Name.EndsWith("::MoveNext()"));
+            var method = methods.First(x => x.FullName.EndsWith("::MoveNext()"));
 
             // act
             var points = _reader.GetBranchPointsForToken(method.MetadataToken);

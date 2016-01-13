@@ -20,8 +20,9 @@ namespace OpenCover.Framework.Utility
 	public class SourceRepository : IDictionary<uint, CodeCoverageStringTextSource>
 	{
 		private readonly IDictionary<uint, CodeCoverageStringTextSource> repo = new Dictionary<uint, CodeCoverageStringTextSource>();
+
 		/// <summary>
-		/// 
+		/// Default Constructor 
 		/// </summary>
 		public SourceRepository()
 		{
@@ -32,7 +33,7 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         /// <param name="fileId"></param>
         /// <returns></returns>
-        public CodeCoverageStringTextSource getCodeCoverageStringTextSource (uint fileId) {
+        public CodeCoverageStringTextSource GetCodeCoverageStringTextSource (uint fileId) {
             CodeCoverageStringTextSource source = null;
             if (fileId != 0) {
                 this.TryGetValue (fileId, out source);
@@ -45,33 +46,36 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         /// <param name="sp">SequencePoint</param>
         /// <returns>string</returns>
-        public string getSequencePointText (SequencePoint sp) {
+        public string GetSequencePointText (SequencePoint sp) {
             if (sp != null) {
-                CodeCoverageStringTextSource source = this.getCodeCoverageStringTextSource (sp.FileId);
+                CodeCoverageStringTextSource source = GetCodeCoverageStringTextSource (sp.FileId);
                 return source != null ? source.GetText(sp) : "";
             }
             return "";
         }
         /// <summary>
         /// True if SequencePoint source-string == "{"
+        /// ATTN: Do not use within .Where (condition)
         /// </summary>
         /// <param name="sp"></param>
         /// <returns></returns>
-        public bool isLeftBraceSequencePoint (SequencePoint sp) {
-            return sp.isSingleCharSequencePoint && this.getSequencePointText(sp) == "{";
+        public bool IsLeftCurlyBraceSequencePoint (SequencePoint sp) {
+            return sp.IsSingleCharSequencePoint && this.GetSequencePointText(sp) == "{";
         }
         /// <summary>
         /// True if SequencePoint source-string == "}"
+        /// ATTN: Do not use within .Where (condition)
         /// </summary>
         /// <param name="sp"></param>
         /// <returns></returns>
-        public bool isRightBraceSequencePoint (SequencePoint sp) {
-            return sp.isSingleCharSequencePoint && this.getSequencePointText(sp) == "}";
+        public bool IsRightCurlyBraceSequencePoint (SequencePoint sp) {
+            return sp.IsSingleCharSequencePoint && this.GetSequencePointText(sp) == "}";
         }
 
         #region IDictionary implementation
-		/// <summary>
-		/// 
+
+        /// <summary>
+		/// Implements IDictionary 
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
@@ -79,8 +83,9 @@ namespace OpenCover.Framework.Utility
 		{
 			return repo.ContainsKey(key);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
@@ -88,8 +93,9 @@ namespace OpenCover.Framework.Utility
 		{
 			repo.Add(key, value);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
@@ -97,8 +103,9 @@ namespace OpenCover.Framework.Utility
 		{
 			return repo.Remove(key);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		/// <param name="key"></param>
 		/// <param name="value"></param>
@@ -107,8 +114,9 @@ namespace OpenCover.Framework.Utility
 		{
 			return repo.TryGetValue(key, out value);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		public CodeCoverageStringTextSource this[uint key] {
 			get {
@@ -118,42 +126,48 @@ namespace OpenCover.Framework.Utility
 				repo[key] = value;
 			}
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		public ICollection<uint> Keys {
 			get {
 				return repo.Keys;
 			}
 		}
+
 		/// <summary>
-		/// 
+		/// Implements IDictionary 
 		/// </summary>
 		public ICollection<CodeCoverageStringTextSource> Values {
 			get {
 				return repo.Values;
 			}
 		}
+
 		#endregion
 
 		#region ICollection implementation
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		/// <param name="item"></param>
 		public void Add(KeyValuePair<uint, CodeCoverageStringTextSource> item)
 		{
 			repo.Add(item);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		public void Clear()
 		{
 			repo.Clear();
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		/// <param name="item"></param>
 		/// <returns></returns>
@@ -161,8 +175,9 @@ namespace OpenCover.Framework.Utility
 		{
 			return repo.Contains(item);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		/// <param name="array"></param>
 		/// <param name="arrayIndex"></param>
@@ -170,8 +185,9 @@ namespace OpenCover.Framework.Utility
 		{
 			repo.CopyTo(array, arrayIndex);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		/// <param name="item"></param>
 		/// <returns></returns>
@@ -179,40 +195,47 @@ namespace OpenCover.Framework.Utility
 		{
 			return repo.Remove(item);
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		public int Count {
 			get {
 				return repo.Count;
 			}
 		}
+
 		/// <summary>
-		/// 
+		/// Implements ICollection
 		/// </summary>
 		public bool IsReadOnly {
 			get {
 				return repo.IsReadOnly;
 			}
 		}
+
 		#endregion
 
 		#region IEnumerable implementation
+
 		/// <summary>
-		/// 
+		/// Implements IEnumerable
 		/// </summary>
 		/// <returns></returns>
 		public IEnumerator<KeyValuePair<uint, CodeCoverageStringTextSource>> GetEnumerator()
 		{
 			return repo.GetEnumerator();
 		}
-		#endregion
 
-		#region IEnumerable implementation
+		/// <summary>
+		/// Implements IEnumerable
+		/// </summary>
+		/// <returns></returns>
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ((IEnumerable)repo).GetEnumerator();
 		}
+
 		#endregion
 	}
 }

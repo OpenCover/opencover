@@ -58,3 +58,10 @@ ReleaseNotes.txt
 /fakes/**/FakesAssemblies/**/*
 /fakes/packages
 !fakes/packages/repositories.config
+
+#Coverity
+cov-int*
+coverity.zip
+
+#SharpDevelop
+/**/OpenCover/coverage.xml

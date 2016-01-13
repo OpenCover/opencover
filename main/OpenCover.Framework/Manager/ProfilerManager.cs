@@ -26,7 +26,7 @@ namespace OpenCover.Framework.Manager
     /// <remarks>It probably does too much!</remarks>
     public class ProfilerManager : IProfilerManager
     {
-        const int MaxMsgSize = 65536;
+        private const int MaxMsgSize = 65536;
         private const int NumHandlesPerBlock = 32;
         private const string ProfilerGuid = "{1542C21D-80C3-45E6-A56C-A9C1E4BEB7B8}";
 
@@ -39,7 +39,31 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
+        private readonly object syncRoot = new object ();
+
+        /// <summary>
+        /// Syncronisation Root
+        /// </summary>
+        public object SyncRoot {
+            get {
+                return syncRoot;
+            }
+        }
+
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
+
+        private class ThreadTermination
+        {
+            public ThreadTermination()
+            {
+                // we do not dispose these events due to a race condition during shutdown
+                CancelThreadEvent = new ManualResetEvent(false);
+                ThreadFinishedEvent = new ManualResetEvent(false);
+            }
+
+            public ManualResetEvent CancelThreadEvent { get; private set; }
+            public ManualResetEvent ThreadFinishedEvent { get; private set; }
+        }
 
         /// <summary>
         /// Create an instance of the profiler manager
@@ -49,7 +73,7 @@ namespace OpenCover.Framework.Manager
         /// <param name="memoryManager"></param>
         /// <param name="commandLine"></param>
         /// <param name="perfCounters"></param>
-        public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance, 
+        public ProfilerManager(ICommunicationManager communicationManager, IPersistance persistance,
             IMemoryManager memoryManager, ICommandLine commandLine, IPerfCounters perfCounters)
         {
             _communicationManager = communicationManager;
@@ -72,12 +96,13 @@ namespace OpenCover.Framework.Manager
             _memoryManager.Initialise(@namespace, key, servicePrincipal);
             _messageQueue = new ConcurrentQueue<byte[]>();
 
-            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal))
+            using (_mcb = new MemoryManager.ManagedCommunicationBlock(@namespace, key, MaxMsgSize, -1, servicePrincipal)
+                )
             using (var processMgmt = new AutoResetEvent(false))
             using (var queueMgmt = new AutoResetEvent(false))
             using (var environmentKeyRead = new AutoResetEvent(false))
             {
-                var handles = new List<WaitHandle> { processMgmt, _mcb.ProfilerRequestsInformation };
+                var handles = new List<WaitHandle> {processMgmt, _mcb.ProfilerRequestsInformation};
 
                 ThreadPool.QueueUserWorkItem(
                     SetProfilerAttributes(process, key, @namespace, environmentKeyRead, processMgmt));
@@ -92,7 +117,7 @@ namespace OpenCover.Framework.Manager
             }
         }
 
-        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey, 
+        private WaitCallback SetProfilerAttributes(Action<Action<StringDictionary>> process, string profilerKey,
             string profilerNamespace, EventWaitHandle environmentKeyRead, EventWaitHandle processMgmt)
         {
             return state =>
@@ -114,7 +139,8 @@ namespace OpenCover.Framework.Manager
             };
         }
 
-        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace, StringDictionary dictionary)
+        private void SetProfilerAttributesOnDictionary(string profilerKey, string profilerNamespace,
+            StringDictionary dictionary)
         {
             dictionary[@"OpenCover_Profiler_Key"] = profilerKey;
             dictionary[@"OpenCover_Profiler_Namespace"] = profilerNamespace;
@@ -133,18 +159,11 @@ namespace OpenCover.Framework.Manager
             if (_commandLine.CommunicationTimeout > 0)
                 dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
 
-            switch (_commandLine.Registration)
+            var profilerPath = ProfilerRegistration.GetProfilerPath(_commandLine.Registration);
+            if (profilerPath != null)
             {
-                case Registration.Path32:
-                    string profilerPath32 = ProfilerRegistration.GetProfilerPath(false);
-                    dictionary["Cor_Profiler_Path"] = profilerPath32;
-                    dictionary["CorClr_Profiler_Path"] = profilerPath32;
-                    break;
-                case Registration.Path64:
-                    string profilerPath64 = ProfilerRegistration.GetProfilerPath(true);
-                    dictionary["Cor_Profiler_Path"] = profilerPath64;
-                    dictionary["CorClr_Profiler_Path"] = profilerPath64;
-                    break;
+                dictionary["Cor_Profiler_Path"] = profilerPath;
+                dictionary["CorClr_Profiler_Path"] = profilerPath;
             }
         }
 
@@ -181,7 +200,7 @@ namespace OpenCover.Framework.Manager
 
         private void ProcessMessages(WaitHandle[] handles)
         {
-            var threadHandles = new List<Tuple<EventWaitHandle, EventWaitHandle>>();
+            var threadHandles = new List<ThreadTermination>();
             do
             {
                 switch (WaitHandle.WaitAny(handles))
@@ -194,7 +213,7 @@ namespace OpenCover.Framework.Manager
                         _communicationManager.HandleCommunicationBlock(_mcb,
                             block => Task.Factory.StartNew(() =>
                             {
-                                lock (threadHandles)
+                                lock (SyncRoot)
                                 {
                                     threadHandles.Add(StartProcessingThread(block));
                                 }
@@ -207,7 +226,8 @@ namespace OpenCover.Framework.Manager
             var i = 0;
             while (i < BufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
             {
-                DebugLogger.InfoFormat("Waiting for {0} processes to close", _memoryManager.GetBlocks.Count(b => b.Active));
+                DebugLogger.InfoFormat("Waiting for {0} processes to close",
+                    _memoryManager.GetBlocks.Count(b => b.Active));
                 Thread.Sleep(500);
                 i++;
             }
@@ -221,33 +241,26 @@ namespace OpenCover.Framework.Manager
                 _messageQueue.Enqueue(data);
             }
 
-            lock (threadHandles)
+            lock (SyncRoot)
             {
                 if (threadHandles.Any())
                 {
                     var tasks = threadHandles
-                        .Select((e, index) => new {Pair = e, Block = index/NumHandlesPerBlock})
+                        .Select((e, index) => new {ThreadTermination = e, Block = index/NumHandlesPerBlock})
                         .GroupBy(g => g.Block)
-                        .Select(g => g.Select(a => a.Pair).ToList())
+                        .Select(g => g.Select(a => a.ThreadTermination).ToList())
                         .Select(g => Task.Factory.StartNew(() =>
                         {
                             ConsumeException(() =>
                             {
-                                g.Select(h => h.Item1).ToList().ForEach(h => h.Set());
-                                WaitHandle.WaitAll(g.Select(h => h.Item2).ToArray<WaitHandle>(), new TimeSpan(0, 0, 20));
+                                g.Select(h => h.CancelThreadEvent).ToList().ForEach(h => h.Set());
+                                WaitHandle.WaitAll(g.Select(h => h.ThreadFinishedEvent).ToArray<WaitHandle>(),
+                                    new TimeSpan(0, 0, 20));
                             });
                         })).ToArray();
+
                     Task.WaitAll(tasks);
 
-                    foreach (var threadHandle in threadHandles)
-                    {
-                        var handle = threadHandle;
-                        ConsumeException(() =>
-                        {
-                            handle.Item1.Dispose();
-                            handle.Item2.Dispose();
-                        });
-                    }
                     threadHandles.Clear();
                 }
             }
@@ -267,63 +280,76 @@ namespace OpenCover.Framework.Manager
                 DebugLogger.Error("An unexpected exception was encountered but consumed.", ex);
             }
         }
-        private Tuple<EventWaitHandle, EventWaitHandle> StartProcessingThread(ManagedBufferBlock block)
+
+        private ThreadTermination StartProcessingThread(ManagedBufferBlock block)
         {
             DebugLogger.InfoFormat("Starting Process Block => {0}", block.BufferId);
-            var terminateThread = new ManualResetEvent(false);
-            var threadTerminated = new ManualResetEvent(false);
 
-            using (var threadActivated = new AutoResetEvent(false))
+            var threadTermination = new ThreadTermination();
+
+            using (var threadActivatedEvent = new AutoResetEvent(false))
             {
-                ThreadPool.QueueUserWorkItem(ProcessBlock(block, terminateThread,
-                    threadActivated, threadTerminated));
-                threadActivated.WaitOne();
+                ThreadPool.QueueUserWorkItem(ProcessBlock(block, threadActivatedEvent, threadTermination));
+                threadActivatedEvent.WaitOne();
             }
+
             DebugLogger.InfoFormat("Started Process Block => {0}", block.BufferId);
-            return new Tuple<EventWaitHandle, EventWaitHandle>(terminateThread, threadTerminated);
+            return threadTermination;
         }
 
         private WaitCallback ProcessBlock(ManagedBufferBlock block,
-            WaitHandle terminateThread, EventWaitHandle threadActivated, EventWaitHandle threadTerminated)
+            EventWaitHandle threadActivatedEvent, ThreadTermination threadTermination)
         {
             return state =>
             {
-                var processEvents = new []
+                try
                 {
-                    block.CommunicationBlock.ProfilerRequestsInformation,
-                    block.MemoryBlock.ProfilerHasResults,
-                    terminateThread
-                };
-                threadActivated.Set();
-                
-                while(block.Active)
-                {
-                    switch (WaitHandle.WaitAny(processEvents))
+                    var processEvents = new WaitHandle[]
                     {
-                        case 0:
-                            _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
-                            break;
-                        case 1:
-                            var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
-                            // don't let the queue get too big as using too much memory causes 
-                            // problems i.e. the target process closes down but the host takes 
-                            // ages to shutdown; this is a compromise. 
-                            _messageQueue.Enqueue(data);
-                            if (_messageQueue.Count > 400)
+                        block.CommunicationBlock.ProfilerRequestsInformation,
+                        block.MemoryBlock.ProfilerHasResults,
+                        threadTermination.CancelThreadEvent
+                    };
+                    threadActivatedEvent.Set();
+
+                    try
+                    {
+                        while (block.Active)
+                        {
+                            switch (WaitHandle.WaitAny(processEvents))
                             {
-                                do
-                                {
-                                    ThreadHelper.YieldOrSleep(100);
-                                } while (_messageQueue.Count > 200);
+                                case 0:
+                                    _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
+                                    break;
+                                case 1:
+                                    var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
+                                    // don't let the queue get too big as using too much memory causes 
+                                    // problems i.e. the target process closes down but the host takes 
+                                    // ages to shutdown; this is a compromise. 
+                                    _messageQueue.Enqueue(data);
+                                    if (_messageQueue.Count > 400)
+                                    {
+                                        do
+                                        {
+                                            ThreadHelper.YieldOrSleep(100);
+                                        } while (_messageQueue.Count > 200);
+                                    }
+                                    break;
+                                case 2:
+                                    return;
                             }
-                            break;
-                        case 2:
-                            threadTerminated.Set();
-                            return;
+                        }
+                        _memoryManager.RemoveDeactivatedBlock(block);
+                    }
+                    finally
+                    {
+                        threadTermination.ThreadFinishedEvent.Set();
                     }
                 }
-                threadTerminated.Set();
-                _memoryManager.RemoveDeactivatedBlocks();
+                catch (ObjectDisposedException)
+                {
+                    /* an attempt to close thread has probably happened and the events disposed */
+                }
             };
         }
     }

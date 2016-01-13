@@ -21,9 +21,10 @@ namespace OpenCover.Framework.Model
         public int MetadataToken { get; set; }
 
         /// <summary>
-        /// The name of the method including namespace, return type and arguments
+        /// The full name of the method (method-definition), includes return-type namespace-class::call-name(argument-types)
         /// </summary>
-        public string Name { get; set; }
+        [XmlElement("Name")]
+        public string FullName { get; set; }
 
         /// <summary>
         /// A reference to a file in the file collection (used to help visualisation)
@@ -116,48 +117,48 @@ namespace OpenCover.Framework.Model
             BranchPoints = null;
         }
 
+        #region IsGenerated & CallName  
+
         /// <summary>
-        /// method name excluding return type, namespace and arguments
+        /// True if this.FullName matches generated-method-regex-pattern 
         /// </summary>
-        public string shortName {
-        	get {
-	        	if (String.IsNullOrWhiteSpace(this.Name)) return "";
-				int startIndex = this.Name.IndexOf("::", StringComparison.Ordinal);
-				int finalIndex = this.Name.IndexOf('(', startIndex);
-				return this.Name
-					.Substring(startIndex, finalIndex - startIndex)
-					.Substring(2);
-        	}
+        internal bool IsGenerated {
+            get {
+        		if (_resolvedIsGenerated == null) {
+        			_resolvedIsGenerated = !String.IsNullOrWhiteSpace(this.FullName)
+                        && this.FullName.Contains("__") // quick test before using regex heavy weapon
+                        && isGeneratedMethodRegex.IsMatch(this.FullName); 
+        		}
+        		return _resolvedIsGenerated == true;
+            }
         }
 
         /// <summary>
-        /// True if method name matches isGeneratedMethodRegex pattern
+        /// Method "::CallName(". (Name excluding return type, namespace and arguments)
         /// </summary>
-        public bool isGenerated {
-        	get {
-	        	return (!String.IsNullOrWhiteSpace(this.Name)
-	        	        && this.Name.Contains("__")
-	        	        && isGeneratedMethodRegex.IsMatch(this.Name)
-	        	       );
-        	}
+        internal string CallName {
+            get {
+                if (_resolvedCallName != null) { return _resolvedCallName; } // cached
+                _resolvedCallName = String.Empty; // init resolve value
+                if (!String.IsNullOrWhiteSpace(this.FullName)) {
+                    int startIndex = this.FullName.IndexOf("::", StringComparison.Ordinal);
+                    startIndex += 2;
+                    int finalIndex = this.FullName.IndexOf('(', startIndex);
+                    if (startIndex > 1 && finalIndex > startIndex) {
+                        _resolvedCallName = this.FullName // resolve cache
+                            .Substring(startIndex, finalIndex - startIndex);
+                    }
+                }
+                return _resolvedCallName;
+            }
         }
 
-        private const RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
-        private readonly Regex isGeneratedMethodRegex = new Regex(@"(<[^\s|>]+>[a-z]__\w(\w|_\w)?)(::([^\s|\(]+))?(\([^\s|\)]*\))$", regexOptions);
-        private readonly Regex generatedMethodItems = new Regex(@"(?<returnType>[^\s]+)\s(?<nameSpace>[^\s|/]+/)?(?<className>[^\s|:]+::)?(<(?<replacedName>[^\s|>]+)>[a-z]__\w(\w|_\w)?)(::(?<methodName>[^\s|\(]+))?(\([^\s|\)]*\))$", regexOptions);
+        private bool? _resolvedIsGenerated = null;
+        private string _resolvedCallName = null;
+        private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        private static readonly Regex isGeneratedMethodRegex = new Regex(@"(<[^\s:>]+>\w__\w)", regexOptions);
 
-        /* Compiler Generated Name Examples
-          <Name>System.Boolean DD.Collections.BitSetArray/&lt;Complement&gt;d__e::MoveNext()</Name>
-          <Name>System.Boolean DD.Collections.BitSetArray::&lt;_SetItems&gt;b__b(System.Int32)</Name>
-		  <Name>System.Boolean DD.Collections.BitSetArray::BitSetArray_&lt;_SetItems&gt;b__b_0(System.Int32)</Name>
+        #endregion
 
-		  <Name>[^\s]+\s[^\s|/|:]+(/\w*)?(::(.+_)?)?(&lt;\w+&gt;[a-z]__\w(\w|_\w)?)(::.+)?(\(.*\)</Name>)$
-        */
-
-        /*
-            code sample
-            Match match = generatedMethodItems.Match(sample);
-            if (match.Success) Console.WriteLine(match.Groups["returnType"].Value);
-        */
     }
 }

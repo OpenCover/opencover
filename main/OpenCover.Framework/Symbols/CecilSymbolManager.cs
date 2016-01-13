@@ -68,11 +68,23 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-        private SymbolFolder FindSymbolsFolder()
+        private SymbolFolder FindSymbolFolder()
         {
             var origFolder = Path.GetDirectoryName(ModulePath);
 
-            return FindSymbolsFolder(ModulePath, origFolder) ?? FindSymbolsFolder(ModulePath, _commandLine.TargetDir) ?? FindSymbolsFolder(ModulePath, Environment.CurrentDirectory);
+            var searchFolders = new List<string>() { origFolder, _commandLine.TargetDir };
+            if (_commandLine.SearchDirs != null)
+                searchFolders.AddRange(_commandLine.SearchDirs);
+            searchFolders.Add(Environment.CurrentDirectory);
+
+            foreach (var searchFolder in searchFolders)
+            {
+                var symbolFolder = FindSymbolsFolder(ModulePath, searchFolder);
+                if (symbolFolder != null) 
+                    return symbolFolder;
+            }
+
+            return null;
         }
 
         private static SymbolFolder FindSymbolsFolder(string fileName, string targetfolder)
@@ -104,7 +116,7 @@ namespace OpenCover.Framework.Symbols
         {
             try
             {
-                var symbolFolder = FindSymbolsFolder();
+                var symbolFolder = FindSymbolFolder();
                 if (symbolFolder == null) return;
                 var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
 
@@ -283,7 +295,7 @@ namespace OpenCover.Framework.Symbols
         {
             var method = new Method
             {
-                Name = methodDefinition.FullName,
+                FullName = methodDefinition.FullName,
                 IsConstructor = methodDefinition.IsConstructor,
                 IsStatic = methodDefinition.IsStatic,
                 IsGetter = methodDefinition.IsGetter,
@@ -389,7 +401,7 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private static Regex isMovenext = new Regex(@"\<[^\s|>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static Regex isMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
@@ -397,7 +409,9 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 UInt32 ordinal = 0;
-                var instructions = methodDefinition.SafeGetMethodBody().Instructions;
+                var safeMethodBody = methodDefinition.SafeGetMethodBody();
+                if (safeMethodBody == null) return;
+                var instructions = safeMethodBody.Instructions;
                 
                 // if method is a generated MoveNext skip first branch (could be a switch or a branch)
                 var skipFirstBranch = isMovenext.IsMatch(methodDefinition.FullName);

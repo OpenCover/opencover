@@ -22,7 +22,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 }
 
 HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
-	ATLTRACE(_T("::OpenCoverInitialise\n"));
+	ATLTRACE(_T("::OpenCoverInitialise"));
 
     OLECHAR szGuid[40]={0};
     ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
@@ -39,7 +39,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     //::OutputDebugStringW(szModuleName);
 
     if (g_pProfiler!=nullptr) 
-        RELTRACE(_T("Another instance of the profiler is running under this process...\n"));
+        RELTRACE(_T("Another instance of the profiler is running under this process..."));
 
     m_profilerInfo = pICorProfilerInfoUnk;
     if (m_profilerInfo != nullptr) ATLTRACE(_T("    ::Initialize (m_profilerInfo OK)"));
@@ -55,7 +55,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     ZeroMemory(&m_runtimeVersion, sizeof(m_runtimeVersion));
     if (m_profilerInfo3 != nullptr) 
     {
-        ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)\n"));
+        ATLTRACE(_T("    ::Initialize (m_profilerInfo3 OK)"));
         
         ZeroMemory(&m_runtimeVersion, sizeof(m_runtimeVersion));
         m_profilerInfo3->GetRuntimeInformation(nullptr, &m_runtimeType, 
@@ -64,30 +64,30 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
             &m_runtimeVersion.usBuildNumber, 
             &m_runtimeVersion.usRevisionNumber, 0, nullptr, nullptr); 
 
-        ATLTRACE(_T("    ::Initialize (Runtime %d)\n"), m_runtimeType);
+        ATLTRACE(_T("    ::Initialize (Runtime %d)"), m_runtimeType);
     }
 
     TCHAR key[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Key"), key, 1024);
-    RELTRACE(_T("    ::Initialize(...) => key = %s\n"), key);
+    RELTRACE(_T("    ::Initialize(...) => key = %s"), key);
 
     TCHAR ns[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Namespace"), ns, 1024);
-    ATLTRACE(_T("    ::Initialize(...) => ns = %s\n"), ns);
+    ATLTRACE(_T("    ::Initialize(...) => ns = %s"), ns);
 
     TCHAR instrumentation[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Instrumentation"), instrumentation, 1024);
-    ATLTRACE(_T("    ::Initialize(...) => instrumentation = %s\n"), instrumentation);
+    ATLTRACE(_T("    ::Initialize(...) => instrumentation = %s"), instrumentation);
 
     TCHAR threshold[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_Threshold"), threshold, 1024);
     m_threshold = _tcstoul(threshold, nullptr, 10);
-    ATLTRACE(_T("    ::Initialize(...) => threshold = %ul\n"), m_threshold);
+    ATLTRACE(_T("    ::Initialize(...) => threshold = %ul"), m_threshold);
 
     TCHAR tracebyTest[1024] = {0};
     ::GetEnvironmentVariable(_T("OpenCover_Profiler_TraceByTest"), tracebyTest, 1024);
     m_tracingEnabled = _tcslen(tracebyTest) != 0;
-	ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), m_tracingEnabled ? _T("true") : _T("false\n"), tracebyTest);
+	ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), m_tracingEnabled ? _T("true") : _T("false"), tracebyTest);
 
     TCHAR shortwait[1024] = { 0 };
     if (::GetEnvironmentVariable(_T("OpenCover_Profiler_ShortWait"), shortwait, 1024) > 0) {
@@ -101,11 +101,11 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    _host = std::make_shared<ProfilerCommunication>(ProfilerCommunication(_shortwait));
+    _host = std::make_shared<ProfilerCommunication>(_shortwait);
 
     if (!_host->Initialise(key, ns, szExeName))
     {
-        RELTRACE(_T("    ::Initialize => Profiler will not run for this process.\n"));
+        RELTRACE(_T("    ::Initialize => Profiler will not run for this process."));
         return E_FAIL;
     }
 
@@ -136,7 +136,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
         _FunctionEnter2, _FunctionLeave2, _FunctionTailcall2), 
         _T("    ::Initialize(...) => SetEnterLeaveFunctionHooks2 => 0x%X"));
 #endif
-    RELTRACE(_T("::Initialize - Done!\n"));
+    RELTRACE(_T("::Initialize - Done!"));
     
     return S_OK; 
 }
@@ -159,7 +159,7 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 #ifndef _TOOLSETV71
 	if (m_profilerInfo4 != nullptr)
 	{
-		ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)\n"));
+		ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
 		dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
 	}
 #endif
@@ -172,16 +172,19 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 /// <summary>Handle <c>ICorProfilerCallback::Shutdown</c></summary>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void) 
 { 
-    RELTRACE(_T("::Shutdown - Starting\n"));
+    RELTRACE(_T("::Shutdown - Starting"));
 
     if (m_chainedProfiler != nullptr)
 		m_chainedProfiler->Shutdown();
+
+    if (chained_module_ != nullptr)
+        FreeLibrary(chained_module_);
 
     _host->CloseChannel(m_tracingEnabled);
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
-    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)\n"), szExeName);
+    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), szExeName);
     g_pProfiler = nullptr;
     return S_OK; 
 }
@@ -244,14 +247,14 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
-    /*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)\n"), 
+    /*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
         moduleId, W2CT(modulePath.c_str()), 
         assemblyId, W2CT(assemblyName.c_str()));*/
     m_allowModules[modulePath] = _host->TrackAssembly(const_cast<LPWSTR>(modulePath.c_str()), const_cast<LPWSTR>(assemblyName.c_str()));
     m_allowModulesAssemblyMap[modulePath] = assemblyName;
 
     if (m_allowModules[modulePath]){
-        ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)\n"),
+        ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
             moduleId, W2CT(modulePath.c_str()),
             assemblyId, W2CT(assemblyName.c_str()));
     }
@@ -279,7 +282,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         if (m_allowModules[modulePath])
         {
-            ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
+            ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
 
             std::vector<SequencePoint> seqPoints;
             std::vector<BranchPoint> brPoints;
@@ -297,7 +300,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                     Method instumentedMethod(pMethodHeader);
                     instumentedMethod.IncrementStackSize(2);
 
-                    ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting...\n"));
+                    ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting..."));
                     //seqPoints.clear();
                     //brPoints.clear();
 

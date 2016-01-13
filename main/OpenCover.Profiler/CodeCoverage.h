@@ -16,7 +16,6 @@
 
 #include <unordered_map>
 
-#include "ReleaseTrace.h"
 #include <memory>
 
 using namespace ATL;
@@ -54,6 +53,7 @@ public:
         m_cuckooSafeToken = 0;
         m_infoHook = nullptr;
         _shortwait = 10000;
+        chained_module_ = nullptr;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -170,6 +170,8 @@ private:
 
 private:
     CComPtr<ICorProfilerCallback4> m_chainedProfiler;
+    HMODULE chained_module_;
+
     CComObject<CProfilerInfo> *m_infoHook;
 
     HRESULT OpenCoverSupportInitialize(IUnknown *pICorProfilerInfoUnk);

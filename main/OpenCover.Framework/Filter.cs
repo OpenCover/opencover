@@ -140,7 +140,7 @@ namespace OpenCover.Framework
 
             if (!RegExFilters)
             {
-                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("/?\"<>|}{");
+                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
                 assemblyName = assemblyName.ValidateAndEscape();
                 className = className.ValidateAndEscape();
             }
@@ -157,9 +157,9 @@ namespace OpenCover.Framework
         {
             className = string.Empty;
             assemblyName = string.Empty;
-            var regEx = new Regex(@"^(?<type>([+-]))(\{(?<process>(.+))\})?(\[(?<assembly>(.+))\])(?<class>(.+))$");
+            var regEx = new Regex(@"^(?<type>([+-]))(<(?<process>(.+))>)?(\[(?<assembly>(.+))\])(?<class>(.+))$");
             if (useRegEx)
-                regEx = new Regex(@"^(?<type>([+-]))(\{\((?<process>(.+))\)\})?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
+                regEx = new Regex(@"^(?<type>([+-]))(<\((?<process>(.+))\)>)?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
 
             var match = regEx.Match(assemblyClassName);
             if (match.Success)
@@ -329,7 +329,10 @@ namespace OpenCover.Framework
             }
             if (!ExclusionFilters.Any() && !InclusionFilters.Any()) return true;
 
-            var processName = Path.GetFileNameWithoutExtension(processPath); // can return null!
+            var processName = string.Empty;
+            if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
+                processName = Path.GetFileNameWithoutExtension(processPath);
+            }
             if (ExclusionFilters.Any()) {
                 var matchingExclusionFilters = new List<AssemblyAndClassFilter>(ExclusionFilters.GetMatchingFiltersForProcessName(processPath));
                 if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
@@ -337,10 +340,8 @@ namespace OpenCover.Framework
                 }
                 if (matchingExclusionFilters.Any
                         ( exclusionFilter =>
-                             // class-filter is .* and assembly-filter is matching processName 
-                             // this does not match default exclude filters like {.*}[mscorlib].* or {.*}[system].*
-                             // but does match {.*}[.*].* or {.*}[processNa*].* or {.*}[processName].* where assemblyName == processName
-                             exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingAssemblyName (processName)
+                            // Excluded by all filters
+                            (exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*")
                         )
                     )
                 {

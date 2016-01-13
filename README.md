@@ -4,6 +4,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 
 [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover)
 [![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)
+[![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover)
 [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover)
 [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover)
 [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover)
@@ -31,7 +32,7 @@ If anyone is aware of any licence violations that this code may be making please
 OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
 
 #### Mono support
-It isn't sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the windows platform.
+It isn't, sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the Windows platform.
 
 #### IIS support
 Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/wiki/IIS-Support)
@@ -40,20 +41,20 @@ Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/
 Please refer to the wiki - [DNX Support](https://github.com/OpenCover/opencover/wiki/DNX-Support)
 
 #### Win8/Win10 Application Support
-Note yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no call for it I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
+Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no call for it I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
 
 #### Service support
-please refer to the wiki - [Service Support](https://github.com/OpenCover/opencover/wiki/Service-Support)
+Please refer to the wiki - [Service Support](https://github.com/OpenCover/opencover/wiki/Service-Support)
 
 #### Silverlight support
-Please refer to wiki - [Silverlight support](https://github.com/OpenCover/opencover/wiki/Silverlight-Support)
+Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/opencover/wiki/Silverlight-Support)
 
 ### Building
 You will need:
 
 1. Visual Studio VS2013 (Community Edition) or later with C# and C++
 2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/136891)
-3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+3. SpecFlow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
 4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 

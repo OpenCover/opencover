@@ -96,6 +96,7 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    [\"]-target:<target application>[\"]");
             builder.AppendLine("    [[\"]-targetdir:<target directory>[\"]]");
+            builder.AppendLine("    [[\"]-searchdirs:<additional PDB directory>[;<additional PDB directory>][;<additional PDB directory>][\"]]");
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
@@ -164,6 +165,9 @@ namespace OpenCover.Framework
                         break;
                     case "targetdir":
                         TargetDir = GetArgumentValue("targetdir");
+                        break;
+                    case "searchdirs":
+                        SearchDirs = GetArgumentValue("searchdirs").Split(';');
                         break;
                     case "targetargs":
                         TargetArgs = GetArgumentValue("targetargs");
@@ -283,8 +287,14 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-](\{.*?\})?[\[].*?[\]].+?\s)|([+-](\{.*\})?[\[].*?[\]][^\x22]*)";
-            const RegexOptions myRegexOptions = RegexOptions.None;
+            // starts with required +-
+            // followed by optional process-filter
+            // followed by required assembly-filter 
+            // followed by optional class-filter, where class-filter excludes -+" and space characters
+            // followed by optional space 
+            // NOTE: double-quote character from test-values somehow sneaks into default filter as last character?
+            const string strRegex = @"[\-\+](<.*?>)?\[.*?\][^\-\+\s\x22]*";
+            const RegexOptions myRegexOptions = RegexOptions.Singleline | RegexOptions.ExplicitCapture;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
@@ -383,7 +393,7 @@ namespace OpenCover.Framework
         public bool SkipAutoImplementedProperties { get; private set; }
 
         /// <summary>
-        /// The target executable that is to be profiles
+        /// The target executable that is to be profiled
         /// </summary>
         public string Target { get; private set; }
 
@@ -391,6 +401,11 @@ namespace OpenCover.Framework
         /// The working directory that the action is to take place
         /// </summary>
         public string TargetDir { get; private set; }
+
+        /// <summary>
+        /// Alternate locations where PDBs can be found
+        /// </summary>
+        public string[] SearchDirs { get; private set; }
 
         /// <summary>
         /// The arguments that are to be passed to the Target

@@ -62,7 +62,7 @@ LPSAFEARRAY GetInjectedDllAsSafeArray()
 
 EXTERN_C HRESULT STDAPICALLTYPE LoadOpenCoverSupportAssembly(IUnknown *pUnk)
 {
-	ATLTRACE(_T("****LoadInjectorAssembly - Start****\n"));
+	ATLTRACE(_T("****LoadInjectorAssembly - Start****"));
 
 	CComPtr<_AppDomain> pAppDomain;
 	HRESULT hr = pUnk->QueryInterface(__uuidof(_AppDomain), (void**)&pAppDomain);
@@ -86,58 +86,60 @@ EXTERN_C HRESULT STDAPICALLTYPE LoadOpenCoverSupportAssembly(IUnknown *pUnk)
 
     hr = pDomainHelper->AddResolveEventHandler();
 	ATLASSERT(hr == S_OK);
-	ATLTRACE(_T("****LoadInjectorAssembly - End****\n"));
+	ATLTRACE(_T("****LoadInjectorAssembly - End****"));
 
 	return S_OK;
 }
 
 HRESULT CCodeCoverage::OpenCoverSupportInitialize(
-	/* [in] */ IUnknown *pICorProfilerInfoUnk)
-{
-	TCHAR ext[1024] = { 0 };
-	::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER"), ext, 1024);
-	if (ext[0] != 0)
-	{
-		ATLTRACE(_T("::OpenCoverSupportInitialize\n"));
+    /* [in] */ IUnknown *pICorProfilerInfoUnk) {
+    TCHAR ext[1024] = { 0 };
+    ::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER"), ext, 1024);
+    if (ext[0] != 0) {
+        ATLTRACE(_T("::OpenCoverSupportInitialize"));
 
-		ATLTRACE(_T("    ::Initialize(...) => ext = %s\n"), ext);
+        ATLTRACE(_T("    ::OpenCoverSupportInitialize(...) => ext = %s"), ext);
 
-		TCHAR loc[1024] = { 0 };
-		::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER_LOCATION"), loc, 1024);
-		ATLTRACE(_T("    ::Initialize(...) => loc = %s\n"), loc);
+        TCHAR loc[1024] = { 0 };
+        ::GetEnvironmentVariable(_T("CHAIN_EXTERNAL_PROFILER_LOCATION"), loc, 1024);
+        ATLTRACE(_T("    ::OpenCoverSupportInitialize(...) => loc = %s"), loc);
 
-		CLSID clsid;
-		HRESULT hr = CLSIDFromString(T2OLE(ext), &clsid);
-		ATLASSERT(hr == S_OK);
+        if (PathFileExists(loc)) {
+            CLSID clsid;
+            HRESULT hr = CLSIDFromString(T2OLE(ext), &clsid);
+            ATLASSERT(hr == S_OK);
 
-		HMODULE hmodule = LoadLibrary(loc);
-		ATLASSERT(hmodule != NULL);
+            chained_module_ = LoadLibrary(loc);
+            ATLASSERT(chained_module_ != NULL);
 
-		BOOL(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
-			(BOOL(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
-		ATLASSERT(DllGetClassObject != NULL);
+            BOOL(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
+                (BOOL(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(chained_module_, "DllGetClassObject");
+            ATLASSERT(DllGetClassObject != NULL);
 
-		CComPtr<IClassFactory> pClassFactory;
-		hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
-		ATLASSERT(hr == S_OK);
+            CComPtr<IClassFactory> pClassFactory;
+            hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
+            ATLASSERT(hr == S_OK);
+            
+            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
+            ATLASSERT(hr == S_OK);
 
+            HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
+            ULONG count = m_infoHook->AddRef();
 
-		hr = pClassFactory->CreateInstance(NULL, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
-		ATLASSERT(hr == S_OK);
+            m_infoHook->m_pProfilerHook = this;
 
-		HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
-		ULONG count = m_infoHook->AddRef();
+            m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
 
-		m_infoHook->m_pProfilerHook = this;
+            hr = m_chainedProfiler->Initialize(m_infoHook);
 
-		m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
+            ATLTRACE(_T("    ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
+        }
+        else {
+            RELTRACE(_T("    ::OpenCoverSupportInitialize => Failed to locate external profiler at '%s'"), loc);
+        }
+    }
 
-		hr = m_chainedProfiler->Initialize(m_infoHook);
-
-		ATLTRACE(_T("  ::OpenCoverSupportInitialize => fakes = 0x%X\n"), hr);
-	}
-	
-	return S_OK;
+    return S_OK;
 }
 
 mdMethodDef CCodeCoverage::CreatePInvokeHook(ModuleID moduleId){
@@ -360,7 +362,7 @@ void CCodeCoverage::InstrumentTestToolsUITesting(FunctionID functionId, mdToken 
 
         if (APPLICATIONUNDERTEST_CCTOR == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
             InstructionList instructions;
@@ -374,7 +376,7 @@ void CCodeCoverage::InstrumentTestToolsUITesting(FunctionID functionId, mdToken 
 
         if (APPLICATIONUNDERTEST_START == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestToolsUITesting(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMemberRef memberRef = GetUITestingHelperMethodRef(_T("PropagateRequiredEnvironmentVariables"), moduleId);
             InstructionList instructions;
@@ -395,7 +397,7 @@ void CCodeCoverage::InstrumentTestPlatformUtilities(FunctionID functionId, mdTok
 
         if (DEFAULTTESTEXECUTOR_CTOR == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
             InstructionList instructions;
@@ -409,7 +411,7 @@ void CCodeCoverage::InstrumentTestPlatformUtilities(FunctionID functionId, mdTok
 
         if (DEFAULTTESTEXECUTOR_LAUNCHPROCESS == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestPlatformUtilities(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMemberRef memberRef = GetFakesHelperMethodRef(_T("LoadOpenCoverProfilerInstead"), moduleId);
             InstructionList instructions;
@@ -430,7 +432,7 @@ void CCodeCoverage::InstrumentTestPlatformTestExecutor(FunctionID functionId, md
 
         if (TESTEXECUTORMAIN_CTOR == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMethodDef invokeAttach = CreatePInvokeHook(moduleId);
 
@@ -445,7 +447,7 @@ void CCodeCoverage::InstrumentTestPlatformTestExecutor(FunctionID functionId, md
 
         if (TESTEXECUTORMAIN_RUN == typeMethodName)
         {
-            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s\n"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
+            ATLTRACE(_T("::InstrumentTestPlatformTestExecutor(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(typeMethodName.c_str()));
 
             mdMemberRef memberRef = GetFakesHelperMethodRef(_T("PretendWeLoadedFakesProfiler"), moduleId);
             InstructionList instructions;

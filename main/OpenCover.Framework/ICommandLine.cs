@@ -20,6 +20,11 @@ namespace OpenCover.Framework
         string TargetDir { get; }
 
         /// <summary>
+        /// Alternate locations where PDBs can be found
+        /// </summary>
+        string[] SearchDirs { get; }
+
+        /// <summary>
         /// If specified then results to be merged by matching hash 
         /// </summary>
         bool MergeByHash { get; }
