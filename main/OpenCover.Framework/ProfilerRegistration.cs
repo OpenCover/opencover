@@ -65,18 +65,37 @@ namespace OpenCover.Framework
             if (Environment.Is64BitOperatingSystem) { ExecuteRegsvr32(userRegistration, register, true); }
         }
 
+        private static int ExecuteProcess(ProcessStartInfo psi)
+        {
+            try
+            {
+                var process = Process.Start(psi);
+                process.WaitForExit();
+                return process.ExitCode;
+            }
+            catch (NullReferenceException)
+            {
+                Logger.ErrorFormat("Failed to create the following profiler registration command '{0} {1}'", psi.FileName, psi.Arguments);
+                throw new ExitApplicationWithoutReportingException();
+            }
+            catch (InvalidOperationException)
+            {
+                Logger.ErrorFormat("Failed to execute the following profiler registration command '{0} {1}'", psi.FileName, psi.Arguments);
+                throw new ExitApplicationWithoutReportingException();
+            }
+        }
+
         private static void ExecuteRegsvr32(bool userRegistration, bool register, bool is64)
         {
             var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"),
                                      string.Format("/s {2} {0} \"{1}\"",userRegistration ? UserRegistrationString : String.Empty,
                                      GetProfilerPath(is64), register ? string.Empty : "/u")) { CreateNoWindow = true, UseShellExecute = false };
 
-            var process = Process.Start(startInfo);
-            process.WaitForExit();
-            if (register && 0 != process.ExitCode) // there is an oddity where unregistering the x64 version after the x86 (or vice versa) issues an access denied (5)
+            var exitCode = ExecuteProcess(startInfo);
+            if (register && 0 != exitCode) // there is an oddity where unregistering the x64 version after the x86 (or vice versa) issues an access denied (5)
             {
-                Logger.InfoFormat("Failed to register(user:{0},register:{1},is64:{2}):{3} the profiler assembly; you may want to look into permissions or using the -register:user option instead. {4} {5}",
-                        userRegistration, register, is64, process.ExitCode, process.StartInfo.FileName, process.StartInfo.Arguments);
+                Logger.ErrorFormat("Failed to register(user:{0},register:{1},is64:{2}):{3} the profiler assembly; you may want to look into permissions or using the -register:user option instead. {4} {5}",
+                        userRegistration, register, is64, exitCode, startInfo.FileName, startInfo.Arguments);
                 throw new ExitApplicationWithoutReportingException();
             }
         }
