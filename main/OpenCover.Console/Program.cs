@@ -364,12 +364,21 @@ namespace OpenCover.Console
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = parser.TargetDir;
 
-            var process = Process.Start(startInfo);
-            process.WaitForExit();
+            try
+            {
+                var process = Process.Start(startInfo);
+                process.WaitForExit();
 
-            if (parser.ReturnTargetCode)
-                returnCode = process.ExitCode;
-            return returnCode;
+                if (parser.ReturnTargetCode)
+                    returnCode = process.ExitCode;
+                return returnCode;
+            }
+            catch (Exception ex)
+            {
+                ex.InformUser();
+                Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
+                throw new ExitApplicationWithoutReportingException();
+            }
         }
 
         private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
