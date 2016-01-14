@@ -527,16 +527,10 @@ namespace OpenCover.Console
                 {
                     return new PerfCounters();
                 }
-                else
-                {
-                    throw new InvalidCredentialException(
-                        "You must be running as an Administrator to enable performance counters.");
-                }
+                Logger.Error("You must be running as an Administrator to enable performance counters.");
+                throw new ExitApplicationWithoutReportingException();
             }
-            else
-            {
-                return new NullPerfCounter();
-            }
+            return new NullPerfCounter();
         }
 
 
