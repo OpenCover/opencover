@@ -74,6 +74,8 @@ namespace OpenCover.Console
             }
             catch (ExitApplicationWithoutReportingException eex)
             {
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
                 returnCode = returnCodeOffset + 1;
             }
             catch (Exception ex)
@@ -81,7 +83,9 @@ namespace OpenCover.Console
                 Logger.Fatal("At: Program.Main");
                 Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
                 Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+                Logger.FatalFormat("A report has been sent to the OpenCover development team.");
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
 
                 ReportCrash(ex);
 

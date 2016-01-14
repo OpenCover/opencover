@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using log4net;
+using log4net.Repository.Hierarchy;
 using Mono.Cecil;
 using OpenCover.Framework.Filtering;
 
@@ -19,6 +21,8 @@ namespace OpenCover.Framework
     /// </summary>
     public class Filter : IFilter
     {
+        private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
+
         internal IList<AssemblyAndClassFilter> InclusionFilters { get; private set; }
         internal IList<AssemblyAndClassFilter> ExclusionFilters { get; private set; }
         internal IList<RegexFilter> ExcludedAttributes { get; private set; }
@@ -138,25 +142,34 @@ namespace OpenCover.Framework
             FilterType filterType;
             GetAssemblyClassName(assemblyClassName, RegExFilters, out filterType, out assemblyName, out className, out processName);
 
-            if (!RegExFilters)
+            try
             {
-                processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
-                assemblyName = assemblyName.ValidateAndEscape();
-                className = className.ValidateAndEscape();
+                if (!RegExFilters)
+                {
+                    processName = (string.IsNullOrEmpty(processName) ? "*" : processName).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
+                    assemblyName = assemblyName.ValidateAndEscape();
+                    className = className.ValidateAndEscape();
+                }
+
+                var filter = new AssemblyAndClassFilter(processName, assemblyName, className);
+                if (filterType == FilterType.Inclusion)
+                    InclusionFilters.Add(filter);
+
+                if (filterType == FilterType.Exclusion)
+                    ExclusionFilters.Add(filter);
             }
-
-            var filter = new AssemblyAndClassFilter(processName, assemblyName, className);
-            if (filterType == FilterType.Inclusion)
-                InclusionFilters.Add(filter);
-
-            if (filterType == FilterType.Exclusion)
-                ExclusionFilters.Add(filter);
+            catch (Exception)
+            {
+                HandleInvalidFilterFormat(assemblyClassName);
+            }
         }
 
         private static void GetAssemblyClassName(string assemblyClassName, bool useRegEx, out FilterType filterType, out string assemblyName, out string className, out string processName)
         {
             className = string.Empty;
             assemblyName = string.Empty;
+            processName = string.Empty;
+            filterType = FilterType.Inclusion;
             var regEx = new Regex(@"^(?<type>([+-]))(<(?<process>(.+))>)?(\[(?<assembly>(.+))\])(?<class>(.+))$");
             if (useRegEx)
                 regEx = new Regex(@"^(?<type>([+-]))(<\((?<process>(.+))\)>)?(\[\((?<assembly>(.+))\)\])(\((?<class>(.+))\))$");
@@ -170,17 +183,19 @@ namespace OpenCover.Framework
                 processName = match.Groups["process"].Value;
 
                 if (string.IsNullOrWhiteSpace(assemblyName))
-                    throw InvalidFilterFormatException(assemblyClassName);
+                    HandleInvalidFilterFormat(assemblyClassName);
             }
             else
             {
-                throw InvalidFilterFormatException(assemblyClassName);
+                HandleInvalidFilterFormat(assemblyClassName);
             }
         }
 
-        private static InvalidOperationException InvalidFilterFormatException(string assemblyClassName)
+        private static void HandleInvalidFilterFormat(string assemblyClassName)
         {
-            return new InvalidOperationException(string.Format("The supplied filter '{0}' does not meet the required format for a filter +-[assemblyname]classname", assemblyClassName));
+            Logger.ErrorFormat("Unable to process the filter '{0}'. Please check your syntax against the usage guide and try again.", assemblyClassName);
+            Logger.ErrorFormat("The usage guide can also be found at https://github.com/OpenCover/opencover/wiki/Usage.");
+            throw new ExitApplicationWithoutReportingException();
         }
 
         /// <summary>
