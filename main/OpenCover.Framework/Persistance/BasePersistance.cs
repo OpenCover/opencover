@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -685,7 +686,7 @@ namespace OpenCover.Framework.Persistance
                             if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
                                 sp.BranchPoints = new List<BranchPoint>();
                             } else {
-                                var trimmed = sourceRepository.GetSequencePointText(sp).Trim();
+                                var trimmed = Regex.Replace(sourceRepository.GetSequencePointText(sp), @"\s", "");
                                 if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
                                     if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
                                         sp.BranchPoints = new List<BranchPoint>();
