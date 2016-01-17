@@ -627,6 +627,8 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        private static readonly Regex contractRegex = new Regex(@"^Contract\s\.\s(Requi|Ensu)res", regexOptions);
         private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository)
         {
             foreach (var method in methods) {
@@ -686,15 +688,12 @@ namespace OpenCover.Framework.Persistance
                             if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
                                 sp.BranchPoints = new List<BranchPoint>();
                             } else {
-                                var trimmed = Regex.Replace(sourceRepository.GetSequencePointText(sp), @"\s", "");
-                                if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
-                                    if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
+                                var text = sourceRepository.GetSequencePointText(sp);
+                                if (text[0] == 'C' && text.Length > 18) {
+                                    if (contractRegex.IsMatch(text)) {
                                         sp.BranchPoints = new List<BranchPoint>();
                                     }
-                                    else if (trimmed.StartsWith ("Contract.Ensures", StringComparison.Ordinal) ) {
-                                        sp.BranchPoints = new List<BranchPoint>();
-                                    }
-                                } else if (trimmed == "in") {
+                                } else if (text == "in") {
                                     sp.BranchPoints = new List<BranchPoint>();
                                 }
                             }
