@@ -15,6 +15,7 @@ using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
 using log4net;
+using OpenCover.Framework.Utility;
 using File = OpenCover.Framework.Model.File;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
@@ -181,18 +182,21 @@ namespace OpenCover.Framework.Symbols
             if (SourceAssembly == null) return new Class[0];
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetInstrumentableTypes(typeDefinitions, classes, _filter, ModuleName);
+
+            var assemblyPath = ModuleName;
+            if (ModulePath.Contains (assemblyPath)) { assemblyPath = ModulePath; }
+            GetInstrumentableTypes(typeDefinitions, classes, _filter, assemblyPath);
             return classes.ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string moduleName)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string assemblyPath)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
                 if (typeDefinition.IsEnum) continue;
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
                 var @class = new Class { FullName = typeDefinition.FullName };
-                if (!filter.InstrumentClass(moduleName, @class.FullName))
+                if (!filter.InstrumentClass(assemblyPath, @class.FullName))
                 {
                     @class.MarkAsSkipped(SkippedMethod.Filter);
                 }
@@ -220,7 +224,7 @@ namespace OpenCover.Framework.Symbols
                     classes.Add(@class);
                 }
                 if (typeDefinition.HasNestedTypes) 
-                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, moduleName); 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, assemblyPath); 
             }                                                                                        
         }
 

@@ -4,12 +4,9 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Diagnostics;
 using System.Linq;
-using Mono.Cecil;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Service
 {
@@ -28,12 +25,14 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public bool TrackAssembly(string processName, string modulePath, string assemblyName)
+        public bool TrackAssembly(string processPath, string modulePath, string assemblyName)
         {
             if (_persistance.IsTracking(modulePath)) return true;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            if (!_filter.UseAssembly(processName, assemblyName))
+            var assemblyPath = assemblyName;
+            if (modulePath.Contains (assemblyName)) { assemblyPath = modulePath; }
+            if (!_filter.UseAssembly(processPath, assemblyPath))
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.Filter);
