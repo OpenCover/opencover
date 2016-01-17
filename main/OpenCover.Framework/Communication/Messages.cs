@@ -96,7 +96,7 @@ namespace OpenCover.Framework.Communication
         /// The path to the process
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string processName;
+        public string processPath;
 
         /// <summary>
         /// The path to the module/assembly
@@ -144,7 +144,7 @@ namespace OpenCover.Framework.Communication
         /// The path to the process
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string processName;
+        public string processPath;
 
         /// <summary>
         /// The path to the module hosting the emthod
@@ -214,7 +214,7 @@ namespace OpenCover.Framework.Communication
         /// The path to the process
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 512)]
-        public string processName;
+        public string processPath;
 
         /// <summary>
         /// The path to the module hosting the emthod

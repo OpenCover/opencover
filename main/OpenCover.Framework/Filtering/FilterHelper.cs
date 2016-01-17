@@ -34,6 +34,15 @@ namespace OpenCover.Framework.Filtering
             return matchingFilters;
         }
 
+        internal static void AddRange<T> (this ICollection<T> collection, IEnumerable<T> range) {
+            if (collection != null && range != null) {
+                foreach (var item in range)
+                {
+                    collection.Add(item);
+                }
+            }
+        }
+
         internal static void AddFilters(this ICollection<RegexFilter> target, IEnumerable<string> filters, bool isRegexFilter)
         {
             if (filters == null)

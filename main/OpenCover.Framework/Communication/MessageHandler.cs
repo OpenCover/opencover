@@ -121,7 +121,7 @@ namespace OpenCover.Framework.Communication
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
                 InstrumentationPoint[] origPoints;
-                _profilerCommunication.GetSequencePoints(request.processName, request.modulePath, request.assemblyName,
+                _profilerCommunication.GetSequencePoints(request.processPath, request.modulePath, request.assemblyName,
                     request.functionToken, out origPoints);
                 var num = origPoints.Maybe(o => o.Length);
 
@@ -169,7 +169,7 @@ namespace OpenCover.Framework.Communication
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
                 BranchPoint[] origPoints;
-                _profilerCommunication.GetBranchPoints(request.processName, request.modulePath, request.assemblyName,
+                _profilerCommunication.GetBranchPoints(request.processPath, request.modulePath, request.assemblyName,
                     request.functionToken, out origPoints);
                 var num = origPoints.Maybe(o => o.Length);
 
@@ -290,7 +290,7 @@ namespace OpenCover.Framework.Communication
             try
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
-                response.track = _profilerCommunication.TrackAssembly(request.processName, request.modulePath, request.assemblyName);
+                response.track = _profilerCommunication.TrackAssembly(request.processPath, request.modulePath, request.assemblyName);
             }
             catch (Exception ex)
             {
