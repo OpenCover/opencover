@@ -109,7 +109,7 @@ namespace OpenCover.Test.Framework
             var filter = new Filter();
 
             // act/assert
-            Assert.Catch<InvalidOperationException>(() => filter.AddFilter(assemblyClassPair),
+            Assert.Catch<ExitApplicationWithoutReportingException>(() => filter.AddFilter(assemblyClassPair),
                 "'{0}' should be invalid", assemblyClassPair);
         }
 

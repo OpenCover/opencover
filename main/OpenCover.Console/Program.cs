@@ -74,6 +74,8 @@ namespace OpenCover.Console
             }
             catch (ExitApplicationWithoutReportingException eex)
             {
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
                 returnCode = returnCodeOffset + 1;
             }
             catch (Exception ex)
@@ -81,7 +83,9 @@ namespace OpenCover.Console
                 Logger.Fatal("At: Program.Main");
                 Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
                 Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+                Logger.FatalFormat("A report has been sent to the OpenCover development team.");
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
 
                 ReportCrash(ex);
 
@@ -360,12 +364,21 @@ namespace OpenCover.Console
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = parser.TargetDir;
 
-            var process = Process.Start(startInfo);
-            process.WaitForExit();
+            try
+            {
+                var process = Process.Start(startInfo);
+                process.WaitForExit();
 
-            if (parser.ReturnTargetCode)
-                returnCode = process.ExitCode;
-            return returnCode;
+                if (parser.ReturnTargetCode)
+                    returnCode = process.ExitCode;
+                return returnCode;
+            }
+            catch (Exception ex)
+            {
+                ex.InformUser();
+                Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
+                throw new ExitApplicationWithoutReportingException();
+            }
         }
 
         private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
@@ -514,16 +527,10 @@ namespace OpenCover.Console
                 {
                     return new PerfCounters();
                 }
-                else
-                {
-                    throw new InvalidCredentialException(
-                        "You must be running as an Administrator to enable performance counters.");
-                }
+                Logger.Error("You must be running as an Administrator to enable performance counters.");
+                throw new ExitApplicationWithoutReportingException();
             }
-            else
-            {
-                return new NullPerfCounter();
-            }
+            return new NullPerfCounter();
         }
 
 

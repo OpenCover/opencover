@@ -19,7 +19,7 @@ namespace OpenCover.Framework.Utility
         /// Use to inform user about handled exception where appropriate (failed IO, Access Rights etc..)
         /// </summary>
         /// <param name="e"></param>
-        public static void InformUser(Exception e)
+        public static void InformUser(this Exception e)
         {
             LogManager.GetLogger("OpenCover").InfoFormat ("An {0} occured: {1} ", e.GetType(), e.Message);
         }
