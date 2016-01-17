@@ -52,15 +52,18 @@ namespace OpenCover.Framework
         /// <summary>
         /// Decides whether an assembly should be included in the instrumentation
         /// </summary>
-        /// <param name="processName">The name of the process being profiled</param>
+        /// <param name="processPath">The path-name of the process being profiled</param>
         /// <param name="assemblyName">the name of the assembly under profile</param>
         /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
         /// as it is the class that is being filtered within these unless the class filter is *</remarks>
-        public bool UseAssembly(string processName, string assemblyName)
+        public bool UseAssembly(string processPath, string assemblyName)
         {
-            processName = Path.GetFileNameWithoutExtension(processName);
+            var processName = string.Empty;
+            if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
+                processName = Path.GetFileNameWithoutExtension(processPath);
+            }
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingProcessName(processName)))
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((!string.IsNullOrEmpty(processName) && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
             {
                 return false;
             }
@@ -82,20 +85,23 @@ namespace OpenCover.Framework
         /// <summary>
         /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
         /// </summary>
-        /// <param name="processName">The name of the process</param>
+        /// <param name="processPath">The path-name of the process</param>
         /// <param name="assemblyName">the name of the assembly under profile</param>
         /// <param name="className">the name of the class under profile</param>
         /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
-        public bool InstrumentClass(string processName, string assemblyName, string className)
+        public bool InstrumentClass(string processPath, string assemblyName, string className)
         {
-            if (string.IsNullOrEmpty(processName) || string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
+            if (string.IsNullOrEmpty(processPath) || string.IsNullOrEmpty(assemblyName) || string.IsNullOrEmpty(className))
             {
                 return false;
             }
 
-            processName = Path.GetFileNameWithoutExtension(processName);
+            var processName = string.Empty;
+            if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
+                processName = Path.GetFileNameWithoutExtension(processPath);
+            }
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName);
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && exclusionFilter.IsMatchingProcessName(processName)))
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((!string.IsNullOrEmpty(processName) && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
             {
                 return false;
             }
