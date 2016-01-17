@@ -630,7 +630,7 @@ namespace OpenCover.Framework.Persistance
         // Compiled for speed, treat as .Singleline for multiline SequencePoint, do not waste time to capture Groups (speed)
         private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
         // "Contract" and "." and "Requires/Ensures" can be separated by spaces and newlines (valid c# syntax)!
-        private static readonly Regex contractRegex = new Regex(@"^Contract\s\.\s(Requi|Ensu)res", regexOptions);
+        private static readonly Regex contractRegex = new Regex(@"^Contract\s*\.\s*(Requi|Ensu)res", regexOptions);
 
         private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository)
         {
@@ -641,7 +641,6 @@ namespace OpenCover.Framework.Persistance
                     || method.FileRef.UniqueId == 0
                     || method.SequencePoints == null
                     || method.SequencePoints.Length == 0
-                    || method.IsGenerated // skip generated methods
                    ) {
                     continue;
                 }
@@ -658,27 +657,30 @@ namespace OpenCover.Framework.Persistance
                     long startOffset = long.MinValue;
                     long finalOffset = long.MaxValue;
 
-                    // order SequencePoints by source order (Line/Column)
-                    var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
-
-                    // find getter/setter/static-method "{" offset
-                    if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
-                        startOffset = sourceLineOrderedSps[0].Offset;
-                        // find method "}" offset
-                        if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
-                            finalOffset = sourceLineOrderedSps.Last().Offset;
+                    if (!method.IsGenerated)
+                    {
+                        // order SequencePoints by source order (Line/Column)
+                        var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
+    
+                        // find getter/setter/static-method "{" offset
+                        if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
+                            startOffset = sourceLineOrderedSps[0].Offset;
+                            // find method "}" offset
+                            if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
                         }
-                    }
-                    // find method "{" offset
-                    else if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
-                        startOffset = sourceLineOrderedSps[1].Offset;
-                        // find method "}" offset
-                        if (sourceLineOrderedSps.Length > 2 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
-                            finalOffset = sourceLineOrderedSps.Last().Offset;
-                        }
-                    } else { // "{" not found, try to find "}" offset
-                        if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
-                            finalOffset = sourceLineOrderedSps.Last().Offset;
+                        // find method "{" offset
+                        else if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
+                            startOffset = sourceLineOrderedSps[1].Offset;
+                            // find method "}" offset
+                            if (sourceLineOrderedSps.Length > 2 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
+                        } else { // "{" not found, try to find "}" offset
+                            if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
+                                finalOffset = sourceLineOrderedSps.Last().Offset;
+                            }
                         }
                     }
 
