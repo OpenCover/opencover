@@ -46,7 +46,9 @@ public:
 private:
     void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
     void SendVisitPoints();
+    void SendVisitPointsInternal();
     void SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints);
+    void SendThreadVisitPointsInternal(MSG_SendVisitPoints_Request* pVisitPoints);
     bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
     bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
     void SendRemainingThreadBuffers();
