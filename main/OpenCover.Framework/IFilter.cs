@@ -18,11 +18,11 @@ namespace OpenCover.Framework
         /// <summary>
         /// Decides whether an assembly should be included in the instrumentation
         /// </summary>
-        /// <param name="processName">The name of the process being profiled</param>
-        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="processPath">The name of the process being profiled</param>
+        /// <param name="assemblyPath">the name of the assembly under profile</param>
         /// <remarks>All assemblies matching either the inclusion or exclusion filter should be included 
         /// as it is the class that is being filtered within these unless the class filter is *</remarks>
-        bool UseAssembly(string processName, string assemblyName);
+        bool UseAssembly(string processPath, string assemblyPath);
 
         /// <summary>
         /// Decides whether an assembly should be analysed for test methods
@@ -40,19 +40,19 @@ namespace OpenCover.Framework
         /// <summary>
         /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
         /// </summary>
-        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="assemblyPath">the name of the assembly under profile</param>
         /// <param name="className">the name of the class under profile</param>
         /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
-        bool InstrumentClass(string assemblyName, string className);
+        bool InstrumentClass(string assemblyPath, string className);
 
         /// <summary>
         /// Determine if an [assemblyname]classname pair matches the current Exclusion or Inclusion filters  
         /// </summary>
-        /// <param name="processName">The name of the process</param>
-        /// <param name="assemblyName">the name of the assembly under profile</param>
+        /// <param name="processPath">The path-name of the process</param>
+        /// <param name="assemblyPath">The path-name of the assembly under profile</param>
         /// <param name="className">the name of the class under profile</param>
         /// <returns>false - if pair matches the exclusion filter or matches no filters, true - if pair matches in the inclusion filter</returns>
-        bool InstrumentClass(string processName, string assemblyName, string className);
+        bool InstrumentClass(string processPath, string assemblyPath, string className);
 
 
         /// <summary>
@@ -101,11 +101,11 @@ namespace OpenCover.Framework
         bool RegExFilters { get; }
 
         /// <summary>
-        /// Should we instrument this asssembly
+        /// Should we instrument this process
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <returns></returns>
-        bool InstrumentProcess(string processName);
+        bool InstrumentProcess(string processPath);
     }
 
 }

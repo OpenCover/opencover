@@ -231,8 +231,9 @@ namespace OpenCover.Framework.Utility
                             break;
                     }
                 }
-            } catch (Exception e) {
-                LogHelper.InformUser(e);
+            } catch (Exception e) { 
+                // Source is optional (excess-branch removal), application can continue without it
+                LogHelper.InformUser(e); // Do not throw ExitApplicationWithoutReportingException
             }
             return retSource;
         }

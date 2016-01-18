@@ -33,7 +33,7 @@ namespace OpenCover.Test.Framework
         {
             "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][",
             @"-[\]", @"+[X]\", "-[X]]", "+[X][", "-<[*]*", "+>[*]*",
-            "+<>[*]*", "-[*]", "-[]*", "-<*>[*]", "-<*>[]*"
+            "+<>[*]*", "-[*]", "-[]*", "-<*>[*]", "-<*>[]*", "-[\u00a0]*"
         };
 
         private readonly FilterData[] _filterExpressions =
@@ -109,7 +109,7 @@ namespace OpenCover.Test.Framework
             var filter = new Filter();
 
             // act/assert
-            Assert.Catch<InvalidOperationException>(() => filter.AddFilter(assemblyClassPair),
+            Assert.Catch<ExitApplicationWithoutReportingException>(() => filter.AddFilter(assemblyClassPair),
                 "'{0}' should be invalid", assemblyClassPair);
         }
 
@@ -341,7 +341,7 @@ namespace OpenCover.Test.Framework
         public void InstrumentClass_Tests(
             [ValueSource("_instrumentClassData")]InstrumentClassData data)
         {
-            //// arrange
+            // arrange
             var filter = new Filter();
             data.Filters.ForEach(filter.AddFilter);
 

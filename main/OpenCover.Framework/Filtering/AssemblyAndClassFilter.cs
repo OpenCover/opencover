@@ -7,38 +7,38 @@ namespace OpenCover.Framework.Filtering
 {
     internal class AssemblyAndClassFilter
     {
-        private readonly RegexFilter _processNameFilter;
+        private readonly RegexFilter _processFilter;
 
-        private readonly RegexFilter _assemblyNameFilter;
+        private readonly RegexFilter _assemblyFilter;
 
-        private readonly RegexFilter _classNameFilter;
+        private readonly RegexFilter _classFilter;
 
-        internal string ProcessName { get { return _processNameFilter.FilterExpression; } }
+        internal string ProcessName { get { return _processFilter.FilterExpression; } }
 
-        internal string AssemblyName { get { return _assemblyNameFilter.FilterExpression; } }
+        internal string AssemblyName { get { return _assemblyFilter.FilterExpression; } }
 
-        internal string ClassName { get { return _classNameFilter.FilterExpression; } }
+        internal string ClassName { get { return _classFilter.FilterExpression; } }
 
-        internal AssemblyAndClassFilter(string processName, string assemblyName, string className)
+        internal AssemblyAndClassFilter(string processFilter, string assemblyFilter, string classFilter)
         {
-            _processNameFilter = new RegexFilter(processName);
-            _assemblyNameFilter = new RegexFilter(assemblyName);
-            _classNameFilter = new RegexFilter(className);
+            _processFilter = new RegexFilter(processFilter);
+            _assemblyFilter = new RegexFilter(assemblyFilter);
+            _classFilter = new RegexFilter(classFilter);
         }
 
-        internal bool IsMatchingProcessName(string processName)
+        internal bool IsMatchingProcessName(string processPathOrName)
         {
-            return _processNameFilter.IsMatchingExpression(processName);
+            return _processFilter.IsMatchingExpression(processPathOrName);
         }
 
-        internal bool IsMatchingAssemblyName(string assemblyName)
+        internal bool IsMatchingAssemblyName(string assemblyPathOrName)
         {
-            return _assemblyNameFilter.IsMatchingExpression(assemblyName);
+            return _assemblyFilter.IsMatchingExpression(assemblyPathOrName);
         }
 
         internal bool IsMatchingClassName(string className)
         {
-            return _classNameFilter.IsMatchingExpression(className);
+            return _classFilter.IsMatchingExpression(className);
         }
     }
 

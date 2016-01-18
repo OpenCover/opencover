@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Utility;
@@ -626,76 +627,93 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        // Compiled for speed, treat as .Singleline for multiline SequencePoint, do not waste time to capture Groups (speed)
+        private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
+        // "Contract" and "." and "Requires/Ensures" can be separated by spaces and newlines (valid c# syntax)!
+        private static readonly Regex contractRegex = new Regex(@"^Contract\s*\.\s*(Requi|Ensu)res", regexOptions);
+
         private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository)
         {
             foreach (var method in methods) {
             
-                if (method != null
-                    && method.FileRef != null
-                    && method.FileRef.UniqueId != 0
-                    && method.SequencePoints != null
-                    && method.SequencePoints.Length != 0) {
-                } else {
+                if (method == null
+                    || method.FileRef == null
+                    || method.FileRef.UniqueId == 0
+                    || method.SequencePoints == null
+                    || method.SequencePoints.Length == 0
+                   ) {
                     continue;
                 }
 
-                long startOffset = long.MinValue;
-                long finalOffset = long.MaxValue;
+                // Get method source if availabile 
                 CodeCoverageStringTextSource source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
-                if (source != null && source.FileType == FileType.CSharp && !method.IsGenerated) {
 
-                    #region Use Offset and source To Remove Compiler Generated Branches
+                // Do we have C# source?
+                if (source != null && source.FileType == FileType.CSharp ) {
 
-                    if (method.SequencePoints != null && method.SequencePoints.Length != 0) {
-                        
+                    #region Use sorted SequencePoint's offset and content to Remove Compiler Generated Branches
+
+                    // initialize offset with unreachable values
+                    long startOffset = long.MinValue;
+                    long finalOffset = long.MaxValue;
+
+                    if (!method.IsGenerated)
+                    {
+                        // order SequencePoints by source order (Line/Column)
                         var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
     
-                        // getter/setter/static-method {
-                        
+                        // find getter/setter/static-method "{" offset
                         if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
                             startOffset = sourceLineOrderedSps[0].Offset;
-                            // method }
+                            // find method "}" offset
                             if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
                                 finalOffset = sourceLineOrderedSps.Last().Offset;
                             }
                         }
-                        // method {
+                        // find method "{" offset
                         else if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[1])) {
                             startOffset = sourceLineOrderedSps[1].Offset;
-                            // method }
+                            // find method "}" offset
                             if (sourceLineOrderedSps.Length > 2 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
                                 finalOffset = sourceLineOrderedSps.Last().Offset;
                             }
-                        } else { // "{" not found, try "} only"
+                        } else { // "{" not found, try to find "}" offset
                             if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
                                 finalOffset = sourceLineOrderedSps.Last().Offset;
                             }
                         }
-    
-                        // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
-                        // this will exclude "{" "}" compiler generated branches and some of ccrewrite Code Contract's
-                        foreach (var sp in method.SequencePoints) {
-                            if (sp != null
-                                && sp.FileId == method.FileRef.UniqueId
-                                && sp.BranchPoints != null
-                                && sp.BranchPoints.Count != 0) {
-                            } else {
-                                continue;
-                            }
-                            if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
-                                sp.BranchPoints = new List<BranchPoint>();
-                            } else {
-                                var trimmed = sourceRepository.GetSequencePointText(sp).Trim();
-                                if (trimmed.Length > 18 && trimmed[0] == 'C' && trimmed[8] == '.') {
-                                    if (trimmed.StartsWith ("Contract.Requires", StringComparison.Ordinal) ) {
-                                        sp.BranchPoints = new List<BranchPoint>();
-                                    }
-                                    else if (trimmed.StartsWith ("Contract.Ensures", StringComparison.Ordinal) ) {
-                                        sp.BranchPoints = new List<BranchPoint>();
-                                    }
-                                } else if (trimmed == "in") {
+                    }
+
+                    // Method offsets found or not found, now check foreach sequence point
+                    foreach (var sp in method.SequencePoints) {
+                        if (sp != null
+                            && sp.FileId == method.FileRef.UniqueId
+                            && sp.BranchPoints != null
+                            && sp.BranchPoints.Count != 0) {
+                        } else {
+                            continue;
+                        }
+
+                        if (sp.Offset <= startOffset || sp.Offset >= finalOffset) {
+                            // doRemoveBranches where .Offset <= startOffset"{" or finalOffset"}" <= .Offset
+                            // this will exclude "{" and "}" compiler generated branches and majority of ccrewrite Code-Contract's
+                            sp.BranchPoints = new List<BranchPoint>();
+                        } else { // branches not removed
+                            // check for other options by reading SequencePoint source
+                            var text = sourceRepository.GetSequencePointText(sp);
+                            // Contract.Requires/Ensures is occasionally left inside method offset
+                            // Quick check for "C" and minimum length before using Regex
+                            if (text[0] == 'C' && text.Length > 18) {
+                                // Use Regex here! "Contract" and "." and "Requires/Ensures"
+                                // can be separated by spaces and newlines
+                                if (contractRegex.IsMatch(text)) {
                                     sp.BranchPoints = new List<BranchPoint>();
                                 }
+                            // "in" keyword?
+                            } else if (text == "in") {
+                                // Remove generated ::MoveNext branches within "in" keyword
+                                // Not always removed in CecilSymbolManager (enumerated KeyValuePair)
+                                sp.BranchPoints = new List<BranchPoint>();
                             }
                         }
                     }
