@@ -663,7 +663,7 @@ namespace OpenCover.Framework.Persistance
                         var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRef.UniqueId).ToArray();
     
                         // find getter/setter/static-method "{" offset
-                        if (sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
+                        if (sourceLineOrderedSps.Length > 0 && sourceRepository.IsLeftCurlyBraceSequencePoint(sourceLineOrderedSps[0])) {
                             startOffset = sourceLineOrderedSps[0].Offset;
                             // find method "}" offset
                             if (sourceLineOrderedSps.Length > 1 && sourceRepository.IsRightCurlyBraceSequencePoint(sourceLineOrderedSps.Last())) {
