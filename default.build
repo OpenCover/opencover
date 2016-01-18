@@ -82,6 +82,11 @@
 
   </target>
   
+  <target name="sonarqube-build-release" depends="clean-all, build-environment, build-release-platforms" />
+
+  <target name="sonarqube-build-debug" depends="clean-all, build-environment, build-debug-platforms" />
+  
+  
   <target name="set-rc-property" >
     <property name="buildnumber.ci" value="-rc" />
   </target>
