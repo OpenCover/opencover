@@ -23,5 +23,14 @@ namespace OpenCover.Framework.Utility
         {
             LogManager.GetLogger("OpenCover").InfoFormat ("An {0} occured: {1} ", e.GetType(), e.Message);
         }
+
+        /// <summary>
+        /// Use to inform user
+        /// </summary>
+        /// <param name="message"></param>
+        public static void InformUser(this string message)
+        {
+            LogManager.GetLogger("OpenCover").InfoFormat (message);
+        }
     }
 }

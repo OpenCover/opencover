@@ -341,7 +341,7 @@ namespace OpenCover.Test.Framework
         public void InstrumentClass_Tests(
             [ValueSource("_instrumentClassData")]InstrumentClassData data)
         {
-            //// arrange
+            // arrange
             var filter = new Filter();
             data.Filters.ForEach(filter.AddFilter);
 
