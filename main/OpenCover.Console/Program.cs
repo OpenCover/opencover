@@ -98,12 +98,15 @@ namespace OpenCover.Console
         private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
         {
             var ex = (Exception)unhandledExceptionEventArgs.ExceptionObject;
-            Logger.Fatal("At: CurrentDomainOnUnhandledException");
-            Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
-            Logger.FatalFormat("stack: {0}", ex.StackTrace);
-            Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+            //if (!(ex is ExitApplicationWithoutReportingException))
+            {
+                Logger.Fatal("At: CurrentDomainOnUnhandledException");
+                Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
+                Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                Logger.FatalFormat("A report has been sent to the OpenCover development team...");
 
-            ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
+                ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
+            }
 
             Environment.Exit(0);
         }
@@ -124,7 +127,7 @@ namespace OpenCover.Console
                         }
                     };
     
-                    uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(true));
+                    uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(false));
                 }
             }
             catch (Exception)
@@ -375,10 +378,9 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
-                ex.InformUser();
                 Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
-                throw new ExitApplicationWithoutReportingException();
             }
+            return 1;
         }
 
         private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)

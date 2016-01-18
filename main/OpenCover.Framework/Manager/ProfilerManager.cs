@@ -126,10 +126,11 @@ namespace OpenCover.Framework.Manager
                 {
                     process(dictionary =>
                     {
-                        if (dictionary == null) return;
-                        SetProfilerAttributesOnDictionary(profilerKey, profilerNamespace, dictionary);
-
-                        environmentKeyRead.Set();
+                        if (dictionary != null)
+                        {
+                            SetProfilerAttributesOnDictionary(profilerKey, profilerNamespace, dictionary);
+                            environmentKeyRead.Set();
+                        }
                     });
                 }
                 finally
