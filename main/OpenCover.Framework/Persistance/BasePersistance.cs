@@ -700,9 +700,9 @@ namespace OpenCover.Framework.Persistance
                             sp.BranchPoints = new List<BranchPoint>();
                         } else { // branches not removed
                             // check for other options by reading SequencePoint source
-                            var text = sourceRepository.GetSequencePointText(sp);
+                            var text = sourceRepository.GetSequencePointText(sp); // text is not null
                             // Contract.Requires/Ensures is occasionally left inside method offset
-                            // Quick check for "C" and minimum length before using Regex
+                            // Quick check for minimum length and "C" before using Regex
                             if (text.Length > 18 && text[0] == 'C') {
                                 // Use Regex here! "Contract" and "." and "Requires/Ensures"
                                 // can be separated by spaces and newlines
@@ -720,6 +720,28 @@ namespace OpenCover.Framework.Persistance
 
                     #endregion
 
+                }
+                else {
+                    // Do as much possible without source
+                    // This will remove generated branches within "{" "}" "in" SequencePoints
+                    // but cannot remove Code Contracts ccrewite generated branches
+                    foreach (var sp in method.SequencePoints) {
+                        if (sp != null
+                            && sp.BranchPoints != null
+                            && sp.BranchPoints.Count != 0
+                            && sp.StartLine == sp.EndLine
+                            && sp.EndColumn > sp.StartColumn
+                            && sp.EndColumn - sp.StartColumn <= 2
+                           ) {
+                            // Single and two character sequence point should not contain branches
+                            // Never found 1 character sequencePoint except "{" and "}"
+                            // Never found 2 character sequencePoint except "in" keyword
+                            // Afaik, cannot express branch condition in one or two characters of source code
+                            // x|y if(x) while(x) switch(x){...} case: x?. x?? x==y x?y:z;
+                            // do{...}while(x) for(...) foreach(...)  x is y
+                            sp.BranchPoints = new List<BranchPoint>();
+                        }
+                    }
                 }
             }
         }
