@@ -703,7 +703,7 @@ namespace OpenCover.Framework.Persistance
                             var text = sourceRepository.GetSequencePointText(sp);
                             // Contract.Requires/Ensures is occasionally left inside method offset
                             // Quick check for "C" and minimum length before using Regex
-                            if (text[0] == 'C' && text.Length > 18) {
+                            if (text.Length > 18 && text[0] == 'C') {
                                 // Use Regex here! "Contract" and "." and "Requires/Ensures"
                                 // can be separated by spaces and newlines
                                 if (contractRegex.IsMatch(text)) {
