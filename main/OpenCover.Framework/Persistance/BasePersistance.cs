@@ -730,7 +730,6 @@ namespace OpenCover.Framework.Persistance
                             && sp.BranchPoints != null
                             && sp.BranchPoints.Count != 0
                             && sp.StartLine == sp.EndLine
-                            && sp.EndColumn >= sp.StartColumn
                             && sp.EndColumn - sp.StartColumn <= 2
                            ) {
                             // Zero, one or two character sequence point should not contain branches
