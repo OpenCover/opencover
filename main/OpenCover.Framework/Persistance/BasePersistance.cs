@@ -723,22 +723,23 @@ namespace OpenCover.Framework.Persistance
                 }
                 else {
                     // Do as much possible without source
-                    // This will remove generated branches within "{" "}" "in" SequencePoints
-                    // but cannot remove Code Contracts ccrewite generated branches
+                    // This will remove generated branches within "{", "}" and "in" (single-line SequencePoints)
+                    // but cannot remove Code Contract ccrewite generated branches
                     foreach (var sp in method.SequencePoints) {
                         if (sp != null
                             && sp.BranchPoints != null
                             && sp.BranchPoints.Count != 0
                             && sp.StartLine == sp.EndLine
-                            && sp.EndColumn > sp.StartColumn
+                            && sp.EndColumn >= sp.StartColumn
                             && sp.EndColumn - sp.StartColumn <= 2
                            ) {
-                            // Single and two character sequence point should not contain branches
+                            // Zero, one or two character sequence point should not contain branches
+                            // Never found 0 character sequencePoint
                             // Never found 1 character sequencePoint except "{" and "}"
                             // Never found 2 character sequencePoint except "in" keyword
-                            // Afaik, cannot express branch condition in one or two characters of source code
-                            // x|y if(x) while(x) switch(x){...} case: x?. x?? x==y x?y:z;
-                            // do{...}while(x) for(...) foreach(...)  x is y
+                            // Afaik, c# cannot express branch condition in one or two characters of source code
+                            // x|y if(x) while(x) switch(x){...} case: x?. x?? x==y x?y:z; for(...) foreach(...)  x is y
+                            // "do" keyword does not generate SequencePoint 
                             sp.BranchPoints = new List<BranchPoint>();
                         }
                     }
