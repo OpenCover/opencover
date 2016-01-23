@@ -31,10 +31,25 @@ namespace OpenCover.Framework.Utility
     public class CodeCoverageStringTextSource
     {
         /// <summary>
-        /// File Type by file name extension
+        /// File Type guessed by file-name extension
         /// </summary>
-        public FileType FileType = FileType.Unsupported;
+        public FileType FileType { get { return fileType; } }
+        private readonly FileType fileType = FileType.Unsupported;
+
+        /// <summary>
+        /// Path to source file
+        /// </summary>
+        public string FilePath { get { return filePath; } }
+        private readonly string filePath = string.Empty;
+
+        /// <summary>
+        /// Source file found or not
+        /// </summary>
+        public bool FileFound { get { return fileFound; } }
+        private readonly bool fileFound = false;
+
         private readonly string textSource;
+
         private struct lineInfo {
             public int Offset;
             public int Length;
@@ -45,8 +60,19 @@ namespace OpenCover.Framework.Utility
         /// Constructor
         /// </summary>
         /// <param name="source"></param>
-        public CodeCoverageStringTextSource(string source)
+        /// <param name="filePath"></param>
+        public CodeCoverageStringTextSource(string source, string filePath = "")
         {
+            this.fileFound = source != null;
+
+            if (!string.IsNullOrWhiteSpace (filePath)) {
+                this.filePath = filePath;
+                if (this.filePath.IndexOfAny(Path.GetInvalidPathChars()) < 0
+                    && Path.GetExtension(this.filePath).ToLowerInvariant() == ".cs" ) {
+                    this.fileType = FileType.CSharp;
+                }
+            }
+
             if (string.IsNullOrEmpty(source)) {
                 this.textSource = string.Empty;
             } else {
@@ -212,27 +238,19 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// Get line-parsed source from file name
         /// </summary>
-        /// <param name="filename"></param>
+        /// <param name="filePath"></param>
         /// <returns></returns>
-        public static CodeCoverageStringTextSource GetSource(string filename) {
+        public static CodeCoverageStringTextSource GetSource(string filePath) {
 
-            var retSource = new CodeCoverageStringTextSource (string.Empty);
+            var retSource = new CodeCoverageStringTextSource (null, filePath); // null indicates source-file not found
             try {
-                using (Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read))
+                using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
                 using (var reader = new StreamReader (stream, Encoding.Default, true)) {
                     stream.Position = 0;
-                    retSource = new CodeCoverageStringTextSource(reader.ReadToEnd());
-                    switch (Path.GetExtension(filename).ToLowerInvariant()) {
-                        case ".cs":
-                            retSource.FileType = FileType.CSharp;
-                            break;
-                        default:
-                            retSource.FileType = FileType.Unsupported;
-                            break;
-                    }
+                    retSource = new CodeCoverageStringTextSource(reader.ReadToEnd(), filePath);
                 }
             } catch (Exception e) { 
-                // Source is optional (excess-branch removal), application can continue without it
+                // Source is optional (for excess-branch removal), application can continue without it
                 LogHelper.InformUser(e); // Do not throw ExitApplicationWithoutReportingException
             }
             return retSource;
