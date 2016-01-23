@@ -649,7 +649,7 @@ namespace OpenCover.Framework.Persistance
                 CodeCoverageStringTextSource source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
 
                 // Do we have C# source?
-                if (source != null && source.FileType == FileType.CSharp ) {
+                if (source != null && source.FileFound && source.FileType == FileType.CSharp ) {
 
                     #region Use sorted SequencePoint's offset and content to Remove Compiler Generated Branches
 
@@ -701,6 +701,14 @@ namespace OpenCover.Framework.Persistance
                         } else { // branches not removed
                             // check for other options by reading SequencePoint source
                             var text = sourceRepository.GetSequencePointText(sp); // text is not null
+                            if (text == string.Empty) {
+                                if (sourceRepository.ContainsKey (sp.FileId)) {
+                                    ("File changed?: " + sourceRepository[sp.FileId].FilePath).InformUser();
+                                } else {
+                                    ("File Id " + sp.FileId + " is not available").InformUser();
+                                }
+                                return;
+                            }
                             // Contract.Requires/Ensures is occasionally left inside method offset
                             // Quick check for minimum length and "C" before using Regex
                             if (text.Length > 18 && text[0] == 'C') {
