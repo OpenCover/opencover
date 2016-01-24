@@ -15,13 +15,15 @@ namespace OpenCover.Framework.Utility
     /// </summary>
     public static class LogHelper
     {
+        const string loggerName = "OpenCover";
+
         /// <summary>
         /// Use to inform user about handled exception where appropriate (failed IO, Access Rights etc..)
         /// </summary>
         /// <param name="e"></param>
         public static void InformUser(this Exception e)
         {
-            LogManager.GetLogger("OpenCover").InfoFormat ("An {0} occured: {1} ", e.GetType(), e.Message);
+            LogManager.GetLogger(loggerName).InfoFormat ("An {0} occured: {1} ", e.GetType(), e.Message);
         }
 
         /// <summary>
@@ -30,7 +32,7 @@ namespace OpenCover.Framework.Utility
         /// <param name="message"></param>
         public static void InformUser(this string message)
         {
-            LogManager.GetLogger("OpenCover").InfoFormat (message);
+            LogManager.GetLogger(loggerName).InfoFormat (message);
         }
     }
 }

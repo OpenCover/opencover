@@ -65,9 +65,9 @@ namespace OpenCover.Framework.Persistance
                         {
                             if (
                                 !existingModule.Aliases.Any(
-                                    x => x.Equals(module.FullName, StringComparison.InvariantCultureIgnoreCase)))
+                                    x => x.Equals(module.ModulePath, StringComparison.InvariantCultureIgnoreCase)))
                             {
-                                existingModule.Aliases.Add(module.FullName);
+                                existingModule.Aliases.Add(module.ModulePath);
                             }
                             return;
                         }
@@ -548,8 +548,8 @@ namespace OpenCover.Framework.Persistance
                     TransformSequences_Initialize (methods);
                     TransformSequences_JoinWithBranches (methods);
                     TransformSequences_AddSources (module.Files, methods, sourceRepository);
-                    TransformSequences_RemoveCompilerGeneratedBranches  (methods, sourceRepository);
-                    TransformSequences_RemoveFalsePositiveUnvisited (methods, sourceRepository);
+                    TransformSequences_RemoveCompilerGeneratedBranches  (methods, sourceRepository, module.ModuleTime);
+                    TransformSequences_RemoveFalsePositiveUnvisited (methods, sourceRepository, module.ModuleTime);
                     TransformSequences_ReduceBranches (methods); // last
                 }
             }
@@ -583,8 +583,8 @@ namespace OpenCover.Framework.Persistance
                 Where (file => !String.IsNullOrWhiteSpace(file.FullPath)
                             && !filesDictionary.ContainsKey(file.FullPath)))
             {
-                var source = CodeCoverageStringTextSource.GetSource(file.FullPath);
-                if (source != null && source.FileType == FileType.CSharp) sourceRepository.Add (file.UniqueId, source);
+                var source = CodeCoverageStringTextSource.GetSource(file.FullPath); // never reurns null
+                if (source.FileType == FileType.CSharp) sourceRepository.Add (file.UniqueId, source);
                 filesDictionary.Add(file.FullPath, file.UniqueId);
             }
     
@@ -632,7 +632,7 @@ namespace OpenCover.Framework.Persistance
         // "Contract" and "." and "Requires/Ensures" can be separated by spaces and newlines (valid c# syntax)!
         private static readonly Regex contractRegex = new Regex(@"^Contract\s*\.\s*(Requi|Ensu)res", regexOptions);
 
-        private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository)
+        private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
             foreach (var method in methods) {
             
@@ -646,12 +646,19 @@ namespace OpenCover.Framework.Persistance
                 }
 
                 // Get method source if availabile 
-                CodeCoverageStringTextSource source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
+                var source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
 
                 // Do we have C# source?
-                if (source != null && source.FileFound && source.FileType == FileType.CSharp ) {
+                if (source != null 
+                    && source.FileFound 
+                    && source.FileType == FileType.CSharp ) {
 
-                    #region Use sorted SequencePoint's offset and content to Remove Compiler Generated Branches
+                    if (source.FileTime > moduleTime) {
+                        ("Source file is modified: " + source.FilePath).InformUser();
+                        return;
+                    }
+
+                    #region Use line/col-sorted SequencePoint's offset and content to Remove Compiler Generated Branches
 
                     // initialize offset with unreachable values
                     long startOffset = long.MinValue;
@@ -700,13 +707,10 @@ namespace OpenCover.Framework.Persistance
                             sp.BranchPoints = new List<BranchPoint>();
                         } else { // branches not removed
                             // check for other options by reading SequencePoint source
-                            var text = sourceRepository.GetSequencePointText(sp); // text is not null
+                            var text = sourceRepository.GetSequencePointText(sp); // text is never null
                             if (text == string.Empty) {
-                                if (sourceRepository.ContainsKey (sp.FileId)) {
-                                    ("File changed?: " + sourceRepository[sp.FileId].FilePath).InformUser();
-                                } else {
-                                    ("File Id " + sp.FileId + " is not available").InformUser();
-                                }
+                                ("Empty sequence-point at line: " + sp.StartLine + " column: " + sp.StartColumn).InformUser();
+                                ("Source file: " + source.FilePath).InformUser();
                                 return;
                             }
                             // Contract.Requires/Ensures is occasionally left inside method offset
@@ -804,7 +808,7 @@ namespace OpenCover.Framework.Persistance
         }
 
         
-        private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository)
+        private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
             // From Methods with Source and visited SequencePoints
             var sequencePointsQuery = methods
@@ -850,32 +854,45 @@ namespace OpenCover.Framework.Persistance
                     }
                     if (sequencePointsSet.Contains(sp)) {
                         // Unvisited duplicate found, add to remove list
-                        toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method,sp));
+                        toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
                     }
                 }
 
                 // Select false unvisited right-curly-braces at generated "MoveNext" method
                 // (Curly braces moved to generated "MoveNext" method and left unvisited)
+                // Source is required here to identify curly braces
                 if (method.CallName == "MoveNext") {
-                    int countDown = 2; // remove up to two last right-curly-braces
-                    foreach (var sp in method.SequencePoints.Reverse()) {
-                        if (sp != null
-                            && sp.FileId != 0
-                            && sp.StartLine == sp.EndLine
-                            && sp.StartColumn + 1 == sp.EndColumn
-                            && sp.VisitCount == 0 // unvisited only
-                           ) {
-                        } else {
-                            continue;
-                        }
-                        if (countDown > 0) {
-                            if (sourceRepository.IsRightCurlyBraceSequencePoint(sp)) {
-                                toRemoveMethodSequencePoint.Add(new Tuple<Method, SequencePoint>(method, sp));
-                                countDown -= 1;
+
+                    // Get method source if availabile 
+                    var source = sourceRepository.GetCodeCoverageStringTextSource(method.FileRef.UniqueId);
+
+                    // Do we have C# source?
+                    if (source != null 
+                        && source.FileFound 
+                        && source.FileType == FileType.CSharp
+                        && source.FileTime <= moduleTime
+                       ) {
+
+                        int countDown = 2; // remove up to two last right-curly-braces
+                        foreach (var sp in method.SequencePoints.Reverse()) {
+                            if (sp != null
+                                && sp.FileId != 0
+                                && sp.StartLine == sp.EndLine
+                                && sp.StartColumn + 1 == sp.EndColumn
+                                && sp.VisitCount == 0 // unvisited only
+                               ) {
+                            } else {
+                                continue;
                             }
-                        }
-                        else {
-                            break;
+                            if (countDown > 0) {
+                                if (sourceRepository.IsRightCurlyBraceSequencePoint(sp)) {
+                                    toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
+                                    countDown -= 1;
+                                }
+                            }
+                            else {
+                                break;
+                            }
                         }
                     }
                 }
@@ -890,26 +907,13 @@ namespace OpenCover.Framework.Persistance
                 tuple.Item1.SequencePoints = cleanSequencePoints.ToArray();
             }
 
-            #region ToDo
+            #region ToDo?
             /* Problems:
-                         *
-                         *
-                         * 1) Compiler can duplicate sequence point (found in DBCL project)
-                         * Solution: DONE
-                         *  Remove unvisited duplicate?
-                         *
-                         * 2) Compiler can move SequencePoint into compiler generated method
+                         * Compiler can move SequencePoint into compiler generated method
                          * Solution?
                          *  Identify compiler generated methods
                          *   Match each with user method
                          *    Move SequencePoints & branches into user method
-                         *
-                         * 3) Right braces at IEnumerator<KeyValuePair shown as unvisited
-                         * Solution? DONE
-                         *
-                         *
-                         *
-                         *
                          */
             #endregion
 

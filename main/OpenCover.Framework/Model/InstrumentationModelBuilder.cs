@@ -34,15 +34,18 @@ namespace OpenCover.Framework.Model
         private Module CreateModule(bool full)
         {
             var hash = string.Empty;
+            var timeStamp = new DateTime();
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
+                try { timeStamp = System.IO.File.GetLastWriteTime(_symbolManager.ModulePath); } catch {}
                 hash = HashFile(_symbolManager.ModulePath);
             }
             var module = new Module
                              {
                                  ModuleName = _symbolManager.ModuleName,
-                                 FullName = _symbolManager.ModulePath,
-                                 ModuleHash = hash
+                                 ModulePath = _symbolManager.ModulePath,
+                                 ModuleHash = hash,
+                                 ModuleTime = timeStamp
                              };
             module.Aliases.Add(_symbolManager.ModulePath);
             

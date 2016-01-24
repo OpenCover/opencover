@@ -31,7 +31,7 @@ namespace OpenCover.Test.Framework.Model
 
             // assert
             Assert.IsNotNull(module);
-            Assert.AreEqual("ModulePath", module.FullName);
+            Assert.AreEqual("ModulePath", module.ModulePath);
             Assert.AreEqual("ModulePath", module.Aliases[0]);
         }
 

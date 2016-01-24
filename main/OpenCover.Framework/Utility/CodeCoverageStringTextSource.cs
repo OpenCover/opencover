@@ -48,6 +48,12 @@ namespace OpenCover.Framework.Utility
         public bool FileFound { get { return fileFound; } }
         private readonly bool fileFound = false;
 
+        /// <summary>
+        /// Last write DateTime
+        /// </summary>
+        public DateTime FileTime { get { return timeStamp; } }
+        private readonly DateTime timeStamp = new DateTime();
+
         private readonly string textSource;
 
         private struct lineInfo {
@@ -71,6 +77,10 @@ namespace OpenCover.Framework.Utility
                     && Path.GetExtension(this.filePath).ToLowerInvariant() == ".cs" ) {
                     this.fileType = FileType.CSharp;
                 }
+                if (this.fileFound) {
+                    try { timeStamp = System.IO.File.GetLastWriteTime (this.filePath); } catch {}
+                }
+
             }
 
             if (string.IsNullOrEmpty(source)) {

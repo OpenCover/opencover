@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
@@ -25,7 +26,12 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// The full path name to the module
         /// </summary>
-        public string FullName { get; set; }
+        public string ModulePath { get; set; }
+
+        /// <summary>
+        /// GetlastWriteTime
+        /// </summary>
+        public DateTime ModuleTime { get; set; }
 
         /// <summary>
         /// A list of aliases
