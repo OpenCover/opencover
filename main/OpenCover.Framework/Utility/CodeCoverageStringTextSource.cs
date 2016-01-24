@@ -78,7 +78,11 @@ namespace OpenCover.Framework.Utility
                     this.fileType = FileType.CSharp;
                 }
                 if (this.fileFound) {
-                    try { timeStamp = System.IO.File.GetLastWriteTime (this.filePath); } catch {}
+                    try { 
+                        timeStamp = System.IO.File.GetLastWriteTime (this.filePath); 
+                    } catch (Exception e) {
+                        e.InformUser();
+                    }
                 }
 
             }
@@ -89,6 +93,12 @@ namespace OpenCover.Framework.Utility
                 this.textSource = source;
             }
 
+            lines = initLines ();
+
+        }
+
+        private lineInfo[] initLines ()
+        {
             lineInfo line;
             var lineInfoList = new List<lineInfo>();
             int offset = 0;
@@ -98,12 +108,11 @@ namespace OpenCover.Framework.Utility
             bool lf = false;
             const ushort carriageReturn = 0xD;
             const ushort lineFeed = 0xA;
-
             if (textSource != string.Empty) {
-                foreach ( ushort ch in textSource ) {
+                foreach (ushort ch in textSource) {
                     switch (ch) {
                         case carriageReturn:
-                            if (lf||cr) {
+                            if (lf || cr) {
                                 lf = false;
                                 newLine = true; // cr after cr|lf
                             } else {
@@ -118,7 +127,7 @@ namespace OpenCover.Framework.Utility
                             }
                             break;
                         default:
-                            if (cr||lf) {
+                            if (cr || lf) {
                                 cr = false;
                                 lf = false;
                                 newLine = true; // any non-line-end char after any line-end
@@ -135,16 +144,13 @@ namespace OpenCover.Framework.Utility
                     }
                     ++counter;
                 }
-                
                 // Add last line
                 line = new lineInfo();
                 line.Offset = offset;
                 line.Length = counter - offset;
                 lineInfoList.Add(line);
-    
-                // Store to readonly field
-                lines = lineInfoList.ToArray();
             }
+            return lineInfoList.ToArray();
         }
 
         /// <summary>Return text/source using SequencePoint line/col info
