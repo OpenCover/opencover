@@ -65,3 +65,4 @@ coverity.zip
 
 #SharpDevelop
 /**/OpenCover/coverage.xml
+/.sonarqube
