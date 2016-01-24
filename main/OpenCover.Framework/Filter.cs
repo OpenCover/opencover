@@ -59,16 +59,20 @@ namespace OpenCover.Framework
         public bool UseAssembly(string processPath, string assemblyPath)
         {
             var processName = string.Empty;
+            var processNameAdd = false;
             if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
                 processName = Path.GetFileNameWithoutExtension(processPath);
+                processNameAdd = !string.IsNullOrEmpty(processName) && processName != processPath;
             }
             var assemblyName = string.Empty;
+            var assemblyNameAdd = false;
             if (assemblyPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
                 assemblyName = Path.GetFileNameWithoutExtension(assemblyPath);
+                assemblyNameAdd = !string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath;
             }
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (!string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath) { matchingExclusionFilters.AddRange (ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((!string.IsNullOrEmpty(processName) && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
+            if (assemblyNameAdd) { matchingExclusionFilters.AddRange (ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((processNameAdd && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
             {
                 return false;
             }
@@ -79,7 +83,7 @@ namespace OpenCover.Framework
             }
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (!string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (assemblyNameAdd) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
             if (matchingInclusionFilters.Any())
             {
                 return true;
@@ -103,16 +107,20 @@ namespace OpenCover.Framework
             }
 
             var processName = string.Empty;
+            var processNameAdd = false;
             if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
                 processName = Path.GetFileNameWithoutExtension(processPath); // can return null
+                processNameAdd = !string.IsNullOrEmpty(processName) && processName != processPath;
             }
             var assemblyName = string.Empty;
+            var assemblyNameAdd = false;
             if (assemblyPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
                 assemblyName = Path.GetFileNameWithoutExtension(assemblyPath); // can return null
+                assemblyNameAdd = !string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath;
             }
             var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (!string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath) { matchingExclusionFilters.AddRange (ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
-            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((!string.IsNullOrEmpty(processName) && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
+            if (assemblyNameAdd) { matchingExclusionFilters.AddRange (ExclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName == ".*" && ((processNameAdd && exclusionFilter.IsMatchingProcessName(processName)) || exclusionFilter.IsMatchingProcessName(processPath))))
             {
                 return false;
             }
@@ -125,7 +133,7 @@ namespace OpenCover.Framework
             }
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (!string.IsNullOrEmpty(assemblyName) && assemblyName != assemblyPath) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (assemblyNameAdd) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
             if (matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className)))
             {
                 return true;
@@ -363,12 +371,14 @@ namespace OpenCover.Framework
             if (!ExclusionFilters.Any() && !InclusionFilters.Any()) return true;
 
             var processName = string.Empty;
+            var processNameAdd = false;
             if (processPath.IndexOfAny(Path.GetInvalidPathChars()) < 0) { // avoids ArgumentException
                 processName = Path.GetFileNameWithoutExtension(processPath);
+                processNameAdd = !string.IsNullOrWhiteSpace(processName) && processName != processPath;
             }
             if (ExclusionFilters.Any()) {
                 var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForProcessName(processPath);
-                if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
+                if (processNameAdd) {
                 	matchingExclusionFilters.AddRange(ExclusionFilters.GetMatchingFiltersForProcessName(processName));
                 }
                 if (matchingExclusionFilters.Any
@@ -384,7 +394,7 @@ namespace OpenCover.Framework
 
             if (InclusionFilters.Any()) {
                 var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForProcessName(processPath);
-                if (!string.IsNullOrWhiteSpace (processName) && processName != processPath) {
+                if (processNameAdd) {
                     matchingInclusionFilters.AddRange(InclusionFilters.GetMatchingFiltersForProcessName(processName));
                 }
                 return matchingInclusionFilters.Any();
