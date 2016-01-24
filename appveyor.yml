@@ -22,7 +22,7 @@ build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
       & .\build.bat create-coverity-release
-    } else if ($env:APPVEYOR_REPO_BRANCH -eq "sonar") {
+    } elseif ($env:APPVEYOR_REPO_BRANCH -eq "sonar") {
       & .\build.bat sonarqube-build
     } else {
       & .\build.bat create-release
