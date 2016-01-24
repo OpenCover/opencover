@@ -653,7 +653,9 @@ namespace OpenCover.Framework.Persistance
                     && source.FileFound 
                     && source.FileType == FileType.CSharp ) {
 
-                    if (source.FileTime > moduleTime) {
+                    if (source.FileTime != DateTime.MinValue 
+                        && moduleTime != DateTime.MinValue 
+                        && source.FileTime > moduleTime) {
                         ("Source file is modified: " + source.FilePath).InformUser();
                         return;
                     }

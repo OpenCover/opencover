@@ -52,7 +52,7 @@ namespace OpenCover.Framework.Utility
         /// Last write DateTime
         /// </summary>
         public DateTime FileTime { get { return timeStamp; } }
-        private readonly DateTime timeStamp = new DateTime();
+        private readonly DateTime timeStamp = DateTime.MinValue;
 
         private readonly string textSource;
 

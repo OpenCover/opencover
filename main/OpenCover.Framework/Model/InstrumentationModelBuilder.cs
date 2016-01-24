@@ -34,7 +34,7 @@ namespace OpenCover.Framework.Model
         private Module CreateModule(bool full)
         {
             var hash = string.Empty;
-            var timeStamp = new DateTime();
+            var timeStamp = DateTime.MinValue;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
                 try { timeStamp = System.IO.File.GetLastWriteTime(_symbolManager.ModulePath); } catch {}
