@@ -14,6 +14,11 @@ namespace OpenCover.Framework.Communication
     public enum MSG_Type 
     {
         /// <summary>
+        /// This message is unknown of course
+        /// </summary>
+        MSG_Unknown = -1,
+
+        /// <summary>
         /// Does this assembly have any code that can be covered
         /// </summary>
         MSG_TrackAssembly = 1,

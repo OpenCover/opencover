@@ -44,7 +44,6 @@ namespace OpenCover.Framework.Manager
             protected string MakeName(string name, int id)
             {
                 var newName = string.Format("{0}{1}{2}{3}", Namespace, name, Key, id);
-                //Console.WriteLine(newName);
                 return newName;
             }
         }

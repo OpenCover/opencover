@@ -595,7 +595,8 @@ namespace OpenCover.Framework.Persistance
                             && !filesDictionary.ContainsKey(file.FullPath)))
             {
                 var source = CodeCoverageStringTextSource.GetSource(file.FullPath); // never reurns null
-                if (source.FileType == FileType.CSharp) sourceRepository.Add (file.UniqueId, source);
+                if (source.FileType == FileType.CSharp) 
+                    sourceRepository.Add (file.UniqueId, source);
                 filesDictionary.Add(file.FullPath, file.UniqueId);
             }
     

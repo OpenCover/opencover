@@ -64,9 +64,7 @@ namespace OpenCover.Framework
                 return false;
 
             if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName != ".*"))
-            {
                 return true;
-            }
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
             if (assemblyNameAdd) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }

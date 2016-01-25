@@ -15,10 +15,7 @@ namespace OpenCover.Framework.Filtering
         {
             if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) 
                 throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
-            match = match.Replace(@"\", @"\\");
-            match = match.Replace(@".", @"\.");
-            match = match.Replace(@"*", @".*");
-            return match;
+            return match.Replace(@"\", @"\\").Replace(@".", @"\.").Replace(@"*", @".*");
         }
 
         internal static IList<AssemblyAndClassFilter> GetMatchingFiltersForAssemblyName(this IEnumerable<AssemblyAndClassFilter> filters, string assemblyName)

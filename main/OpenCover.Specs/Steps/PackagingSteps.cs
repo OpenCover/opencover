@@ -17,7 +17,8 @@ namespace OpenCover.Specs.Steps
         public void DeleteZipFolder()
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
+            if (Directory.Exists(folder)) 
+                Directory.Delete(folder, true);
         }
 
         [AfterScenario("msitag")]
@@ -44,20 +45,28 @@ namespace OpenCover.Specs.Steps
         [Given(@"I have a valid zip package in the output folder")]
         public void GivenIHaveAValidZipPackageInTheOutputFolder()
         {
-            var target = GetTargetPackage("zip", "zip");
-
-            Assert.NotNull(target, "Could not find a valid ZIP file.");
-
-            var targetFile = Path.GetFullPath(target.File);
-            var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "zipFolder"));
-            var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "zipoutput.xml"));
-
-            if (File.Exists(targetOutput)) 
-                File.Delete(targetOutput);
+            string targetFolder;
+            string targetOutput;
+            var targetFile = BuildTargets("zip", "zip", "zipFolder", "zipoutput.xml", out targetFolder, out targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
             ScenarioContext.Current["targetOutput"] = targetOutput;
+        }
+
+        private static dynamic BuildTargets(string folder, string ext, string dir, string xml, out string targetFolder, out string targetOutput)
+        {
+            var target = GetTargetPackage(folder, ext);
+
+            Assert.NotNull(target, "Could not find a valid file.");
+
+            var targetFile = Path.GetFullPath(target.File);
+            targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, dir));
+            targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, xml));
+
+            if (File.Exists(targetOutput))
+                File.Delete(targetOutput);
+            return targetFile;
         }
 
         [Given(@"I (?:unzip|unpack) that package into a deployment folder")]
@@ -74,16 +83,9 @@ namespace OpenCover.Specs.Steps
         [Given(@"I have a valid nugetpackage in the output folder")]
         public void GivenIHaveAValidNugetpackageInTheOutputFolder()
         {
-            var target = GetTargetPackage("nugetpackage", "nupkg");
-
-            Assert.NotNull(target, "Could not find a valid NUGET file.");
-
-            var targetFile = Path.GetFullPath(target.File);
-            var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "nuFolder"));
-            var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "nuoutput.xml"));
-
-            if (File.Exists(targetOutput)) 
-                File.Delete(targetOutput);
+            string targetFolder;
+            string targetOutput;
+            var targetFile = BuildTargets("nugetpackage", "nupkg", "nuFolder", "nuoutput.xml", out targetFolder, out targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
@@ -93,16 +95,9 @@ namespace OpenCover.Specs.Steps
         [Given(@"I have a valid installer in the output folder")]
         public void GivenIHaveAValidInstallerInTheOutputFolder()
         {
-            var target = GetTargetPackage("installer", "msi");
-
-            Assert.NotNull(target, "Could not find a valid MSI file.");
-
-            var targetFile = Path.GetFullPath(target.File);
-            var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "msiFolder"));
-            var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "msioutput.xml"));
-
-            if (File.Exists(targetOutput)) 
-                File.Delete(targetOutput);
+            string targetFolder;
+            string targetOutput;
+            var targetFile = BuildTargets("installer", "msi", "msiFolder", "msioutput.xml", out targetFolder, out targetOutput);
 
             ScenarioContext.Current["targetMsi"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;

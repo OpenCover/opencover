@@ -39,15 +39,24 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
-        private readonly object syncRoot = new object ();
+        private readonly object _syncRoot = new object ();
 
         /// <summary>
         /// Syncronisation Root
         /// </summary>
         public object SyncRoot {
             get {
-                return syncRoot;
+                return _syncRoot;
             }
+        }
+
+        /// <summary>
+        /// wait for how long
+        /// </summary>
+        internal static int BufferWaitCount
+        {
+            get { return _bufferWaitCount; }
+            set { _bufferWaitCount = value; }
         }
 
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
@@ -195,7 +204,7 @@ namespace OpenCover.Framework.Manager
         /// <summary>
         /// wait for how long
         /// </summary>
-        internal static int BufferWaitCount = 30;
+        private static int _bufferWaitCount = 30;
 
         private bool _continueWait = true;
 
@@ -220,12 +229,14 @@ namespace OpenCover.Framework.Manager
                                 }
                             }));
                         break;
+                    default:
+                        break;
                 }
             } while (_continueWait);
 
             // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
             var i = 0;
-            while (i < BufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
+            while (i < _bufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
             {
                 DebugLogger.InfoFormat("Waiting for {0} processes to close",
                     _memoryManager.GetBlocks.Count(b => b.Active));

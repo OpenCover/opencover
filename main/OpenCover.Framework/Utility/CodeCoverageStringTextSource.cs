@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using OpenCover.Framework.Model;
@@ -33,34 +32,34 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// File Type guessed by file-name extension
         /// </summary>
-        public FileType FileType { get { return fileType; } }
-        private readonly FileType fileType = FileType.Unsupported;
+        public FileType FileType { get { return _fileType; } }
+        private readonly FileType _fileType = FileType.Unsupported;
 
         /// <summary>
         /// Path to source file
         /// </summary>
-        public string FilePath { get { return filePath; } }
-        private readonly string filePath = string.Empty;
+        public string FilePath { get { return _filePath; } }
+        private readonly string _filePath = string.Empty;
 
         /// <summary>
         /// Source file found or not
         /// </summary>
-        public bool FileFound { get { return fileFound; } }
-        private readonly bool fileFound = false;
+        public bool FileFound { get { return _fileFound; } }
+        private readonly bool _fileFound;
 
         /// <summary>
         /// Last write DateTime
         /// </summary>
-        public DateTime FileTime { get { return timeStamp; } }
-        private readonly DateTime timeStamp = DateTime.MinValue;
+        public DateTime FileTime { get { return _timeStamp; } }
+        private readonly DateTime _timeStamp = DateTime.MinValue;
 
-        private readonly string textSource;
+        private readonly string _textSource;
 
-        private struct lineInfo {
+        private struct LineInfo {
             public int Offset;
             public int Length;
         }
-        private readonly lineInfo[] lines = new lineInfo[0];
+        private readonly LineInfo[] _lines;
 
         /// <summary>
         /// Constructor
@@ -69,17 +68,17 @@ namespace OpenCover.Framework.Utility
         /// <param name="filePath"></param>
         public CodeCoverageStringTextSource(string source, string filePath = "")
         {
-            this.fileFound = source != null;
+            _fileFound = source != null;
 
             if (!string.IsNullOrWhiteSpace (filePath)) {
-                this.filePath = filePath;
-                if (this.filePath.IndexOfAny(Path.GetInvalidPathChars()) < 0
-                    && Path.GetExtension(this.filePath).ToLowerInvariant() == ".cs" ) {
-                    this.fileType = FileType.CSharp;
+                _filePath = filePath;
+                if (_filePath.IndexOfAny(Path.GetInvalidPathChars()) < 0
+                    && Path.GetExtension(_filePath).ToLowerInvariant() == ".cs" ) {
+                    _fileType = FileType.CSharp;
                 }
-                if (this.fileFound) {
+                if (_fileFound) {
                     try { 
-                        timeStamp = System.IO.File.GetLastWriteTime (this.filePath); 
+                        _timeStamp = System.IO.File.GetLastWriteTime (_filePath); 
                     } catch (Exception e) {
                         e.InformUser();
                     }
@@ -87,20 +86,15 @@ namespace OpenCover.Framework.Utility
 
             }
 
-            if (string.IsNullOrEmpty(source)) {
-                this.textSource = string.Empty;
-            } else {
-                this.textSource = source;
-            }
+            _textSource = string.IsNullOrEmpty(source) ? string.Empty : source;
 
-            lines = initLines ();
+            _lines = InitLines ();
 
         }
 
-        private lineInfo[] initLines ()
+        private LineInfo[] InitLines ()
         {
-            lineInfo line;
-            var lineInfoList = new List<lineInfo>();
+            var lineInfoList = new List<LineInfo>();
             int offset = 0;
             int counter = 0;
             bool newLine = false;
@@ -108,9 +102,10 @@ namespace OpenCover.Framework.Utility
             bool lf = false;
             const ushort carriageReturn = 0xD;
             const ushort lineFeed = 0xA;
-            if (textSource != string.Empty) {
-                foreach (ushort ch in textSource) {
-                    switch (ch) {
+            if (_textSource != string.Empty) {
+                LineInfo line;
+                foreach (var ch in _textSource) {
+                    switch ((ushort)ch) {
                         case carriageReturn:
                             if (lf || cr) {
                                 lf = false;
@@ -136,18 +131,22 @@ namespace OpenCover.Framework.Utility
                     }
                     if (newLine) { // newLine detected - add line
                         newLine = false;
-                        line = new lineInfo();
-                        line.Offset = offset;
-                        line.Length = counter - offset;
+                        line = new LineInfo
+                        {
+                            Offset = offset,
+                            Length = counter - offset
+                        };
                         lineInfoList.Add(line);
                         offset = counter;
                     }
                     ++counter;
                 }
                 // Add last line
-                line = new lineInfo();
-                line.Offset = offset;
-                line.Length = counter - offset;
+                line = new LineInfo
+                {
+                    Offset = offset,
+                    Length = counter - offset
+                };
                 lineInfoList.Add(line);
             }
             return lineInfoList.ToArray();
@@ -158,71 +157,69 @@ namespace OpenCover.Framework.Utility
         /// <param name="sp"></param>
         /// <returns></returns>
         public string GetText(SequencePoint sp) {
-            return this.GetText(sp.StartLine, sp.StartColumn, sp.EndLine, sp.EndColumn );
+            return GetText(sp.StartLine, sp.StartColumn, sp.EndLine, sp.EndColumn );
         }
 
         /// <summary>Return text at Line/Column/EndLine/EndColumn position
         /// <remarks>Line and Column counting starts at 1.</remarks>
         /// </summary>
-        /// <param name="Line"></param>
-        /// <param name="Column"></param>
-        /// <param name="EndLine"></param>
-        /// <param name="EndColumn"></param>
+        /// <param name="startLine"></param>
+        /// <param name="startColumn"></param>
+        /// <param name="endLine"></param>
+        /// <param name="endColumn"></param>
         /// <returns></returns>
-        public string GetText(int Line, int Column, int EndLine, int EndColumn) {
+        public string GetText(int startLine, int startColumn, int endLine, int endColumn) {
 
             var text = new StringBuilder();
             string line;
             bool argOutOfRange;
 
-            if (Line==EndLine) {
+            if (startLine==endLine) {
 
                 #region One-Line request
-                line = GetLine(Line);
+                line = GetLine(startLine);
 
-                argOutOfRange = Column > EndColumn || Column > line.Length;
+                argOutOfRange = startColumn > endColumn || startColumn > line.Length;
                 if (!argOutOfRange) {
-                    if (Column < 1) { Column = 1; }
-                    if (EndColumn > line.Length + 1) { EndColumn = line.Length + 1; }
-                    text.Append(line.Substring (Column-1, EndColumn-Column));
+                    if (startColumn < 1) { startColumn = 1; }
+                    if (endColumn > line.Length + 1) { endColumn = line.Length + 1; }
+                    text.Append(line.Substring (startColumn-1, endColumn-startColumn));
                 }
                 #endregion
 
-            } else if (Line<EndLine) {
+            } else if (startLine<endLine) {
 
                 #region Multi-line request
 
                 #region First line
-                line = GetLine(Line);
+                line = GetLine(startLine);
 
-                argOutOfRange = Column > line.Length;
+                argOutOfRange = startColumn > line.Length;
                 if (!argOutOfRange) {
-                    if (Column < 1) { Column = 1; }
-                    text.Append (line.Substring (Column-1));
+                    if (startColumn < 1) { startColumn = 1; }
+                    text.Append (line.Substring (startColumn-1));
                 }
                 #endregion
 
                 #region More than two lines
-                for ( int lineIndex = Line + 1; lineIndex < EndLine; lineIndex++ ) {
+                for ( int lineIndex = startLine + 1; lineIndex < endLine; lineIndex++ ) {
                     text.Append ( GetLine ( lineIndex ) );
                 }
                 #endregion
 
                 #region Last line
-                line = GetLine(EndLine);
+                line = GetLine(endLine);
 
-                argOutOfRange = EndColumn < 1;
+                argOutOfRange = endColumn < 1;
                 if (!argOutOfRange) {
-                    if (EndColumn > line.Length + 1) { EndColumn = line.Length + 1; }
-                    text.Append(line.Substring(0,EndColumn-1));
+                    if (endColumn > line.Length + 1) { endColumn = line.Length + 1; }
+                    text.Append(line.Substring(0,endColumn-1));
                 }
                 #endregion
 
                 #endregion
 
-            } else {
-                ;
-            }
+            } 
             return text.ToString();
         }
 
@@ -231,21 +228,21 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         public int LinesCount {
             get {
-                return lines.Length;
+                return _lines.Length;
             }
         }
 
         /// <summary>Return SequencePoint enumerated line
         /// </summary>
-        /// <param name="LineNo"></param>
+        /// <param name="lineNo"></param>
         /// <returns></returns>
-        public string GetLine ( int LineNo ) {
+        public string GetLine ( int lineNo ) {
 
-            string retString = String.Empty;
+            string retString = string.Empty;
 
-            if ( LineNo > 0 && LineNo <= lines.Length ) {
-                lineInfo lineInfo = lines[LineNo-1];
-                retString = textSource.Substring(lineInfo.Offset, lineInfo.Length);
+            if ( lineNo > 0 && lineNo <= _lines.Length ) {
+                LineInfo lineInfo = _lines[lineNo-1];
+                retString = _textSource.Substring(lineInfo.Offset, lineInfo.Length);
             }
 
             return retString;
@@ -267,7 +264,7 @@ namespace OpenCover.Framework.Utility
                 }
             } catch (Exception e) { 
                 // Source is optional (for excess-branch removal), application can continue without it
-                LogHelper.InformUser(e); // Do not throw ExitApplicationWithoutReportingException
+                e.InformUser(); // Do not throw ExitApplicationWithoutReportingException
             }
             return retSource;
         }
