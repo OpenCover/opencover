@@ -24,7 +24,8 @@ namespace OpenCover.Specs.Steps
         public void DeleteMsiFolder()
         {
             var folder = Path.GetFullPath(Path.Combine((string)ScenarioContext.Current["targetFolder"], ".."));
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
+            if (Directory.Exists(folder)) 
+                Directory.Delete(folder, true);
         }
 
         private static dynamic GetTargetPackage(string folder, string ext)
@@ -51,7 +52,8 @@ namespace OpenCover.Specs.Steps
             var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "zipFolder"));
             var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "zipoutput.xml"));
 
-            if (File.Exists(targetOutput)) File.Delete(targetOutput);
+            if (File.Exists(targetOutput)) 
+                File.Delete(targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
@@ -62,7 +64,8 @@ namespace OpenCover.Specs.Steps
         public void GivenIUnzipThatPackageIntoADeploymentFolder()
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
+            if (Directory.Exists(folder)) 
+                Directory.Delete(folder, true);
             var zip = new ZipFile((string)ScenarioContext.Current["targetZip"]);
             zip.ExtractAll(folder);
             zip.Dispose();
@@ -79,7 +82,8 @@ namespace OpenCover.Specs.Steps
             var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "nuFolder"));
             var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "nuoutput.xml"));
 
-            if (File.Exists(targetOutput)) File.Delete(targetOutput);
+            if (File.Exists(targetOutput)) 
+                File.Delete(targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
@@ -97,7 +101,8 @@ namespace OpenCover.Specs.Steps
             var targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "msiFolder"));
             var targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, "msioutput.xml"));
 
-            if (File.Exists(targetOutput)) File.Delete(targetOutput);
+            if (File.Exists(targetOutput)) 
+                File.Delete(targetOutput);
 
             ScenarioContext.Current["targetMsi"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
@@ -108,14 +113,18 @@ namespace OpenCover.Specs.Steps
         public void GivenIInstallThatPackageIntoADeploymentFolder()
         {
             var folder = (string)ScenarioContext.Current["targetFolder"];
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
+            if (Directory.Exists(folder)) 
+                Directory.Delete(folder, true);
 
             var installer = (string)ScenarioContext.Current["targetMsi"];
             var msiExec = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "msiexec.exe");
-            var startInfo = new ProcessStartInfo(msiExec);
-            startInfo.Arguments = string.Format("/qn /a {0} TARGETDIR={1}", installer, folder);
-            startInfo.UseShellExecute = false;
+            var startInfo = new ProcessStartInfo(msiExec)
+            {
+                Arguments = string.Format("/qn /a {0} TARGETDIR={1}", installer, folder),
+                UseShellExecute = false
+            };
             var process = Process.Start(startInfo);
+            Assert.NotNull(process);
             process.WaitForExit();
 
             ScenarioContext.Current["targetFolder"] = Path.Combine(folder, "[ApplicationFolderName]");
@@ -124,7 +133,7 @@ namespace OpenCover.Specs.Steps
         [When(@"I execute the deployed OpenCover against the (x\d\d) target application")]
         public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplication(string binFolder)
         {
-            this.WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(binFolder, string.Empty);
+            WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(binFolder, string.Empty);
         }
 
         [When(@"I execute the deployed OpenCover against the (x\d\d) target application in subfolder (.*)")]
@@ -136,14 +145,18 @@ namespace OpenCover.Specs.Steps
             var outputXml = string.Format(@"{0}\{1}_{2}{3}",
                 Path.GetDirectoryName(output), Path.GetFileNameWithoutExtension(output), binFolder, Path.GetExtension(output));
 
-            if (File.Exists(outputXml)) File.Delete(outputXml);
+            if (File.Exists(outputXml)) 
+                File.Delete(outputXml);
 
             var openCover = Path.Combine(folder, subfolder, "OpenCover.Console.exe");
             var target = Path.Combine(folder, string.Format(@"Samples\{0}\OpenCover.Simple.Target.exe", binFolder));
-            var startInfo = new ProcessStartInfo(openCover);
-            startInfo.Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml);
-            startInfo.UseShellExecute = false;
+            var startInfo = new ProcessStartInfo(openCover)
+            {
+                Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml),
+                UseShellExecute = false
+            };
             var process = Process.Start(startInfo);
+            Assert.NotNull(process);
             process.WaitForExit();
         }
 

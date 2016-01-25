@@ -48,7 +48,8 @@ namespace OpenCover.Console
                 //throw new NullReferenceException();
 
                 CommandLineParser parser;
-                if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+                if (!ParseCommandLine(args, out parser)) 
+                    return parser.ReturnCodeOffset + 1;
 
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
@@ -58,7 +59,8 @@ namespace OpenCover.Console
                 var perfCounter = CreatePerformanceCounter(parser);
 
                 string outputFile;
-                if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
+                if (!GetFullOutputFile(parser, out outputFile)) 
+                    return returnCodeOffset + 1;
 
                 using (var container = new Bootstrapper(Logger))
                 {
@@ -385,7 +387,8 @@ namespace OpenCover.Console
 
         private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
         {
-            if (!logger.IsInfoEnabled) return;
+            if (!logger.IsInfoEnabled) 
+                return;
 
             var altTotalClasses = 0;
             var altVisitedClasses = 0;
@@ -403,7 +406,8 @@ namespace OpenCover.Console
                     from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
-                    if (@class.Methods == null) continue;
+                    if (@class.Methods == null) 
+                        continue;
 
                     if ((@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
                     {

@@ -13,7 +13,8 @@ namespace OpenCover.Framework.Filtering
 
         internal static string ValidateAndEscape(this string match, string notAllowed = @"\[]")
         {
-            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
+            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0) 
+                throw new InvalidOperationException(String.Format("The string is invalid for an filter name {0}", match));
             match = match.Replace(@"\", @"\\");
             match = match.Replace(@".", @"\.");
             match = match.Replace(@"*", @".*");

@@ -13,7 +13,8 @@ namespace OpenCover.Support.UITesting
         public static void PropagateRequiredEnvironmentVariables(object data)
         {
             var pi = data as ProcessStartInfo;
-            if (pi == null) return;
+            if (pi == null) 
+                return;
             foreach (var ev in from DictionaryEntry ev in Environment.GetEnvironmentVariables()
                 where (ev.Key.ToString().StartsWith("COR", StringComparison.InvariantCultureIgnoreCase) ||
                       ev.Key.ToString().StartsWith("OPEN", StringComparison.InvariantCultureIgnoreCase) ||

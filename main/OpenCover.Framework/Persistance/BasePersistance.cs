@@ -196,7 +196,8 @@ namespace OpenCover.Framework.Persistance
 
         private void RemoveSkippedModules(SkippedMethod skipped)
         {
-            if (CoverageSession.Modules == null) return;
+            if (CoverageSession.Modules == null) 
+                return;
             var modules = CoverageSession.Modules;
             modules = modules.Where(x => x.SkippedDueTo != skipped).ToArray();
             CoverageSession.Modules = modules;
@@ -204,10 +205,12 @@ namespace OpenCover.Framework.Persistance
 
         private void RemoveSkippedClasses(SkippedMethod skipped)
         {
-            if (CoverageSession.Modules == null) return;
+            if (CoverageSession.Modules == null) 
+                return;
             foreach (var module in CoverageSession.Modules)
             {
-                if (module.Classes == null) continue;
+                if (module.Classes == null) 
+                    continue;
                 var classes = module.Classes.Where(x => x.SkippedDueTo != skipped).ToArray();
                 module.Classes = classes;
             }
@@ -215,13 +218,16 @@ namespace OpenCover.Framework.Persistance
 
         private void RemoveSkippedMethods(SkippedMethod skipped)
         {
-            if (CoverageSession.Modules == null) return;
+            if (CoverageSession.Modules == null) 
+                return;
             foreach (var module in CoverageSession.Modules)
             {
-                if (module.Classes == null) continue;
+                if (module.Classes == null) 
+                    continue;
                 foreach (var @class in module.Classes)
                 {
-                    if (@class.Methods == null) continue;
+                    if (@class.Methods == null) 
+                        continue;
                     var methods = @class.Methods.Where(x => x.SkippedDueTo != skipped).ToArray();
                     @class.Methods = methods;
                 }
@@ -230,17 +236,20 @@ namespace OpenCover.Framework.Persistance
 
         private void RemoveEmptyClasses()
         {
-            if (CoverageSession.Modules == null) return;
+            if (CoverageSession.Modules == null) 
+                return;
             foreach (var module in CoverageSession.Modules)
             {
-                if (module.Classes == null) continue;
+                if (module.Classes == null) 
+                    continue;
                 module.Classes = module.Classes.Where(@class => @class.Methods != null && @class.Methods.Any()).ToArray();
             }
         }
 
         private void RemoveUnreferencedFiles()
         {
-            if (CoverageSession.Modules == null) return;
+            if (CoverageSession.Modules == null) 
+                return;
             foreach (var module in CoverageSession.Modules)
             {
                 module.Files = (from file in module.Files ?? new File[0]
@@ -306,8 +315,8 @@ namespace OpenCover.Framework.Persistance
                         method.NPathComplexity = 0;
                         var nPaths = new Dictionary<int, int>();
                         if (method.BranchPoints != null && method.BranchPoints.Length != 0) {
-                            foreach (var bp in method.BranchPoints) {
-                                if (!Object.ReferenceEquals(bp, null) && nPaths.ContainsKey(bp.Offset)) {
+                            foreach (var bp in method.BranchPoints.Where(b => b != null)) {
+                                if (nPaths.ContainsKey(bp.Offset)) {
                                     nPaths[bp.Offset] += 1;
                                 } else {
                                     nPaths.Add(bp.Offset, 1);
@@ -451,7 +460,8 @@ namespace OpenCover.Framework.Persistance
                     .FirstOrDefault(x => x.Aliases.Any(path => path.Equals(modulePath, StringComparison.InvariantCultureIgnoreCase)));
                 if (module == null)
                     return null;
-                if (!_moduleMethodMap[module].ContainsKey(functionToken)) return null;
+                if (!_moduleMethodMap[module].ContainsKey(functionToken)) 
+                    return null;
                 var pair = _moduleMethodMap[module][functionToken];
                 @class = pair.Key;
                 return pair.Value;
@@ -572,9 +582,10 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        private static void TransformSequences_AddSources (IEnumerable<File> files, IEnumerable<Method> methods, IDictionary<uint, CodeCoverageStringTextSource> sourceRepository)
+        private static void TransformSequences_AddSources (IList<File> files, IEnumerable<Method> methods, IDictionary<uint, CodeCoverageStringTextSource> sourceRepository)
         {
-            if (files == null || !files.Any()) return;
+            if (files == null || !files.Any()) 
+                return;
 
             // Dictionary with stored source file names per module
             var filesDictionary = new Dictionary<string, uint>();
@@ -630,7 +641,7 @@ namespace OpenCover.Framework.Persistance
         // Compiled for speed, treat as .Singleline for multiline SequencePoint, do not waste time to capture Groups (speed)
         private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
         // "Contract" and "." and "Requires/Ensures" can be separated by spaces and newlines (valid c# syntax)!
-        private static readonly Regex contractRegex = new Regex(@"^Contract\s*\.\s*(Requi|Ensu)res", regexOptions);
+        private static readonly Regex ContractRegex = new Regex(@"^Contract\s*\.\s*(Requi|Ensu)res", regexOptions);
 
         private static void TransformSequences_RemoveCompilerGeneratedBranches (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
@@ -720,7 +731,7 @@ namespace OpenCover.Framework.Persistance
                             if (text.Length > 18 && text[0] == 'C') {
                                 // Use Regex here! "Contract" and "." and "Requires/Ensures"
                                 // can be separated by spaces and newlines
-                                if (contractRegex.IsMatch(text)) {
+                                if (ContractRegex.IsMatch(text)) {
                                     sp.BranchPoints = new List<BranchPoint>();
                                 }
                             // "in" keyword?
@@ -810,7 +821,7 @@ namespace OpenCover.Framework.Persistance
         }
 
         
-        private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
+        private static void TransformSequences_RemoveFalsePositiveUnvisited (IList<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
             // From Methods with Source and visited SequencePoints
             var sequencePointsQuery = methods
@@ -902,11 +913,7 @@ namespace OpenCover.Framework.Persistance
 
             // Remove selected SequencePoints
             foreach (var tuple in toRemoveMethodSequencePoint) {
-                var cleanSequencePoints = new List<SequencePoint>();
-                foreach (var sp in tuple.Item1.SequencePoints.Where(sp => sp != tuple.Item2)) {
-                    cleanSequencePoints.Add(sp);
-                }
-                tuple.Item1.SequencePoints = cleanSequencePoints.ToArray();
+                tuple.Item1.SequencePoints = tuple.Item1.SequencePoints.Where(sp => sp != tuple.Item2).ToArray();
             }
 
             #region ToDo?

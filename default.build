@@ -16,6 +16,8 @@
 	<property name="netfx4.folder" value="${netfx.framework.folder}/v4.0.30319" />
 	<property name="ci.buildNumber" value="${environment::get-variable('APPVEYOR_BUILD_NUMBER')}" if="${environment::variable-exists('APPVEYOR_BUILD_NUMBER')}"/>
 	<property name="ci.buildNumber" value="0" unless="${property::exists('ci.buildNumber')}" />
+	<property name="ci.fullBuildNumber" value="${environment::get-variable('APPVEYOR_BUILD_VERSION')}" if="${environment::variable-exists('APPVEYOR_BUILD_VERSION')}"/>
+	<property name="ci.fullBuildNumber" value="0" unless="${property::exists('ci.fullBuildNumber')}" />
 	<property name="coverity.folder" value="C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin" if="${directory::exists('C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin')}" />
 	
 	<property name="coverity.exe" value="${coverity.folder}/cov-build.exe" if="${property::exists('coverity.folder')}" />
@@ -25,11 +27,6 @@
   <property name="coverity.token" value="${environment::get-variable('COVERITY_TOKEN')}" if="${environment::variable-exists('COVERITY_TOKEN')}" />
   <property name="coverity.email" value="" />
   <property name="coverity.email" value="${environment::get-variable('COVERITY_EMAIL')}" if="${environment::variable-exists('COVERITY_EMAIL')}" />
-
-  <property name="sonarqube.user" value="" />
-  <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" if="${environment::variable-exists('SONARQUBE_USER')}" />
-  <property name="sonarqube.pwd" value="" />
-  <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" if="${environment::variable-exists('SONARQUBE_PASSWORD')}" />
   
   <property name="buildnumber.major" value="4" />
   <property name="buildnumber.minor" value="6" />
@@ -83,12 +80,18 @@
 		</exec>
         
     <exec program="${curl.exe}" 
-      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="${ci.buildNumber}" --form description="${ci.buildNumber}" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
+      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="${ci.fullBuildNumber}" --form description="${ci.fullBuildNumber}" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
 
   </target>
   
-  <target name="sonarqube-build"  depends="clean-all, build-environment">
+  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
     
+    <call target="clean-all" />
+    <call target="build-environment" />
+    
+    <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
+    <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
+
     <property name="configuration" value="release" />
     <property name="platform" value="x64" />
     <call target="build.opencover" />
@@ -106,7 +109,7 @@
     </xmlpoke>
     
     <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.buildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
 
     <property name="configuration" value="release" />
     <property name="platform" value="x86" />

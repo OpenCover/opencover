@@ -81,7 +81,8 @@ namespace OpenCover.Framework
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (_container == null) return;
+            if (_container == null) 
+                return;
             _container.Dispose();
             _container = null;
         }

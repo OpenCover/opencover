@@ -27,11 +27,15 @@ namespace OpenCover.Framework.Service
 
         public bool TrackAssembly(string processPath, string modulePath, string assemblyName)
         {
-            if (_persistance.IsTracking(modulePath)) return true;
+            if (_persistance.IsTracking(modulePath)) 
+                return true;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
             var assemblyPath = assemblyName;
-            if (modulePath.Contains (assemblyName)) { assemblyPath = modulePath; }
+            if (modulePath.Contains(assemblyName))
+            {
+                assemblyPath = modulePath;
+            }
             if (!_filter.UseAssembly(processPath, assemblyPath))
             {
                 module = builder.BuildModuleModel(false);

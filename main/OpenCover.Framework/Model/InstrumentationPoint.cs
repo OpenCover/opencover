@@ -13,7 +13,7 @@ namespace OpenCover.Framework.Model
     public class InstrumentationPoint
     {
         private static int _instrumentPoint;
-        private static object _addInstrumentPointSync = new object();
+        private static readonly object LockObject = new object();
         private static readonly List<InstrumentationPoint> InstrumentPoints;
 
         static InstrumentationPoint()
@@ -115,7 +115,7 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public InstrumentationPoint()
         {
-            lock (_addInstrumentPointSync)
+            lock (LockObject)
             {
                 UniqueSequencePoint = (uint)++_instrumentPoint;
                 InstrumentPoints.Add(this);
@@ -165,7 +165,8 @@ namespace OpenCover.Framework.Model
             set
             {
                 _tracked = null;
-                if (value == null) return;
+                if (value == null) 
+                    return;
                 _tracked = new List<TrackedMethodRef>(value);
             }
         }

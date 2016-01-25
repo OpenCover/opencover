@@ -11,7 +11,10 @@ namespace OpenCover.ThirdParty.Signer
             using (var stream = new FileStream(key, FileMode.Open, FileAccess.Read))
             {
                 var keyPair = new StrongNameKeyPair(stream);
-                definition.Write(outputPath, new WriterParameters() { StrongNameKeyPair = keyPair });
+                definition.Write(outputPath, new WriterParameters()
+                {
+                    StrongNameKeyPair = keyPair
+                });
             }
         }
     }

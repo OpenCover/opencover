@@ -15,7 +15,6 @@ using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
 using log4net;
-using OpenCover.Framework.Utility;
 using File = OpenCover.Framework.Model.File;
 using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
@@ -73,7 +72,7 @@ namespace OpenCover.Framework.Symbols
         {
             var origFolder = Path.GetDirectoryName(ModulePath);
 
-            var searchFolders = new List<string>() { origFolder, _commandLine.TargetDir };
+            var searchFolders = new List<string> { origFolder, _commandLine.TargetDir };
             if (_commandLine.SearchDirs != null)
                 searchFolders.AddRange(_commandLine.SearchDirs);
             searchFolders.Add(Environment.CurrentDirectory);
@@ -118,7 +117,8 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 var symbolFolder = FindSymbolFolder();
-                if (symbolFolder == null) return;
+                if (symbolFolder == null) 
+                    return;
                 var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
 
                 var parameters = new ReaderParameters
@@ -179,7 +179,8 @@ namespace OpenCover.Framework.Symbols
 
         public Class[] GetInstrumentableTypes()
         {
-            if (SourceAssembly == null) return new Class[0];
+            if (SourceAssembly == null) 
+                return new Class[0];
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
 
@@ -193,8 +194,10 @@ namespace OpenCover.Framework.Symbols
         {
             foreach (var typeDefinition in typeDefinitions)
             {
-                if (typeDefinition.IsEnum) continue;
-                if (typeDefinition.IsInterface && typeDefinition.IsAbstract) continue;
+                if (typeDefinition.IsEnum) 
+                    continue;
+                if (typeDefinition.IsInterface && typeDefinition.IsAbstract) 
+                    continue;
                 var @class = new Class { FullName = typeDefinition.FullName };
                 if (!filter.InstrumentClass(assemblyPath, @class.FullName))
                 {
@@ -266,9 +269,8 @@ namespace OpenCover.Framework.Symbols
         {
             foreach (var methodDefinition in typeDefinition.Methods)
             {
-                if (methodDefinition.IsAbstract) continue;
-                if (methodDefinition.IsGetter) continue;
-                if (methodDefinition.IsSetter) continue;
+                if (methodDefinition.IsAbstract || methodDefinition.IsGetter || methodDefinition.IsSetter) 
+                    continue;
 
                 var method = BuildMethod(files, filter, methodDefinition, false, commandLine);
                 methods.Add(method);
@@ -355,7 +357,8 @@ namespace OpenCover.Framework.Symbols
 
         private void BuildMethodMap()
         {
-            if (_methodMap.Count > 0) return;
+            if (_methodMap.Count > 0) 
+                return;
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
             BuildMethodMap(typeDefinitions);
         }
@@ -379,7 +382,8 @@ namespace OpenCover.Framework.Symbols
         private void GetSequencePointsForToken(int token, List<SequencePoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
-            if (methodDefinition == null) return;
+            if (methodDefinition == null) 
+                return;
             try
             {
                 UInt32 ordinal = 0;
@@ -409,7 +413,8 @@ namespace OpenCover.Framework.Symbols
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
-            if (methodDefinition == null) return;
+            if (methodDefinition == null) 
+                return;
             try
             {
                 UInt32 ordinal = 0;
@@ -618,7 +623,8 @@ namespace OpenCover.Framework.Symbols
         private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
         {
             var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
-            if (!sequencePointsInMethod.Any()) return null;
+            if (!sequencePointsInMethod.Any()) 
+                return null;
             var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetComparer());
             Instruction prev;
             if (idx < 0)
@@ -657,13 +663,15 @@ namespace OpenCover.Framework.Symbols
         private void GetCyclomaticComplexityForToken(int token, ref int complexity)
         {
             var methodDefinition = GetMethodDefinition(token);
-            if (methodDefinition == null) return;
+            if (methodDefinition == null) 
+                return;
             complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
         }
 
         public TrackedMethod[] GetTrackedMethods()
         {
-            if (SourceAssembly==null) return null;
+            if (SourceAssembly==null) 
+                return null;
 
             var modulePath = ModulePath;
             if (!System.IO.File.Exists(modulePath))
