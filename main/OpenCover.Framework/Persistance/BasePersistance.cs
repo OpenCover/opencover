@@ -611,47 +611,17 @@ namespace OpenCover.Framework.Persistance
         static void TransformSequences_Initialize (IEnumerable<Method> methods)
         {
             foreach (var method in methods) {
-                #region Cleanup
                 // No sequences in method, but branches present? => remove branches
                 if (method.SequencePoints.Length == 0 && method.BranchPoints.Length != 0) {
                     method.BranchPoints = new BranchPoint[0];
                 }
-                #endregion
-            }
-        }
-
-        private static void TransformSequences_AddSources (IList<File> files, IEnumerable<Method> methods, IDictionary<uint, CodeCoverageStringTextSource> sourceRepository)
-        {
-            if (files == null || !files.Any()) 
-                return;
-
-            // Dictionary with stored source file names per module
-            var filesDictionary = new Dictionary<string, uint>();
-
-            foreach (var file in files.
-                Where (file => !String.IsNullOrWhiteSpace(file.FullPath)
-                            && !filesDictionary.ContainsKey(file.FullPath)))
-            {
-                var source = CodeCoverageStringTextSource.GetSource(file.FullPath); // never reurns null
-                if (source.FileType == FileType.CSharp) 
-                    sourceRepository.Add (file.UniqueId, source);
-                filesDictionary.Add(file.FullPath, file.UniqueId);
-            }
-    
-            foreach (var method in methods) {
-                #region Add file references
-                if (method.SequencePoints.Length != 0)
-                    MapFileReferences(method.SequencePoints, filesDictionary);
-                if (method.BranchPoints.Length != 0)
-                    MapFileReferences(method.BranchPoints, filesDictionary);
-                #endregion
             }
         }
 
         private static void TransformSequences_JoinWithBranches (IEnumerable<Method> methods)
         {
             foreach (var method in methods) {
-                #region Join BranchPoints children to SequencePoint parent
+
                 if (method.SequencePoints.Length != 0 && method.BranchPoints.Length != 0) {
                     // Quick match branches to sequence using SP&BP sort order by IL offset
                     // SP & BP are sorted by offset and code below expect both SP & BP to be sorted by offset
@@ -673,7 +643,32 @@ namespace OpenCover.Framework.Persistance
                         }
                     }
                 }
-                #endregion
+            }
+        }
+
+        private static void TransformSequences_AddSources (IEnumerable<File> files, IEnumerable<Method> methods, IDictionary<uint, CodeCoverageStringTextSource> sourceRepository)
+        {
+            if (files == null || !files.Any()) 
+                return;
+
+            // Dictionary with stored source file names per module
+            var filesDictionary = new Dictionary<string, uint>();
+
+            foreach (var file in files.
+                Where (file => !String.IsNullOrWhiteSpace(file.FullPath)
+                            && !filesDictionary.ContainsKey(file.FullPath)))
+            {
+                var source = CodeCoverageStringTextSource.GetSource(file.FullPath); // never reurns null
+                if (source.FileType == FileType.CSharp) 
+                    sourceRepository.Add (file.UniqueId, source);
+                filesDictionary.Add(file.FullPath, file.UniqueId);
+            }
+    
+            foreach (var method in methods) {
+                if (method.SequencePoints.Length != 0)
+                    MapFileReferences(method.SequencePoints, filesDictionary);
+                if (method.BranchPoints.Length != 0)
+                    MapFileReferences(method.BranchPoints, filesDictionary);
             }
         }
 
@@ -705,8 +700,6 @@ namespace OpenCover.Framework.Persistance
             if (source.FileType == FileType.CSharp) {
 
                 if (source.FileFound) {
-
-                    #region Use line/col-sorted SequencePoint's offset and content to Remove Compiler Generated Branches
 
                     // initialize offset with unreachable values
                     long startOffset = long.MinValue;
@@ -742,8 +735,6 @@ namespace OpenCover.Framework.Persistance
                         return false; // return error/failure to caller
                     }
 
-                    #endregion
-
                 } else {
 
                     // Do as much possible without source
@@ -776,7 +767,7 @@ namespace OpenCover.Framework.Persistance
 
         private static bool TransformSequences_RemoveCompilerGeneratedBranches (Method method, CodeCoverageStringTextSource source, long startOffset, long finalOffset) {
 
-            // Method offsets found or not found, now check foreach sequence point
+            // foreach sequence point
             foreach (var sp in method.SequencePoints
                      .Where (sp => sp.FileId == method.FileRefUniqueId 
                              && sp.BranchPoints.Count != 0)) {
@@ -813,57 +804,7 @@ namespace OpenCover.Framework.Persistance
             return true;
         }
 
-        /// <summary>
-        /// Computes reduced SequencePoint branch coverage  
-        /// by finding common exit offset (switch/case)
-        /// </summary>
-        /// <param name="methods"></param>
-        private static void TransformSequences_ReduceBranches (IEnumerable<Method> methods)
-        {
-            foreach (var method in methods) {
-
-                #region Merge Branch-Exits for each Sequence
-
-                // Collection of validBranchPoints (child/connected to parent SequencePoint)
-                var validBranchPoints = new List<BranchPoint>();
-                var branchExits = new Dictionary<int, BranchPoint>();
-                foreach (var sp in method.SequencePoints) {
-                    // SequencePoint has branches attached?
-                    if (sp.BranchPoints.Count != 0) {
-                        // Merge sp.BranchPoints using EndOffset as branchExits key
-                        branchExits.Clear();
-                        foreach (var branchPoint in sp.BranchPoints) {
-                            if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
-                                branchExits[branchPoint.EndOffset] = branchPoint;
-                                // insert branch
-                            } else {
-                                branchExits[branchPoint.EndOffset].VisitCount += branchPoint.VisitCount;
-                                // update branch
-                            }
-                        }
-                        // Update SequencePoint counters
-                        sp.BranchExitsCount = 0;
-                        sp.BranchExitsVisit = 0;
-                        foreach (var branchPoint in branchExits.Values) {
-                            sp.BranchExitsCount += 1;
-                            sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
-                        }
-                        // Add to validBranchPoints
-                        validBranchPoints.AddRange(sp.BranchPoints);
-                        sp.BranchPoints = new List<BranchPoint>();
-                    }
-                }
-                // Replace original method branchPoints with valid (filtered and joined) branches.
-                // Order is Required by FilePersistanceTest because it does not sets .Offset.
-                // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
-                method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
-
-                #endregion
-            }
-        }
-
-        
-        private static void TransformSequences_RemoveFalsePositiveUnvisited (IList<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
+        private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
             // From Methods with Source and visited SequencePoints
             var sequencePointsQuery = methods
@@ -913,7 +854,7 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
-        private static void TransformSequences_RemoveFalsePositiveUnvisited (Method method, CodeCoverageStringTextSource source, List<Tuple<Method, SequencePoint>> toRemoveMethodSequencePoint)
+        private static void TransformSequences_RemoveFalsePositiveUnvisited (Method method, CodeCoverageStringTextSource source, ICollection<Tuple<Method, SequencePoint>> toRemoveMethodSequencePoint)
         {
             // Select false unvisited right-curly-braces at generated "MoveNext" method
             // (Curly braces moved to generated "MoveNext" method and left unvisited)
@@ -927,22 +868,66 @@ namespace OpenCover.Framework.Persistance
                     foreach (var sp in method.SequencePoints.Reverse()) {
                         if (sp.FileId == method.FileRefUniqueId
                             && sp.IsSingleCharSequencePoint
-                            && sp.VisitCount == 0 // unvisited only
-                           ) {
-                        } else {
-                            continue;
-                        }
-                        if (countDown > 0) {
-                            if (source.GetText(sp) == "}") {
-                                toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
-                                countDown -= 1;
+                            && sp.VisitCount == 0) { // unvisited only
+
+                            if (countDown > 0) {
+                                if (source.GetText(sp) == "}") {
+                                    toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
+                                    countDown -= 1;
+                                }
                             }
-                        }
-                        else {
-                            break;
+                            else {
+                                break;
+                            }
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Computes reduced SequencePoint branch coverage  
+        /// by finding common exit offset (switch/case)
+        /// </summary>
+        /// <param name="methods"></param>
+        private static void TransformSequences_ReduceBranches (IEnumerable<Method> methods)
+        {
+            foreach (var method in methods) {
+
+                // Collection of validBranchPoints (child/connected to parent SequencePoint)
+                var validBranchPoints = new List<BranchPoint>();
+                var branchExits = new Dictionary<int, BranchPoint>();
+                foreach (var sp in method.SequencePoints) {
+                    // SequencePoint has branches attached?
+                    if (sp.BranchPoints.Count != 0) {
+                        // Merge sp.BranchPoints using EndOffset as branchExits key
+                        branchExits.Clear();
+                        foreach (var branchPoint in sp.BranchPoints) {
+                            if (!branchExits.ContainsKey(branchPoint.EndOffset)) {
+                                branchExits[branchPoint.EndOffset] = branchPoint;
+                                // insert branch
+                            } else {
+                                branchExits[branchPoint.EndOffset].VisitCount += branchPoint.VisitCount;
+                                // update branch
+                            }
+                        }
+                        // Update SequencePoint counters
+                        sp.BranchExitsCount = 0;
+                        sp.BranchExitsVisit = 0;
+                        foreach (var branchPoint in branchExits.Values) {
+                            sp.BranchExitsCount += 1;
+                            sp.BranchExitsVisit += branchPoint.VisitCount == 0 ? 0 : 1;
+                        }
+                        // Add to validBranchPoints
+                        validBranchPoints.AddRange(sp.BranchPoints);
+                        sp.BranchPoints = new List<BranchPoint>();
+                    }
+                }
+                // Replace original method branchPoints with valid (filtered and joined) branches.
+                // Order is Required by FilePersistanceTest because it does not sets .Offset.
+                // (Order by UniqueSequencePoint is equal to order by .Offset when .Offset is set)
+                method.BranchPoints = validBranchPoints.OrderBy(bp => bp.UniqueSequencePoint).ToArray();
+
             }
         }
 
