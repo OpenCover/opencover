@@ -22,8 +22,6 @@ build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
       & .\build.bat create-coverity-release
-    } elseif ($env:APPVEYOR_REPO_BRANCH -eq "sonar") {
-      & .\build.bat sonarqube-build
     } else {
       & .\build.bat create-release
     }
@@ -78,6 +76,6 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
-    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity" -and $env:APPVEYOR_REPO_BRANCH -ne "sonar") {
-      & .\build.bat dogfood-release
+    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
+      & .\build.bat sonarqube-build
     }

@@ -16,6 +16,8 @@
 	<property name="netfx4.folder" value="${netfx.framework.folder}/v4.0.30319" />
 	<property name="ci.buildNumber" value="${environment::get-variable('APPVEYOR_BUILD_NUMBER')}" if="${environment::variable-exists('APPVEYOR_BUILD_NUMBER')}"/>
 	<property name="ci.buildNumber" value="0" unless="${property::exists('ci.buildNumber')}" />
+	<property name="ci.fullBuildNumber" value="${environment::get-variable('APPVEYOR_BUILD_VERSION')}" if="${environment::variable-exists('APPVEYOR_BUILD_VERSION')}"/>
+	<property name="ci.fullBuildNumber" value="0" unless="${property::exists('ci.fullBuildNumber')}" />
 	<property name="coverity.folder" value="C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin" if="${directory::exists('C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin')}" />
 	
 	<property name="coverity.exe" value="${coverity.folder}/cov-build.exe" if="${property::exists('coverity.folder')}" />
@@ -83,7 +85,7 @@
 		</exec>
         
     <exec program="${curl.exe}" 
-      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="${ci.buildNumber}" --form description="${ci.buildNumber}" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
+      commandline='--form token=${coverity.token} --insecure --form email=${coverity.email} --form file=@coverity.zip --form version="${ci.fullBuildNumber}" --form description="${ci.fullBuildNumber}" https://scan.coverity.com/builds?project=OpenCover%2Fopencover' />
 
   </target>
   
@@ -106,7 +108,7 @@
     </xmlpoke>
     
     <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.buildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
 
     <property name="configuration" value="release" />
     <property name="platform" value="x86" />
