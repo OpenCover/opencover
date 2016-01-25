@@ -69,3 +69,4 @@ coverity.zip
 #sonarqube
 /.sonarqube
 !tools/sonarqube/**/*
+/main/OpenCover.SonarQube.sdf

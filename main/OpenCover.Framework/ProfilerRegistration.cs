@@ -29,7 +29,7 @@ namespace OpenCover.Framework
     /// Intentionally not unit tested - as this is calling regsvr32 which does what it does and does not need more testing from me
     /// </remarks>
     [ExcludeFromCoverage("Intentionally not unit tested - as this is calling regsvr32 which does what it does and does not need more testing from me")]
-    public class ProfilerRegistration
+    public static class ProfilerRegistration
     {
         private const string UserRegistrationString = "/n /i:user";
 
@@ -62,7 +62,10 @@ namespace OpenCover.Framework
         private static void ExecuteRegsvr32(bool userRegistration, bool register)
         {
             ExecuteRegsvr32(userRegistration, register, false);
-            if (Environment.Is64BitOperatingSystem) { ExecuteRegsvr32(userRegistration, register, true); }
+            if (Environment.Is64BitOperatingSystem)
+            {
+                ExecuteRegsvr32(userRegistration, register, true);
+            }
         }
 
         private static int ExecuteProcess(ProcessStartInfo psi)

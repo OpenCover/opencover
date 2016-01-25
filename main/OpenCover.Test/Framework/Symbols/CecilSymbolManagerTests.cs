@@ -661,7 +661,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void Can_Exclude_AutoImplmentedProperties()
         {
             // arrange
-            var filter = new Filter();
+            var filter = new Filter(false);
             _mockFilter
                 .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);

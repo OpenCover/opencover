@@ -300,9 +300,9 @@ namespace OpenCover.Framework
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
         }
 
-        private static List<SkippedMethod> ExtractSkipped(string skipped)
+        private static List<SkippedMethod> ExtractSkipped(string skippedArg)
         {
-            if (string.IsNullOrWhiteSpace(skipped)) skipped = "All";
+            var skipped = string.IsNullOrWhiteSpace(skippedArg) ? "All" : skippedArg;
             var options = skipped.Split(';');
             var list = new List<SkippedMethod>();
             foreach (var option in options)
@@ -334,7 +334,8 @@ namespace OpenCover.Framework
             var match = Regex.Match(timeoutValue, @"((?<minutes>\d+)m)?((?<seconds>\d+)s)?");
             if (match.Success)
             {
-                int minutes = 0, seconds = 0;
+                int minutes = 0;
+                int seconds = 0;
 
                 var minutesMatch = match.Groups["minutes"];
                 if (minutesMatch.Success)
@@ -368,7 +369,8 @@ namespace OpenCover.Framework
 
         private void ValidateArguments()
         {
-            if (PrintUsage || PrintVersion) return;
+            if (PrintUsage || PrintVersion) 
+                return;
 
             if (string.IsNullOrWhiteSpace(Target))
             {

@@ -39,7 +39,7 @@ namespace OpenCover.Integration.Test
         [SetUp]
         public void SetUp()
         {
-            _filter = new Filter();
+            _filter = new Filter(false);
             _filter.AddFilter("-[mscorlib]*");
             _filter.AddFilter("-[System]*");
             _filter.AddFilter("-[System.*]*");

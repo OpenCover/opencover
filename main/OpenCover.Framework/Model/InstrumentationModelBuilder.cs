@@ -68,12 +68,12 @@ namespace OpenCover.Framework.Model
 
         public Module BuildModuleTestModel(Module module, bool full)
         {
-            module = module ?? CreateModule(full);
-            module.TrackedMethods = _symbolManager.GetTrackedMethods();
-            return module;
+            var m = module ?? CreateModule(full);
+            m.TrackedMethods = _symbolManager.GetTrackedMethods();
+            return m;
         }
 
-        private string HashFile(string sPath)
+        private static string HashFile(string sPath)
         {
             using (var sr = new StreamReader(sPath))
             using (var prov = new SHA1CryptoServiceProvider())

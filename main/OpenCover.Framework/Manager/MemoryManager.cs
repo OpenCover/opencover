@@ -44,7 +44,6 @@ namespace OpenCover.Framework.Manager
             protected string MakeName(string name, int id)
             {
                 var newName = string.Format("{0}{1}{2}{3}", Namespace, name, Key, id);
-                //Console.WriteLine(newName);
                 return newName;
             }
         }
@@ -275,7 +274,8 @@ namespace OpenCover.Framework.Manager
         {
             lock (_lockObject)
             {
-                if (_isIntialised) return;
+                if (_isIntialised) 
+                    return;
                 _namespace = @namespace;
                 _key = key;
                 _servicePrincipal = servicePrincipal.ToArray();
@@ -295,7 +295,8 @@ namespace OpenCover.Framework.Manager
 
             lock (_lockObject)
             {
-                if (!_isIntialised) return null;
+                if (!_isIntialised) 
+                    return null;
                 bufferId = _bufferId++;
                 var tuple = new ManagedBufferBlock
                 {
@@ -316,8 +317,12 @@ namespace OpenCover.Framework.Manager
         /// </summary>
         public IList<ManagedBufferBlock> GetBlocks
         {
-            get { 
-                lock (_lockObject) { return _blocks; }
+            get
+            {
+                lock (_lockObject)
+                {
+                    return _blocks;
+                }
             }
         }
 
@@ -330,7 +335,8 @@ namespace OpenCover.Framework.Manager
             lock (_lockObject)
             {
                 var block = _blocks.FirstOrDefault(b => b.BufferId == bufferId);
-                if (block == null) return;
+                if (block == null) 
+                    return;
                 block.Active = false;
             }
         }
@@ -342,7 +348,8 @@ namespace OpenCover.Framework.Manager
         {
             lock (_lockObject)
             {
-                if (block.Active) return;
+                if (block.Active) 
+                    return;
                 block.CommunicationBlock.Do(x => x.Dispose());
                 block.MemoryBlock.Do(x => x.Dispose());
                 _blocks.RemoveAt(_blocks.IndexOf(block));

@@ -39,16 +39,21 @@ namespace OpenCover.Framework.Manager
 
         private ConcurrentQueue<byte[]> _messageQueue;
 
-        private readonly object syncRoot = new object ();
+        private readonly object _syncRoot = new object ();
 
         /// <summary>
         /// Syncronisation Root
         /// </summary>
         public object SyncRoot {
             get {
-                return syncRoot;
+                return _syncRoot;
             }
         }
+
+        /// <summary>
+        /// wait for how long
+        /// </summary>
+        internal static int BufferWaitCount { get; set; }
 
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
@@ -192,12 +197,12 @@ namespace OpenCover.Framework.Manager
             };
         }
 
-        /// <summary>
-        /// wait for how long
-        /// </summary>
-        internal static int BufferWaitCount = 30;
-
         private bool _continueWait = true;
+
+        static ProfilerManager()
+        {
+            BufferWaitCount = 30;
+        }
 
         private void ProcessMessages(WaitHandle[] handles)
         {
@@ -219,6 +224,8 @@ namespace OpenCover.Framework.Manager
                                     threadHandles.Add(StartProcessingThread(block));
                                 }
                             }));
+                        break;
+                    default:
                         break;
                 }
             } while (_continueWait);
@@ -336,7 +343,7 @@ namespace OpenCover.Framework.Manager
                                         } while (_messageQueue.Count > 200);
                                     }
                                     break;
-                                case 2:
+                                default: // 2
                                     return;
                             }
                         }

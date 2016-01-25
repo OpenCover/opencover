@@ -108,6 +108,8 @@ namespace OpenCover.Framework.Communication
                 case MSG_Type.MSG_TrackProcess:
                     writeSize = HandleTrackProcessMessage(pinnedMemory);
                     break;
+                default:
+                    throw new InvalidOperationException();
 
             }
             return writeSize;                

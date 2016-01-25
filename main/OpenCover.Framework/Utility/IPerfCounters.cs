@@ -13,7 +13,7 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// Report on the size of the memory queue 
         /// </summary>
-        int CurrentMemoryQueueSize { set; }
+        long CurrentMemoryQueueSize { get; set; }
         
         /// <summary>
         /// Increment the number of blocks received
