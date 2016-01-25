@@ -86,15 +86,10 @@
   
   <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
     
-    <call target="clean-all" />
-    <call target="build-environment" />
+    <call target="dogfood-release" />
     
     <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
     <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
-
-    <property name="configuration" value="release" />
-    <property name="platform" value="x64" />
-    <call target="build.opencover" />
     
     <xmlpoke file="tools\sonarqube\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.user}">
       <namespaces>
@@ -111,12 +106,12 @@
     <!-- assumes coverage file has been created -->
     <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
 
-    <property name="configuration" value="release" />
-    <property name="platform" value="x86" />
-    <call target="build.opencover" />
-    
-    <call target="dogfood-release" />
-    
+    <exec program="${msbuild.exe}">
+		  <arg value="${solution.folder}/opencover.sonarqube.sln" />
+		  <arg value="/t:Rebuild" />
+		  <arg value="/p:Configuration=release,Platform=x86" />
+		</exec>
+        
     <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='end' />
     
   </target>
