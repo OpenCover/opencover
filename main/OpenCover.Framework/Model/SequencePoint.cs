@@ -66,7 +66,15 @@ namespace OpenCover.Framework.Model
         [XmlAttribute("url")]
         public string Document { get; set; }
         
-        internal List<BranchPoint> BranchPoints { get; set; }
+        internal List<BranchPoint> BranchPoints {
+            get{
+                return _branchPoints;
+            }
+            set{
+                _branchPoints = value ?? new List<BranchPoint>();
+            }
+        }
+        private List<BranchPoint> _branchPoints = new List<BranchPoint>();
 
         /// <summary>
         /// Property

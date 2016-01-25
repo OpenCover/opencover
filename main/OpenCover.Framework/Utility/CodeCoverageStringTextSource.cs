@@ -50,8 +50,8 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// Last write DateTime
         /// </summary>
-        public DateTime FileTime { get { return _timeStamp; } }
-        private readonly DateTime _timeStamp = DateTime.MinValue;
+        public DateTime FileTime { get { return _fileTime; } }
+        private readonly DateTime _fileTime = DateTime.MinValue;
 
         private readonly string _textSource;
 
@@ -78,7 +78,7 @@ namespace OpenCover.Framework.Utility
                 }
                 if (_fileFound) {
                     try { 
-                        _timeStamp = System.IO.File.GetLastWriteTime (_filePath); 
+                        _fileTime = System.IO.File.GetLastWriteTime (this._filePath); 
                     } catch (Exception e) {
                         e.InformUser();
                     }
@@ -248,7 +248,16 @@ namespace OpenCover.Framework.Utility
 
             return retString;
         }
-        
+
+        /// <summary>
+        /// True if referenceTime != 0 and FileTime > referenceTime
+        /// </summary>
+        /// <param name="referenceTime"></param>
+        /// <returns></returns>
+        public bool IsChanged (DateTime referenceTime) {
+            return referenceTime != DateTime.MinValue && _fileTime > referenceTime;
+        }
+
         /// <summary>
         /// Get line-parsed source from file name
         /// </summary>
