@@ -27,11 +27,6 @@
   <property name="coverity.token" value="${environment::get-variable('COVERITY_TOKEN')}" if="${environment::variable-exists('COVERITY_TOKEN')}" />
   <property name="coverity.email" value="" />
   <property name="coverity.email" value="${environment::get-variable('COVERITY_EMAIL')}" if="${environment::variable-exists('COVERITY_EMAIL')}" />
-
-  <property name="sonarqube.user" value="" />
-  <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" if="${environment::variable-exists('SONARQUBE_USER')}" />
-  <property name="sonarqube.pwd" value="" />
-  <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" if="${environment::variable-exists('SONARQUBE_PASSWORD')}" />
   
   <property name="buildnumber.major" value="4" />
   <property name="buildnumber.minor" value="6" />
@@ -89,8 +84,14 @@
 
   </target>
   
-  <target name="sonarqube-build"  depends="clean-all, build-environment">
+  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
     
+    <call target="clean-all" />
+    <call target="build-environment" />
+    
+    <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
+    <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
+
     <property name="configuration" value="release" />
     <property name="platform" value="x64" />
     <call target="build.opencover" />
