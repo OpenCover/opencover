@@ -364,8 +364,8 @@ namespace OpenCover.Framework.Persistance
 
         private static void CalculateCyclomaticComplexity(Method method, Class @class)
         {
-            method.Summary.MinCyclomaticComplexity =
-                method.Summary.MaxCyclomaticComplexity = Math.Max(1, method.CyclomaticComplexity);
+            method.Summary.MinCyclomaticComplexity = Math.Max(1, method.CyclomaticComplexity);
+            method.Summary.MaxCyclomaticComplexity = method.Summary.MinCyclomaticComplexity;
 
             if (@class.Summary.MinCyclomaticComplexity == 0)
                 @class.Summary.MinCyclomaticComplexity = method.Summary.MinCyclomaticComplexity;
@@ -497,7 +497,6 @@ namespace OpenCover.Framework.Persistance
         private Method GetMethod(string modulePath, int functionToken, out Class @class)
         {
             @class = null;
-            //c = null;
             lock (Protection)
             {
                 var module = CoverageSession.Modules

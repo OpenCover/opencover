@@ -45,8 +45,6 @@ namespace OpenCover.Console
 
             try
             {
-                //throw new NullReferenceException();
-
                 CommandLineParser parser;
                 if (!ParseCommandLine(args, out parser)) 
                     return parser.ReturnCodeOffset + 1;
@@ -409,13 +407,9 @@ namespace OpenCover.Console
                     if (@class.Methods == null) 
                         continue;
 
-                    if ((@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
-                    {
-                    }
-                    else if ((@class.Methods.Any(x => x.FileRef != null)))
-                    {
-                        unvisitedClasses.Add(@class.FullName);
-                    }
+                    if (!(@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
+                        if ((@class.Methods.Any(x => x.FileRef != null)))
+                            unvisitedClasses.Add(@class.FullName);
 
                     if (@class.Methods.Any(x => x.Visited))
                     {
@@ -429,13 +423,9 @@ namespace OpenCover.Console
 
                     foreach (var method in @class.Methods.Where(x=> !x.ShouldSerializeSkippedDueTo()))
                     {
-                        if ((method.SequencePoints.Any(x => x.VisitCount > 0)))
-                        {
-                        }
-                        else if (method.FileRef != null)
-                        {
-                            unvisitedMethods.Add(string.Format("{0}", method.FullName));
-                        }
+                        if (!(method.SequencePoints.Any(x => x.VisitCount > 0)))
+                            if (method.FileRef != null)
+                                unvisitedMethods.Add(string.Format("{0}", method.FullName));
 
                         altTotalMethods += 1;
                         if (method.Visited)
@@ -591,6 +581,7 @@ namespace OpenCover.Console
                         using (var service = new ServiceController(parser.Target))
                         {
                             var name = service.DisplayName;
+                            System.Console.WriteLine("Service '{0}' found", name);
                         }
                     }
                     catch (Exception)
