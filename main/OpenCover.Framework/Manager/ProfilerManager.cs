@@ -53,11 +53,7 @@ namespace OpenCover.Framework.Manager
         /// <summary>
         /// wait for how long
         /// </summary>
-        internal static int BufferWaitCount
-        {
-            get { return _bufferWaitCount; }
-            set { _bufferWaitCount = value; }
-        }
+        internal static int BufferWaitCount { get; set; }
 
         private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
@@ -201,12 +197,12 @@ namespace OpenCover.Framework.Manager
             };
         }
 
-        /// <summary>
-        /// wait for how long
-        /// </summary>
-        private static int _bufferWaitCount = 30;
-
         private bool _continueWait = true;
+
+        static ProfilerManager()
+        {
+            BufferWaitCount = 30;
+        }
 
         private void ProcessMessages(WaitHandle[] handles)
         {
@@ -236,7 +232,7 @@ namespace OpenCover.Framework.Manager
 
             // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
             var i = 0;
-            while (i < _bufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
+            while (i < BufferWaitCount && _memoryManager.GetBlocks.Any(b => b.Active))
             {
                 DebugLogger.InfoFormat("Waiting for {0} processes to close",
                     _memoryManager.GetBlocks.Count(b => b.Active));

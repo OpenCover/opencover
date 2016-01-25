@@ -180,10 +180,11 @@ namespace OpenCover.Framework.Utility
                 line = GetLine(startLine);
 
                 argOutOfRange = startColumn > endColumn || startColumn > line.Length;
-                if (!argOutOfRange) {
-                    if (startColumn < 1) { startColumn = 1; }
-                    if (endColumn > line.Length + 1) { endColumn = line.Length + 1; }
-                    text.Append(line.Substring (startColumn-1, endColumn-startColumn));
+                if (!argOutOfRange)
+                {
+                    var actualStartColumn = (startColumn < 1) ? 1 : startColumn;
+                    var actualEndColumn = (endColumn > line.Length + 1) ? line.Length + 1 : endColumn;
+                    text.Append(line.Substring(actualStartColumn - 1, actualEndColumn - actualStartColumn));
                 }
                 #endregion
 
@@ -196,8 +197,8 @@ namespace OpenCover.Framework.Utility
 
                 argOutOfRange = startColumn > line.Length;
                 if (!argOutOfRange) {
-                    if (startColumn < 1) { startColumn = 1; }
-                    text.Append (line.Substring (startColumn-1));
+                    var actualStartColumn = (startColumn < 1) ? 1 : startColumn;
+                    text.Append(line.Substring(actualStartColumn - 1));
                 }
                 #endregion
 
@@ -212,8 +213,8 @@ namespace OpenCover.Framework.Utility
 
                 argOutOfRange = endColumn < 1;
                 if (!argOutOfRange) {
-                    if (endColumn > line.Length + 1) { endColumn = line.Length + 1; }
-                    text.Append(line.Substring(0,endColumn-1));
+                    var actualEndColumn = (endColumn > line.Length + 1) ? line.Length + 1 : endColumn;
+                    text.Append(line.Substring(0, actualEndColumn - 1));
                 }
                 #endregion
 
