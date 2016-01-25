@@ -13,7 +13,7 @@ namespace OpenCover.Test.Samples
         [Fact]
         public void AddAttributeExclusionFilters_Handles_Null_Elements()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddAttributeExclusionFilters(new[] { null, "" });
 

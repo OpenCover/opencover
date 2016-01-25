@@ -33,7 +33,7 @@ namespace OpenCover.Framework.Symbols
             }
             catch (Exception)
             {
-                //Console.WriteLine("Exception whilst trying to get the body of method {0}", methodDefinition.FullName);
+                return null;
             }
             return null;
         }
@@ -92,21 +92,15 @@ namespace OpenCover.Framework.Symbols
             if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
             {
                 var name = Path.GetFileName(fileName);
-                //Console.WriteLine(targetfolder);
                 if (name != null)
                 {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, 
-                        Path.GetFileNameWithoutExtension(fileName) + ".pdb")))
-                    {
-                        if (System.IO.File.Exists(Path.Combine(targetfolder, name)))
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")) &&
+                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
                             return new SymbolFolder(targetfolder, new PdbReaderProvider());   
-                    }
                    
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".mdb")))
-                    {
-                        if (System.IO.File.Exists(Path.Combine(targetfolder, name)))
+                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".mdb")) &&
+                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
                             return new SymbolFolder(targetfolder, new MdbReaderProvider());
-                    }
                 }
             }
             return null;
@@ -155,12 +149,9 @@ namespace OpenCover.Framework.Symbols
                     {
                         Environment.CurrentDirectory = currentPath;
                     }
-                    if (_sourceAssembly == null)
+                    if (_sourceAssembly == null && _logger.IsDebugEnabled)
                     {
-                        if (_logger.IsDebugEnabled)
-                        {
-                            _logger.DebugFormat("Cannot instrument {0} as no PDB/MDB could be loaded", ModulePath);
-                        }
+                        _logger.DebugFormat("Cannot instrument {0} as no PDB/MDB could be loaded", ModulePath);
                     }
                 }
                 return _sourceAssembly;
@@ -185,7 +176,9 @@ namespace OpenCover.Framework.Symbols
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
 
             var assemblyPath = ModuleName;
-            if (ModulePath.Contains (assemblyPath)) { assemblyPath = ModulePath; }
+            if (ModulePath.Contains(assemblyPath))
+                assemblyPath = ModulePath;
+
             GetInstrumentableTypes(typeDefinitions, classes, _filter, assemblyPath);
             return classes.ToArray();
         }
@@ -198,37 +191,45 @@ namespace OpenCover.Framework.Symbols
                     continue;
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) 
                     continue;
-                var @class = new Class { FullName = typeDefinition.FullName };
-                if (!filter.InstrumentClass(assemblyPath, @class.FullName))
-                {
-                    @class.MarkAsSkipped(SkippedMethod.Filter);
-                }
-                else if (filter.ExcludeByAttribute(typeDefinition))
-                {
-                    @class.MarkAsSkipped(SkippedMethod.Attribute);
-                }
 
-                var list = new List<string>();
-                if (!@class.ShouldSerializeSkippedDueTo())
-                {
-                    var files = from methodDefinition in typeDefinition.Methods
-                        where methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null
-                        from instruction in methodDefinition.Body.Instructions
-                        where instruction.SequencePoint != null
-                        select instruction.SequencePoint.Document.Url;
-
-                    list.AddRange(files.Distinct());
-                }
+                var @class = BuildClass(filter, assemblyPath, typeDefinition);
 
                 // only instrument types that are not structs and have instrumentable points
-                if (!typeDefinition.IsValueType || list.Count > 0)
-                {
-                    @class.Files = list.Distinct().Select(file => new File { FullPath = file }).ToArray();
+                if (!typeDefinition.IsValueType || @class.Files.Maybe(f => f.Length) > 0)
                     classes.Add(@class);
-                }
+
                 if (typeDefinition.HasNestedTypes) 
                     GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, assemblyPath); 
             }                                                                                        
+        }
+
+        private static Class BuildClass(IFilter filter, string assemblyPath, TypeDefinition typeDefinition)
+        {
+            var @class = new Class {FullName = typeDefinition.FullName};
+            if (!filter.InstrumentClass(assemblyPath, @class.FullName))
+            {
+                @class.MarkAsSkipped(SkippedMethod.Filter);
+            }
+            else if (filter.ExcludeByAttribute(typeDefinition))
+            {
+                @class.MarkAsSkipped(SkippedMethod.Attribute);
+            }
+
+            var list = new List<string>();
+            if (!@class.ShouldSerializeSkippedDueTo())
+            {
+                var files = from methodDefinition in typeDefinition.Methods
+                    where methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null
+                    from instruction in methodDefinition.Body.Instructions
+                    where instruction.SequencePoint != null
+                    select instruction.SequencePoint.Document.Url;
+
+                list.AddRange(files.Distinct());
+            }
+
+            if (!typeDefinition.IsValueType || list.Count > 0)
+                @class.Files = list.Distinct().Select(file => new File {FullPath = file}).ToArray();
+            return @class;
         }
 
         public Method[] GetMethodsForType(Class type, File[] files)
@@ -409,7 +410,7 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private static Regex isMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex IsMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
@@ -419,11 +420,12 @@ namespace OpenCover.Framework.Symbols
             {
                 UInt32 ordinal = 0;
                 var safeMethodBody = methodDefinition.SafeGetMethodBody();
-                if (safeMethodBody == null) return;
+                if (safeMethodBody == null) 
+                    return;
                 var instructions = safeMethodBody.Instructions;
                 
                 // if method is a generated MoveNext skip first branch (could be a switch or a branch)
-                var skipFirstBranch = isMovenext.IsMatch(methodDefinition.FullName);
+                var skipFirstBranch = IsMovenext.IsMatch(methodDefinition.FullName);
 
                 foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {
@@ -433,7 +435,8 @@ namespace OpenCover.Framework.Symbols
                         continue;
                     }
 
-                    if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) continue;
+                    if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) 
+                        continue;
 
                     var pathCounter = 0;
 

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Xml.Serialization;
 
 namespace OpenCover.Framework.Model
@@ -74,17 +72,17 @@ namespace OpenCover.Framework.Model
         }
 
         /// <summary>
-        /// Add a number of recorded visit pints against this identifier
+        /// Add a number of recorded visit ppints against this identifier
         /// </summary>
         /// <param name="spid">the sequence point identifier - NOTE 0 is not used</param>
         /// <param name="trackedMethodId">the id of a tracked method - Note 0 means no method currently tracking</param>
-        /// <param name="sum">the number of visit points to add</param>
-        public static bool AddVisitCount(uint spid, uint trackedMethodId, int sum = 1)
+        /// <param name="amount">the number of visit points to add</param>
+        public static bool AddVisitCount(uint spid, uint trackedMethodId, int amount)
         {
             if (spid != 0 && spid < InstrumentPoints.Count)
             {
                 var point = InstrumentPoints[(int) spid];
-                point.VisitCount += sum;
+                point.VisitCount += amount;
                 if (point.VisitCount < 0) 
                     point.VisitCount = int.MaxValue;
                 if (trackedMethodId != 0)
@@ -93,12 +91,12 @@ namespace OpenCover.Framework.Model
                     var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
                     if (tracked == null)
                     {
-                        tracked = new TrackedMethodRef {UniqueId = trackedMethodId, VisitCount = sum};
+                        tracked = new TrackedMethodRef {UniqueId = trackedMethodId, VisitCount = amount};
                         point._tracked.Add(tracked);
                     }
                     else
                     {
-                        tracked.VisitCount += sum;
+                        tracked.VisitCount += amount;
                         if (tracked.VisitCount < 0)
                             tracked.VisitCount = int.MaxValue;
                     }

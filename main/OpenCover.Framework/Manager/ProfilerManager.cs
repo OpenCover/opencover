@@ -343,7 +343,7 @@ namespace OpenCover.Framework.Manager
                                         } while (_messageQueue.Count > 200);
                                     }
                                     break;
-                                case 2:
+                                default: // 2
                                     return;
                             }
                         }

@@ -38,7 +38,7 @@ namespace OpenCover.Framework
         /// Standard constructor
         /// </summary>
         /// <param name="useRegexFilters">Indicates if the input strings for this class are already Regular Expressions</param>
-        public Filter(bool useRegexFilters = false)
+        public Filter(bool useRegexFilters)
         {
             InclusionFilters = new List<AssemblyAndClassFilter>();
             ExclusionFilters = new List<AssemblyAndClassFilter>();
@@ -228,46 +228,70 @@ namespace OpenCover.Framework
         /// <summary>
         /// Is this entity (method/type) excluded due to an attributeFilter
         /// </summary>
-        /// <param name="entity">The entity to test</param>
+        /// <param name="originalEntity">The entity to test</param>
         /// <returns></returns>
-        public bool ExcludeByAttribute(IMemberDefinition entity)
+        public bool ExcludeByAttribute(IMemberDefinition originalEntity)
         {
             if (ExcludedAttributes.Count == 0)
                 return false;
 
+            var entity = originalEntity;
             while (true)
             {
                 if (entity == null)
                     return false;
 
-                if (ExcludeByAttribute((ICustomAttributeProvider)entity))
-                    return true;
+                bool excludeByAttribute;
+                if (IsExcludedByAttributeSimple(entity, out excludeByAttribute)) 
+                    return excludeByAttribute;
 
-                if (ExcludeByAttribute(entity.DeclaringType))
-                    return true;
-
-                if (entity.DeclaringType == null || !entity.Name.StartsWith("<"))
+                MethodDefinition target;
+                if (!GetDeclaringMethod(entity, out target)) 
                     return false;
 
-                var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
-                if (match.Groups["name"] == null) return false;
-                var name = match.Groups["name"].Value;
-                var target = entity.DeclaringType.Methods.FirstOrDefault(m => m.Name == name);
-                if (target == null) return false;
-                if (target.IsGetter)
+                if (target.IsGetter || target.IsSetter)
                 {
-                    var getMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target);
-                    entity = getMethod;
-                    continue;
-                }
-                if (target.IsSetter)
-                {
-                    var setMethod = entity.DeclaringType.Properties.FirstOrDefault(p => p.SetMethod == target);
-                    entity = setMethod;
+                    entity = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target || p.SetMethod == target);
                     continue;
                 }
                 entity = target;
             }
+        }
+
+        /// <summary>
+        /// Look for the declaring method e.g. if method is some type of lambda, getter/setter etc
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private static bool GetDeclaringMethod(IMemberDefinition entity, out MethodDefinition target)
+        {
+            target = null;
+            var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
+            if (match.Groups["name"] == null)
+                return false;
+
+            var name = match.Groups["name"].Value;
+            target = entity.DeclaringType.Methods.FirstOrDefault(m => m.Name == name);
+            if (target == null)
+                return false;
+            return true;
+        }
+
+        private bool IsExcludedByAttributeSimple(IMemberDefinition entity, out bool excludeByAttribute)
+        {
+            excludeByAttribute = true;
+            if (ExcludeByAttribute((ICustomAttributeProvider) entity))
+                return true;
+
+            if (ExcludeByAttribute(entity.DeclaringType))
+                return true;
+
+            if (entity.DeclaringType != null && entity.Name.StartsWith("<")) 
+                return false;
+            
+            excludeByAttribute = false;
+            return true;
         }
 
         private bool ExcludeByAttribute(ICustomAttributeProvider entity)

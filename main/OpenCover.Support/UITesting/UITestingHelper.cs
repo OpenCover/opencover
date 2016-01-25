@@ -8,7 +8,7 @@ using System.Text;
 namespace OpenCover.Support.UITesting
 {
 // ReSharper disable once InconsistentNaming
-    public class UITestingHelper
+    public static class UITestingHelper
     {
         public static void PropagateRequiredEnvironmentVariables(object data)
         {
