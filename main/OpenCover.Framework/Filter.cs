@@ -67,7 +67,9 @@ namespace OpenCover.Framework
                 return true;
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (assemblyNameAdd) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (assemblyNameAdd)
+                matchingInclusionFilters.AddRange(InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName));
+
             return matchingInclusionFilters.Any();
         }
 
@@ -130,7 +132,9 @@ namespace OpenCover.Framework
             }
 
             var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyPath);
-            if (assemblyNameAdd) { matchingInclusionFilters.AddRange (InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName)); }
+            if (assemblyNameAdd)
+                matchingInclusionFilters.AddRange(InclusionFilters.GetMatchingFiltersForAssemblyName(assemblyName));
+
             return matchingInclusionFilters.Any(inclusionFilter => inclusionFilter.IsMatchingClassName(className));
         }
 
@@ -378,10 +382,10 @@ namespace OpenCover.Framework
         public bool InstrumentProcess(string processPath)
         {
             if (string.IsNullOrEmpty(processPath))
-            {
                 return false;
-            }
-            if (!ExclusionFilters.Any() && !InclusionFilters.Any()) return true;
+
+            if (!ExclusionFilters.Any() && !InclusionFilters.Any()) 
+                return true;
 
             var processName = string.Empty;
             var processNameAdd = false;
