@@ -68,13 +68,13 @@ namespace OpenCover.Framework.Model
         
         internal List<BranchPoint> BranchPoints {
             get{
-                return branchPoints;
+                return _branchPoints;
             }
             set{
-                branchPoints = value ?? new List<BranchPoint>();
+                _branchPoints = value ?? new List<BranchPoint>();
             }
         }
-        private List<BranchPoint> branchPoints = new List<BranchPoint>();
+        private List<BranchPoint> _branchPoints = new List<BranchPoint>();
 
         /// <summary>
         /// Property

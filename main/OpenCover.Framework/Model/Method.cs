@@ -40,26 +40,26 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public SequencePoint[] SequencePoints {
             get {
-                return sequencePoints;
+                return _sequencePoints;
             }
             set {
-                sequencePoints = value ?? new SequencePoint[0];
+                _sequencePoints = value ?? new SequencePoint[0];
             }
         }
-        private SequencePoint[] sequencePoints = new SequencePoint[0];
+        private SequencePoint[] _sequencePoints = new SequencePoint[0];
 
         /// <summary>
         /// A list of branch points that have been identified for this method
         /// </summary>
         public BranchPoint[] BranchPoints {
             get {
-                return branchPoints;
+                return _branchPoints;
             }
             set {
-                branchPoints = value ?? new BranchPoint[0];
+                _branchPoints = value ?? new BranchPoint[0];
             }
         }
-        private BranchPoint[] branchPoints = new BranchPoint[0];
+        private BranchPoint[] _branchPoints = new BranchPoint[0];
 
         /// <summary>
         /// A method point to identify the entry of a method
