@@ -31,15 +31,35 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public FileRef FileRef { get; set; }
 
+        internal UInt32 FileRefUniqueId {
+            get { return FileRef == null? 0 : FileRef.UniqueId; }
+        }
+
         /// <summary>
         /// A list of sequence points that have been produced for this method
         /// </summary>
-        public SequencePoint[] SequencePoints { get; set; }
+        public SequencePoint[] SequencePoints {
+            get {
+                return sequencePoints;
+            }
+            set {
+                sequencePoints = value ?? new SequencePoint[0];
+            }
+        }
+        private SequencePoint[] sequencePoints = new SequencePoint[0];
 
         /// <summary>
         /// A list of branch points that have been identified for this method
         /// </summary>
-        public BranchPoint[] BranchPoints { get; set; }
+        public BranchPoint[] BranchPoints {
+            get {
+                return branchPoints;
+            }
+            set {
+                branchPoints = value ?? new BranchPoint[0];
+            }
+        }
+        private BranchPoint[] branchPoints = new BranchPoint[0];
 
         /// <summary>
         /// A method point to identify the entry of a method
