@@ -202,8 +202,7 @@ namespace OpenCover.Console
         private static unsafe int wcslen(char* s)
         {
             char* e;
-            for (e = s; *e != '\0'; e++)
-                ;
+            for (e = s; *e != '\0'; e++){/* intentionally do nothing */}
             return (int)(e - s);
         }
 
