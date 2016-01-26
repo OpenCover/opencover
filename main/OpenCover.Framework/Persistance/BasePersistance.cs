@@ -705,31 +705,8 @@ namespace OpenCover.Framework.Persistance
                     long startOffset = long.MinValue;
                     long finalOffset = long.MaxValue;
 
-                    if (!method.IsGenerated)
-                    {
-                        // order SequencePoints by source order (Line/Column)
-                        var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRefUniqueId).ToArray();
-    
-                        // find getter/setter/static-method "{" offset
-                        if (sourceLineOrderedSps.Length > 0 && source.GetText(sourceLineOrderedSps[0]) == "{") {
-                            startOffset = sourceLineOrderedSps[0].Offset;
-                            // find method "}" offset
-                            if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
-                                finalOffset = sourceLineOrderedSps.Last().Offset;
-                            }
-                        }
-                        // find method "{" offset
-                        else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps[1]) == "{") {
-                            startOffset = sourceLineOrderedSps[1].Offset;
-                            // find method "}" offset
-                            if (sourceLineOrderedSps.Length > 2 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
-                                finalOffset = sourceLineOrderedSps.Last().Offset;
-                            }
-                        // "{" not found, try to find "}" offset
-                        } else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
-                            finalOffset = sourceLineOrderedSps.Last().Offset;
-                        }
-                    }
+                    // fill offsets with values
+                    TransformSequences_RemoveCompilerGeneratedBranches(method, source, ref startOffset, ref finalOffset);
 
                     if (!TransformSequences_RemoveCompilerGeneratedBranches (method, source, startOffset, finalOffset)) {
                         return false; // return error/failure to caller
@@ -760,6 +737,33 @@ namespace OpenCover.Framework.Persistance
             return true;
         }
 
+        private static void TransformSequences_RemoveCompilerGeneratedBranches(Method method, CodeCoverageStringTextSource source, ref long startOffset, ref long finalOffset)
+        {
+            if (!method.IsGenerated) {
+                // order SequencePoints by source order (Line/Column)
+                var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRefUniqueId).ToArray();
+                // find getter/setter/static-method "{" offset
+                if (sourceLineOrderedSps.Length > 0 && source.GetText(sourceLineOrderedSps[0]) == "{") {
+                    startOffset = sourceLineOrderedSps[0].Offset;
+                    // find method "}" offset
+                    if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
+                        finalOffset = sourceLineOrderedSps.Last().Offset;
+                    }
+                }
+                // find method "{" offset
+                else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps[1]) == "{") {
+                    startOffset = sourceLineOrderedSps[1].Offset;
+                    // find method "}" offset
+                    if (sourceLineOrderedSps.Length > 2 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
+                        finalOffset = sourceLineOrderedSps.Last().Offset;
+                    }
+                    // "{" not found, try to find "}" offset
+                } else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
+                    finalOffset = sourceLineOrderedSps.Last().Offset;
+                }
+            }
+        }
+
         // Compiled for speed, treat as .Singleline for multiline SequencePoint, do not waste time to capture Groups (speed)
         private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
         // "Contract" and "." and "Requires/Ensures" can be separated by spaces and newlines (valid c# syntax)!
@@ -780,21 +784,22 @@ namespace OpenCover.Framework.Persistance
                 } else { // branches not removed
                     // check for other options by reading SequencePoint source
                     var text = source.GetText(sp); // text is never null
-                    if (text == string.Empty) {
+                    if (text.Length == 0) {
                         ("Empty sequence-point at line: " + sp.StartLine + " column: " + sp.StartColumn).InformUser();
                         ("Source file: " + source.FilePath).InformUser();
                         return false; // signal error to caller's caller loop (break)
                     }
                     // Contract.Requires/Ensures is occasionally left inside method offset
-                    // Quick check for minimum length and "C" before using Regex
-                    if (text.Length > 18 && text[0] == 'C') {
+                    // Quick check for "C" before using Regex
+                    if (text[0] == 'C') {
                         // Use Regex here! "Contract" and "." and "Requires/Ensures"
                         // can be separated by spaces and newlines
                         if (contractRegex.IsMatch(text)) {
                             sp.BranchPoints = new List<BranchPoint>();
                         }
+                    } 
                     // "in" keyword?
-                    } else if (text == "in") {
+                    if (text == "in") {
                         // Remove generated ::MoveNext branches within "in" keyword
                         // Not always removed in CecilSymbolManager (enumerated KeyValuePair)
                         sp.BranchPoints = new List<BranchPoint>();
@@ -806,21 +811,11 @@ namespace OpenCover.Framework.Persistance
 
         private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
-            // From Methods with Source and visited SequencePoints
-            var sequencePointsQuery = methods
-                .Where (m => m.FileRefUniqueId != 0 && m.SequencePoints.Length != 0)
-                .SelectMany (m => m.SequencePoints)
-                .Where (sp => sp.FileId != 0 && sp.VisitCount != 0);
-
             var sequencePointsSet = new HashSet<SequencePoint>(new SequencePointComparer());
             var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
 
-            // Add unique visited SequencePoints to HashSet
-            foreach (var sp in sequencePointsQuery) {
-                if (!sequencePointsSet.Contains(sp)) {
-                    sequencePointsSet.Add(sp);
-                }
-            }
+            // Initialise sequencePointsSet
+            TransformSequences_RemoveFalsePositiveUnvisited(methods, sequencePointsSet);
 
             // Check generated methods
             foreach (var method in methods
@@ -854,31 +849,39 @@ namespace OpenCover.Framework.Persistance
             }
         }
 
+        private static void TransformSequences_RemoveFalsePositiveUnvisited(IEnumerable<Method> methods, ISet<SequencePoint> sequencePointsSet)
+        {
+            // From Methods with Source and visited SequencePoints
+            var sequencePointsQuery = methods.Where(m => m.FileRefUniqueId != 0 && m.SequencePoints.Length != 0).SelectMany(m => m.SequencePoints).Where(sp => sp.FileId != 0 && sp.VisitCount != 0);
+            // Add unique visited SequencePoints to HashSet
+            foreach (var sp in sequencePointsQuery) {
+                if (!sequencePointsSet.Contains(sp)) {
+                    sequencePointsSet.Add(sp);
+                }
+            }
+        }
+
         private static void TransformSequences_RemoveFalsePositiveUnvisited (Method method, CodeCoverageStringTextSource source, ICollection<Tuple<Method, SequencePoint>> toRemoveMethodSequencePoint)
         {
             // Select false unvisited right-curly-braces at generated "MoveNext" method
             // (Curly braces moved to generated "MoveNext" method and left unvisited)
             // Source is required here to identify curly braces
-            if (method.CallName == "MoveNext") {
+            if (method.CallName == "MoveNext" && source.FileFound && source.FileType == FileType.CSharp) {
 
-                // Do we have C# source?
-                if (source.FileFound && source.FileType == FileType.CSharp) {
+                int countDown = 2; // remove up to two last right-curly-braces
+                foreach (var sp in method.SequencePoints.Reverse()) {
+                    if (sp.FileId == method.FileRefUniqueId
+                        && sp.IsSingleCharSequencePoint
+                        && sp.VisitCount == 0) { // unvisited only
 
-                    int countDown = 2; // remove up to two last right-curly-braces
-                    foreach (var sp in method.SequencePoints.Reverse()) {
-                        if (sp.FileId == method.FileRefUniqueId
-                            && sp.IsSingleCharSequencePoint
-                            && sp.VisitCount == 0) { // unvisited only
-
-                            if (countDown > 0) {
-                                if (source.GetText(sp) == "}") {
-                                    toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
-                                    countDown -= 1;
-                                }
+                        if (countDown > 0) {
+                            if (source.GetText(sp) == "}") {
+                                toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
+                                countDown -= 1;
                             }
-                            else {
-                                break;
-                            }
+                        }
+                        else {
+                            break;
                         }
                     }
                 }
