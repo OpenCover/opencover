@@ -727,8 +727,8 @@ namespace OpenCover.Framework.Persistance
                             // Never found 1 character sequencePoint except "{" and "}"
                             // Never found 2 character sequencePoint except "in" keyword
                             // Afaik, c# cannot express branch condition in one or two characters of source code
-                            // "x|y" "if(x)" "while(x)" "switch(x){...}" "case:" "x?." "x??" "x==y" "x?y:z;" "for(...)" "foreach(...)" "x is y"
-                            // "do" keyword does not generate SequencePoint 
+                            // Examples x|y if(x) while(x) switch(x){...} case: x?. x?? x==y x?y:z; for(...) foreach(...) x is y
+                            // Keyword "do" does not generate SequencePoint 
                             sp.BranchPoints = new List<BranchPoint>();
                         }
                     }
@@ -791,12 +791,10 @@ namespace OpenCover.Framework.Persistance
                     }
                     // Contract.Requires/Ensures is occasionally left inside method offset
                     // Quick check for "C" before using Regex
-                    if (text[0] == 'C') {
-                        // Use Regex here! "Contract" and "." and "Requires/Ensures"
-                        // can be separated by spaces and newlines
-                        if (contractRegex.IsMatch(text)) {
-                            sp.BranchPoints = new List<BranchPoint>();
-                        }
+                    // Use Regex here! "Contract" and "." and "Requires/Ensures"
+                    // can be separated by spaces and newlines
+                    if (text[0] == 'C' && contractRegex.IsMatch(text)) {
+                        sp.BranchPoints = new List<BranchPoint>();
                     } 
                     // "in" keyword?
                     if (text == "in") {
