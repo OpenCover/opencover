@@ -791,12 +791,10 @@ namespace OpenCover.Framework.Persistance
                     }
                     // Contract.Requires/Ensures is occasionally left inside method offset
                     // Quick check for "C" before using Regex
-                    if (text[0] == 'C') {
-                        // Use Regex here! "Contract" and "." and "Requires/Ensures"
-                        // can be separated by spaces and newlines
-                        if (contractRegex.IsMatch(text)) {
-                            sp.BranchPoints = new List<BranchPoint>();
-                        }
+                    // Use Regex here! "Contract" and "." and "Requires/Ensures"
+                    // can be separated by spaces and newlines
+                    if (text[0] == 'C' && contractRegex.IsMatch(text)) {
+                        sp.BranchPoints = new List<BranchPoint>();
                     } 
                     // "in" keyword?
                     if (text == "in") {
