@@ -383,50 +383,5 @@ namespace OpenCover.Test.Framework.Service
             // assert
             Assert.AreEqual(expected, response);
         }
-
-        // issue #512 when filter matches on correctly cased path (folder) but assembly itself is not the correct case to match (regex is case-sensitive)
-        // change due to process filters - this originally failed due to matching on the path (folder name) which had the correct case
-        [Test]
-        public void TrackAssembly_Adds_AssemblyToModel_When_PathCaseIsLowerCase()
-        {
-            // path supplied by profiler - note case of assembly name - GetModuleInfo appears to be a precarious beast
-            var suppliedPath = @"C:\Projects\external\dotnet\corefx\bin\tests\AnyOS.AnyCPU.Debug\System.Threading.Tasks.Extensions.Tests\dnxcore50\system.threading.tasks.extensions.tests.dll";
-            
-            // module name passed by profiler - note the expected case
-            var assemblyName = "System.Threading.Tasks.Extensions.Tests";
-            
-            // arrange
-            // this path is what is needed for filters to work - note the case of the assembly at the end
-            var modulePath = @"C:\Projects\external\dotnet\corefx\bin\tests\AnyOS.AnyCPU.Debug\System.Threading.Tasks.Extensions.Tests\dnxcore50\System.Threading.Tasks.Extensions.Tests.dll";
-            Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>(), modulePath))
-                .Returns(true);
-
-            Container.GetMock<IFilter>()
-                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
-                .Returns(false);
-
-            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
-            Container.GetMock<IInstrumentationModelBuilderFactory>()
-               .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
-               .Returns(mockModelBuilder.Object);
-
-            mockModelBuilder
-                .SetupGet(x => x.CanInstrument)
-                .Returns(true);
-
-            mockModelBuilder
-                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
-                .Returns(new Module());
-
-            // act
-            var track = Instance.TrackAssembly("processName", suppliedPath, assemblyName);
-
-            // assert
-            Assert.IsTrue(track);
-            Container.GetMock<IPersistance>()
-                .Verify(x => x.PersistModule(It.IsAny<Module>()), Times.Once());
-        }
-
     }
 }
