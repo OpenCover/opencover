@@ -780,21 +780,22 @@ namespace OpenCover.Framework.Persistance
                 } else { // branches not removed
                     // check for other options by reading SequencePoint source
                     var text = source.GetText(sp); // text is never null
-                    if (text == string.Empty) {
+                    if (text.Length == 0) {
                         ("Empty sequence-point at line: " + sp.StartLine + " column: " + sp.StartColumn).InformUser();
                         ("Source file: " + source.FilePath).InformUser();
                         return false; // signal error to caller's caller loop (break)
                     }
                     // Contract.Requires/Ensures is occasionally left inside method offset
-                    // Quick check for minimum length and "C" before using Regex
-                    if (text.Length > 18 && text[0] == 'C') {
+                    // Quick check for "C" before using Regex
+                    if (text[0] == 'C') {
                         // Use Regex here! "Contract" and "." and "Requires/Ensures"
                         // can be separated by spaces and newlines
                         if (contractRegex.IsMatch(text)) {
                             sp.BranchPoints = new List<BranchPoint>();
                         }
+                    } 
                     // "in" keyword?
-                    } else if (text == "in") {
+                    if (text == "in") {
                         // Remove generated ::MoveNext branches within "in" keyword
                         // Not always removed in CecilSymbolManager (enumerated KeyValuePair)
                         sp.BranchPoints = new List<BranchPoint>();
