@@ -59,7 +59,7 @@ namespace OpenCover.Framework.Utility
             public int Offset;
             public int Length;
         }
-        private readonly LineInfo[] _lines;
+        private readonly LineInfo[] _lines = new LineInfo[0];
 
         /// <summary>
         /// Constructor
@@ -88,7 +88,9 @@ namespace OpenCover.Framework.Utility
 
             _textSource = string.IsNullOrEmpty(source) ? string.Empty : source;
 
-            _lines = InitLines ();
+            if (_textSource != string.Empty) {
+                _lines = InitLines ();
+            }
 
         }
 
@@ -102,53 +104,51 @@ namespace OpenCover.Framework.Utility
             bool lf = false;
             const ushort carriageReturn = 0xD;
             const ushort lineFeed = 0xA;
-            if (_textSource != string.Empty) {
-                LineInfo line;
-                foreach (var ch in _textSource) {
-                    switch ((ushort)ch) {
-                        case carriageReturn:
-                            if (lf || cr) {
-                                lf = false;
-                                newLine = true; // cr after cr|lf
-                            } else {
-                                cr = true; // cr found
-                            }
-                            break;
-                        case lineFeed:
-                            if (lf) {
-                                newLine = true; // lf after lf
-                            } else {
-                                lf = true; // lf found
-                            }
-                            break;
-                        default:
-                            if (cr || lf) {
-                                cr = false;
-                                lf = false;
-                                newLine = true; // any non-line-end char after any line-end
-                            }
-                            break;
-                    }
-                    if (newLine) { // newLine detected - add line
-                        newLine = false;
-                        line = new LineInfo
-                        {
-                            Offset = offset,
-                            Length = counter - offset
-                        };
-                        lineInfoList.Add(line);
-                        offset = counter;
-                    }
-                    ++counter;
+            LineInfo line;
+            foreach (var ch in _textSource) {
+                switch ((ushort)ch) {
+                    case carriageReturn:
+                        if (lf || cr) {
+                            lf = false;
+                            newLine = true; // cr after cr|lf
+                        } else {
+                            cr = true; // cr found
+                        }
+                        break;
+                    case lineFeed:
+                        if (lf) {
+                            newLine = true; // lf after lf
+                        } else {
+                            lf = true; // lf found
+                        }
+                        break;
+                    default:
+                        if (cr || lf) {
+                            cr = false;
+                            lf = false;
+                            newLine = true; // any non-line-end char after any line-end
+                        }
+                        break;
                 }
-                // Add last line
-                line = new LineInfo
-                {
-                    Offset = offset,
-                    Length = counter - offset
-                };
-                lineInfoList.Add(line);
+                if (newLine) { // newLine detected - add line
+                    newLine = false;
+                    line = new LineInfo
+                    {
+                        Offset = offset,
+                        Length = counter - offset
+                    };
+                    lineInfoList.Add(line);
+                    offset = counter;
+                }
+                ++counter;
             }
+            // Add last line
+            line = new LineInfo
+            {
+                Offset = offset,
+                Length = counter - offset
+            };
+            lineInfoList.Add(line);
             return lineInfoList.ToArray();
         }
 
