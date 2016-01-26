@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.IO;
 using System.Linq;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
@@ -32,9 +33,9 @@ namespace OpenCover.Framework.Service
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
             var assemblyPath = assemblyName;
-            if (modulePath.Contains(assemblyName))
+            if (string.Equals((Path.GetFileNameWithoutExtension(modulePath) ?? modulePath), assemblyName, StringComparison.InvariantCultureIgnoreCase))
             {
-                assemblyPath = modulePath;
+                assemblyPath = modulePath.Replace(assemblyName.ToLowerInvariant(), assemblyName);
             }
             if (!_filter.UseAssembly(processPath, assemblyPath))
             {
