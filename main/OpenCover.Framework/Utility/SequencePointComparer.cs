@@ -26,16 +26,8 @@ namespace OpenCover.Framework.Utility
         /// <returns></returns>
         public override bool Equals(SequencePoint x, SequencePoint y)
         {
-			return !ReferenceEquals(x, null)
-			    && !ReferenceEquals(y, null)
-			    && (ReferenceEquals(x, y) 
-			        ||
-			        (x.FileId != 0
-    				&& x.FileId == y.FileId
-    				&& x.StartLine == y.StartLine
-    				&& x.StartColumn == y.StartColumn
-    				&& x.EndLine == y.EndLine
-    				&& x.EndColumn == y.EndColumn)
+			return (ReferenceEquals(x, y) 
+			        || (x.IsFileIdEqual (y) && x.IsPositionEqual (y))
 			       );
         }
 
