@@ -717,28 +717,6 @@ namespace OpenCover.Test.Framework
             Assert.IsTrue(wasTested);
         }
 
-        #region scenarios for issue reported by user #512
-        [TestCase(@"+[*]* -[*.Tests]*", @"Target", true)]
-        [TestCase(@"+[*]* -[*.Tests]*", @"Target.Tests", false)]
-        [TestCase(@"+[*]* -[*.Tests]* +<n*>[*.Tests]*", @"Target.Tests", false)]
-        [TestCase(@"+[*]* -<n*>[*.Tests]*", @"Target.Tests", false)]
-        [TestCase(@"+<n*>[*.Tests]*", @"Target.Tests", true)]
-        #endregion
-        public void CanHandle_AssemblyFilters_reported(string filterArg, string assembly, bool canUse)
-        {
-            // arrange
-            var filter = new Filter(false);
-            foreach (var f in filterArg.Split(' '))
-            {
-                filter.AddFilter(f);
-            }
-
-            // act
-
-            // assert
-            Assert.AreEqual(canUse, filter.UseAssembly("nunit-agent.exe", assembly));
-        }
-
         [Test]
         [TestCase("A1.B1", false)]
         [TestCase("A1.B2", true)]
