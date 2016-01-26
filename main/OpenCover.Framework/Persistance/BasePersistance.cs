@@ -860,26 +860,22 @@ namespace OpenCover.Framework.Persistance
             // Select false unvisited right-curly-braces at generated "MoveNext" method
             // (Curly braces moved to generated "MoveNext" method and left unvisited)
             // Source is required here to identify curly braces
-            if (method.CallName == "MoveNext") {
+            if (method.CallName == "MoveNext" && source.FileFound && source.FileType == FileType.CSharp) {
 
-                // Do we have C# source?
-                if (source.FileFound && source.FileType == FileType.CSharp) {
+                int countDown = 2; // remove up to two last right-curly-braces
+                foreach (var sp in method.SequencePoints.Reverse()) {
+                    if (sp.FileId == method.FileRefUniqueId
+                        && sp.IsSingleCharSequencePoint
+                        && sp.VisitCount == 0) { // unvisited only
 
-                    int countDown = 2; // remove up to two last right-curly-braces
-                    foreach (var sp in method.SequencePoints.Reverse()) {
-                        if (sp.FileId == method.FileRefUniqueId
-                            && sp.IsSingleCharSequencePoint
-                            && sp.VisitCount == 0) { // unvisited only
-
-                            if (countDown > 0) {
-                                if (source.GetText(sp) == "}") {
-                                    toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
-                                    countDown -= 1;
-                                }
+                        if (countDown > 0) {
+                            if (source.GetText(sp) == "}") {
+                                toRemoveMethodSequencePoint.Add (new Tuple<Method, SequencePoint>(method, sp));
+                                countDown -= 1;
                             }
-                            else {
-                                break;
-                            }
+                        }
+                        else {
+                            break;
                         }
                     }
                 }
