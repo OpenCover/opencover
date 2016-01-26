@@ -807,21 +807,11 @@ namespace OpenCover.Framework.Persistance
 
         private static void TransformSequences_RemoveFalsePositiveUnvisited (IEnumerable<Method> methods, SourceRepository sourceRepository, DateTime moduleTime)
         {
-            // From Methods with Source and visited SequencePoints
-            var sequencePointsQuery = methods
-                .Where (m => m.FileRefUniqueId != 0 && m.SequencePoints.Length != 0)
-                .SelectMany (m => m.SequencePoints)
-                .Where (sp => sp.FileId != 0 && sp.VisitCount != 0);
-
             var sequencePointsSet = new HashSet<SequencePoint>(new SequencePointComparer());
             var toRemoveMethodSequencePoint = new List<Tuple<Method, SequencePoint>>();
 
-            // Add unique visited SequencePoints to HashSet
-            foreach (var sp in sequencePointsQuery) {
-                if (!sequencePointsSet.Contains(sp)) {
-                    sequencePointsSet.Add(sp);
-                }
-            }
+            // Initialise sequencePointsSet
+            TransformSequences_RemoveFalsePositiveUnvisited(methods, sequencePointsSet);
 
             // Check generated methods
             foreach (var method in methods
@@ -852,6 +842,18 @@ namespace OpenCover.Framework.Persistance
             // Remove selected SequencePoints
             foreach (var tuple in toRemoveMethodSequencePoint) {
                 tuple.Item1.SequencePoints = tuple.Item1.SequencePoints.Where(sp => sp != tuple.Item2).ToArray();
+            }
+        }
+
+        private static void TransformSequences_RemoveFalsePositiveUnvisited(IEnumerable<Method> methods, ISet<SequencePoint> sequencePointsSet)
+        {
+            // From Methods with Source and visited SequencePoints
+            var sequencePointsQuery = methods.Where(m => m.FileRefUniqueId != 0 && m.SequencePoints.Length != 0).SelectMany(m => m.SequencePoints).Where(sp => sp.FileId != 0 && sp.VisitCount != 0);
+            // Add unique visited SequencePoints to HashSet
+            foreach (var sp in sequencePointsQuery) {
+                if (!sequencePointsSet.Contains(sp)) {
+                    sequencePointsSet.Add(sp);
+                }
             }
         }
 
