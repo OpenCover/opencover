@@ -31,8 +31,8 @@ namespace OpenCover.Test.Framework.Utility
         public void CreateAddRemoveKeyAndValue()
         {
             var sRepo = new SourceRepository();
-            var source = new CodeCoverageStringTextSource("");
-            uint fileId = 1;
+            var source = new CodeCoverageStringTextSource("", "");
+            const uint fileId = 1;
             sRepo.Add (fileId, source);
             Assert.True (sRepo.Count == 1);
 
@@ -49,8 +49,8 @@ namespace OpenCover.Test.Framework.Utility
             var sRepo = new SourceRepository();
             Assert.True (sRepo.Count == 0);
 
-            var source = new CodeCoverageStringTextSource("");
-            uint fileId = 1;
+            var source = new CodeCoverageStringTextSource("", "");
+            const uint fileId = 1;
 
             Assert.That ( delegate { sRepo[fileId] = source; }, Throws.Nothing );
             Assert.True (sRepo.Count == 1);
@@ -67,8 +67,8 @@ namespace OpenCover.Test.Framework.Utility
             var sRepo = new SourceRepository();
             Assert.True (sRepo.Count == 0);
 
-            var source = new CodeCoverageStringTextSource("");
-            uint fileId = 1;
+            var source = new CodeCoverageStringTextSource("", "");
+            const uint fileId = 1;
 
             sRepo.Add (new KeyValuePair<uint,CodeCoverageStringTextSource>(fileId, source));
             Assert.True (sRepo.Contains(new KeyValuePair<uint, CodeCoverageStringTextSource>(fileId, source)));
@@ -86,8 +86,8 @@ namespace OpenCover.Test.Framework.Utility
             var sRepo = new SourceRepository();
             Assert.True (sRepo.Count == 0);
 
-            var source = new CodeCoverageStringTextSource("");
-            uint fileId = 1;
+            var source = new CodeCoverageStringTextSource("", "");
+            const uint fileId = 1;
 
             sRepo.Add (fileId, source);
             Assert.True (sRepo.Count == 1);
@@ -104,15 +104,15 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (sRepo.IsReadOnly == false);
             Assert.True (sRepo.Count == 0);
 
-            var source1 = new CodeCoverageStringTextSource("abc");
-            uint fileId1 = 1;
+            var source1 = new CodeCoverageStringTextSource("abc", "");
+            const uint fileId1 = 1;
             sRepo.Add (fileId1, source1);
             Assert.True (sRepo.Count == 1);
             Assert.True (sRepo.Keys.Count == 1);
             Assert.True (sRepo.Values.Count == 1);
 
-            var source2 = new CodeCoverageStringTextSource("def");
-            uint fileId2 = 2;
+            var source2 = new CodeCoverageStringTextSource("def", "");
+            const uint fileId2 = 2;
             sRepo.Add (fileId2, source2);
             Assert.True (sRepo.Count == 2);
 
@@ -148,12 +148,13 @@ namespace OpenCover.Test.Framework.Utility
         [Test]
         public void CreateGetSourceAndSequencePoints()
         {
-            var sRepo = new SourceRepository();
+            const uint fileId1 = 1;
+            const string sourceString = "abc { def }";
+            var source = new CodeCoverageStringTextSource(sourceString, "");
 
-            var sourceString = "abc { def }";
-            var source = new CodeCoverageStringTextSource(sourceString);
-            uint fileId1 = 1;
+            var sRepo = new SourceRepository();
             sRepo[fileId1] = source;
+
             var spLeft = new SequencePoint() {
                 FileId = 1,
                 StartLine = 1,
@@ -161,6 +162,7 @@ namespace OpenCover.Test.Framework.Utility
                 StartColumn = 5,
                 EndColumn = 6
             };
+
             var spRight = new SequencePoint() {
                 FileId = 1,
                 StartLine = 1,

@@ -66,7 +66,7 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         /// <param name="source"></param>
         /// <param name="filePath"></param>
-        public CodeCoverageStringTextSource(string source, string filePath = "")
+        public CodeCoverageStringTextSource(string source, string filePath)
         {
             _fileFound = source != null;
 
