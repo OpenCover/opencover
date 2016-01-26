@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using Mono.Cecil;
 using OpenCover.Framework.Symbols;
+using OpenCover.Framework.Utility;
 
 namespace OpenCover.Framework.Model
 {
@@ -34,15 +35,22 @@ namespace OpenCover.Framework.Model
         private Module CreateModule(bool full)
         {
             var hash = string.Empty;
+            var timeStamp = DateTime.MinValue;
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
+                try { 
+                    timeStamp = System.IO.File.GetLastWriteTime(_symbolManager.ModulePath); 
+                } catch (Exception e) {
+                    e.InformUser();
+                }
                 hash = HashFile(_symbolManager.ModulePath);
             }
             var module = new Module
                              {
                                  ModuleName = _symbolManager.ModuleName,
-                                 FullName = _symbolManager.ModulePath,
-                                 ModuleHash = hash
+                                 ModulePath = _symbolManager.ModulePath,
+                                 ModuleHash = hash,
+                                 ModuleTime = timeStamp
                              };
             module.Aliases.Add(_symbolManager.ModulePath);
             
@@ -60,12 +68,12 @@ namespace OpenCover.Framework.Model
 
         public Module BuildModuleTestModel(Module module, bool full)
         {
-            module = module ?? CreateModule(full);
-            module.TrackedMethods = _symbolManager.GetTrackedMethods();
-            return module;
+            var m = module ?? CreateModule(full);
+            m.TrackedMethods = _symbolManager.GetTrackedMethods();
+            return m;
         }
 
-        private string HashFile(string sPath)
+        private static string HashFile(string sPath)
         {
             using (var sr = new StreamReader(sPath))
             using (var prov = new SHA1CryptoServiceProvider())

@@ -333,7 +333,7 @@ namespace OpenCover.Test.Framework.Utility
         }
         
         [Test]
-        public void CountLinesCarriageReturn()
+        public void CountLinesCrLf()
         {
             
             // arrange
@@ -384,7 +384,9 @@ namespace OpenCover.Test.Framework.Utility
 
             // assert
             Assert.True (!ReferenceEquals(source, null));
-            Assert.True (source.FileType == FileType.Unsupported);
+            Assert.True (source.FileType == FileType.CSharp);
+            Assert.True (source.FilePath == cSharpFileName);
+            Assert.False (source.FileFound);
 
             // arrange
             System.IO.File.WriteAllLines(cSharpFileName, lines);
@@ -396,6 +398,8 @@ namespace OpenCover.Test.Framework.Utility
             // assert
             Assert.True (!ReferenceEquals(source, null));
             Assert.True (source.FileType == FileType.CSharp);
+            Assert.True (source.FilePath == cSharpFileName);
+            Assert.True (source.FileFound);
 
             // arrange
             System.IO.File.WriteAllLines(vBasicFileName, lines);
@@ -407,6 +411,8 @@ namespace OpenCover.Test.Framework.Utility
             // assert
             Assert.True (!ReferenceEquals(source, null));
             Assert.True (source.FileType == FileType.Unsupported);
+            Assert.True (source.FilePath == vBasicFileName);
+            Assert.True (source.FileFound);
 
         }
     }

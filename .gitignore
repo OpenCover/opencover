@@ -65,3 +65,8 @@ coverity.zip
 
 #SharpDevelop
 /**/OpenCover/coverage.xml
+
+#sonarqube
+/.sonarqube
+!tools/sonarqube/**/*
+/main/OpenCover.SonarQube.sdf

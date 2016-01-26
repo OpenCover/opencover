@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
+using System.IO;
 using System.Linq;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
@@ -27,12 +28,12 @@ namespace OpenCover.Framework.Service
 
         public bool TrackAssembly(string processPath, string modulePath, string assemblyName)
         {
-            if (_persistance.IsTracking(modulePath)) return true;
+            if (_persistance.IsTracking(modulePath)) 
+                return true;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            var assemblyPath = assemblyName;
-            if (modulePath.Contains (assemblyName)) { assemblyPath = modulePath; }
-            if (!_filter.UseAssembly(processPath, assemblyPath))
+
+            if (!_filter.UseAssembly(processPath, assemblyName))
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.Filter);

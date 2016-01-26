@@ -9,6 +9,10 @@ environment:
     secure: rw3Pk+YPWTG7xG7AaJx8wpxnYAOXM1/7HTRahQGuCHc=
   COVERITY_EMAIL:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
+  SONARQUBE_USER:
+    secure: +9YfPnwJzGsvdyto85pHwg==
+  SONARQUBE_PASSWORD:
+    secure: bGKR0fiOKZo/cNuigVxuUw==
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
@@ -21,6 +25,7 @@ build_script:
     } else {
       & .\build.bat create-release
     }
+    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
@@ -71,6 +76,8 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
-    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
+    if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
+      & .\build.bat sonarqube-build
+    } else {
       & .\build.bat dogfood-release
     }

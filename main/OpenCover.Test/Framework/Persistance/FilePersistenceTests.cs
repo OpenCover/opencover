@@ -61,7 +61,9 @@ namespace OpenCover.Test.Framework.Persistance
             var moduleHash = Guid.NewGuid().ToString();
             var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
             persistence.Initialise(_filePath, false);
-            var point = new SequencePoint();
+            var point = new SequencePoint()
+                // BranchPoints within SequencePoint shorther than 3 characters will be removed
+                {StartLine = 1, EndLine = 1, StartColumn = 1, EndColumn = 4};
             var branchPoint = new BranchPoint{Path = 0, OffsetPoints = new List<int>()};
             var branchPoint2 = new BranchPoint { Path = 1, OffsetPoints = new List<int>{1,2}};
             var file = new OpenCover.Framework.Model.File();

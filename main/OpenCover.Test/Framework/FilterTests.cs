@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -106,7 +105,7 @@ namespace OpenCover.Test.Framework
             [ValueSource("_invalidFilterExpressions")]string assemblyClassPair)
         {
             // arrange
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             // act/assert
             Assert.Catch<ExitApplicationWithoutReportingException>(() => filter.AddFilter(assemblyClassPair),
@@ -118,7 +117,7 @@ namespace OpenCover.Test.Framework
             [ValueSource("_filterExpressions")]FilterData assemblyClassPair)
         {
             // arrange
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             // act
             filter.AddFilter(assemblyClassPair.FilterExpression);
@@ -204,7 +203,7 @@ namespace OpenCover.Test.Framework
             [ValueSource("_useAssemblyData")]UseAssemblyData data)
         {
             // arrange
-            var filter = new Filter();
+            var filter = new Filter(false);
             data.Filters.ForEach(filter.AddFilter);
 
             // act
@@ -342,7 +341,7 @@ namespace OpenCover.Test.Framework
             [ValueSource("_instrumentClassData")]InstrumentClassData data)
         {
             // arrange
-            var filter = new Filter();
+            var filter = new Filter(false);
             data.Filters.ForEach(filter.AddFilter);
 
             // act
@@ -357,7 +356,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddAttributeExclusionFilters_HandlesNull()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddAttributeExclusionFilters(null);
 
@@ -367,7 +366,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddAttributeExclusionFilters_Handles_Null_Elements()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddAttributeExclusionFilters(new[] { null, "" });
 
@@ -377,7 +376,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddAttributeExclusionFilters_Escapes_Elements_And_Matches()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddAttributeExclusionFilters(new[] { ".*" });
 
@@ -387,7 +386,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void Entity_Is_Not_Excluded_If_No_Filters_Set()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
             var entity = new Mock<IMemberDefinition>();
 
             Assert.IsFalse(filter.ExcludeByAttribute(entity.Object));
@@ -396,7 +395,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddFileExclusionFilters_HandlesNull()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddFileExclusionFilters(null);
 
@@ -406,7 +405,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddFileExclusionFilters_Handles_Null_Elements()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddFileExclusionFilters(new[] { null, "" });
 
@@ -416,7 +415,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddFileExclusionFilters_Escapes_Elements_And_Matches()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddFileExclusionFilters(new[] { ".*" });
 
@@ -426,7 +425,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddTestFileFilters_HandlesNull()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddTestFileFilters(null);
 
@@ -436,7 +435,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AssemblyIsIncludedForTestMethodGatheringWhenFilterMatches()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddTestFileFilters(new[] { "A*" });
 
@@ -448,7 +447,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddTestFileFilters_Handles_Null_Elements()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddTestFileFilters(new[] { null, "" });
 
@@ -458,7 +457,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void AddTestFileFilters_Escapes_Elements_And_Matches()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             filter.AddTestFileFilters(new[] { ".*" });
 
@@ -505,7 +504,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void File_Is_Not_Excluded_If_No_Filters_Set()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             Assert.IsFalse(filter.ExcludeByFile("xyz.cs"));
         }
@@ -513,7 +512,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void File_Is_Not_Excluded_If_No_File_Not_Supplied()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
 
             Assert.IsFalse(filter.ExcludeByFile(""));
         }
@@ -521,7 +520,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void File_Is_Not_Excluded_If_Does_Not_Match_Filter()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddFileExclusionFilters(new[] { "XXX.*" });
 
             Assert.IsFalse(filter.ExcludeByFile("YYY.cs"));
@@ -530,7 +529,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void File_Is_Excluded_If_Matches_Filter()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddFileExclusionFilters(new[] { "XXX.*" });
 
             Assert.IsTrue(filter.ExcludeByFile("XXX.cs"));
@@ -543,7 +542,7 @@ namespace OpenCover.Test.Framework
 
             var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Concrete).FullName);
 
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
             foreach (var methodDefinition in type.Methods)
@@ -561,7 +560,7 @@ namespace OpenCover.Test.Framework
 
             var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Concrete).FullName);
 
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
             foreach (var propertyDefinition in type.Properties)
@@ -577,7 +576,7 @@ namespace OpenCover.Test.Framework
 
             var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Anonymous).FullName);
 
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
             foreach (var methodDefinition in type.Methods.Where(x => x.Name.Contains("EXCLUDE")))
@@ -594,7 +593,7 @@ namespace OpenCover.Test.Framework
 
             var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.Anonymous).FullName);
 
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
             foreach (var methodDefinition in type.Methods.Where(x => x.Name.Contains("INCLUDE")))
@@ -607,7 +606,7 @@ namespace OpenCover.Test.Framework
         [Test]
         public void Handles_Issue117()
         {
-            var filter = new Filter();
+            var filter = new Filter(false);
             filter.AddAttributeExclusionFilters(new[] { "*ExcludeMethodAttribute" });
 
             var mockDefinition = new Mock<IMemberDefinition>();
@@ -627,7 +626,7 @@ namespace OpenCover.Test.Framework
             var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
            
             // act
-            var filter = new Filter();
+            var filter = new Filter(false);
             Assert.False(filter.ExcludeByAttribute(sourceAssembly));
 
             // assert
@@ -670,7 +669,7 @@ namespace OpenCover.Test.Framework
             var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Concrete).Assembly.Location);
 
             // act
-            var filter = new Filter();
+            var filter = new Filter(false);
             var allTypes = AllTypes(sourceAssembly.MainModule);
             var typeDefinition = allTypes.First(x => x.Name == typeName);
             
@@ -698,7 +697,7 @@ namespace OpenCover.Test.Framework
             var type = sourceAssembly.MainModule.Types.First(x => x.FullName == typeof(Samples.DeclaredMethodClass).FullName);
 
             // act/assert
-            var filter = new Filter();
+            var filter = new Filter(false);
             var wasTested = false;
             foreach (var methodDefinition in type.Methods
                 .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("AutoProperty")))
@@ -877,6 +876,7 @@ namespace OpenCover.Test.Framework
 
         // issue found by user #329
         [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
+
         #endregion
 
         #region Cover last branches with invalid path chars (Path.GetInvalidPathChars)

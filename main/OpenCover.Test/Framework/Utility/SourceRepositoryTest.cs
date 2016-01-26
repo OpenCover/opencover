@@ -189,10 +189,6 @@ namespace OpenCover.Test.Framework.Utility
 
             Assert.True (sRepo.GetSequencePointText(spLeft) == "{");
             Assert.True (sRepo.GetSequencePointText(spRight) == "}");
-            Assert.True (sRepo.IsLeftCurlyBraceSequencePoint(spLeft));
-            Assert.True (sRepo.IsRightCurlyBraceSequencePoint(spRight));
-            Assert.False (sRepo.IsLeftCurlyBraceSequencePoint(spRight));
-            Assert.False (sRepo.IsRightCurlyBraceSequencePoint(spLeft));
         }
     }
 }

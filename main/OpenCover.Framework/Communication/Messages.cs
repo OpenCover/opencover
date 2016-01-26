@@ -11,9 +11,13 @@ namespace OpenCover.Framework.Communication
     /// The command supportd by the host
     /// </summary>
     // ReSharper disable InconsistentNaming
-    // ReSharper disable once EnumUnderlyingTypeIsInt
-    public enum MSG_Type : int
+    public enum MSG_Type 
     {
+        /// <summary>
+        /// This message is unknown of course
+        /// </summary>
+        MSG_Unknown = -1,
+
         /// <summary>
         /// Does this assembly have any code that can be covered
         /// </summary>
