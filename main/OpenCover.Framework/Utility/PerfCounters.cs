@@ -14,7 +14,11 @@ namespace OpenCover.Framework.Utility
         /// <summary>
         /// get the current queue size
         /// </summary>
-        public int CurrentMemoryQueueSize { set { _memoryQueue.RawValue = value; } }
+        public long CurrentMemoryQueueSize
+        {
+            get { return _memoryQueue.RawValue; }
+            set { _memoryQueue.RawValue = value; }
+        }
 
         /// <summary>
         /// Increment the block size
@@ -33,7 +37,6 @@ namespace OpenCover.Framework.Utility
             ResetCounters();
         }
 
-        //private const string InstanceName = "OpenCover";
         private const string CategoryName = "OpenCover";
         private const string MemoryQueue = "MemoryQueue";
         private const string QueueThroughput = "QueueThroughput";
@@ -77,13 +80,14 @@ namespace OpenCover.Framework.Utility
         /// A null performance counters implementation
         /// </summary>
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        public int CurrentMemoryQueueSize { set; private get; }
+        public long CurrentMemoryQueueSize { set; get; }
 
         /// <summary>
         /// Increment the number of blocks received
         /// </summary>
         public void IncrementBlocksReceived()
         {
+            // null implementation
         }
 
         /// <summary>
@@ -91,6 +95,7 @@ namespace OpenCover.Framework.Utility
         /// </summary>
         public void ResetCounters()
         {
+            // null implementation
         }
     }
 }

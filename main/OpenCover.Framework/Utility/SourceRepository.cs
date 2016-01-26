@@ -53,24 +53,6 @@ namespace OpenCover.Framework.Utility
             }
             return "";
         }
-        /// <summary>
-        /// True if SequencePoint source-string == "{"
-        /// ATTN: Do not use within .Where (condition)
-        /// </summary>
-        /// <param name="sp"></param>
-        /// <returns></returns>
-        public bool IsLeftCurlyBraceSequencePoint (SequencePoint sp) {
-            return sp.IsSingleCharSequencePoint && this.GetSequencePointText(sp) == "{";
-        }
-        /// <summary>
-        /// True if SequencePoint source-string == "}"
-        /// ATTN: Do not use within .Where (condition)
-        /// </summary>
-        /// <param name="sp"></param>
-        /// <returns></returns>
-        public bool IsRightCurlyBraceSequencePoint (SequencePoint sp) {
-            return sp.IsSingleCharSequencePoint && this.GetSequencePointText(sp) == "}";
-        }
 
         #region IDictionary implementation
 

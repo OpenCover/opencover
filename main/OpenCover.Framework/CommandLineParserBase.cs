@@ -36,36 +36,51 @@ namespace OpenCover.Framework
         /// </summary>
         protected void ParseArguments()
         {
-            if (_arguments == null) return;
-            if (ParsedArguments.Count > 0) return;
+            if (_arguments == null) 
+                return;
+            if (ParsedArguments.Count > 0) 
+                return;
 
             foreach (var argument in _arguments)
             {
-                var trimmed = argument.Trim();
-                if (string.IsNullOrEmpty(trimmed)) continue;
-                                
-                if (!trimmed.StartsWith("-"))
-                    throw new InvalidOperationException(string.Format("The argument '{0}' is not recognised", argument));
-                
-                trimmed = trimmed.Substring(1);
-                if (string.IsNullOrEmpty(trimmed)) continue;
-                
-                var colonidx = trimmed.IndexOf(':');
-                if (colonidx>0)
-                {
-                    var arg = trimmed.Substring(0, colonidx);
-                    var val = trimmed.Substring(colonidx + 1);
-                    if (!ParsedArguments.ContainsKey(arg))
-                        ParsedArguments.Add(arg, val);
-                    else
-                        ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim(); 
-                }
-                else
-                {
-                    if (!ParsedArguments.ContainsKey(trimmed))
-                        ParsedArguments.Add(trimmed, String.Empty);
-                }       
+                string trimmed;
+                if (ExtractTrimmedArgument(argument, out trimmed)) 
+                    continue;
+
+                ExtractArgumentValue(trimmed);
             }
+        }
+
+        private void ExtractArgumentValue(string trimmed)
+        {
+            var colonidx = trimmed.IndexOf(':');
+            if (colonidx > 0)
+            {
+                var arg = trimmed.Substring(0, colonidx);
+                var val = trimmed.Substring(colonidx + 1);
+                if (!ParsedArguments.ContainsKey(arg))
+                    ParsedArguments.Add(arg, val);
+                else
+                    ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim();
+            }
+            else
+            {
+                if (!ParsedArguments.ContainsKey(trimmed))
+                    ParsedArguments.Add(trimmed, String.Empty);
+            }
+        }
+
+        private static bool ExtractTrimmedArgument(string argument, out string trimmed)
+        {
+            trimmed = argument.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                return true;
+
+            if (!trimmed.StartsWith("-"))
+                throw new InvalidOperationException(string.Format("The argument '{0}' is not recognised", argument));
+
+            trimmed = trimmed.Substring(1);
+            return string.IsNullOrEmpty(trimmed);
         }
 
         /// <summary>

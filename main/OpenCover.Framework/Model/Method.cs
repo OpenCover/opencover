@@ -31,15 +31,35 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public FileRef FileRef { get; set; }
 
+        internal UInt32 FileRefUniqueId {
+            get { return FileRef == null? 0 : FileRef.UniqueId; }
+        }
+
         /// <summary>
         /// A list of sequence points that have been produced for this method
         /// </summary>
-        public SequencePoint[] SequencePoints { get; set; }
+        public SequencePoint[] SequencePoints {
+            get {
+                return _sequencePoints;
+            }
+            set {
+                _sequencePoints = value ?? new SequencePoint[0];
+            }
+        }
+        private SequencePoint[] _sequencePoints = new SequencePoint[0];
 
         /// <summary>
         /// A list of branch points that have been identified for this method
         /// </summary>
-        public BranchPoint[] BranchPoints { get; set; }
+        public BranchPoint[] BranchPoints {
+            get {
+                return _branchPoints;
+            }
+            set {
+                _branchPoints = value ?? new BranchPoint[0];
+            }
+        }
+        private BranchPoint[] _branchPoints = new BranchPoint[0];
 
         /// <summary>
         /// A method point to identify the entry of a method
@@ -111,7 +131,8 @@ namespace OpenCover.Framework.Model
         public override void MarkAsSkipped(SkippedMethod reason)
         {
             SkippedDueTo = reason;
-            if (MethodPoint != null) MethodPoint.IsSkipped = true;
+            if (MethodPoint != null) 
+                MethodPoint.IsSkipped = true;
             MethodPoint = null;
             SequencePoints = null;
             BranchPoints = null;
@@ -125,9 +146,9 @@ namespace OpenCover.Framework.Model
         internal bool IsGenerated {
             get {
         		if (_resolvedIsGenerated == null) {
-        			_resolvedIsGenerated = !String.IsNullOrWhiteSpace(this.FullName)
-                        && this.FullName.Contains("__") // quick test before using regex heavy weapon
-                        && isGeneratedMethodRegex.IsMatch(this.FullName); 
+        			_resolvedIsGenerated = !string.IsNullOrWhiteSpace(FullName)
+                        && FullName.Contains("__") // quick test before using regex heavy weapon
+                        && IsGeneratedMethodRegex.IsMatch(FullName); 
         		}
         		return _resolvedIsGenerated == true;
             }
@@ -138,14 +159,15 @@ namespace OpenCover.Framework.Model
         /// </summary>
         internal string CallName {
             get {
-                if (_resolvedCallName != null) { return _resolvedCallName; } // cached
-                _resolvedCallName = String.Empty; // init resolve value
-                if (!String.IsNullOrWhiteSpace(this.FullName)) {
-                    int startIndex = this.FullName.IndexOf("::", StringComparison.Ordinal);
+                if (_resolvedCallName != null)
+                    return _resolvedCallName;
+                _resolvedCallName = string.Empty; // init resolve value
+                if (!string.IsNullOrWhiteSpace(FullName)) {
+                    var startIndex = FullName.IndexOf("::", StringComparison.Ordinal);
                     startIndex += 2;
-                    int finalIndex = this.FullName.IndexOf('(', startIndex);
+                    var finalIndex = FullName.IndexOf('(', startIndex);
                     if (startIndex > 1 && finalIndex > startIndex) {
-                        _resolvedCallName = this.FullName // resolve cache
+                        _resolvedCallName = FullName // resolve cache
                             .Substring(startIndex, finalIndex - startIndex);
                     }
                 }
@@ -153,10 +175,10 @@ namespace OpenCover.Framework.Model
             }
         }
 
-        private bool? _resolvedIsGenerated = null;
-        private string _resolvedCallName = null;
-        private static readonly RegexOptions regexOptions = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
-        private static readonly Regex isGeneratedMethodRegex = new Regex(@"(<[^\s:>]+>\w__\w)", regexOptions);
+        private bool? _resolvedIsGenerated;
+        private string _resolvedCallName;
+        private const RegexOptions RegexOptions = System.Text.RegularExpressions.RegexOptions.Compiled | System.Text.RegularExpressions.RegexOptions.Singleline | System.Text.RegularExpressions.RegexOptions.ExplicitCapture;
+        private static readonly Regex IsGeneratedMethodRegex = new Regex(@"(<[^\s:>]+>\w__\w)", RegexOptions);
 
         #endregion
 

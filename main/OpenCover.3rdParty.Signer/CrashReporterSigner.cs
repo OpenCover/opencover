@@ -27,6 +27,7 @@ namespace OpenCover.ThirdParty.Signer
                 }
                 catch
                 {
+                    return false;
                 }
             }
             return false;
