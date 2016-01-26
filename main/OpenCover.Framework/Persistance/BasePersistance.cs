@@ -727,8 +727,8 @@ namespace OpenCover.Framework.Persistance
                             // Never found 1 character sequencePoint except "{" and "}"
                             // Never found 2 character sequencePoint except "in" keyword
                             // Afaik, c# cannot express branch condition in one or two characters of source code
-                            // "x|y" "if(x)" "while(x)" "switch(x){...}" "case:" "x?." "x??" "x==y" "x?y:z;" "for(...)" "foreach(...)" "x is y"
-                            // "do" keyword does not generate SequencePoint 
+                            // Examples x|y if(x) while(x) switch(x){...} case: x?. x?? x==y x?y:z; for(...) foreach(...) x is y
+                            // Keyword "do" does not generate SequencePoint 
                             sp.BranchPoints = new List<BranchPoint>();
                         }
                     }
