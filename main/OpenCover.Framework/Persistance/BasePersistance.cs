@@ -743,23 +743,16 @@ namespace OpenCover.Framework.Persistance
         {
             // order SequencePoints by source order (Line/Column)
             var sourceLineOrderedSps = method.SequencePoints.OrderBy(sp => sp.StartLine).ThenBy(sp => sp.StartColumn).Where(sp => sp.FileId == method.FileRefUniqueId).ToArray();
-            // find getter/setter/static-method "{" offset
-            if (sourceLineOrderedSps.Length > 0 && source.GetText(sourceLineOrderedSps[0]) == "{") {
-                startOffset = sourceLineOrderedSps[0].Offset;
-                // find method "}" offset
-                if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
-                    finalOffset = sourceLineOrderedSps.Last().Offset;
+
+            // get "{" if on first two positions
+            for (int index = 0; index < Math.Min (2, sourceLineOrderedSps.Length); index++) {
+                if (source.GetText(sourceLineOrderedSps[0]) == "{") {
+                    startOffset = sourceLineOrderedSps[0].Offset;
+                    break;
                 }
             }
-            // find method "{" offset
-            else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps[1]) == "{") {
-                startOffset = sourceLineOrderedSps[1].Offset;
-                // find method "}" offset
-                if (sourceLineOrderedSps.Length > 2 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
-                    finalOffset = sourceLineOrderedSps.Last().Offset;
-                }
-                // "{" not found, try to find "}" offset
-            } else if (sourceLineOrderedSps.Length > 1 && source.GetText(sourceLineOrderedSps.Last()) == "}") {
+            // get "}" if on last position
+            if (source.GetText(sourceLineOrderedSps.Last()) == "}") {
                 finalOffset = sourceLineOrderedSps.Last().Offset;
             }
         }
