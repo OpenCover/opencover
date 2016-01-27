@@ -26,14 +26,14 @@ namespace OpenCover.Framework.Filtering
             _classFilter = new RegexFilter(classFilter);
         }
 
-        internal bool IsMatchingProcessName(string processPathOrName)
+        internal bool IsMatchingProcessName(string processName)
         {
-            return _processFilter.IsMatchingExpression(processPathOrName);
+            return _processFilter.IsMatchingExpression(processName);
         }
 
-        internal bool IsMatchingAssemblyName(string assemblyPathOrName)
+        internal bool IsMatchingAssemblyName(string assemblyName)
         {
-            return _assemblyFilter.IsMatchingExpression(assemblyPathOrName);
+            return _assemblyFilter.IsMatchingExpression(assemblyName);
         }
 
         internal bool IsMatchingClassName(string className)

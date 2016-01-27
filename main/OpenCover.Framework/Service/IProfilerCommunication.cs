@@ -16,33 +16,33 @@ namespace OpenCover.Framework.Service
         /// <summary>
         /// Should we track this assembly
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <param name="modulePath"></param>
         /// <param name="assemblyName"></param>
         /// <returns></returns>
-        bool TrackAssembly(string processName, string modulePath, string assemblyName);
+        bool TrackAssembly(string processPath, string modulePath, string assemblyName);
 
         /// <summary>
         /// Get sequence points
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <param name="modulePath"></param>
         /// <param name="assemblyName"></param>
         /// <param name="functionToken"></param>
         /// <param name="sequencePoints"></param>
         /// <returns></returns>
-        bool GetSequencePoints(string processName, string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] sequencePoints);
+        bool GetSequencePoints(string processPath, string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] sequencePoints);
 
         /// <summary>
         /// Get branch points
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <param name="modulePath"></param>
         /// <param name="assemblyName"></param>
         /// <param name="functionToken"></param>
         /// <param name="branchPoints"></param>
         /// <returns></returns>
-        bool GetBranchPoints(string processName, string modulePath, string assemblyName, int functionToken, out BranchPoint[] branchPoints);
+        bool GetBranchPoints(string processPath, string modulePath, string assemblyName, int functionToken, out BranchPoint[] branchPoints);
 
         /// <summary>
         /// We are stopping...
@@ -62,8 +62,8 @@ namespace OpenCover.Framework.Service
         /// <summary>
         /// Should we track this process
         /// </summary>
-        /// <param name="processName"></param>
+        /// <param name="processPath"></param>
         /// <returns></returns>
-        bool TrackProcess(string processName);
+        bool TrackProcess(string processPath);
     }
 }
