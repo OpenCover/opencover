@@ -114,22 +114,23 @@ namespace OpenCover.Framework.Utility
         private const ushort carriageReturn = 0xD;
         private const ushort lineFeed = 0xA;
 
-        private bool cr = false;
-        private bool lf = false;
+        private bool cr;
+        private bool lf;
 
         private bool NextChar(ushort ch)
         {
+            bool lineEnd = false;
             switch (ch) {
                 case carriageReturn:
                     if (lf || cr) {
                         lf = false; // cr after cr|lf
-                        return true;
+                        lineEnd = true;
                     }
                     cr = true; // cr found
                     break;
                 case lineFeed:
                     if (lf) { // lf after lf
-                        return true;
+                        lineEnd = true;
                     }
                     lf = true; // lf found
                     break;
@@ -137,11 +138,11 @@ namespace OpenCover.Framework.Utility
                     if (cr || lf) { // any non-line-end char after any line-end
                         cr = false;
                         lf = false;
-                        return true;
+                        lineEnd = true;
                     }
                     break;
             }
-            return false;
+            return lineEnd;
         }
 
         /// <summary>Return text/source using SequencePoint line/col info
