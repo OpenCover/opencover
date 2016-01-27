@@ -78,7 +78,7 @@ namespace OpenCover.Framework.Utility
                 }
                 if (_fileFound) {
                     try { 
-                        _fileTime = System.IO.File.GetLastWriteTime (this._filePath); 
+                        _fileTime = System.IO.File.GetLastWriteTimeUtc (this._filePath); 
                     } catch (Exception e) {
                         e.InformUser();
                     }
