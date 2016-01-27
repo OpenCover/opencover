@@ -175,15 +175,11 @@ namespace OpenCover.Framework.Symbols
             var classes = new List<Class>();
             IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
 
-            var assemblyPath = ModuleName;
-            if (ModulePath.Contains(assemblyPath))
-                assemblyPath = ModulePath;
-
-            GetInstrumentableTypes(typeDefinitions, classes, _filter, assemblyPath);
+            GetInstrumentableTypes(typeDefinitions, classes, _filter, ModuleName);
             return classes.ToArray();
         }
 
-        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string assemblyPath)
+        private static void GetInstrumentableTypes(IEnumerable<TypeDefinition> typeDefinitions, List<Class> classes, IFilter filter, string assemblyName)
         {
             foreach (var typeDefinition in typeDefinitions)
             {
@@ -192,21 +188,21 @@ namespace OpenCover.Framework.Symbols
                 if (typeDefinition.IsInterface && typeDefinition.IsAbstract) 
                     continue;
 
-                var @class = BuildClass(filter, assemblyPath, typeDefinition);
+                var @class = BuildClass(filter, assemblyName, typeDefinition);
 
                 // only instrument types that are not structs and have instrumentable points
                 if (!typeDefinition.IsValueType || @class.Files.Maybe(f => f.Length) > 0)
                     classes.Add(@class);
 
                 if (typeDefinition.HasNestedTypes) 
-                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, assemblyPath); 
+                    GetInstrumentableTypes(typeDefinition.NestedTypes, classes, filter, assemblyName); 
             }                                                                                        
         }
 
-        private static Class BuildClass(IFilter filter, string assemblyPath, TypeDefinition typeDefinition)
+        private static Class BuildClass(IFilter filter, string assemblyName, TypeDefinition typeDefinition)
         {
             var @class = new Class {FullName = typeDefinition.FullName};
-            if (!filter.InstrumentClass(assemblyPath, @class.FullName))
+            if (!filter.InstrumentClass(assemblyName, @class.FullName))
             {
                 @class.MarkAsSkipped(SkippedMethod.Filter);
             }
