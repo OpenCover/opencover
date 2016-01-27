@@ -96,60 +96,52 @@ namespace OpenCover.Framework.Utility
 
         private LineInfo[] InitLines ()
         {
-            var lineInfoList = new List<LineInfo>();
             int offset = 0;
             int counter = 0;
-            bool newLine = false;
-            bool cr = false;
-            bool lf = false;
-            const ushort carriageReturn = 0xD;
-            const ushort lineFeed = 0xA;
-            LineInfo line;
+            var lineInfoList = new List<LineInfo>();
             foreach (var ch in _textSource) {
-                switch ((ushort)ch) {
-                    case carriageReturn:
-                        if (lf || cr) {
-                            lf = false;
-                            newLine = true; // cr after cr|lf
-                        } else {
-                            cr = true; // cr found
-                        }
-                        break;
-                    case lineFeed:
-                        if (lf) {
-                            newLine = true; // lf after lf
-                        } else {
-                            lf = true; // lf found
-                        }
-                        break;
-                    default:
-                        if (cr || lf) {
-                            cr = false;
-                            lf = false;
-                            newLine = true; // any non-line-end char after any line-end
-                        }
-                        break;
-                }
-                if (newLine) { // newLine detected - add line
-                    newLine = false;
-                    line = new LineInfo
-                    {
-                        Offset = offset,
-                        Length = counter - offset
-                    };
-                    lineInfoList.Add(line);
+                if (NextChar(ch)) { // newLine detected - add line
+                    lineInfoList.Add(new LineInfo { Offset = offset, Length = counter - offset });
                     offset = counter;
                 }
                 ++counter;
             }
             // Add last line
-            line = new LineInfo
-            {
-                Offset = offset,
-                Length = counter - offset
-            };
-            lineInfoList.Add(line);
+            lineInfoList.Add(new LineInfo { Offset = offset, Length = counter - offset });
             return lineInfoList.ToArray();
+        }
+
+        private const ushort carriageReturn = 0xD;
+        private const ushort lineFeed = 0xA;
+
+        private bool cr = false;
+        private bool lf = false;
+
+        private bool NextChar(ushort ch)
+        {
+            switch (ch) {
+                case carriageReturn:
+                    if (lf || cr) {
+                        lf = false; // cr after cr|lf
+                        return true;
+                    }
+                    cr = true; // cr found
+                    break;
+                case lineFeed:
+                    if (lf) { // lf after lf
+                        return true;
+                    }
+                    lf = true; // lf found
+                    break;
+                default:
+                    if (cr || lf) { // any non-line-end char after any line-end
+                        cr = false;
+                        lf = false;
+                        return true;
+                    }
+                    break;
+            }
+            return false;
         }
 
         /// <summary>Return text/source using SequencePoint line/col info

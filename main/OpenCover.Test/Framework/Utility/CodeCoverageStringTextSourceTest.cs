@@ -390,6 +390,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileTime == DateTime.MinValue);
 
             // arrange
+            var timeReference = DateTime.Now;
             System.IO.File.WriteAllLines(cSharpFileName, lines);
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(cSharpFileName);
@@ -400,11 +401,16 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FilePath == cSharpFileName);
             Assert.True (source.FileFound);
             Assert.True (source.FileTime == System.IO.File.GetLastWriteTime (cSharpFileName));
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.True (source.IsChanged (timeReference));
 
             // destroy temp file
             System.IO.File.Delete(cSharpFileName);
 
             // arrange
+            timeReference = DateTime.Now;
             System.IO.File.WriteAllLines(vBasicFileName, lines);
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(vBasicFileName);
@@ -415,6 +421,10 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FilePath == vBasicFileName);
             Assert.True (source.FileFound);
             Assert.True (source.FileTime == System.IO.File.GetLastWriteTime (vBasicFileName));
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.True (source.IsChanged (timeReference));
 
             // destroy temp file
             System.IO.File.Delete(vBasicFileName);
