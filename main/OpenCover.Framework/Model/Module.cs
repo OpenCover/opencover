@@ -29,7 +29,7 @@ namespace OpenCover.Framework.Model
         public string ModulePath { get; set; }
 
         /// <summary>
-        /// GetlastWriteTime
+        /// GetlastWriteTimeUtc
         /// </summary>
         public DateTime ModuleTime { get; set; }
 

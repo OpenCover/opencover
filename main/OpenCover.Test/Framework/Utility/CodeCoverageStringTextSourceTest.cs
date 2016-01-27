@@ -374,6 +374,7 @@ namespace OpenCover.Test.Framework.Utility
         [Test]
         public void GetSource()
         {
+            var timeReference = DateTime.UtcNow; System.Threading.Thread.Sleep(100);
             string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid();
             string cSharpFileName = fileName+".cs";
             string vBasicFileName = fileName+".vb";
@@ -388,10 +389,14 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FilePath == cSharpFileName);
             Assert.False (source.FileFound);
             Assert.True (source.FileTime == DateTime.MinValue);
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.False (source.IsChanged (timeReference));
 
             // arrange
-            var timeReference = DateTime.Now;
             System.IO.File.WriteAllLines(cSharpFileName, lines);
+
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(cSharpFileName);
 
@@ -400,7 +405,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileType == FileType.CSharp);
             Assert.True (source.FilePath == cSharpFileName);
             Assert.True (source.FileFound);
-            Assert.True (source.FileTime == System.IO.File.GetLastWriteTime (cSharpFileName));
+            Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (cSharpFileName));
             Assert.False (source.IsChanged (source.FileTime));
             Assert.False (source.IsChanged (DateTime.MinValue));
             Assert.False (source.IsChanged (DateTime.Now));
@@ -410,7 +415,6 @@ namespace OpenCover.Test.Framework.Utility
             System.IO.File.Delete(cSharpFileName);
 
             // arrange
-            timeReference = DateTime.Now;
             System.IO.File.WriteAllLines(vBasicFileName, lines);
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(vBasicFileName);
@@ -420,7 +424,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileType == FileType.Unsupported);
             Assert.True (source.FilePath == vBasicFileName);
             Assert.True (source.FileFound);
-            Assert.True (source.FileTime == System.IO.File.GetLastWriteTime (vBasicFileName));
+            Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (vBasicFileName));
             Assert.False (source.IsChanged (source.FileTime));
             Assert.False (source.IsChanged (DateTime.MinValue));
             Assert.False (source.IsChanged (DateTime.Now));
