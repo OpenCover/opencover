@@ -106,8 +106,8 @@
       </namespaces>
     </xmlpoke>
 
-    <setenv name=="SONARQUBE_USER" value=""/>
-    <setenv name=="SONARQUBE_PASSWORD" value=""/>
+    <setenv name="SONARQUBE_USER" value="" />
+    <setenv name="SONARQUBE_PASSWORD" value="" />
 
     </target>
   
