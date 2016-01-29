@@ -6,9 +6,9 @@
 /main/**/Debug
 /main/**/Release
 /main/**/*.user
-/main/OpenCover.opensdf
-/main/OpenCover.sdf
-/main/OpenCover.suo
+/main/**/*.opensdf
+/main/**/*.sdf
+/main/**/*.suo
 /main/Docs
 /main/OpenCover.Profiler/OpenCoverProfiler_i.h
 /main/OpenCover.Profiler/OpenCoverProfiler_i.c
@@ -69,4 +69,6 @@ coverity.zip
 #sonarqube
 /.sonarqube
 !tools/sonarqube/**/*
-/main/OpenCover.SonarQube.sdf
+/main/.sonarqube
+/main/.cxxresults
+/tools/sonarqube/cxx-runner

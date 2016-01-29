@@ -167,6 +167,7 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\bin\Common\OpenCover.Support.dll" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl">

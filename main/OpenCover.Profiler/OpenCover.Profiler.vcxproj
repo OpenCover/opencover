@@ -23,6 +23,8 @@
     <Keyword>AtlProj</Keyword>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -72,28 +74,34 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <NuGetPackageImportStamp>28d414b3</NuGetPackageImportStamp>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -103,6 +111,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -140,6 +149,7 @@
       <PreprocessorDefinitions>_WIN64;WIN32;_WINDOWS;_DEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -175,6 +185,7 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -214,6 +225,7 @@
       <PreprocessorDefinitions>_WIN64;WIN32;_WINDOWS;NDEBUG;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -341,11 +353,31 @@
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="OpenCoverProfiler.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+    <Import Project="..\packages\CppCheckTask.1.5.3\build\CppCheckTask.targets" Condition="Exists('..\packages\CppCheckTask.1.5.3\build\CppCheckTask.targets')" />
+    <Import Project="..\packages\CppLintTask.1.5.3\build\CppLintTask.targets" Condition="Exists('..\packages\CppLintTask.1.5.3\build\CppLintTask.targets')" />
+    <Import Project="..\packages\IntelInspectorTask.1.5.3\build\IntelInspectorTask.targets" Condition="Exists('..\packages\IntelInspectorTask.1.5.3\build\IntelInspectorTask.targets')" />
+    <Import Project="..\packages\RatsTask.1.5.3\build\RatsTask.targets" Condition="Exists('..\packages\RatsTask.1.5.3\build\RatsTask.targets')" />
+    <Import Project="..\packages\VeraTask.1.5.3\build\VeraTask.targets" Condition="Exists('..\packages\VeraTask.1.5.3\build\VeraTask.targets')" />
+    <Import Project="..\packages\GtestRunnerTask.1.5.3\build\GtestRunnerTask.targets" Condition="Exists('..\packages\GtestRunnerTask.1.5.3\build\GtestRunnerTask.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+    <Error Condition="!Exists('..\packages\CppCheckTask.1.5.3\build\CppCheckTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CppCheckTask.1.5.3\build\CppCheckTask.targets'))" />
+    <Error Condition="!Exists('..\packages\CppLintTask.1.5.3\build\CppLintTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\CppLintTask.1.5.3\build\CppLintTask.targets'))" />
+    <Error Condition="!Exists('..\packages\IntelInspectorTask.1.5.3\build\IntelInspectorTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IntelInspectorTask.1.5.3\build\IntelInspectorTask.targets'))" />
+    <Error Condition="!Exists('..\packages\RatsTask.1.5.3\build\RatsTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\RatsTask.1.5.3\build\RatsTask.targets'))" />
+    <Error Condition="!Exists('..\packages\VeraTask.1.5.3\build\VeraTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\VeraTask.1.5.3\build\VeraTask.targets'))" />
+    <Error Condition="!Exists('..\packages\GtestRunnerTask.1.5.3\build\GtestRunnerTask.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\GtestRunnerTask.1.5.3\build\GtestRunnerTask.targets'))" />
+  </Target>
 </Project>

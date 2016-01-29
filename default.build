@@ -84,35 +84,43 @@
 
   </target>
   
+  <target name="sonarqube-build-ci" if="${environment::variable-exists('SONARQUBE_USER')}">
+    <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
+    <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
+    
+    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.user}">
+      <namespaces>
+        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
+      </namespaces>
+    </xmlpoke>
+
+    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.password']" value="${sonarqube.pwd}">
+      <namespaces>
+        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
+      </namespaces>
+    </xmlpoke>
+
+    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.host.url']" value="http://sonar.many-monkeys.com:9000">
+      <namespaces>
+        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
+      </namespaces>
+    </xmlpoke>
+  </target>
+  
   <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
     
     <call target="dogfood-release" />
     
-    <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
-    <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
-    
-    <xmlpoke file="tools\sonarqube\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.user}">
-      <namespaces>
-        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
-      </namespaces>
-    </xmlpoke>
-
-    <xmlpoke file="tools\sonarqube\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.password']" value="${sonarqube.pwd}">
-      <namespaces>
-        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
-      </namespaces>
-    </xmlpoke>
-    
-    <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='begin /k:"opencover" /n:"opencover" /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
-
-    <exec program="${msbuild.exe}">
-		  <arg value="${solution.folder}/opencover.sonarqube.sln" />
-		  <arg value="/t:Rebuild" />
-		  <arg value="/p:Configuration=release,Platform=x86" />
+    <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
+			<arg value="x" />
+			<arg value="-otools\sonarqube\cxx-runner" />
+			<arg value="CxxSonarQubeMsbuidRunner.zip" />
 		</exec>
-        
-    <exec program="tools\sonarqube\MSBuild.SonarQube.Runner.exe" commandline='end' />
+ 
+    <call target="sonarqube-build-ci" />
+
+    <!-- assumes coverage file has been created -->
+    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs13 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
     
   </target>
   
