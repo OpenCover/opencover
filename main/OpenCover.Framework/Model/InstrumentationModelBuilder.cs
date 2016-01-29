@@ -102,13 +102,12 @@ namespace OpenCover.Framework.Model
                 if (!method.ShouldSerializeSkippedDueTo())
                 {
                     method.SequencePoints = _symbolManager.GetSequencePointsForToken(method.MetadataToken);
-                    if (method.SequencePoints.Maybe(_ => _.Any()))
+                    if (method.SequencePoints.Any())
                     {
                         method.MethodPoint = method.SequencePoints.FirstOrDefault(pt => pt.Offset == 0);
                         method.BranchPoints = _symbolManager.GetBranchPointsForToken(method.MetadataToken);
                     }
                     method.MethodPoint = method.MethodPoint ?? new InstrumentationPoint();
-                    method.BranchPoints = method.BranchPoints ?? new BranchPoint[0];
                 }
                 method.CyclomaticComplexity = _symbolManager.GetCyclomaticComplexityForToken(method.MetadataToken);
             }
