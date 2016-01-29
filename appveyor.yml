@@ -12,7 +12,7 @@ environment:
   SONARQUBE_USER:
     secure: +9YfPnwJzGsvdyto85pHwg==
   SONARQUBE_PASSWORD:
-    secure: bGKR0fiOKZo/cNuigVxuUw==
+    secure: Ptvd9aDNKfVhXvPpq6o1Fw==
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk

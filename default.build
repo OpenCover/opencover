@@ -105,7 +105,11 @@
         <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
       </namespaces>
     </xmlpoke>
-  </target>
+
+    <setenv name=="SONARQUBE_USER" value=""/>
+    <setenv name=="SONARQUBE_PASSWORD" value=""/>
+
+    </target>
   
   <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
     
@@ -118,7 +122,7 @@
 		</exec>
  
     <call target="sonarqube-build-ci" />
-
+    
     <!-- assumes coverage file has been created -->
     <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs13 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
     
