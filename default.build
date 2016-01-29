@@ -118,8 +118,10 @@
 
   </target>
   
-  <target name="sonarqube-build" depends="reset-private-vars" if="${environment::variable-exists('SONARQUBE_USER')}">
-    
+  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
+
+    <call target="reset-private-vars" />
+  
     <call target="dogfood-release" />
     
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
