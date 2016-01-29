@@ -4,9 +4,9 @@ os: Visual Studio 2015
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
-    secure: BBBH4QgZXCnE6nFrux34cLWWO5GXrnMU9OZJGJdNePovxJZFzBcm3FsaESNA6zWj
+    secure: A5Y5pKzc8Xf2qOCrFqYP2BWQYKif/BtlesWT/uojWfOFJj5jcSOaHP+DfwVYid09
   COVERITY_TOKEN:
-    secure: rw3Pk+YPWTG7xG7AaJx8wpxnYAOXM1/7HTRahQGuCHc=
+    secure: q4yqC+X51LwoyuBcg0qvks1117rt1HwqsDErKsbLpsQ=
   COVERITY_EMAIL:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
   SONARQUBE_USER:
