@@ -114,7 +114,7 @@
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
 			<arg value="x" />
 			<arg value="-otools\sonarqube\cxx-runner" />
-			<arg value="CxxSonarQubeMsbuidRunner.zip" />
+			<arg value="tools\CxxSonarQubeMsbuidRunner.zip" />
 		</exec>
  
     <call target="sonarqube-build-ci" />
