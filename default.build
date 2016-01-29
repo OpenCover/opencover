@@ -106,12 +106,19 @@
       </namespaces>
     </xmlpoke>
 
+  </target>
+  
+  <target name="reset-private-vars" >
+
     <setenv name="SONARQUBE_USER" value="" />
     <setenv name="SONARQUBE_PASSWORD" value="" />
 
-    </target>
+    <setenv name="COVERITY_TOKEN" value="" />
+    <setenv name="COVERALLS_REPO_TOKEN" value="" />
+
+  </target>
   
-  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
+  <target name="sonarqube-build" depends="reset-private-vars" if="${environment::variable-exists('SONARQUBE_USER')}">
     
     <call target="dogfood-release" />
     
