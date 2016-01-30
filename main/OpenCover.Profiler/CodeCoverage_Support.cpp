@@ -112,14 +112,14 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
             chained_module_ = LoadLibrary(loc);
             ATLASSERT(chained_module_ != NULL);
 
-            BOOL(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
-                (BOOL(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(chained_module_, "DllGetClassObject");
+            HRESULT(WINAPI*DllGetClassObject)(REFCLSID, REFIID, LPVOID) =
+                (HRESULT(WINAPI*)(REFCLSID, REFIID, LPVOID))GetProcAddress(chained_module_, "DllGetClassObject");
             ATLASSERT(DllGetClassObject != NULL);
 
             CComPtr<IClassFactory> pClassFactory;
             hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
             ATLASSERT(hr == S_OK);
-            
+
             hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
             ATLASSERT(hr == S_OK);
 

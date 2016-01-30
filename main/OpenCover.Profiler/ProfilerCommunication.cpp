@@ -313,7 +313,7 @@ void ProfilerCommunication::SendVisitPointsInternal() {
         if (WAIT_OBJECT_0 != dwSignal) throw CommunicationException(dwSignal, _short_wait);
         _eventResultsHaveBeenReceived.Reset();
     }
-    catch (CommunicationException ex) {
+    catch (CommunicationException& ex) {
         RELTRACE(_T("ProfilerCommunication::SendVisitPoints() => Communication (Results channel) with host has failed (0x%x, %d)"),
             ex.getReason(), ex.getTimeout());
         _hostCommunicationActive = false;
@@ -644,7 +644,7 @@ void ProfilerCommunication::RequestInformation(BR buildRequest, PR processResult
         }while (hasMore);
 
         _eventInformationReadByProfiler.Set();
-    } catch (CommunicationException ex) {
+    } catch (CommunicationException& ex) {
         RELTRACE(_T("ProfilerCommunication::RequestInformation(...) => Communication (Chat channel - %s) with host has failed (0x%x, %d)"),  
 			message.c_str(), ex.getReason(), ex.getTimeout());
         _hostCommunicationActive = false;
