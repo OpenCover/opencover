@@ -121,17 +121,18 @@
   <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
 
     <call target="sonarqube-build-ci" />
-
-    <call target="reset-private-vars" />
   
     <call target="dogfood-release" />
+
+    <call target="reset-private-vars" />
     
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
 			<arg value="x" />
 			<arg value="-otools\sonarqube\cxx-runner" />
 			<arg value="tools\CxxSonarQubeMsbuidRunner.zip" />
 		</exec>
- 
+
+    <copy file="tools\CxxSonarQubeMsbuidRunner.exe" tofile="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" />
     
     <!-- assumes coverage file has been created -->
     <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs13 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />

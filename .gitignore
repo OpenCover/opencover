@@ -69,6 +69,7 @@ coverity.zip
 #sonarqube
 /.sonarqube
 !tools/sonarqube/**/*
+!tools/CxxSonarQubeMsbuidRunner.exe
 /main/.sonarqube
 /main/.cxxresults
 /tools/sonarqube/cxx-runner
