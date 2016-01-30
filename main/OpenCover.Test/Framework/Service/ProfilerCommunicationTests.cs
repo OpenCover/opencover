@@ -22,6 +22,10 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(true);
 
             Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
                 .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
                 .Returns(false);
 
@@ -84,6 +88,10 @@ namespace OpenCover.Test.Framework.Service
                 .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false);
 
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
+
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
@@ -108,6 +116,10 @@ namespace OpenCover.Test.Framework.Service
             // arrange
             Container.GetMock<IFilter>()
                 .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
                 .Returns(true);
 
             Container.GetMock<IFilter>()
@@ -138,11 +150,50 @@ namespace OpenCover.Test.Framework.Service
         }
 
         [Test]
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_UseModuleIsFalse()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(false);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(false);
+
+            // act
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
+
+            // assembly
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.FolderExclusion)), Times.Once());
+
+        }
+
+        [Test]
         public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_ExcludedByAttribute()
         {
             // arrange
             Container.GetMock<IFilter>()
                 .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
                 .Returns(true);
 
             Container.GetMock<IFilter>()

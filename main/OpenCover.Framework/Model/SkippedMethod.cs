@@ -43,6 +43,11 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Entity (method) was skipped for other reasons.
         /// </summary>
-        Unknown = 8
+        Unknown = 8,
+
+        /// <summary>
+        /// Entity (dll) was skipped due to folder exclusion.
+        /// </summary>
+        FolderExclusion = 9
     }
 }

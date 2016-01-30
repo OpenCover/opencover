@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -156,6 +157,35 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(2, parser.SearchDirs.Length);
             Assert.AreEqual("XXX", parser.SearchDirs[0]);
             Assert.AreEqual("YYY", parser.SearchDirs[1]);
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[1]));
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValueRemovesDuplicates()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
         }
 
         [Test]

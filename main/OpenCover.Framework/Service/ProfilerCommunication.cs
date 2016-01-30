@@ -33,7 +33,12 @@ namespace OpenCover.Framework.Service
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
 
-            if (!_filter.UseAssembly(Path.GetFileNameWithoutExtension (processPath), assemblyName))
+            if (!_filter.UseModule(modulePath))
+            {
+                module = builder.BuildModuleModel(false);
+                module.MarkAsSkipped(SkippedMethod.FolderExclusion);
+            }
+            else if (!_filter.UseAssembly(Path.GetFileNameWithoutExtension (processPath), assemblyName))
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.Filter);

@@ -25,6 +25,12 @@ namespace OpenCover.Framework
         string[] SearchDirs { get; }
 
         /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        string[] ExcludeDirs { get; }
+
+
+        /// <summary>
         /// If specified then results to be merged by matching hash 
         /// </summary>
         bool MergeByHash { get; }

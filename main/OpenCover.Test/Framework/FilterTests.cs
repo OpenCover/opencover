@@ -771,6 +771,18 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void ModulesInExcludedFoldersAreIdentifiedCorrectly()
+        {
+            // arrange
+            var filter = new Filter(true);
+            filter.AddExcludedFolder("ABC");
+
+            // act
+            Assert.IsFalse(filter.UseModule(@"ABC\m.dll"));
+            Assert.IsTrue(filter.UseModule(@"DEF\m.dll"));
+        }
+
+        [Test]
         public void File_Is_Excluded_If_Matches_Filter_UsingRegularExpressions()
         {
             // arrange

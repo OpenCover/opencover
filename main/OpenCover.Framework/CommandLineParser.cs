@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenCover.Framework.Model;
@@ -84,6 +85,7 @@ namespace OpenCover.Framework
             RegExFilters = false;
             Registration = Registration.Normal;
             PrintVersion = false;
+            ExcludeDirs = new string[0];
         }
 
         /// <summary>
@@ -111,6 +113,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
@@ -168,6 +171,16 @@ namespace OpenCover.Framework
                         break;
                     case "searchdirs":
                         SearchDirs = GetArgumentValue("searchdirs").Split(';');
+                        break;
+                    case "excludedirs":
+                        ExcludeDirs =
+                            GetArgumentValue("excludedirs")
+                                .Split(';')
+                                .Where(_ => _ != null)
+                                .Select(_ => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), _)))
+                                .Where(Directory.Exists)
+                                .Distinct()
+                                .ToArray();
                         break;
                     case "targetargs":
                         TargetArgs = GetArgumentValue("targetargs");
@@ -408,6 +421,11 @@ namespace OpenCover.Framework
         /// Alternate locations where PDBs can be found
         /// </summary>
         public string[] SearchDirs { get; private set; }
+
+        /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        public string[] ExcludeDirs { get; private set; }
 
         /// <summary>
         /// The arguments that are to be passed to the Target
