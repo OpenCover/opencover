@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
+using log4net;
 
 namespace OpenCover.Framework.Manager
 {
@@ -19,6 +20,8 @@ namespace OpenCover.Framework.Manager
         private string _key;
         private readonly object _lockObject = new object();
         private uint _bufferId = 1;
+
+        private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
 
         private readonly IList<ManagedBufferBlock> _blocks = new List<ManagedBufferBlock>();
 
@@ -313,15 +316,15 @@ namespace OpenCover.Framework.Manager
 
 
         /// <summary>
-        /// get a pair of communication+memory blocks
+        /// Get the list of all allocated blocks
         /// </summary>
-        public IList<ManagedBufferBlock> GetBlocks
+        public IReadOnlyList<ManagedBufferBlock> GetBlocks
         {
             get
             {
                 lock (_lockObject)
                 {
-                    return _blocks;
+                    return _blocks.ToArray();
                 }
             }
         }
@@ -353,6 +356,50 @@ namespace OpenCover.Framework.Manager
                 block.CommunicationBlock.Do(x => x.Dispose());
                 block.MemoryBlock.Do(x => x.Dispose());
                 _blocks.RemoveAt(_blocks.IndexOf(block));
+            }
+        }
+
+        public void WaitForBlocksToClose(int bufferWaitCount)
+        {
+            // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
+            var i = 0;
+            var count = -1;
+            while (i < bufferWaitCount && count != 0)
+            {
+                lock (_lockObject)
+                {
+                    count = _blocks.Count(b => b.Active);
+                }
+                if (count > 0)
+                {
+                    DebugLogger.InfoFormat("Waiting for {0} processes to close", count);
+                    Thread.Sleep(500);
+                }
+                i++;
+            }
+        }
+
+        public void FetchRemainingBufferData(Action<byte[]> processBuffer)
+        {
+            lock (_lockObject)
+            {
+                // grab anything left in the main buffers
+                var activeBlocks = _blocks.Where(b => b.Active).ToArray();
+                foreach (var block in activeBlocks)
+                {
+                    var memoryBlock = block.MemoryBlock;
+                    var data = new byte[memoryBlock.BufferSize];
+                    memoryBlock.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                    memoryBlock.StreamAccessorResults.Read(data, 0, memoryBlock.BufferSize);
+                    
+                    // process the extracted data
+                    processBuffer(data);
+
+                    // now clean them down
+                    block.CommunicationBlock.Do(x => x.Dispose());
+                    block.MemoryBlock.Do(x => x.Dispose());
+                    _blocks.RemoveAt(_blocks.IndexOf(block));
+                }
             }
         }
 
