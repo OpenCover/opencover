@@ -484,14 +484,24 @@ namespace OpenCover.Console
 
         private static bool GetFullOutputFile(CommandLineParser parser, out string outputFile)
         {
-            outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
-            if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
+            try
+            {
+                outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
+            }
+            catch (Exception ex)
+            {
+                outputFile = null;
+                System.Console.WriteLine("Invalid `outputFile` supplied: {0}", ex.Message);
+                return false;
+            }
+            if (!Directory.Exists(Path.GetDirectoryName(outputFile) ?? string.Empty))
             {
                 System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
                 return false;
             }
             return true;
         }
+
 
         private static IFilter BuildFilter(CommandLineParser parser)
         {
