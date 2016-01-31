@@ -422,6 +422,35 @@ namespace OpenCover.Test.Framework.Manager
             }
         }
 
+        [Test]
+        public void Manager_Adds_SafeMode_EnvironmentVariable_When_SafemodeOn()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.SafeMode).Returns(true);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.NotNull(dict[@"OpenCover_Profiler_SafeMode"]);
+            Assert.AreEqual("1", dict[@"OpenCover_Profiler_SafeMode"]);
+        }
+
+        [Test]
+        public void Manager_DoesNotAdd_SafeMode_EnvironmentVariable_When_SafemodeOff()
+        {
+            // arrange
+            var dict = new StringDictionary();
+            Container.GetMock<ICommandLine>().SetupGet(x => x.SafeMode).Returns(false);
+
+            // act
+            RunSimpleProcess(dict);
+
+            // assert
+            Assert.IsNull(dict[@"OpenCover_Profiler_SafeMode"]);
+        }
+
         private void RunSimpleProcess(StringDictionary dict)
         {
             RunProcess(dict, standardMessageDataReady => { }, () => { });

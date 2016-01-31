@@ -60,6 +60,32 @@ namespace OpenCover.Framework
     }
 
     /// <summary>
+    /// SafeMode values
+    /// </summary>
+    public enum SafeMode
+    {
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        On,
+
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        Yes = On,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        Off,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        No = Off
+    }
+
+    /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
@@ -86,6 +112,7 @@ namespace OpenCover.Framework
             Registration = Registration.Normal;
             PrintVersion = false;
             ExcludeDirs = new string[0];
+            SafeMode = true;
         }
 
         /// <summary>
@@ -265,6 +292,9 @@ namespace OpenCover.Framework
                     case "skipautoprops":
                         SkipAutoImplementedProperties = true;
                         break;
+                    case "safemode":
+                        SafeMode = ExtractSafeMode(GetArgumentValue("safemode")) == Framework.SafeMode.On;
+                        break;
                     case "?":
                         PrintUsage = true;
                         break;
@@ -342,6 +372,16 @@ namespace OpenCover.Framework
             return list.Distinct().ToList();
         }
 
+        private static SafeMode ExtractSafeMode(string safeModeArg)
+        {
+            SafeMode result;
+            if (!Enum.TryParse(safeModeArg, true, out result))
+            {
+                throw new InvalidOperationException(string.Format("The safemode option {0} is not valid", safeModeArg));
+            }
+            return result;
+        }
+
         private TimeSpan ParseTimeoutValue(string timeoutValue)
         {
             var match = Regex.Match(timeoutValue, @"((?<minutes>\d+)m)?((?<seconds>\d+)s)?");
@@ -396,6 +436,12 @@ namespace OpenCover.Framework
         /// the switch -register was supplied
         /// </summary>
         public bool Register { get; private set; }
+
+        /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        public bool SafeMode { get; private set; }
 
         /// <summary>
         /// the switch -register with the user argument was supplied i.e. -register:user

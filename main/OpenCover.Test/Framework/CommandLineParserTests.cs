@@ -895,5 +895,37 @@ namespace OpenCover.Test.Framework
             yield return string.Format("-filter:\"{0}\"", filterArg);
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
+
+        [Test]
+        [TestCase("wibble")]
+        [TestCase("argh")]
+        public void InvalidSafeModeThrowsException(string invalidSafeMode)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + invalidSafeMode, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("safemode"));
+        }
+
+        [Test]
+        [TestCase("no", false)]
+        [TestCase("yes", true)]
+        [TestCase("on", true)]
+        [TestCase("off", false)]
+        public void ValidSafeModeIsParsedCorrectly(string validSafeMode, bool expectedValue)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + validSafeMode, RequiredArgs });
+
+            // act
+            Assert.DoesNotThrow(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.AreEqual(expectedValue, parser.SafeMode);
+        }
     }
 }

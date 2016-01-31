@@ -154,6 +154,8 @@ namespace OpenCover.Framework.Manager
 
             if (_commandLine.TraceByTest)
                 dictionary[@"OpenCover_Profiler_TraceByTest"] = "1";
+            if (_commandLine.SafeMode)
+                dictionary[@"OpenCover_Profiler_SafeMode"] = "1";
 
             dictionary["Cor_Profiler"] = ProfilerGuid;
             dictionary["Cor_Enable_Profiling"] = "1";

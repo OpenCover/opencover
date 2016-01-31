@@ -89,6 +89,11 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     m_tracingEnabled = _tcslen(tracebyTest) != 0;
 	ATLTRACE(_T("    ::Initialize(...) => tracingEnabled = %s (%s)"), m_tracingEnabled ? _T("true") : _T("false"), tracebyTest);
 
+    TCHAR safeMode[1024] = { 0 };
+    ::GetEnvironmentVariable(_T("OpenCover_Profiler_SafeMode"), safeMode, 1024);
+    safe_mode_ = m_tracingEnabled || (_tcslen(safeMode) != 0);
+    ATLTRACE(_T("    ::Initialize(...) => safeMode = %s (%s)"), safe_mode_ ? _T("true") : _T("false"), safeMode);
+
     TCHAR shortwait[1024] = { 0 };
     if (::GetEnvironmentVariable(_T("OpenCover_Profiler_ShortWait"), shortwait, 1024) > 0) {
         _shortwait = _tcstoul(shortwait, nullptr, 10);
@@ -180,7 +185,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
     if (chained_module_ != nullptr)
         FreeLibrary(chained_module_);
 
-    _host->CloseChannel(m_tracingEnabled);
+    _host->CloseChannel(safe_mode_);
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
@@ -210,7 +215,7 @@ void __fastcall CCodeCoverage::AddVisitPoint(ULONG uniqueId)
         threshold++;
     }
 
-    if (m_tracingEnabled){
+    if (safe_mode_) {
         _host->AddVisitPoint(uniqueId);
     }
     else {

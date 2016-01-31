@@ -56,6 +56,12 @@ namespace OpenCover.Framework
         bool TraceByTest { get; }
 
         /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        bool SafeMode { get; }
+
+        /// <summary>
         /// The type of profiler registration
         /// </summary>
         Registration Registration { get; }
