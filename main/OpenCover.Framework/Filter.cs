@@ -209,35 +209,36 @@ namespace OpenCover.Framework
                 return false;
 
             var entity = originalEntity;
-            while (true)
+            while (entity != null)
             {
-                if (entity == null)
-                    return false;
-
                 bool excludeByAttribute;
-                if (IsExcludedByAttributeSimple(entity, out excludeByAttribute)) 
+                if (IsExcludedByAttributeSimple(entity, out excludeByAttribute))
                     return excludeByAttribute;
 
-                MethodDefinition target;
-                if (!GetDeclaringMethod(entity, out target)) 
-                    return false;
-
-                if (target.IsGetter || target.IsSetter)
-                {
-                    entity = entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target || p.SetMethod == target);
-                    continue;
-                }
-                entity = target;
+                entity = GetDeclaringMethod(entity);
             }
+            return false;
         }
 
         /// <summary>
         /// Look for the declaring method e.g. if method is some type of lambda, getter/setter etc
         /// </summary>
         /// <param name="entity"></param>
-        /// <param name="target"></param>
         /// <returns></returns>
-        private static bool GetDeclaringMethod(IMemberDefinition entity, out MethodDefinition target)
+        private static IMemberDefinition GetDeclaringMethod(IMemberDefinition entity)
+        {
+            MethodDefinition target;
+            if (!MatchDeclaringMethod(entity, out target))
+                return null;
+
+            if (target.IsGetter || target.IsSetter)
+            {
+                return entity.DeclaringType.Properties.FirstOrDefault(p => p.GetMethod == target || p.SetMethod == target);
+            }
+            return target;
+        }
+
+        private static bool MatchDeclaringMethod(IMemberDefinition entity, out MethodDefinition target)
         {
             target = null;
             var match = Regex.Match(entity.Name, @"\<(?<name>.+)\>.+");
@@ -356,25 +357,26 @@ namespace OpenCover.Framework
             if (!ExclusionFilters.Any() && !InclusionFilters.Any()) 
                 return true;
 
-            if (ExclusionFilters.Any()) {
-                var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForProcessName(processName);
-                if (matchingExclusionFilters.Any
-                        ( exclusionFilter =>
-                            // Excluded by all filters
-                            (exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*")
-                        )
-                    )
-                {
-                    return false;
-                }
-            }
+            if (IsProcessExcluded(processName)) 
+                return false;
 
-            if (InclusionFilters.Any()) {
+            if (InclusionFilters.Any())
+            {
                 var matchingInclusionFilters = InclusionFilters.GetMatchingFiltersForProcessName(processName);
                 return matchingInclusionFilters.Any();
             }
 
             return true; // not excluded and no inclusion filters
+        }
+
+        private bool IsProcessExcluded(string processName)
+        {
+            if (!ExclusionFilters.Any()) 
+                return false;
+
+            var matchingExclusionFilters = ExclusionFilters.GetMatchingFiltersForProcessName(processName);
+            // Excluded by all filters
+            return matchingExclusionFilters.Any(exclusionFilter =>(exclusionFilter.AssemblyName == ".*" && exclusionFilter.ClassName == ".*"));
         }
 
         readonly IList<string> _excludePaths = new List<string>();
