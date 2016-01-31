@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -156,6 +157,35 @@ namespace OpenCover.Test.Framework
             Assert.AreEqual(2, parser.SearchDirs.Length);
             Assert.AreEqual("XXX", parser.SearchDirs[0]);
             Assert.AreEqual("YYY", parser.SearchDirs[1]);
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[1]));
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValueRemovesDuplicates()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
         }
 
         [Test]
@@ -864,6 +894,38 @@ namespace OpenCover.Test.Framework
             yield return "-target:t";
             yield return string.Format("-filter:\"{0}\"", filterArg);
             if (!defaultFilters) yield return "-nodefaultfilters";
+        }
+
+        [Test]
+        [TestCase("wibble")]
+        [TestCase("argh")]
+        public void InvalidSafeModeThrowsException(string invalidSafeMode)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + invalidSafeMode, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("safemode"));
+        }
+
+        [Test]
+        [TestCase("no", false)]
+        [TestCase("yes", true)]
+        [TestCase("on", true)]
+        [TestCase("off", false)]
+        public void ValidSafeModeIsParsedCorrectly(string validSafeMode, bool expectedValue)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + validSafeMode, RequiredArgs });
+
+            // act
+            Assert.DoesNotThrow(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.AreEqual(expectedValue, parser.SafeMode);
         }
     }
 }

@@ -20,7 +20,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadDestroyed(
     if (m_chainedProfiler != nullptr)
         m_chainedProfiler->ThreadDestroyed(threadId);
 
-    if (!m_tracingEnabled){
+    if (!safe_mode_) {
         _host->ThreadDestroyed(threadId);
     }
 
@@ -35,7 +35,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ThreadAssignedToOSThread(
     if (m_chainedProfiler != nullptr)
         m_chainedProfiler->ThreadAssignedToOSThread(managedThreadId, osThreadId);
 
-    if (!m_tracingEnabled){
+    if (!safe_mode_) {
         _host->ThreadCreated(managedThreadId, osThreadId);
     }
 

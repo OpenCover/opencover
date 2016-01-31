@@ -106,6 +106,19 @@ namespace OpenCover.Framework
         /// <param name="processName"></param>
         /// <returns></returns>
         bool InstrumentProcess(string processName);
+
+        /// <summary>
+        /// Add a folder to the list that modules in these folders (and their children) should be excluded
+        /// </summary>
+        /// <param name="excludedPath"></param>
+        void AddExcludedFolder(string excludedPath);
+        
+        /// <summary>
+        /// Should we use this module based on it's path
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <returns></returns>
+        bool UseModule(string modulePath);
     }
 
 }

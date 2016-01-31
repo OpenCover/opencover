@@ -1,112 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework.Manager;
 
 namespace OpenCover.Test.Framework.Manager
 {
-    [TestFixture]
-    public class MemoryManagerTests_Full_Coverage
-    {
-        [Test]
-        public void AllocateMemoryBuffer_WhenManagerNotInitialised_Ignored_OK()
-        {
-            using (var _manager = new MemoryManager()) {
-                // not initialised
-    
-                // arrange
-                uint bufferId;
-
-                // act & assert
-                Assert.That (
-                    delegate { _manager.AllocateMemoryBuffer(100, out bufferId); },
-                    Throws.Nothing );
-            }
-        }
-
-        [Test]
-        public void InitialiseMemoryManagerTwice_Ignored_OK()
-        {
-            using (var _manager = new MemoryManager()) {
-
-                // arrange
-                _manager.Initialise("Local", "C#", new String[0]);
-
-                // act & assert
-                Assert.That (
-                    delegate { _manager.Initialise("Local", "C#", new String[0]); },
-                    Throws.Nothing );
-    
-            }
-        }
-
-        [Test]
-        public void AllocateMemoryBufferTwice_NewBufferAllocated_OK()
-        {
-            // setup
-            using (var _manager = new MemoryManager()) {
-
-                // arrange
-                _manager.Initialise("Local", "C#", new String[0]);
-                uint bufferId;
-
-                // act
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-
-                // assert
-                Assert.AreEqual(2, _manager.GetBlocks.Count);
-
-            }
-        }
-
-        [Test]
-        public void DeactivateMemoryBufferTwice_Ignored_OK()
-        {
-            using (var _manager = new MemoryManager()) {
-                _manager.Initialise("Local", "C#", new String[0]);
-    
-                // arrange
-                uint bufferId;
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                Assert.AreEqual(1, _manager.GetBlocks.Count);
-                Assert.IsTrue(_manager.GetBlocks.First().Active);
-    
-                // act
-                _manager.DeactivateMemoryBuffer(bufferId);
-
-                // act & assert
-                Assert.That (
-                    delegate { _manager.DeactivateMemoryBuffer(bufferId); },
-                    Throws.Nothing );
-            }
-        }
-
-
-        [Test]
-        public void DeactivateMemoryBufferAfterDisposed_Ignored_OK()
-        {
-            using (var _manager = new MemoryManager()) {
-                _manager.Initialise("Local", "C#", new String[0]);
-    
-                // arrange
-                uint bufferId;
-                _manager.AllocateMemoryBuffer(100, out bufferId);
-                Assert.AreEqual(1, _manager.GetBlocks.Count);
-                Assert.IsTrue(_manager.GetBlocks.First().Active);
-    
-                // act
-                _manager.Dispose();
-                
-                // act & assert
-                Assert.That (
-                    delegate {
-                        _manager.DeactivateMemoryBuffer(bufferId); },
-                    Throws.Nothing );
-            }
-        }
-    }
-
     [TestFixture]
     public class MemoryManagerTests
     {
@@ -181,5 +80,130 @@ namespace OpenCover.Test.Framework.Manager
             Assert.AreEqual(1, _manager.GetBlocks.Count(b => b.Active));
         }
 
+        [Test]
+        public void AllocateMemoryBuffer_WhenManagerNotInitialised_Ignored_OK()
+        {
+            using (var manager = new MemoryManager())
+            {
+                // not initialised
+
+                // arrange
+                uint bufferId;
+
+                // act & assert
+                Assert.That(() => manager.AllocateMemoryBuffer(100, out bufferId), Throws.Nothing);
+            }
+        }
+
+        [Test]
+        public void InitialiseMemoryManagerTwice_Ignored_OK()
+        {
+            // act & assert
+            Assert.That(() => _manager.Initialise("Local", "C#", new String[0]), Throws.Nothing);
+        }
+
+        [Test]
+        public void AllocateMemoryBufferTwice_NewBufferAllocated_OK()
+        {
+            // arrange
+            uint bufferId;
+
+            // act
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+
+            // assert
+            Assert.AreEqual(2, _manager.GetBlocks.Count);
+        }
+
+        [Test]
+        public void DeactivateMemoryBufferTwice_Ignored_OK()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+            Assert.AreEqual(1, _manager.GetBlocks.Count);
+            Assert.IsTrue(_manager.GetBlocks.First().Active);
+
+            // act
+            _manager.DeactivateMemoryBuffer(bufferId);
+
+            // act & assert
+            Assert.That(() => _manager.DeactivateMemoryBuffer(bufferId), Throws.Nothing);
+        }
+
+
+        [Test]
+        public void DeactivateMemoryBufferAfterDisposed_Ignored_OK()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+            Assert.AreEqual(1, _manager.GetBlocks.Count);
+            Assert.IsTrue(_manager.GetBlocks.First().Active);
+
+            // act
+            _manager.Dispose();
+
+            // act & assert
+            Assert.That(() => _manager.DeactivateMemoryBuffer(bufferId), Throws.Nothing);
+        }
+
+        [Test]
+        public void WaitForBlocksToClose_WaitsUntilBufferWaitCountExceededIfAnyActiveBlocks()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+
+            var timeAction = new Func<Action, long>(actionToTime =>
+            {
+                var t = Stopwatch.StartNew();
+                actionToTime();
+                t.Stop();
+                return t.ElapsedMilliseconds;
+            });
+
+            Assert.That(timeAction(() => _manager.WaitForBlocksToClose(0)), Is.LessThan(500));
+            Assert.That(timeAction(() => _manager.WaitForBlocksToClose(1)), Is.GreaterThanOrEqualTo(500).And.LessThan(1000));
+            Assert.That(timeAction(() => _manager.WaitForBlocksToClose(2)), Is.GreaterThanOrEqualTo(1000).And.LessThan(1500));
+
+        }
+
+        [Test]
+        public void WaitForBlocksToClose_StopsWaitingWhenNoActiveBlocks()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+
+            var timeAction = new Func<Action, long>(actionToTime =>
+            {
+                var t = Stopwatch.StartNew();
+                actionToTime();
+                t.Stop();
+                return t.ElapsedMilliseconds;
+            });
+
+            Assert.That(timeAction(() => _manager.WaitForBlocksToClose(1)), Is.GreaterThanOrEqualTo(500).And.LessThan(1000));
+            _manager.GetBlocks.First().Active = false;
+            Assert.That(timeAction(() => _manager.WaitForBlocksToClose(1)), Is.LessThan(500));
+
+        }
+
+        [Test]
+        public void FetchRemainingBufferData_CallsActionForEachActiveBlock()
+        {
+            // arrange
+            uint bufferId;
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+            _manager.AllocateMemoryBuffer(100, out bufferId);
+
+            uint count = 0;
+            _manager.FetchRemainingBufferData( data => count++ );
+
+            Assert.That(count, Is.EqualTo(2));
+            Assert.That(_manager.GetBlocks.Count, Is.EqualTo(0));
+        }
     }
 }

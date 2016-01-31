@@ -181,6 +181,9 @@ namespace OpenCover.Framework.Persistance
                     RemoveSkippedModules(SkippedMethod.Filter);
                     RemoveSkippedClasses(SkippedMethod.Filter);
                     break;
+                case SkippedMethod.FolderExclusion:
+                    RemoveSkippedModules(SkippedMethod.FolderExclusion);
+                    break;
                 case SkippedMethod.MissingPdb:
                     RemoveSkippedModules(SkippedMethod.MissingPdb);
                     break;

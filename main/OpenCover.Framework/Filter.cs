@@ -377,6 +377,27 @@ namespace OpenCover.Framework
             return true; // not excluded and no inclusion filters
         }
 
+        readonly IList<string> _excludePaths = new List<string>();
+
+        /// <summary>
+        /// Add a folder to the list that modules in these folders (and their children) should be excluded
+        /// </summary>
+        /// <param name="excludedPath"></param>
+        public void AddExcludedFolder(string excludedPath)
+        {
+            _excludePaths.Add(excludedPath.ToLowerInvariant());
+        }
+
+        /// <summary>
+        /// Should we use this module based on it's path
+        /// </summary>
+        /// <param name="modulePath"></param>
+        /// <returns></returns>
+        public bool UseModule(string modulePath)
+        {
+            return _excludePaths.All(path => !modulePath.ToLowerInvariant().StartsWith(path));
+        }
+
         /// <summary>
         /// Create a filter entity from parser parameters
         /// </summary>
@@ -415,6 +436,11 @@ namespace OpenCover.Framework
             filter.AddAttributeExclusionFilters(parser.AttributeExclusionFilters.ToArray());
             filter.AddFileExclusionFilters(parser.FileExclusionFilters.ToArray());
             filter.AddTestFileFilters(parser.TestFilters.ToArray());
+            foreach (var excludeDir in parser.ExcludeDirs)
+            {
+                filter.AddExcludedFolder(excludeDir);
+            }
+            
 
             return filter;
         }
