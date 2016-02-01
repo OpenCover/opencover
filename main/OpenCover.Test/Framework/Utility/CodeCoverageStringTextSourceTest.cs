@@ -19,7 +19,7 @@ namespace OpenCover.Test.Framework.Utility
         public void ConstructWithNullString()
         {
             // arrange
-            var source = new CodeCoverageStringTextSource(null);
+            var source = new CodeCoverageStringTextSource(null, "");
             
             // assert
             Assert.True (source.LinesCount == 0);
@@ -41,7 +41,7 @@ namespace OpenCover.Test.Framework.Utility
         public void ConstructWithEmptyString()
         {
             // arrange
-            var source = new CodeCoverageStringTextSource(string.Empty);
+            var source = new CodeCoverageStringTextSource(string.Empty, "");
             
             // assert
             Assert.True (source.LinesCount == 0);
@@ -78,7 +78,7 @@ namespace OpenCover.Test.Framework.Utility
         {
             // arrange
             const string input = "single line";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 1);
@@ -136,7 +136,7 @@ namespace OpenCover.Test.Framework.Utility
         {
             // arrange
             const string input = "\tfirst line\n\tsecond line\r";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 2);
@@ -200,7 +200,7 @@ namespace OpenCover.Test.Framework.Utility
         {
             // arrange
             const string input = "\tfirst line\r\tsecond line";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 2);
@@ -243,7 +243,7 @@ namespace OpenCover.Test.Framework.Utility
         {
             // arrange
             const string input = "\tfirst line\n \n\tthird line\r\n \r   fifth line\r";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 5);
@@ -314,12 +314,12 @@ namespace OpenCover.Test.Framework.Utility
         }
         
         [Test]
-        public void CountLinesLineFeed()
+        public void CountLinesWithLineFeed()
         {
             
             // arrange
             const string input = "\n\n\n\n\n\n\n";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 7);
@@ -333,12 +333,12 @@ namespace OpenCover.Test.Framework.Utility
         }
         
         [Test]
-        public void CountLinesCrLf()
+        public void CountLinesWithCrLf()
         {
             
             // arrange
             const string input = "\r\n\r\n\r\n\r\n";
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 4);
@@ -352,13 +352,13 @@ namespace OpenCover.Test.Framework.Utility
         }
         
         [Test]
-        public void CountLinesMixed()
+        public void CountLinesWithMixedLineEnd()
         {
             
             // arrange
             const string input = "\r\r\r\n \r\n \r\n \r \n \n\n\n\r\n\n";
             //                     1 2   3    4    5  6  7  8 910  1112
-            var source = new CodeCoverageStringTextSource(input);
+            var source = new CodeCoverageStringTextSource(input, "");
             
             // assert
             Assert.True (source.LinesCount == 12);
@@ -374,6 +374,7 @@ namespace OpenCover.Test.Framework.Utility
         [Test]
         public void GetSource()
         {
+            var timeReference = DateTime.UtcNow; System.Threading.Thread.Sleep(100);
             string fileName = System.IO.Path.GetTempPath() + Guid.NewGuid();
             string cSharpFileName = fileName+".cs";
             string vBasicFileName = fileName+".vb";
@@ -387,33 +388,50 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileType == FileType.CSharp);
             Assert.True (source.FilePath == cSharpFileName);
             Assert.False (source.FileFound);
+            Assert.True (source.FileTime == DateTime.MinValue);
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.False (source.IsChanged (timeReference));
 
             // arrange
             System.IO.File.WriteAllLines(cSharpFileName, lines);
+
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(cSharpFileName);
-            // destroy temp file
-            System.IO.File.Delete(cSharpFileName);
 
             // assert
             Assert.True (!ReferenceEquals(source, null));
             Assert.True (source.FileType == FileType.CSharp);
             Assert.True (source.FilePath == cSharpFileName);
             Assert.True (source.FileFound);
+            Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (cSharpFileName));
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.True (source.IsChanged (timeReference));
+
+            // destroy temp file
+            System.IO.File.Delete(cSharpFileName);
 
             // arrange
             System.IO.File.WriteAllLines(vBasicFileName, lines);
             // act on existing file
             source = CodeCoverageStringTextSource.GetSource(vBasicFileName);
-            // destroy temp file
-            System.IO.File.Delete(vBasicFileName);
 
             // assert
             Assert.True (!ReferenceEquals(source, null));
             Assert.True (source.FileType == FileType.Unsupported);
             Assert.True (source.FilePath == vBasicFileName);
             Assert.True (source.FileFound);
+            Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (vBasicFileName));
+            Assert.False (source.IsChanged (source.FileTime));
+            Assert.False (source.IsChanged (DateTime.MinValue));
+            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.True (source.IsChanged (timeReference));
 
+            // destroy temp file
+            System.IO.File.Delete(vBasicFileName);
         }
     }
 }

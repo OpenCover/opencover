@@ -313,7 +313,7 @@ namespace OpenCover.Framework.Communication
             try
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_TrackProcess_Request>(pinnedMemory);
-                response.track = _profilerCommunication.TrackProcess(request.processName);
+                response.track = _profilerCommunication.TrackProcess(request.processPath);
             }
             catch (Exception ex)
             {

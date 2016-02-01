@@ -39,7 +39,7 @@ namespace OpenCover.Framework.Model
             if (System.IO.File.Exists(_symbolManager.ModulePath))
             {
                 try { 
-                    timeStamp = System.IO.File.GetLastWriteTime(_symbolManager.ModulePath); 
+                    timeStamp = System.IO.File.GetLastWriteTimeUtc(_symbolManager.ModulePath); 
                 } catch (Exception e) {
                     e.InformUser();
                 }

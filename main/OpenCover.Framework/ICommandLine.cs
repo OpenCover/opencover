@@ -25,6 +25,12 @@ namespace OpenCover.Framework
         string[] SearchDirs { get; }
 
         /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        string[] ExcludeDirs { get; }
+
+
+        /// <summary>
         /// If specified then results to be merged by matching hash 
         /// </summary>
         bool MergeByHash { get; }
@@ -48,6 +54,12 @@ namespace OpenCover.Framework
         /// Set when tracing coverage by test has been enabled
         /// </summary>
         bool TraceByTest { get; }
+
+        /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        bool SafeMode { get; }
 
         /// <summary>
         /// The type of profiler registration

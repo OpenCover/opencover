@@ -207,7 +207,7 @@ namespace OpenCover.Test.Framework
             data.Filters.ForEach(filter.AddFilter);
 
             // act
-            var result = filter.UseAssembly("processName.exe", data.Assembly);
+            var result = filter.UseAssembly("processName", data.Assembly);
 
             // result
             Assert.AreEqual(data.ExpectedResult, result,
@@ -732,7 +732,7 @@ namespace OpenCover.Test.Framework
             // act
 
             // assert
-            Assert.AreEqual(canUse, filter.UseAssembly("processName.exe", assembly));
+            Assert.AreEqual(canUse, filter.UseAssembly("processName", assembly));
         }
 
         [Test]
@@ -771,6 +771,18 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void ModulesInExcludedFoldersAreIdentifiedCorrectly()
+        {
+            // arrange
+            var filter = new Filter(true);
+            filter.AddExcludedFolder("ABC");
+
+            // act
+            Assert.IsFalse(filter.UseModule(@"ABC\m.dll"));
+            Assert.IsTrue(filter.UseModule(@"DEF\m.dll"));
+        }
+
+        [Test]
         public void File_Is_Excluded_If_Matches_Filter_UsingRegularExpressions()
         {
             // arrange
@@ -791,7 +803,7 @@ namespace OpenCover.Test.Framework
         {
             var filter = Filter.BuildFilter(new CommandLineParser(commandLine).Do(_ => _.ExtractAndValidateArguments()));
             Assert.IsNotNull(filter);
-            Assert.AreEqual(matchAssembly, filter.UseAssembly("processName.exe", "System"));
+            Assert.AreEqual(matchAssembly, filter.UseAssembly("processName", "System"));
         }
 
         [Test]
@@ -801,86 +813,71 @@ namespace OpenCover.Test.Framework
 
         #region Initial test set
         [TestCase("+<*>[*]*", null, false, false)]
-        [TestCase("-<*>[*]*", "process.exe", false, false)]
-        [TestCase("-<pro*>[*]*", "process.exe", false, false)]
-        [TestCase("-<*cess>[*]*", "process.exe", false, false)]
-        [TestCase("+<*>[*]*", "process.exe", true, true)]
-        [TestCase("+<pro*>[*]*", "process.exe", true, true)]
-        [TestCase("+<*cess>[*]*", "process.exe", true, true)]
-        [TestCase("+[ABC*]*", "nunit-executable.exe", true, true)]
-        [TestCase("+[*]DEF.*", "nunit-executable.exe", true, true)]
-        [TestCase("+[*]*", "process.exe", true, true)]
-        [TestCase("-[ABC*]*", "nunit-executable.exe", true, true)]
-        [TestCase("-[*]DEF.*", "nunit-executable.exe", true, true)]
-        [TestCase("-[*]*", "process.exe", false, false)]
-        [TestCase("-<*>[*]* +<pro*>[*]*", "process.exe", false, false)]
-        [TestCase("+<abc*>[*]* +<pro*>[*]*", "process.exe", true, true)]
-        [TestCase("-<*>[ABC*]* +[*]*", "process.exe", true, true)]
-        [TestCase("-<*>[ABC*]* +<*>[*]*", "process.exe", true, true)]
-        [TestCase("-<pro*>[D*F]* +[*]*", "process.exe", true, true)]
-        [TestCase("-<*cess>[*GHI]* +[*]*", "process.exe", true, true)]
-        [TestCase("+<ABC>[*]*", "process.exe", false, false)]
-        [TestCase("+<pro*>[*]*", "process.exe", true, true)]
-        #endregion
-
-        #region match no drive-path-extension, only process-name (same as above)
-        [TestCase("-<pro*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase("+<pro*>[*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase("-<*cess>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase("+<*cess>[*]*", @"C:\Debug\process.exe", true, true)]
-        #endregion
-
-        #region match full-path-process-name (path\name\ext)
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
-
-        [TestCase(@"-<*cess.exe>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"-<*cess.dll>[*]*", @"C:\Debug\process.exe", true, true)]
-
-        [TestCase(@"+<*cess.dll>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"+<*cess.exe>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase("-<*>[*]*", "process", false, false)]
+        [TestCase("-<pro*>[*]*", "process", false, false)]
+        [TestCase("-<*cess>[*]*", "process", false, false)]
+        [TestCase("+<*>[*]*", "process", true, true)]
+        [TestCase("+<pro*>[*]*", "process", true, true)]
+        [TestCase("+<*cess>[*]*", "process", true, true)]
+        [TestCase("+[ABC*]*", "nunit-executable", true, true)]
+        [TestCase("+[*]DEF.*", "nunit-executable", true, true)]
+        [TestCase("+[*]*", "process", true, true)]
+        [TestCase("-[ABC*]*", "nunit-executable", true, true)]
+        [TestCase("-[*]DEF.*", "nunit-executable", true, true)]
+        [TestCase("-[*]*", "process", false, false)]
+        [TestCase("-<*>[*]* +<pro*>[*]*", "process", false, false)]
+        [TestCase("+<abc*>[*]* +<pro*>[*]*", "process", true, true)]
+        [TestCase("-<*>[ABC*]* +[*]*", "process", true, true)]
+        [TestCase("-<*>[ABC*]* +<*>[*]*", "process", true, true)]
+        [TestCase("-<pro*>[D*F]* +[*]*", "process", true, true)]
+        [TestCase("-<*cess>[*GHI]* +[*]*", "process", true, true)]
+        [TestCase("+<ABC>[*]*", "process", false, false)]
+        [TestCase("+<pro*>[*]*", "process", true, true)]
         #endregion
 
         #region match when both filters, when no exclude filters, or when no include filters or when no filters at all
+
         // 1/1 match include filter if not excluded
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<noprocess>[*]*", @"C:\Release\process.exe", false, false)]
-        [TestCase(@"-<C:\Debug\pro*>[*]* +<process>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<pro*>[*]* +<no-process>[*]*", "noprocess", false, false)]
+        [TestCase(@"-<pro*>[*]* +<noprocess>[*]*", "noprocess", true, true)]
 
         // 1/0 include if not excluded and no include filters
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", true, true)]
+        [TestCase(@"-<pro*>[*]*", "noprocess", true, true)]
 
         // 0/1 match include filter if no exclude filters exists
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Release\process.exe", false, false)]
-        [TestCase(@"+<C:\Debug\pro*>[*]*", @"C:\Debug\process.exe", true, true)]
+        [TestCase(@"+<pro*>[*]*", "noprocess", false, false)]
+        [TestCase(@"+<pro*>[*]*", "process", true, true)]
         
         // 0/0 always include if no exclude and no include filters
         [TestCase(@"", @"C:\Release\process.exe", true, true)]
+
         #endregion
 
         #region exclude only when filter does not ends with [*]*
-        [TestCase(@"-<*>[*]*", @"C:\Debug\process.exe", false, false)]
-        [TestCase(@"-<*>[*x*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase(@"-<*>[*]*x*", @"C:\Debug\process.exe", true, true)]
-        [TestCase(@"-<*>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+
+        [TestCase(@"-<*>[*]*", "process", false, false)]
+        [TestCase(@"-<*>[*x*]*", "process", true, true)]
+        [TestCase(@"-<*>[*]*x*", "process", true, true)]
+        [TestCase(@"-<*>[*x*]*x*", "process", true, true)]
+
         #endregion
 
         #region always include matching process regardless how process filter ends ([*]*|[*x*]*x*)
-        [TestCase(@"+<*>[*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase(@"+<*>[*x*]*", @"C:\Debug\process.exe", true, true)]
-        [TestCase(@"+<*>[*]*x*", @"C:\Debug\process.exe", true, true)]
-        [TestCase(@"+<*>[*x*]*x*", @"C:\Debug\process.exe", true, true)]
+
+        [TestCase(@"+<*>[*]*", "process", true, true)]
+        [TestCase(@"+<*>[*x*]*", "process", true, true)]
+        [TestCase(@"+<*>[*]*x*", "process", true, true)]
+        [TestCase(@"+<*>[*x*]*x*", "process", true, true)]
+
         #endregion
 
         #region never exclude proces that matches default-assembly-exclusion-filters (ie "mscorlib" when exclusion filters enabled)
-        [TestCase(@"-<C:\Debug\pro*>[*]*", @"C:\dotNet\mscorlib.dll", true, true)]
+
+        [TestCase(@"-<pro*>[*]*", @"C:\dotNet\mscorlib.dll", true, true)]
 
         // issue found by user #329
-        [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", @"C:\Release\nunit-console.exe.exe", true, true)]
+        [TestCase(@"+[Open*]* -[OpenCover.T*]* -[*nunit*]*", "nunit-console", true, true)]
 
-        #endregion
-
-        #region Cover last branches with invalid path chars (Path.GetInvalidPathChars)
-        [TestCase(@"+<*>[*]*", "C:\\Debug\\process.exe|<>\"", true, true)]
         #endregion
 
         public void CanFilterByProcessName(string filterArg, string processName, bool expectedNoDefaultFilters, bool expectedWithDefaultFilters)

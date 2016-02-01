@@ -62,10 +62,9 @@ namespace OpenCover.Framework.Manager
         /// <summary>
         /// Get the list of all allocated blocks
         /// </summary>
-        IList<ManagedBufferBlock> GetBlocks { get; }
+        IReadOnlyList<ManagedBufferBlock> GetBlocks { get; }
 
         /// <summary>
-        /// Deactivate a <see cref="ManagedBufferBlock"/>
         /// </summary>
         /// <param name="bufferId"></param>
         void DeactivateMemoryBuffer(uint bufferId);
@@ -74,5 +73,17 @@ namespace OpenCover.Framework.Manager
         /// Remove all deactivated blocks
         /// </summary>
         void RemoveDeactivatedBlock(ManagedBufferBlock block);
+
+        /// <summary>
+        /// Wait some time for the blocks to close
+        /// </summary>
+        /// <param name="bufferWaitCount"></param>
+        void WaitForBlocksToClose(int bufferWaitCount);
+
+        /// <summary>
+        /// Fetch the remaining data from the active blocks
+        /// </summary>
+        /// <param name="processBuffer"></param>
+        void FetchRemainingBufferData(Action<byte[]> processBuffer);
     }
 }

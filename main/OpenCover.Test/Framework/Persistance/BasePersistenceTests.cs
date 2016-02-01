@@ -24,7 +24,7 @@ namespace OpenCover.Test.Framework.Persistance
     public class BasePersistenceTests :
         UnityAutoMockContainerBase<IPersistance, BasePersistanceStub>
     {
-        private readonly SkippedMethod[] _skippedReasonsModules = {SkippedMethod.Filter, SkippedMethod.MissingPdb};
+        private readonly SkippedMethod[] _skippedReasonsModules = {SkippedMethod.Filter, SkippedMethod.MissingPdb, SkippedMethod.FolderExclusion, };
 
         private readonly SkippedMethod[] _skippedReasonsClasses =
         {

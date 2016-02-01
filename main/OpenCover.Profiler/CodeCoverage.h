@@ -139,7 +139,8 @@ private:
 
     bool m_useOldStyle;
 	ULONG m_threshold;
-	bool m_tracingEnabled;
+    bool m_tracingEnabled;
+    bool safe_mode_;
 
 private:
     std::vector<ULONG> m_thresholds;
