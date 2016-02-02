@@ -2,9 +2,10 @@ OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MO
 
 The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
-| Build | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
+| | |
 | --- | --- |
-| **Coverage** | [![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
+| **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
+| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarQube</sup> [![SonarQube](http://sonarcovbadge.epicapp.com/?server=sonar.many-monkeys.com:9000&resource=opencover&metrics=coverage)](http://sonar.many-monkeys.com:9000/dashboard/index/719) |
 | **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
 
