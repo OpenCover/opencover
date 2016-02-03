@@ -155,7 +155,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleGetSequencePointsMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleGetSequencePointsMessage => {0}:{1}", ex.GetType(), ex);
                 response.more = false;
                 response.count = 0;
                 _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
@@ -204,7 +204,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleGetBranchPointsMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleGetBranchPointsMessage => {0}:{1}", ex.GetType(), ex);
                 response.more = false;
                 response.count = 0;
                 _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
@@ -227,7 +227,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandlerAllocateBufferMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandlerAllocateBufferMessage => {0}:{1}", ex.GetType(), ex);
                 response.allocated = false;
                 response.bufferId = 0;
             }
@@ -251,7 +251,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleCloseChannelMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleCloseChannelMessage => {0}:{1}", ex.GetType(), ex);
             }
             finally
             {
@@ -274,7 +274,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleTrackMethodMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleTrackMethodMessage => {0}:{1}", ex.GetType(), ex);
                 response.track = false;
                 response.uniqueId = 0;
             }
@@ -296,7 +296,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleTrackAssemblyMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleTrackAssemblyMessage => {0}:{1}", ex.GetType(), ex);
                 response.track = false;
             }
             finally
@@ -317,7 +317,7 @@ namespace OpenCover.Framework.Communication
             }
             catch (Exception ex)
             {
-                DebugLogger.ErrorFormat("HandleTrackProcessMessage => {0}:{1}", ex.GetType(), ex.Message);
+                DebugLogger.ErrorFormat("HandleTrackProcessMessage => {0}:{1}", ex.GetType(), ex);
                 response.track = false;
             }
             finally

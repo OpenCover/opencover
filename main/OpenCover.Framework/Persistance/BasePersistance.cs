@@ -110,7 +110,7 @@ namespace OpenCover.Framework.Persistance
                     foreach (var method in @class.Methods)
                     {
                         method.Summary = new Summary();
-                        if (method.SequencePoints != null && method.SequencePoints.Any() && method.SequencePoints[0].Offset == method.MethodPoint.Offset)
+                        if (method.SequencePoints.Any() && method.SequencePoints[0].Offset == method.MethodPoint.Offset)
                         {
                             var point = new[] { method.SequencePoints[0], (SequencePoint)method.MethodPoint }
                                 .OrderBy(x => x.OrigSequencePoint)
@@ -333,14 +333,10 @@ namespace OpenCover.Framework.Persistance
                 method.Visited = (method.MethodPoint.VisitCount > 0);
             }
 
-            method.Summary.NumBranchPoints = method.BranchPoints == null ? 0 : method.BranchPoints.Count();
-            method.Summary.VisitedBranchPoints = method.BranchPoints == null
-                ? 0
-                : method.BranchPoints.Count(pt => pt.VisitCount != 0);
-            method.Summary.NumSequencePoints = method.SequencePoints == null ? 0 : method.SequencePoints.Count();
-            method.Summary.VisitedSequencePoints = method.SequencePoints == null
-                ? 0
-                : method.SequencePoints.Count(pt => pt.VisitCount != 0);
+            method.Summary.NumBranchPoints = method.BranchPoints.Length;
+            method.Summary.VisitedBranchPoints = method.BranchPoints.Count(pt => pt.VisitCount != 0);
+            method.Summary.NumSequencePoints = method.SequencePoints.Length;
+            method.Summary.VisitedSequencePoints = method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
             if (method.Summary.NumSequencePoints > 0)
                 method.Summary.NumBranchPoints += 1;
@@ -383,7 +379,7 @@ namespace OpenCover.Framework.Persistance
         {
             method.NPathComplexity = 0;
             var nPaths = new Dictionary<int, int>();
-            if (method.BranchPoints != null && method.BranchPoints.Length != 0)
+            if (method.BranchPoints.Any())
             {
                 foreach (var bp in method.BranchPoints.Where(b => b != null))
                 {
@@ -456,7 +452,7 @@ namespace OpenCover.Framework.Persistance
             sequencePoints = new InstrumentationPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method !=null && method.SequencePoints != null)
+            if (method != null && method.SequencePoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.FullName, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
@@ -481,7 +477,7 @@ namespace OpenCover.Framework.Persistance
             branchPoints = new BranchPoint[0];
             Class @class;
             var method = GetMethod(modulePath, functionToken, out @class);
-            if (method != null && method.BranchPoints != null)
+            if (method != null && method.BranchPoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.FullName, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();
