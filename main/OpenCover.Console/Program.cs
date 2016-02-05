@@ -121,7 +121,7 @@ namespace OpenCover.Console
                     {
                         AnonymousData = new AnonymousData
                         {
-                            ApplicationGuid = new Guid("e3933a4b-368b-4256-ad42-777bc60a9558"),
+                            ApplicationGuid = new Guid("e6542474-21df-42f4-826b-15a12764da6f"),
                             Exception = exception,
                             ToEmail = ""
                         }
