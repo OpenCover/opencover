@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -137,9 +136,9 @@ namespace OpenCover.Framework
             {
                 if (!RegExFilters)
                 {
-                    processFilter = (string.IsNullOrEmpty(processFilter) ? "*" : processFilter).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
-                    assemblyFilter = assemblyFilter.ValidateAndEscape();
-                    classFilter = classFilter.ValidateAndEscape();
+                    processFilter = ValidateAndEscape((string.IsNullOrEmpty(processFilter) ? "*" : processFilter), "<>|\"", "process"); // Path.GetInvalidPathChars except *?
+                    assemblyFilter = ValidateAndEscape(assemblyFilter, @"\[]", "assembly");
+                    classFilter = ValidateAndEscape(classFilter, @"\[]", "class/type");
                 }
 
                 var filter = new AssemblyAndClassFilter(processFilter, assemblyFilter, classFilter);
@@ -182,9 +181,9 @@ namespace OpenCover.Framework
             }
         }
 
-        private static void HandleInvalidFilterFormat(string assemblyClassName)
+        private static void HandleInvalidFilterFormat(string filter)
         {
-            Logger.ErrorFormat("Unable to process the filter '{0}'. Please check your syntax against the usage guide and try again.", assemblyClassName);
+            Logger.ErrorFormat("Unable to process the filter '{0}'. Please check your syntax against the usage guide and try again.", filter);
             Logger.ErrorFormat("The usage guide can also be found at https://github.com/OpenCover/opencover/wiki/Usage.");
             throw new ExitApplicationWithoutReportingException();
         }
@@ -195,7 +194,7 @@ namespace OpenCover.Framework
         /// <param name="exclusionFilters">An array of filters that are used to wildcard match an attribute</param>
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            ExcludedAttributes.AddFilters(exclusionFilters, RegExFilters);
+            AddFilters(ExcludedAttributes, exclusionFilters, RegExFilters, "attribute");
         }
 
         /// <summary>
@@ -305,7 +304,7 @@ namespace OpenCover.Framework
         /// <param name="exclusionFilters"></param>
         public void AddFileExclusionFilters(string[] exclusionFilters)
         {
-            ExcludedFiles.AddFilters(exclusionFilters, RegExFilters);
+            AddFilters(ExcludedFiles, exclusionFilters, RegExFilters, "file exclusion");
         }
 
         /// <summary>
@@ -327,7 +326,7 @@ namespace OpenCover.Framework
         /// <param name="testFilters"></param>
         public void AddTestFileFilters(string[] testFilters)
         {
-            TestFiles.AddFilters(testFilters, RegExFilters);
+            AddFilters(TestFiles, testFilters, RegExFilters, "test assembly");
         }
 
         /// <summary>
@@ -445,6 +444,28 @@ namespace OpenCover.Framework
             
 
             return filter;
+        }
+
+        static void AddFilters(ICollection<RegexFilter> target, IEnumerable<string> filters, bool isRegexFilter, string filterType)
+        {
+            if (filters == null)
+                return;
+
+            foreach (var regexFilter in filters.Where(x => x != null).Select(filter => isRegexFilter ? new RegexFilter(filter, false) : new RegexFilter(ValidateAndEscape(filter, @"[]", filterType))))
+            {
+                target.Add(regexFilter);
+            }
+        }
+
+        static string ValidateAndEscape(string match, string notAllowed, string filterType)
+        {
+            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0)
+            {
+                Logger.ErrorFormat("The string '{0}' is invalid for a{2} '{1}' filter name", 
+                    match, filterType, "aeiou".Contains(filterType[0]) ? "n" : "");
+                HandleInvalidFilterFormat(match);
+            }
+            return match.Replace(@"\", @"\\").Replace(@".", @"\.").Replace(@"*", @".*");
         }
     }
 }
