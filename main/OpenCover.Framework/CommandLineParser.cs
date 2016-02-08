@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenCover.Framework.Model;
@@ -59,6 +60,32 @@ namespace OpenCover.Framework
     }
 
     /// <summary>
+    /// SafeMode values
+    /// </summary>
+    public enum SafeMode
+    {
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        On,
+
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        Yes = On,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        Off,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        No = Off
+    }
+
+    /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
@@ -84,6 +111,8 @@ namespace OpenCover.Framework
             RegExFilters = false;
             Registration = Registration.Normal;
             PrintVersion = false;
+            ExcludeDirs = new string[0];
+            SafeMode = true;
         }
 
         /// <summary>
@@ -96,6 +125,7 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    [\"]-target:<target application>[\"]");
             builder.AppendLine("    [[\"]-targetdir:<target directory>[\"]]");
+            builder.AppendLine("    [[\"]-searchdirs:<additional PDB directory>[;<additional PDB directory>][;<additional PDB directory>][\"]]");
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
@@ -110,10 +140,12 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
             builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
-            builder.AppendLine("    [-servicestarttimeout:1m23s");
+            builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
+            builder.AppendLine("    [-communicationtimeout:<integer, e.g. 10000>");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
@@ -145,6 +177,8 @@ namespace OpenCover.Framework
         /// </summary>
         public void ExtractAndValidateArguments()
         {
+            ParseArguments();
+
             foreach (var key in ParsedArguments.Keys)
             {
                 var lower = key.ToLowerInvariant();
@@ -161,6 +195,19 @@ namespace OpenCover.Framework
                         break;
                     case "targetdir":
                         TargetDir = GetArgumentValue("targetdir");
+                        break;
+                    case "searchdirs":
+                        SearchDirs = GetArgumentValue("searchdirs").Split(';');
+                        break;
+                    case "excludedirs":
+                        ExcludeDirs =
+                            GetArgumentValue("excludedirs")
+                                .Split(';')
+                                .Where(_ => _ != null)
+                                .Select(_ => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), _)))
+                                .Where(Directory.Exists)
+                                .Distinct()
+                                .ToArray();
                         break;
                     case "targetargs":
                         TargetArgs = GetArgumentValue("targetargs");
@@ -187,6 +234,11 @@ namespace OpenCover.Framework
                         ReturnTargetCode = true;
                         ReturnCodeOffset = ExtractValue<int>("returntargetcode", () =>
                             { throw new InvalidOperationException("The return target code offset must be an integer"); });
+                        break;
+                    case "communicationtimeout":
+                        CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
+                        { throw new InvalidOperationException(string.Format("The communication timeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
+                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
@@ -240,6 +292,9 @@ namespace OpenCover.Framework
                     case "skipautoprops":
                         SkipAutoImplementedProperties = true;
                         break;
+                    case "safemode":
+                        SafeMode = ExtractSafeMode(GetArgumentValue("safemode")) == Framework.SafeMode.On;
+                        break;
                     case "?":
                         PrintUsage = true;
                         break;
@@ -247,7 +302,7 @@ namespace OpenCover.Framework
                         PrintVersion = true;
                         break;
                     default:
-                        throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
+                        throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
                 }
             }
 
@@ -275,16 +330,22 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-][\[].*?[\]].+?\s)|([+-][\[].*?[\]].*)";
-            const RegexOptions myRegexOptions = RegexOptions.None;
+            // starts with required +-
+            // followed by optional process-filter
+            // followed by required assembly-filter 
+            // followed by optional class-filter, where class-filter excludes -+" and space characters
+            // followed by optional space 
+            // NOTE: double-quote character from test-values somehow sneaks into default filter as last character?
+            const string strRegex = @"[\-\+](<.*?>)?\[.*?\][^\-\+\s\x22]*";
+            const RegexOptions myRegexOptions = RegexOptions.Singleline | RegexOptions.ExplicitCapture;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
         }
 
-        private static List<SkippedMethod> ExtractSkipped(string skipped)
+        private static List<SkippedMethod> ExtractSkipped(string skippedArg)
         {
-            if (string.IsNullOrWhiteSpace(skipped)) skipped = "All";
+            var skipped = string.IsNullOrWhiteSpace(skippedArg) ? "All" : skippedArg;
             var options = skipped.Split(';');
             var list = new List<SkippedMethod>();
             foreach (var option in options)
@@ -311,12 +372,23 @@ namespace OpenCover.Framework
             return list.Distinct().ToList();
         }
 
+        private static SafeMode ExtractSafeMode(string safeModeArg)
+        {
+            SafeMode result;
+            if (!Enum.TryParse(safeModeArg, true, out result))
+            {
+                throw new InvalidOperationException(string.Format("The safemode option {0} is not valid", safeModeArg));
+            }
+            return result;
+        }
+
         private TimeSpan ParseTimeoutValue(string timeoutValue)
         {
             var match = Regex.Match(timeoutValue, @"((?<minutes>\d+)m)?((?<seconds>\d+)s)?");
             if (match.Success)
             {
-                int minutes = 0, seconds = 0;
+                int minutes = 0;
+                int seconds = 0;
 
                 var minutesMatch = match.Groups["minutes"];
                 if (minutesMatch.Success)
@@ -350,7 +422,8 @@ namespace OpenCover.Framework
 
         private void ValidateArguments()
         {
-            if (PrintUsage || PrintVersion) return;
+            if (PrintUsage || PrintVersion) 
+                return;
 
             if (string.IsNullOrWhiteSpace(Target))
             {
@@ -365,6 +438,12 @@ namespace OpenCover.Framework
         public bool Register { get; private set; }
 
         /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        public bool SafeMode { get; private set; }
+
+        /// <summary>
         /// the switch -register with the user argument was supplied i.e. -register:user
         /// </summary>
         public Registration Registration { get; private set; }
@@ -375,7 +454,7 @@ namespace OpenCover.Framework
         public bool SkipAutoImplementedProperties { get; private set; }
 
         /// <summary>
-        /// The target executable that is to be profiles
+        /// The target executable that is to be profiled
         /// </summary>
         public string Target { get; private set; }
 
@@ -383,6 +462,16 @@ namespace OpenCover.Framework
         /// The working directory that the action is to take place
         /// </summary>
         public string TargetDir { get; private set; }
+
+        /// <summary>
+        /// Alternate locations where PDBs can be found
+        /// </summary>
+        public string[] SearchDirs { get; private set; }
+
+        /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        public string[] ExcludeDirs { get; private set; }
 
         /// <summary>
         /// The arguments that are to be passed to the Target
@@ -509,6 +598,11 @@ namespace OpenCover.Framework
         /// Instructs the console to print its version and exit
         /// </summary>
         public bool PrintVersion { get; private set; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host (normally 10000ms)
+        /// </summary>
+        public int CommunicationTimeout { get; private set; }
     }
 
 }

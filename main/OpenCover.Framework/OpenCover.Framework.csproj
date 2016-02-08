@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OpenCover.Framework</RootNamespace>
     <AssemblyName>OpenCover.Framework</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -145,8 +145,13 @@
     <Compile Include="Symbols\CecilSymbolManager.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\SymbolFolder.cs" />
+    <Compile Include="Utility\CodeCoverageStringTextSource.cs" />
     <Compile Include="Utility\IPerfCounters.cs" />
+    <Compile Include="Utility\LogHelper.cs" />
     <Compile Include="Utility\PerfCounters.cs" />
+    <Compile Include="Utility\SequencePointComparer.cs" />
+    <Compile Include="Utility\ThreadHelper.cs" />
+    <Compile Include="Utility\SourceRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log4net.config">

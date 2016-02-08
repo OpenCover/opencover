@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OpenCover.Test</RootNamespace>
     <AssemblyName>OpenCover.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -139,6 +139,7 @@
     <Compile Include="..\..\tools\Moq.contrib\UnityAutoMockContainer.cs">
       <Link>MoqFramework\UnityAutoMockContainer.cs</Link>
     </Compile>
+    <Compile Include="Console\OutputTests.cs" />
     <Compile Include="Extensions\RegisterStrategiesModuleTests.cs" />
     <Compile Include="Filtering\FilterTypeTest.cs" />
     <Compile Include="Framework\Communication\CommunicationManagerTests.cs" />
@@ -147,10 +148,12 @@
     <Compile Include="Framework\CommandLineParserBaseTests.cs" />
     <Compile Include="Framework\CommandLineParserTests.cs" />
     <Compile Include="Framework\FilterTests.cs" />
+    <Compile Include="Framework\Manager\MemoryManagerTests.cs" />
     <Compile Include="Framework\Manager\ProfilerManagerTests.cs" />
     <Compile Include="Framework\Model\InstrumentationPointTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderTests.cs" />
     <Compile Include="Framework\Model\InstrumentationModelBuilderFactoryTests.cs" />
+    <Compile Include="Framework\Model\MethodTest.cs" />
     <Compile Include="Framework\Model\SequencePointTests.cs" />
     <Compile Include="Framework\Model\SummarySkippedEntityTests.cs" />
     <Compile Include="Framework\Persistance\BasePersistenceTests.cs" />
@@ -164,8 +167,12 @@
     <Compile Include="Framework\Symbols\CecilSymbolManagerMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
+    <Compile Include="Framework\Utility\CodeCoverageStringTextSourceTest.cs" />
+    <Compile Include="Framework\Utility\SequencePointComparerTest.cs" />
+    <Compile Include="Framework\Utility\SourceRepositoryTest.cs" />
     <Compile Include="Integration\SimpleBranchTests.cs" />
     <Compile Include="Integration\SimpleExceptionTests.cs" />
+    <Compile Include="Integration\ThreadingTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBase.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />
@@ -191,9 +198,7 @@
       <Name>OpenCover.Support</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Console\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
@@ -299,6 +304,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

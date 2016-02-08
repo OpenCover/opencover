@@ -3,28 +3,40 @@
 namespace OpenCover.Framework.Utility
 {
     /// <summary>
-    /// 
+    /// Expose some performance counters
     /// </summary>
-    /// 
     [ExcludeFromCoverage("Performance counters can only be created by Administrators")] 
     public class PerfCounters : IPerfCounters
     {
         private PerformanceCounter _memoryQueue;
-        private PerformanceCounter _queueThrougput;
+        private PerformanceCounter _queueThroughput;
 
-        public int CurrentMemoryQueueSize { set { _memoryQueue.RawValue = value; } }
-        public void IncrementBlocksReceived()
+        /// <summary>
+        /// get the current queue size
+        /// </summary>
+        public long CurrentMemoryQueueSize
         {
-            _queueThrougput.RawValue += 1;
+            get { return _memoryQueue.RawValue; }
+            set { _memoryQueue.RawValue = value; }
         }
 
+        /// <summary>
+        /// Increment the block size
+        /// </summary>
+        public void IncrementBlocksReceived()
+        {
+            _queueThroughput.RawValue += 1;
+        }
+
+        /// <summary>
+        /// Instantiate the Performance Counters
+        /// </summary>
         public PerfCounters()
         {
             CreateCounters();
             ResetCounters();
         }
 
-        private const string InstanceName = "OpenCover";
         private const string CategoryName = "OpenCover";
         private const string MemoryQueue = "MemoryQueue";
         private const string QueueThroughput = "QueueThroughput";
@@ -45,13 +57,16 @@ namespace OpenCover.Framework.Utility
                                               PerformanceCounterCategoryType.SingleInstance, counters);
             
             _memoryQueue = new PerformanceCounter(CategoryName, MemoryQueue, false) { RawValue = 0 };
-            _queueThrougput = new PerformanceCounter(CategoryName, QueueThroughput, false) { RawValue = 0 };
+            _queueThroughput = new PerformanceCounter(CategoryName, QueueThroughput, false) { RawValue = 0 };
         }
 
+        /// <summary>
+        /// Reset all counters
+        /// </summary>
         public void ResetCounters()
         {
             _memoryQueue.RawValue = 0;
-            _queueThrougput.RawValue = 0;
+            _queueThroughput.RawValue = 0;
         }
     }
 
@@ -61,13 +76,26 @@ namespace OpenCover.Framework.Utility
     [ExcludeFromCoverage("Performance counters can only be created by Administrators")] 
     public class NullPerfCounter : IPerfCounters
     {
-        public int CurrentMemoryQueueSize { set; private get; }
+        /// <summary>
+        /// A null performance counters implementation
+        /// </summary>
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public long CurrentMemoryQueueSize { set; get; }
+
+        /// <summary>
+        /// Increment the number of blocks received
+        /// </summary>
         public void IncrementBlocksReceived()
         {
+            // null implementation
         }
 
+        /// <summary>
+        /// Reset all counters
+        /// </summary>
         public void ResetCounters()
         {
+            // null implementation
         }
     }
 }

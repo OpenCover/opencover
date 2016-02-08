@@ -1,1 +1,9 @@
-OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.Runners.2.6.4\tools\nunit-console-x86.exe -targetargs:"OpenCover.Test.dll /noshadow /exclude:AdminOnly" -excludebyattribute:*.ExcludeFromCoverageAttribute -filter:"+[Open*]* -[Open*]*Boot* -[OpenCover.T*]*" -output:opencovertests.xml
+@echo off
+pushd %cd%
+setlocal
+@set ExcludeAdminOnly=/exclude:AdminOnly
+@if "%appveyor%" == "True" set ExcludeAdminOnly=
+cd %~dp0
+OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.Runners.2.6.4\tools\nunit-console-x86.exe -targetargs:"OpenCover.Test.dll /noshadow %ExcludeAdminOnly%" -excludebyattribute:*.ExcludeFromCoverageAttribute -filter:"+[Open*]* -[OpenCover.T*]* -{nunit-console*}[*]* -{pdb*}[*]*" -output:opencovertests.xml -mergebyhash
+endlocal
+popd

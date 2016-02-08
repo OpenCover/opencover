@@ -7,28 +7,38 @@ namespace OpenCover.Framework.Filtering
 {
     internal class AssemblyAndClassFilter
     {
-        private readonly RegexFilter assemblyNameFilter;
+        private readonly RegexFilter _processFilter;
 
-        private readonly RegexFilter classNameFilter;
+        private readonly RegexFilter _assemblyFilter;
 
-        internal string AssemblyName { get { return assemblyNameFilter.FilterExpression; } }
+        private readonly RegexFilter _classFilter;
 
-        internal string ClassName { get { return classNameFilter.FilterExpression; } }
+        internal string ProcessName { get { return _processFilter.FilterExpression; } }
 
-        internal AssemblyAndClassFilter(string assemblyName, string className)
+        internal string AssemblyName { get { return _assemblyFilter.FilterExpression; } }
+
+        internal string ClassName { get { return _classFilter.FilterExpression; } }
+
+        internal AssemblyAndClassFilter(string processFilter, string assemblyFilter, string classFilter)
         {
-            assemblyNameFilter = new RegexFilter(assemblyName);
-            classNameFilter = new RegexFilter(className);
+            _processFilter = new RegexFilter(processFilter);
+            _assemblyFilter = new RegexFilter(assemblyFilter);
+            _classFilter = new RegexFilter(classFilter);
+        }
+
+        internal bool IsMatchingProcessName(string processName)
+        {
+            return _processFilter.IsMatchingExpression(processName);
         }
 
         internal bool IsMatchingAssemblyName(string assemblyName)
         {
-            return assemblyNameFilter.IsMatchingExpression(assemblyName);
+            return _assemblyFilter.IsMatchingExpression(assemblyName);
         }
 
         internal bool IsMatchingClassName(string className)
         {
-            return classNameFilter.IsMatchingExpression(className);
+            return _classFilter.IsMatchingExpression(className);
         }
     }
 

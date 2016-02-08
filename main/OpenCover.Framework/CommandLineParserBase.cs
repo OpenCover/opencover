@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace OpenCover.Framework
 {
@@ -17,41 +16,71 @@ namespace OpenCover.Framework
     {
         private readonly string[] _arguments;
 
+        /// <summary>
+        /// Instantiate the base command line parser
+        /// </summary>
+        /// <param name="arguments"></param>
         protected CommandLineParserBase(string[] arguments)
         {
             _arguments = arguments;
             ParsedArguments = new Dictionary<string, string>();
-            ParseArguments();
         }
 
+        /// <summary>
+        /// Get the parsed arguments
+        /// </summary>
         protected IDictionary<string, string> ParsedArguments { get; private set; }
-
-        private void ParseArguments()
+        
+        /// <summary>
+        /// Parse the arguments
+        /// </summary>
+        protected void ParseArguments()
         {
-            if (_arguments == null) return;
+            if (_arguments == null) 
+                return;
+            if (ParsedArguments.Count > 0) 
+                return;
 
             foreach (var argument in _arguments)
             {
-                var trimmed = argument.Trim();
-                if (!trimmed.StartsWith("-")) continue;
-                trimmed = trimmed.Substring(1);
-                if (string.IsNullOrEmpty(trimmed)) continue;
-                var colonidx = trimmed.IndexOf(':');
-                if (colonidx>0)
-                {
-                    var arg = trimmed.Substring(0, colonidx);
-                    var val = trimmed.Substring(colonidx + 1);
-                    if (!ParsedArguments.ContainsKey(arg))
-                        ParsedArguments.Add(arg, val);
-                    else
-                        ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim(); 
-                }
-                else
-                {
-                    if (!ParsedArguments.ContainsKey(trimmed))
-                        ParsedArguments.Add(trimmed, String.Empty);
-                }       
+                string trimmed;
+                if (ExtractTrimmedArgument(argument, out trimmed)) 
+                    continue;
+
+                ExtractArgumentValue(trimmed);
             }
+        }
+
+        private void ExtractArgumentValue(string trimmed)
+        {
+            var colonidx = trimmed.IndexOf(':');
+            if (colonidx > 0)
+            {
+                var arg = trimmed.Substring(0, colonidx);
+                var val = trimmed.Substring(colonidx + 1);
+                if (!ParsedArguments.ContainsKey(arg))
+                    ParsedArguments.Add(arg, val);
+                else
+                    ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim();
+            }
+            else
+            {
+                if (!ParsedArguments.ContainsKey(trimmed))
+                    ParsedArguments.Add(trimmed, String.Empty);
+            }
+        }
+
+        private static bool ExtractTrimmedArgument(string argument, out string trimmed)
+        {
+            trimmed = argument.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                return true;
+
+            if (!trimmed.StartsWith("-"))
+                throw new InvalidOperationException(string.Format("The argument '{0}' is not recognised", argument));
+
+            trimmed = trimmed.Substring(1);
+            return string.IsNullOrEmpty(trimmed);
         }
 
         /// <summary>

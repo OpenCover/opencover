@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenCover.Test.Samples
 {
     class ConstructorNotDeclaredClass
-    {
-        
+    {        
     }
-
     class DeclaredConstructorClass
     {
         DeclaredConstructorClass() { }
@@ -104,7 +104,7 @@ namespace OpenCover.Test.Samples
             string value;
             try
             {
-
+                
             }
             finally
             {
@@ -115,6 +115,11 @@ namespace OpenCover.Test.Samples
                 }
             }
             return value;
+        }
+
+        public void HasSimpleTaskWithLambda()
+        {
+            var t = new Task(() => { });
         }
 
         public string UsingWithException_Issue243()
@@ -193,7 +198,32 @@ namespace OpenCover.Test.Samples
         [ExcludeMethodAttribute]
         public override void Method()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();    
+        }
+        
+        protected class InnerConcrete
+        {
+            public InnerConcrete()
+            {
+                
+            }
+
+            public void Method()
+            {
+                var t = new Task(() =>
+                {
+                    Method();
+                    Method();
+                });
+            }
+
+            protected class InnerInnerConcrete
+            {
+                public InnerInnerConcrete()
+                {
+
+                }
+            }
         }
     }
 
@@ -268,5 +298,14 @@ namespace OpenCover.Test.Samples
                 return x;
             }
         }
+    }
+
+    public class Iterator
+    {
+        public IEnumerable<string> Fetch()
+        {
+            yield return "one";
+            yield return "two";
+        } 
     }
 }

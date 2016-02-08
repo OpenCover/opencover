@@ -45,6 +45,7 @@
       <ComponentRef Id="Autofac_3rdParty" />
       <ComponentRef Id="MonoCecil_3rdParty" />
       <ComponentRef Id="Gendarme_Signed_3rdParty" />
+      <ComponentRef Id="CrashReporter_Signed_3rdParty" />
       <ComponentRef Id="Log4Net_3rdParty" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />
@@ -55,19 +56,12 @@
       <ComponentRef Id="PromptShortcut" />
       <ComponentRef Id="TransformScript" />
       <ComponentRef Id="SimpleTransform" />
+      <ComponentRef Id="Documentation" />
+      <ComponentRef Id="DocumentationShortcut"/>
       <Feature Id="SamplesFeature" Title="Samples" Level="1" Description="Install 32-bit and 64-bit samples. NOTE: Useful for testing the installation.">
         <ComponentRef Id="X86Samples" />
         <ComponentRef Id="X64Samples" />
         <ComponentRef Id="SampleCmds" />
-      </Feature>
-      <Feature Id="DocumentationFeature" Title="Documentation" Level="1" Description="Install the documentation for OpenCover. NOTE: If you are new to OpenCover you may find this information useful.">
-        <ComponentRef Id="Documentation" />
-        <ComponentRef Id="DocumentationShortcut"/>
-      </Feature>
-      <Feature Id="SymbolsFeature" Title="Debug Symbols" Level="100" Description="The Debug Symbols, useful if you are having issues and need to report a bug, with a stack trace, but not necessary for normal operation.">
-        <ComponentRef Id="MainProductSymbols" />
-        <ComponentRef Id="X64ProfilerSymbols" />
-        <ComponentRef Id="X86ProfilerSymbols" />
       </Feature>
     </Feature>
 

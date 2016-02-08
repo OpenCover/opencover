@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -140,6 +142,50 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual("XXX", parser.TargetDir);
+        }
+
+        [Test]
+        public void HandlesTheSearchDirsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-searchdirs:XXX;YYY", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.SearchDirs.Length);
+            Assert.AreEqual("XXX", parser.SearchDirs[0]);
+            Assert.AreEqual("YYY", parser.SearchDirs[1]);
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValue()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(2, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[1]));
+        }
+
+        [Test]
+        public void HandlesTheExcludeDirsArgumentWithSuppliedValueRemovesDuplicates()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.AreEqual(1, parser.ExcludeDirs.Length);
+            Assert.IsTrue(Directory.Exists(parser.ExcludeDirs[0]));
         }
 
         [Test]
@@ -718,6 +764,7 @@ namespace OpenCover.Test.Framework
             Assert.That(parser.ServiceStartTimeout, Is.EqualTo(new TimeSpan(0, expectedMinutes, expectedSeconds)));
         }
 
+        [Test]
         [TestCase("10")]
         [TestCase("NaNs")]
         [TestCase("indifferenttext")]
@@ -732,6 +779,153 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
             Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
+        }
+
+        [Test]
+        [TestCase(10000, 10000)]
+        [TestCase(30000, 30000)]
+        [TestCase(60000, 60000)]
+        [TestCase(100, 10000)]
+        [TestCase(70000, 60000)]
+        public void HandlesCommunicationTimeout(int suppliedMillisconds, int expectedMiliseconds)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { string.Format("-communicationtimeout:{0}", suppliedMillisconds), RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.That(parser.CommunicationTimeout, Is.EqualTo(expectedMiliseconds));
+
+        }
+
+        [Test]
+        [TestCase("NaNs")]
+        [TestCase("indifferenttext")]
+        public void InvalidServiceCommunicationTimeoutThrowsException(string invalidTimeout)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-communicationtimeout:" + invalidTimeout, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("communication timeout"));
+            Assert.That(thrownException.Message, Contains.Substring(invalidTimeout));
+        }
+
+        [Test]
+        [TestCase("-<nunit-console*>[*]* -<pdb*>[*]* -<nunit-agent*>[*]*", 
+                  "-<nunit-console*>[*]*", 
+                  "-<pdb*>[*]*", 
+                  "-<nunit-agent*>[*]*")]
+        [TestCase("-[System*]* -[Xyz*]* -[Zap*]*", 
+                  "-[System*]*", 
+                  "-[Xyz*]*", 
+                  "-[Zap*]*")]
+        [TestCase("-<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase(" -<nunit-console*>[System*]* -[Xyz*]* -<nunit-agent*>[Zap*]*", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("  -<nunit-console*>[System*]*  -[Xyz*]* -<nunit-agent*>[Zap*]*\"", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+
+        // accepts filters not separated by single space
+        [TestCase("-<nunit-console*>[System*]*-[Xyz*]*-<nunit-agent*>[Zap*]*\"", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<nunit-console*>[System*]*-[Xyz*]*    -<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<nunit-console*>[System*]*", 
+                  "-[Xyz*]*", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<>[]*+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<>[]*", 
+                  "+[Xyz*]", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   -<>[]+[Xyz*]-<nunit-agent*>[Zap*]*  \"   ", 
+                  "-<>[]", 
+                  "+[Xyz*]", 
+                  "-<nunit-agent*>[Zap*]*")]
+        [TestCase("   \"-<>[]+[]abc*\"-<nunit-agent*>[]\"   ", 
+                  "-<>[]", 
+                  "+[]abc*", 
+                  "-<nunit-agent*>[]")]
+        [TestCase("+<>[]+[]abc*\"-<nunit-agent*>[]", 
+                  "+<>[]", 
+                  "+[]abc*", 
+                  "-<nunit-agent*>[]")]
+
+        // accepts any character sequence between <> or []  (for regex expression)  
+        [TestCase("+<()>[()]+[()]abc*\"-<nunit-agent*>[]",                           
+                  "+<()>[()]", 
+                  "+[()]abc*", 
+                  "-<nunit-agent*>[]")]
+        [TestCase(@"  +<([\[{}-<(>)>mx<)>[[[[+[]]+[]abc*""-<(nunit-agent.*)>[([])]", 
+                  @"+<([\[{}-<(>)>mx<)>[[[[+[]]", 
+                  "+[]abc*", 
+                  "-<(nunit-agent.*)>[([])]")]
+        [TestCase(@"  ""+<([\[{ }]""  -<(>)>mx<)>[[[[+[]abc.*""+[]abc*""-<(nunit-agent.*)>[([])]", 
+                  @"+<([\[{ }]""  -<(>)>mx<)>[[[[+[]abc.*", 
+                  "+[]abc*", 
+                  "-<(nunit-agent.*)>[([])]")]
+
+        public void FilterParsing_NonGreedy(string filterArg, string filter0, string filter1, string filter2)
+        {
+            var parser = new CommandLineParser(GetFilter(filterArg, false).ToArray()).Do(_ => _.ExtractAndValidateArguments());
+
+            // assert
+            Assert.AreEqual(3, parser.Filters.Count, filterArg);
+			Assert.AreEqual (filter0, parser.Filters[0], parser.Filters[0]);
+			Assert.AreEqual (filter1, parser.Filters[1], parser.Filters[1]);
+			Assert.AreEqual (filter2, parser.Filters[2], parser.Filters[2]);
+        }
+
+        static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
+        {
+            yield return "-target:t";
+            yield return string.Format("-filter:\"{0}\"", filterArg);
+            if (!defaultFilters) yield return "-nodefaultfilters";
+        }
+
+        [Test]
+        [TestCase("wibble")]
+        [TestCase("argh")]
+        public void InvalidSafeModeThrowsException(string invalidSafeMode)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + invalidSafeMode, RequiredArgs });
+
+            // act
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.That(thrownException.Message, Contains.Substring("safemode"));
+        }
+
+        [Test]
+        [TestCase("no", false)]
+        [TestCase("yes", true)]
+        [TestCase("on", true)]
+        [TestCase("off", false)]
+        public void ValidSafeModeIsParsedCorrectly(string validSafeMode, bool expectedValue)
+        {
+            // arrange
+            var parser = new CommandLineParser(new[] { "-safemode:" + validSafeMode, RequiredArgs });
+
+            // act
+            Assert.DoesNotThrow(parser.ExtractAndValidateArguments);
+
+            // assert
+            Assert.AreEqual(expectedValue, parser.SafeMode);
         }
     }
 }

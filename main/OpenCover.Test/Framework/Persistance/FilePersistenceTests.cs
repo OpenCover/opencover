@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -62,7 +61,9 @@ namespace OpenCover.Test.Framework.Persistance
             var moduleHash = Guid.NewGuid().ToString();
             var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
             persistence.Initialise(_filePath, false);
-            var point = new SequencePoint();
+            var point = new SequencePoint()
+                // BranchPoints within SequencePoint shorther than 3 characters will be removed
+                {StartLine = 1, EndLine = 1, StartColumn = 1, EndColumn = 4};
             var branchPoint = new BranchPoint{Path = 0, OffsetPoints = new List<int>()};
             var branchPoint2 = new BranchPoint { Path = 1, OffsetPoints = new List<int>{1,2}};
             var file = new OpenCover.Framework.Model.File();
@@ -124,6 +125,43 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Summary.NumSequencePoints);
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Classes[0].Summary.NumSequencePoints);
             Assert.AreEqual(0, persistence2.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.NumSequencePoints);
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionSuccess_ReturnsTrue()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsTrue(persistence.HandleFileAccess(() => { }, "file_name"));
+        }
+
+        [Test]
+        public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsException()
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            var expected = new Exception();
+            var actual = Assert.Throws<Exception>(() => persistence.HandleFileAccess(() => { throw expected; }, "file_name"));
+
+            // assert
+            Assert.AreSame(expected, actual);
+        }
+
+        [Test]
+        [TestCase(typeof(DirectoryNotFoundException))]
+        [TestCase(typeof(IOException))]
+        [TestCase(typeof(UnauthorizedAccessException))]
+        public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsFalse(Type exception)
+        {
+            // arrange
+            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
+
+            // act
+            Assert.IsFalse(persistence.HandleFileAccess(() => { throw (Exception) Activator.CreateInstance(exception); }, "file_name"));
         }
     }
 }

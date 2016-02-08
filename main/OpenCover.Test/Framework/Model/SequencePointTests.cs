@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 using OpenCover.Framework.Model;
 
 namespace OpenCover.Test.Framework.Model
@@ -87,6 +88,14 @@ namespace OpenCover.Test.Framework.Model
             Assert.AreEqual(int.MaxValue, list.First(x => x.UniqueSequencePoint == 1).TrackedMethodRefs.First(x => x.UniqueId == 1).VisitCount);
             Assert.IsTrue(InstrumentationPoint.AddVisitCount(1, 1, 200));
             Assert.AreEqual(int.MaxValue, list.First(x => x.UniqueSequencePoint == 1).TrackedMethodRefs.First(x => x.UniqueId == 1).VisitCount);
+        }
+
+        [Test]
+        public void CanDetermineSingleCharSequencePoint()
+        {
+            Assert.IsTrue(new SequencePoint { FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 2 }.IsSingleCharSequencePoint);
+            Assert.IsFalse(new SequencePoint { FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 1, EndColumn = 3 }.IsSingleCharSequencePoint);
+            Assert.IsFalse(new SequencePoint { FileId = 1, StartLine = 1, StartColumn = 1, EndLine = 2, EndColumn = 2 }.IsSingleCharSequencePoint);
         }
     }
 }

@@ -75,9 +75,14 @@ namespace OpenCover.Framework
             _container = builder.Build();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            if (_container == null) return;
+            if (_container == null) 
+                return;
             _container.Dispose();
             _container = null;
         }

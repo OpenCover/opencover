@@ -1,16 +1,31 @@
 version: 4.6.{build}
-os: Unstable
+skip_tags: true
+os: Visual Studio 2015
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
-    secure: BBBH4QgZXCnE6nFrux34cLWWO5GXrnMU9OZJGJdNePovxJZFzBcm3FsaESNA6zWj
+    secure: A5Y5pKzc8Xf2qOCrFqYP2BWQYKif/BtlesWT/uojWfOFJj5jcSOaHP+DfwVYid09
+  COVERITY_TOKEN:
+    secure: q4yqC+X51LwoyuBcg0qvks1117rt1HwqsDErKsbLpsQ=
+  COVERITY_EMAIL:
+    secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
+  SONARQUBE_USER:
+    secure: +9YfPnwJzGsvdyto85pHwg==
+  SONARQUBE_PASSWORD:
+    secure: Ptvd9aDNKfVhXvPpq6o1Fw==
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
 nuget:
   disable_publish_on_pr: true
 build_script:
-- build create-release
+- ps: >-
+    if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
+      & .\build.bat create-coverity-release
+    } else {
+      & .\build.bat create-release
+    }
+    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
@@ -60,4 +75,9 @@ notifications:
   on_build_failure: true
   on_build_status_changed: true
 on_success:
-- build dogfood-release
+- ps: >-
+    if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
+      & .\build.bat sonarqube-build
+    } else {
+      & .\build.bat dogfood-release
+    }

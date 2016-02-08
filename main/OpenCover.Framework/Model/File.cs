@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Xml.Serialization;
 
@@ -17,6 +16,9 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public class FileRef
     {
+        /// <summary>
+        /// The uniqueid of a file in a coverage session
+        /// </summary>
         [XmlAttribute("uid")]
         public UInt32 UniqueId { get; set; }
     }

@@ -31,7 +31,8 @@ namespace OpenCover.Framework.Strategy
             public TrackedMethod[] GetTrackedMethods(string assembly)
             {
                 var definition = AssemblyDefinition.ReadAssembly(assembly);
-                if (definition == null) return null;
+                if (definition == null) 
+                    return new TrackedMethod[0];
                 
                 var trackedmethods = new List<TrackedMethod>();
                 foreach (var trackedMethodStrategy in _strategies)
@@ -66,6 +67,12 @@ namespace OpenCover.Framework.Strategy
         }
 
         private int _methodId;
+
+        /// <summary>
+        /// Get the tracked methods for the target assembly
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
         public TrackedMethod[] GetTrackedMethods(string assembly)
         {
             var methods =  _proxy.GetTrackedMethods(assembly);
@@ -76,10 +83,15 @@ namespace OpenCover.Framework.Strategy
             return methods;
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
             _proxy = null;
-            if (_domain == null) return;
+            if (_domain == null) 
+                return;
             try
             {
                 AppDomain.Unload(_domain);

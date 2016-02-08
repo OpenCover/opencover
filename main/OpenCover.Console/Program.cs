@@ -12,18 +12,24 @@ using System.Linq;
 using System.Security.Authentication;
 using System.Security.Principal;
 using System.ServiceProcess;
+using CrashReporterDotNET.com.drdump;
+using OpenCover.Console.CrashReporter;
 using OpenCover.Framework;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Persistance;
 using OpenCover.Framework.Utility;
 using log4net;
 using System.Management;
+using OpenCover.Framework.Model;
+using File = System.IO.File;
 
 namespace OpenCover.Console
 {
+
+
     class Program
     {
-        private static readonly ILog Logger = LogManager.GetLogger(typeof(Bootstrapper));
+        private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
 
         /// <summary>
         /// This is the initial console harness - it may become the full thing
@@ -32,13 +38,17 @@ namespace OpenCover.Console
         /// <returns></returns>
         static int Main(string[] args)
         {
-            int returnCode;
+            var returnCode = 0;
             var returnCodeOffset = 0;
-            
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+
             try
             {
                 CommandLineParser parser;
-                if (!ParseCommandLine(args, out parser)) return parser.ReturnCodeOffset + 1;
+                if (!ParseCommandLine(args, out parser)) 
+                    return parser.ReturnCodeOffset + 1;
+
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
 
@@ -47,30 +57,84 @@ namespace OpenCover.Console
                 var perfCounter = CreatePerformanceCounter(parser);
 
                 string outputFile;
-                if (!GetFullOutputFile(parser, out outputFile)) return returnCodeOffset + 1;
+                if (!GetFullOutputFile(parser, out outputFile)) 
+                    return returnCodeOffset + 1;
 
                 using (var container = new Bootstrapper(Logger))
                 {
                     var persistance = new FilePersistance(parser, Logger);
                     container.Initialise(filter, parser, persistance, perfCounter);
-                    persistance.Initialise(outputFile, parser.MergeExistingOutputFile);
+                    if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
+                        return returnCodeOffset + 1;
+
                     returnCode = RunWithContainer(parser, container, persistance);
                 }
 
                 perfCounter.ResetCounters();
             }
+            catch (ExitApplicationWithoutReportingException eex)
+            {
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
+                returnCode = returnCodeOffset + 1;
+            }
             catch (Exception ex)
             {
-                if (Logger.IsFatalEnabled)
-                {
-                    Logger.FatalFormat("An exception occured: {0}", ex.Message);
-                    Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                }
+                Logger.Fatal("At: Program.Main");
+                Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
+                Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                Logger.FatalFormat("A report has been sent to the OpenCover development team.");
+                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
+                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
+
+                ReportCrash(ex);
 
                 returnCode = returnCodeOffset + 1;
             }
 
             return returnCode;
+        }
+
+        private static void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs unhandledExceptionEventArgs)
+        {
+            var ex = (Exception)unhandledExceptionEventArgs.ExceptionObject;
+            //if (!(ex is ExitApplicationWithoutReportingException))
+            {
+                Logger.Fatal("At: CurrentDomainOnUnhandledException");
+                Logger.FatalFormat("An {0} occured: {1}", ex.GetType(), ex.Message);
+                Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                Logger.FatalFormat("A report has been sent to the OpenCover development team...");
+
+                ReportCrash((Exception)unhandledExceptionEventArgs.ExceptionObject);
+            }
+
+            Environment.Exit(0);
+        }
+
+        private static void ReportCrash(Exception exception)
+        {
+            try
+            {
+                using (var uploader = new HttpsCrashReporterReportUploader()) {
+
+                    var state = new SendRequestState
+                    {
+                        AnonymousData = new AnonymousData
+                        {
+                            ApplicationGuid = new Guid("e6542474-21df-42f4-826b-15a12764da6f"),
+                            Exception = exception,
+                            ToEmail = ""
+                        }
+                    };
+    
+                    uploader.SendAnonymousReport(SendRequestState.GetClientLib(), state.GetApplication(), state.GetExceptionDescription(false));
+                }
+            }
+            catch (Exception)
+            {
+                System.Console.WriteLine("Failed to send crash report :(");
+            }
+
         }
 
         private static int RunWithContainer(CommandLineParser parser, Bootstrapper container, IPersistance persistance)
@@ -106,12 +170,12 @@ namespace OpenCover.Console
                     }
                 }, servicePrincipal);
 
-                DisplayResults(persistance, parser, Logger);
+                DisplayResults(persistance.CoverageSession, parser, Logger);
             }
             catch (Exception ex)
             {
                 Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
-                throw;
+				throw;
             }
             finally
             {
@@ -132,19 +196,18 @@ namespace OpenCover.Console
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
             var searcher = new ManagementObjectSearcher(wmiQuery);
             ManagementObjectCollection retObjectCollection = searcher.Get();
-            foreach (var o in retObjectCollection)
+            foreach (var retObject in retObjectCollection)
             {
-                var retObject = (ManagementObject) o;
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
                 {
-                    var proc = (uint)retObject["ProcessId"];
+                    var proc = (int)retObject["ProcessId"];
 
                     // Terminate, the restart is done automatically
                     logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
                     try
                     {
-                        Process.GetProcessById((int)proc).Kill();
+                        Process.GetProcessById(proc).Kill();
                         logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
                     }
                     catch (Exception e)
@@ -165,7 +228,7 @@ namespace OpenCover.Console
             while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
                 retObjectCollection = searcher.Get();
-                foreach (ManagementObject retObject in retObjectCollection)
+                foreach (var retObject in retObjectCollection)
                 {
                     var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
                     if (cmdLine.EndsWith("-k iissvcs"))
@@ -260,7 +323,7 @@ namespace OpenCover.Console
                 // Stopping w3svc host
                 if (parser.Target.ToLower().Equals("w3svc"))
                 {
-                    logger.InfoFormat("Stopping svchost to clean up environment variables for w3svc", parser.Target);
+                    logger.InfoFormat("Stopping svchost to clean up environment variables for {0}", parser.Target);
                     if (ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
                     {
                         logger.InfoFormat("Please note that the 'w3svc' service may automatically start");
@@ -304,20 +367,26 @@ namespace OpenCover.Console
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = parser.TargetDir;
 
-            var process = Process.Start(startInfo);
-            process.WaitForExit();
+            try
+            {
+                var process = Process.Start(startInfo);
+                process.WaitForExit();
 
-            if (parser.ReturnTargetCode)
-                returnCode = process.ExitCode;
-            return returnCode;
+                if (parser.ReturnTargetCode)
+                    returnCode = process.ExitCode;
+                return returnCode;
+            }
+            catch (Exception ex)
+            {
+                Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
+            }
+            return 1;
         }
 
-        private static void DisplayResults(IPersistance persistance, ICommandLine parser, ILog logger)
+        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
         {
-            if (!logger.IsInfoEnabled) return;
- 
-            var coverageSession = persistance.CoverageSession;
-
+            if (!logger.IsInfoEnabled) 
+                return;
 
             var altTotalClasses = 0;
             var altVisitedClasses = 0;
@@ -335,15 +404,12 @@ namespace OpenCover.Console
                     from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
                     select @class)
                 {
-                    if (@class.Methods == null) continue;
+                    if (@class.Methods == null) 
+                        continue;
 
-                    if ((@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
-                    {
-                    }
-                    else if ((@class.Methods.Any(x => x.FileRef != null)))
-                    {
-                        unvisitedClasses.Add(@class.FullName);
-                    }
+                    if (!(@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
+                        if ((@class.Methods.Any(x => x.FileRef != null)))
+                            unvisitedClasses.Add(@class.FullName);
 
                     if (@class.Methods.Any(x => x.Visited))
                     {
@@ -357,13 +423,9 @@ namespace OpenCover.Console
 
                     foreach (var method in @class.Methods.Where(x=> !x.ShouldSerializeSkippedDueTo()))
                     {
-                        if ((method.SequencePoints.Any(x => x.VisitCount > 0)))
-                        {
-                        }
-                        else if (method.FileRef != null)
-                        {
-                            unvisitedMethods.Add(string.Format("{0}", method.Name));
-                        }
+                        if (!(method.SequencePoints.Any(x => x.VisitCount > 0)))
+                            if (method.FileRef != null)
+                                unvisitedMethods.Add(string.Format("{0}", method.FullName));
 
                         altTotalMethods += 1;
                         if (method.Visited)
@@ -389,9 +451,9 @@ namespace OpenCover.Console
                 logger.InfoFormat(
                     "==== Alternative Results (includes all methods including those without corresponding source) ====");
                 logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
-                                  altTotalClasses, Math.Round(altVisitedClasses * 100.0 / altTotalClasses, 2));
+                                  altTotalClasses, altTotalClasses == 0 ? 0 : Math.Round(altVisitedClasses * 100.0 / altTotalClasses, 2));
                 logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
-                                  altTotalMethods, Math.Round(altVisitedMethods * 100.0 / altTotalMethods, 2));
+                                  altTotalMethods, altTotalMethods == 0 ? 0 : Math.Round(altVisitedMethods * 100.0 / altTotalMethods, 2));
 
                 if (parser.ShowUnvisited)
                 {
@@ -422,14 +484,24 @@ namespace OpenCover.Console
 
         private static bool GetFullOutputFile(CommandLineParser parser, out string outputFile)
         {
-            outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
-            if (!Directory.Exists(Path.GetDirectoryName(outputFile)))
+            try
+            {
+                outputFile = Path.Combine(Environment.CurrentDirectory, Environment.ExpandEnvironmentVariables(parser.OutputFile));
+            }
+            catch (Exception ex)
+            {
+                outputFile = null;
+                System.Console.WriteLine("Invalid `outputFile` supplied: {0}", ex.Message);
+                return false;
+            }
+            if (!Directory.Exists(Path.GetDirectoryName(outputFile) ?? string.Empty))
             {
                 System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
                 return false;
             }
             return true;
         }
+
 
         private static IFilter BuildFilter(CommandLineParser parser)
         {
@@ -461,16 +533,10 @@ namespace OpenCover.Console
                 {
                     return new PerfCounters();
                 }
-                else
-                {
-                    throw new InvalidCredentialException(
-                        "You must be running as an Administrator to enable performance counters.");
-                }
+                Logger.Error("You must be running as an Administrator to enable performance counters.");
+                throw new ExitApplicationWithoutReportingException();
             }
-            else
-            {
-                return new NullPerfCounter();
-            }
+            return new NullPerfCounter();
         }
 
 
@@ -525,6 +591,7 @@ namespace OpenCover.Console
                         using (var service = new ServiceController(parser.Target))
                         {
                             var name = service.DisplayName;
+                            System.Console.WriteLine("Service '{0}' found", name);
                         }
                     }
                     catch (Exception)
@@ -541,7 +608,9 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
+                System.Console.WriteLine("");
                 System.Console.WriteLine("Incorrect Arguments: {0}", ex.Message);
+                System.Console.WriteLine("");
                 System.Console.WriteLine(parser.Usage());
                 return false;
             }

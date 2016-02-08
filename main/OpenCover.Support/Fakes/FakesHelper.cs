@@ -4,7 +4,7 @@ using Microsoft.Win32;
 
 namespace OpenCover.Support.Fakes
 {
-    public class FakesHelper
+    public static class FakesHelper
     {
         private const string CorEnableProfiling = "COR_ENABLE_PROFILING";
         private const string CorProfiler = "COR_PROFILER";
@@ -15,13 +15,7 @@ namespace OpenCover.Support.Fakes
         public static void LoadOpenCoverProfilerInstead(object data)
         {
             var dict = data as IDictionary<string, string>;
-            if (dict == null) 
-                return;
-
-            if (!dict.ContainsKey(CorEnableProfiling) || dict[CorEnableProfiling] != "1") 
-                return;
-
-            if (!dict.ContainsKey(CorProfiler) || dict[CorProfiler] == OpenCoverProfilerGuid)
+            if (dict == null || IsAnotherProfilerAttached(dict)) 
                 return;
 
             var currentProfiler = dict[CorProfiler];
@@ -34,6 +28,17 @@ namespace OpenCover.Support.Fakes
 
             dict[ChainExternalProfiler] = currentProfiler;
             dict[CorProfiler] = OpenCoverProfilerGuid;
+        }
+
+        private static bool IsAnotherProfilerAttached(IDictionary<string, string> dict)
+        {
+            if (!dict.ContainsKey(CorEnableProfiling) || dict[CorEnableProfiling] != "1")
+                return true;
+
+            if (!dict.ContainsKey(CorProfiler) || dict[CorProfiler] == OpenCoverProfilerGuid)
+                return true;
+
+            return false;
         }
 
         public static void PretendWeLoadedFakesProfiler(object data)

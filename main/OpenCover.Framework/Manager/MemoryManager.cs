@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
+using log4net;
 
 namespace OpenCover.Framework.Manager
 {
@@ -18,15 +19,23 @@ namespace OpenCover.Framework.Manager
         private string _namespace;
         private string _key;
         private readonly object _lockObject = new object();
+        private uint _bufferId = 1;
 
-        private readonly IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> _blocks = new List<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>>();
+        private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
+
+        private readonly IList<ManagedBufferBlock> _blocks = new List<ManagedBufferBlock>();
 
         /// <summary>
         /// 
         /// </summary>
         public class ManagedBlock
         {
+            /// <summary>
+            /// </summary>
             protected string Namespace;
+
+            /// <summary>
+            /// </summary>
             protected string Key;
 
             /// <summary>
@@ -38,7 +47,6 @@ namespace OpenCover.Framework.Manager
             protected string MakeName(string name, int id)
             {
                 var newName = string.Format("{0}{1}{2}{3}", Namespace, name, Key, id);
-                //Console.WriteLine(newName);
                 return newName;
             }
         }
@@ -53,6 +61,9 @@ namespace OpenCover.Framework.Manager
             private readonly MemoryMappedFile _mmfResults;
             public MemoryMappedViewStream StreamAccessorResults { get; private set; }
             public int BufferSize { get; private set; }
+            public byte[] Buffer { get; private set; }
+
+            private readonly Semaphore _semaphore; 
 
             /// <summary>
             /// Gets an ACL for unit test purposes
@@ -69,57 +80,77 @@ namespace OpenCover.Framework.Manager
                 Namespace = @namespace;
                 Key = key;
 
-                EventWaitHandleSecurity open = null;
-                MemoryMappedFileSecurity transparent = null;
+                EventWaitHandleSecurity handleSecurity = null;
+                MemoryMappedFileSecurity memSecurity = null;
+                SemaphoreSecurity semaphoreSecurity = null;
 
-                var service = servicePrincpal.FirstOrDefault();
+                var serviceIdentity = servicePrincpal.FirstOrDefault();
                 var currentIdentity = WindowsIdentity.GetCurrent();
-                if (service != null && currentIdentity != null)
+                if (serviceIdentity != null && currentIdentity != null)
                 {
-                    open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    handleSecurity = new EventWaitHandleSecurity();
+                    handleSecurity.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
                     // The event handles need more than just EventWaitHandleRights.Modify | EventWaitHandleRights.Synchronize to work
-                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    handleSecurity.AddAccessRule(new EventWaitHandleAccessRule(serviceIdentity, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
-                    transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                    memSecurity = new MemoryMappedFileSecurity();
+                    memSecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    memSecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(serviceIdentity, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+
+                    semaphoreSecurity = new SemaphoreSecurity();
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(currentIdentity.Name, SemaphoreRights.FullControl, AccessControlType.Allow));
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(serviceIdentity, SemaphoreRights.FullControl, AccessControlType.Allow));
                 }
 
                 bool createdNew;
 
                 ProfilerHasResults = new EventWaitHandle(
                     false,
-                    EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_SendResults_Event_", bufferId),
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Results_SendResults_Event_", bufferId),
                     out createdNew,
-                    open);
+                    handleSecurity);
 
                 ResultsHaveBeenReceived = new EventWaitHandle(
                     false, 
-                    EventResetMode.ManualReset, 
-                    MakeName(@"\OpenCover_Profiler_Communication_ReceiveResults_Event_", bufferId),
+                    EventResetMode.ManualReset,
+                    MakeName(@"\OpenCover_Profiler_Results_ReceiveResults_Event_", bufferId),
                     out createdNew,
-                    open);
+                    handleSecurity);
+
+                _semaphore = new Semaphore(0, 2, 
+                    MakeName(@"\OpenCover_Profiler_Results_Semaphore_", bufferId), 
+                    out createdNew,
+                    semaphoreSecurity);
 
                 _mmfResults = MemoryMappedFile.CreateNew(
                     MakeName(@"\OpenCover_Profiler_Results_MemoryMapFile_", bufferId),
                     bufferSize,
                     MemoryMappedFileAccess.ReadWrite,
                     MemoryMappedFileOptions.None,
-                    transparent,
+                    memSecurity,
                     HandleInheritability.Inheritable);
 
+                Buffer = new byte[bufferSize];
                 StreamAccessorResults = _mmfResults.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
                 StreamAccessorResults.Write(BitConverter.GetBytes(0), 0, 4);
+                StreamAccessorResults.Flush();
+
                 BufferSize = bufferSize;
             }
 
             public void Dispose()
             {
-                StreamAccessorResults.Dispose();
-                _mmfResults.Dispose();
+                _semaphore.Do(s =>
+                {
+                    s.Release(1);
+                    s.Dispose();
+                });
+                ProfilerHasResults.Do(e => e.Dispose());
+                ResultsHaveBeenReceived.Do(e => e.Dispose());
+                StreamAccessorResults.Do(r => r.Dispose());
+                _mmfResults.Do(r => r.Dispose());
             }
         }
 
@@ -136,6 +167,7 @@ namespace OpenCover.Framework.Manager
             public byte[] DataCommunication { get; private set; }
             public GCHandle PinnedDataCommunication { get; private set; }
 
+            private readonly Semaphore _semaphore; 
             /// <summary>
             /// Gets an ACL for unit test purposes
             /// </summary>
@@ -152,31 +184,26 @@ namespace OpenCover.Framework.Manager
                 Namespace = @namespace;
                 Key = key;
 
-                EventWaitHandleSecurity open = null;
-                MemoryMappedFileSecurity transparent = null;
+                EventWaitHandleSecurity eventSecurity = null;
+                MemoryMappedFileSecurity memorySecurity = null;
 
-                var service = servicePrincpal.FirstOrDefault();
+                var serviceIdentity = servicePrincpal.FirstOrDefault();
                 var currentIdentity = WindowsIdentity.GetCurrent();
-                if (service != null && currentIdentity != null)
+                SemaphoreSecurity semaphoreSecurity = null;
+                if (serviceIdentity != null && currentIdentity != null)
                 {
-                    open = new EventWaitHandleSecurity();
-                    open.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
-                    open.AddAccessRule(new EventWaitHandleAccessRule(service, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    eventSecurity = new EventWaitHandleSecurity();
+                    eventSecurity.AddAccessRule(new EventWaitHandleAccessRule(currentIdentity.Name, EventWaitHandleRights.FullControl, AccessControlType.Allow));
+                    eventSecurity.AddAccessRule(new EventWaitHandleAccessRule(serviceIdentity, EventWaitHandleRights.FullControl, AccessControlType.Allow));
 
-                    transparent = new MemoryMappedFileSecurity();
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
-                    transparent.AddAccessRule(new AccessRule<MemoryMappedFileRights>(service, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+                    memorySecurity = new MemoryMappedFileSecurity();
+                    memorySecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(currentIdentity.Name, MemoryMappedFileRights.FullControl, AccessControlType.Allow));
+                    memorySecurity.AddAccessRule(new AccessRule<MemoryMappedFileRights>(serviceIdentity, MemoryMappedFileRights.ReadWrite, AccessControlType.Allow));
+
+                    semaphoreSecurity = new SemaphoreSecurity();
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(currentIdentity.Name, SemaphoreRights.FullControl, AccessControlType.Allow));
+                    semaphoreSecurity.AddAccessRule(new SemaphoreAccessRule(serviceIdentity, SemaphoreRights.FullControl, AccessControlType.Allow));
                 }
-
-                _memoryMappedFile = MemoryMappedFile.CreateNew(
-                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId),
-                    bufferSize,
-                    MemoryMappedFileAccess.ReadWrite,
-                    MemoryMappedFileOptions.None,
-                    transparent,
-                    HandleInheritability.Inheritable);
-
-                StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
 
                 bool createdNew;
 
@@ -185,21 +212,36 @@ namespace OpenCover.Framework.Manager
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_SendData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
 
                 InformationReadyForProfiler = new EventWaitHandle(
                     false, 
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_ReceiveData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
 
                 InformationReadByProfiler = new EventWaitHandle(
                     false, 
                     EventResetMode.ManualReset,
                     MakeName(@"\OpenCover_Profiler_Communication_ChunkData_Event_", bufferId),
                     out createdNew,
-                    open);
+                    eventSecurity);
+
+                _semaphore = new Semaphore(0, 2,
+                    MakeName(@"\OpenCover_Profiler_Communication_Semaphore_", bufferId),
+                    out createdNew,
+                    semaphoreSecurity);
+
+                _memoryMappedFile = MemoryMappedFile.CreateNew(
+                    MakeName(@"\OpenCover_Profiler_Communication_MemoryMapFile_", bufferId),
+                    bufferSize,
+                    MemoryMappedFileAccess.ReadWrite,
+                    MemoryMappedFileOptions.None,
+                    memorySecurity,
+                    HandleInheritability.Inheritable);
+
+                StreamAccessorComms = _memoryMappedFile.CreateViewStream(0, bufferSize, MemoryMappedFileAccess.ReadWrite);
 
                 DataCommunication = new byte[bufferSize];
                 PinnedDataCommunication = GCHandle.Alloc(DataCommunication, GCHandleType.Pinned);
@@ -207,8 +249,16 @@ namespace OpenCover.Framework.Manager
 
             public void Dispose()
             {
-                StreamAccessorComms.Dispose();
-                _memoryMappedFile.Dispose();
+                _semaphore.Do(s =>
+                {
+                    s.Release(1);
+                    s.Dispose();
+                });
+                ProfilerRequestsInformation.Do(e => e.Dispose());
+                InformationReadyForProfiler.Do(e => e.Dispose());
+                InformationReadByProfiler.Do(e => e.Dispose());
+                StreamAccessorComms.Do(r => r.Dispose());
+                _memoryMappedFile.Do(f => f.Dispose());
                 PinnedDataCommunication.Free();
             }
         }
@@ -225,11 +275,15 @@ namespace OpenCover.Framework.Manager
         /// <param name="servicePrincipal"></param>
         public void Initialise(string @namespace, string key, IEnumerable<string> servicePrincipal)
         {
-            if (_isIntialised) return;
-            _namespace = @namespace;
-            _key = key;
-            _servicePrincipal = servicePrincipal.ToArray();
-            _isIntialised = true;
+            lock (_lockObject)
+            {
+                if (_isIntialised) 
+                    return;
+                _namespace = @namespace;
+                _key = key;
+                _servicePrincipal = servicePrincipal.ToArray();
+                _isIntialised = true;
+            }
         }
 
         /// <summary>
@@ -238,37 +292,129 @@ namespace OpenCover.Framework.Manager
         /// <param name="bufferSize"></param>
         /// <param name="bufferId"></param>
         /// <returns></returns>
-        public Tuple<IManagedCommunicationBlock, IManagedMemoryBlock> AllocateMemoryBuffer(int bufferSize, uint bufferId)
+        public ManagedBufferBlock AllocateMemoryBuffer(int bufferSize, out uint bufferId)
         {
-            if (!_isIntialised) return null;
+            bufferId = 0;
 
             lock (_lockObject)
             {
-                var tuple = new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(
-                    new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
-                    new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal));
+                if (!_isIntialised) 
+                    return null;
+                bufferId = _bufferId++;
+                var tuple = new ManagedBufferBlock
+                {
+                    CommunicationBlock =
+                        new ManagedCommunicationBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
+                    MemoryBlock =
+                        new ManagedMemoryBlock(_namespace, _key, bufferSize, (int)bufferId, _servicePrincipal),
+                    BufferId = bufferId
+                };
                 _blocks.Add(tuple);
                 return tuple;
             }
         }
 
+
         /// <summary>
-        /// get a pair of communication+memory blocks
+        /// Get the list of all allocated blocks
         /// </summary>
-        public IList<Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>> GetBlocks
+        public IReadOnlyList<ManagedBufferBlock> GetBlocks
         {
-            get { return _blocks; }
+            get
+            {
+                lock (_lockObject)
+                {
+                    return _blocks.ToArray();
+                }
+            }
         }
 
+        /// <summary>
+        /// deactivate a memory block
+        /// </summary>
+        /// <param name="bufferId"></param>
+        public void DeactivateMemoryBuffer(uint bufferId)
+        {
+            lock (_lockObject)
+            {
+                var block = _blocks.FirstOrDefault(b => b.BufferId == bufferId);
+                if (block == null) 
+                    return;
+                block.Active = false;
+            }
+        }
+
+        /// <summary>
+        /// remove deactivated blocks
+        /// </summary>
+        public void RemoveDeactivatedBlock(ManagedBufferBlock block)
+        {
+            lock (_lockObject)
+            {
+                if (block.Active) 
+                    return;
+                block.CommunicationBlock.Do(x => x.Dispose());
+                block.MemoryBlock.Do(x => x.Dispose());
+                _blocks.RemoveAt(_blocks.IndexOf(block));
+            }
+        }
+
+        public void WaitForBlocksToClose(int bufferWaitCount)
+        {
+            // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
+            var i = 0;
+            var count = -1;
+            while (i < bufferWaitCount && count != 0)
+            {
+                lock (_lockObject)
+                {
+                    count = _blocks.Count(b => b.Active);
+                }
+                if (count > 0)
+                {
+                    DebugLogger.InfoFormat("Waiting for {0} processes to close", count);
+                    Thread.Sleep(500);
+                }
+                i++;
+            }
+        }
+
+        public void FetchRemainingBufferData(Action<byte[]> processBuffer)
+        {
+            lock (_lockObject)
+            {
+                // grab anything left in the main buffers
+                var activeBlocks = _blocks.Where(b => b.Active).ToArray();
+                foreach (var block in activeBlocks)
+                {
+                    var memoryBlock = block.MemoryBlock;
+                    var data = new byte[memoryBlock.BufferSize];
+                    memoryBlock.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+                    memoryBlock.StreamAccessorResults.Read(data, 0, memoryBlock.BufferSize);
+                    
+                    // process the extracted data
+                    processBuffer(data);
+
+                    // now clean them down
+                    block.CommunicationBlock.Do(x => x.Dispose());
+                    block.MemoryBlock.Do(x => x.Dispose());
+                    _blocks.RemoveAt(_blocks.IndexOf(block));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            //Console.WriteLine("Disposing...");
             lock (_lockObject)
             {
                 foreach(var block in _blocks)
                 {
-                    block.Item1.Dispose();
-                    block.Item2.Dispose();
+                    block.CommunicationBlock.Do(x => x.Dispose());
+                    block.MemoryBlock.Do(x => x.Dispose());
                 }
                 _blocks.Clear();
             }

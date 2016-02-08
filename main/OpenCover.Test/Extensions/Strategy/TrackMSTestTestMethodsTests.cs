@@ -20,7 +20,7 @@ namespace OpenCover.Test.Extensions.Strategy
             var methods = strategy.GetTrackedMethods(def.MainModule.Types);
 
             // assert
-            Assert.True(methods.Any(x => x.Name.EndsWith("SimpleMsTest::BasePersistenceTests_All()")));
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleMsTest::BasePersistenceTests_All()")));
         }
     }
 }

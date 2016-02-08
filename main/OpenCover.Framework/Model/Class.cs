@@ -37,6 +37,10 @@ namespace OpenCover.Framework.Model
         /// </summary>
         public Method[] Methods { get; set; }
 
+        /// <summary>
+        /// If a class was skipped by instrumentation, supply the reason why
+        /// </summary>
+        /// <param name="reason"></param>
         public override void MarkAsSkipped(SkippedMethod reason)
         {
             SkippedDueTo = reason;

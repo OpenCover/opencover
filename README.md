@@ -1,10 +1,14 @@
+OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO), with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
+
 The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
-[![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover)
-[![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)
-[![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover)
-[![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover)
-[![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover)
+| Build | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
+| --- | --- |
+| **Coverage** | [![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
+| **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
+| **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
+
+[![Build History](https://ci-buildstats.azurewebsites.net/appveyor/chart/sawilde/opencover?branch=master&includeBuildsFromPullRequest=false)](https://ci.appveyor.com/project/sawilde/opencover)
 
 ### Master 
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
@@ -12,42 +16,47 @@ The primary repo for the project is [on GitHub](https://github.com/opencover/ope
 ### Team communication
 [![Join the chat at https://gitter.im/OpenCover/opencover](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenCover/opencover?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Team communications can also be done via [slack](http://slack.com), raise an issue to request access (include your email - obfuscated if you wish) and we will send you an invite then just visit the [team page](https://opencover.slack.com/) to sign up and join the conversation.
-
-### Licence
-All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
-
-If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
-
 ### WIKI
 Please review the [wiki pages](https://github.com/opencover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/opencover/opencover/wiki/Usage).
-
-### Service support
-Note that .zip and .nuget packages (at least) will not ACL files so that a low-privilege service can execute them -- manually add the service principal with read/execute privilege to the OpenCover.Profiler.dll ACLs, either through explorer properties or by a `Get-Acl`/`Set-Acl` PowerShell script.
-
-Launching the profiling operation must be done with Administrator privilege -- this is required to even start the service, and is also needed to create the global objects and set the per-service environment that registers the COM object.  Assuming that the COM objects have been pre-registered, the command line to use is like
-
-    OpenCover.console.exe -service:byname -target:<service name> -output:coverage.xml
-    
-As this is a blocking operation, launching the coverage gathering a separate process as 
-
-    start-process OpenCover.console.exe @("-target:<service name>", "-service:byName", "-output:<service name>coverage.xml")
-    
-or equivalent in your test scripts.
-
-The `byname` qualifier is used to prevent races if multiple services are being started concurrently by injecting the OpenCover profiling information to the service specific environment.
 
 ### Issues
 Please raise issues on GitHub, if you can repeat the issue then please provide a sample to make it easier for us to also repeat it and then implement a fix. Please do not hijack unrelated issues, I would rather you create a new issue than add noise to an unrelated issue.
 
 [Dropbox](http://db.tt/VanqFDn) is very useful for sharing files alternatively you could create a [gist](https://gist.github.com/).
 
+### Licence
+All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
+
+If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
+
+### Integration Test support
+OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
+
+#### Mono support
+It isn't, sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the Windows platform.
+
+#### IIS support
+Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/wiki/IIS-Support)
+
+#### DNX support
+Please refer to the wiki - [DNX Support](https://github.com/OpenCover/opencover/wiki/DNX-Support)
+
+#### Win8/Win10 Application Support
+Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no call for it I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
+
+#### Service support
+Please refer to the wiki - [Service Support](https://github.com/OpenCover/opencover/wiki/Service-Support)
+
+#### Silverlight support
+Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/opencover/wiki/Silverlight-Support)
+
 ### Building
 You will need:
 
 1. Visual Studio VS2013 (Community Edition) or later with C# and C++
 2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/136891)
-3. Specflow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+3. SpecFlow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 
 
@@ -83,10 +92,13 @@ No Git? Don't worry you can download the latest code as a [zip file](http://gith
 I would like to thank 
 
 * JetBrains for my Open Source [ReSharper licence](http://www.jetbrains.com/resharper/),
+<img src="http://www.jetbrains.com/company/docs/logo_jetbrains.png"/>
+
 * [AppVeyor](https://ci.appveyor.com/project/sawilde/opencover) for allowing free build CI services for Open Source projects,
 * [Coveralls](https://coveralls.io/r/OpenCover/opencover) for allowing free services for Open Source projects,
-* NDepend for my [NDepend licence](http://www.ndepend.com/).
+* NDepend for my [NDepend licence](http://www.ndepend.com/),
 * the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the VS2013 Community Edition), 
 * the [NextGenUG](http://www.nxtgenug.net/) and their free swag from where I got lots of useful tools,
+
 
 I'd also like to thank my family, employers, colleagues and friends for all their support. 

@@ -1,9 +1,10 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
+# SharpDevelop 5.1
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
+Project("{0E96FCFA-9DAC-4534-AC18-01A90C368873}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0} = {31B0FAA6-A63F-46FC-96EE-697235DA2BB0}
 	EndProjectSection
@@ -11,19 +12,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCover.Console\OpenCover.Console.csproj", "{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EE9B358A-335C-43E9-BC35-853807C5E776} = {EE9B358A-335C-43E9-BC35-853807C5E776}
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
-	ProjectSection(SolutionItems) = preProject
-		..\build\environment.build = ..\build\environment.build
-		..\build\installer.build = ..\build\installer.build
-		..\build\opencover.build = ..\build\opencover.build
-		..\build\version.build = ..\build\version.build
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E} = {0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover.Test\OpenCover.Test.csproj", "{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
+Project("{0E96FCFA-9DAC-4534-AC18-01A90C368873}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
 	ProjectSection(ProjectDependencies) = postProject
 		{B2CE418E-A5C8-4C46-9513-771414B3CA4C} = {B2CE418E-A5C8-4C46-9513-771414B3CA4C}
 	EndProjectSection
@@ -42,6 +36,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Root", "Root", "{1E02E180-E
 		..\ReleaseNotes.tmp = ..\ReleaseNotes.tmp
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\environment.build = ..\build\environment.build
+		..\build\installer.build = ..\build\installer.build
+		..\build\opencover.build = ..\build\opencover.build
+		..\build\version.build = ..\build\version.build
+	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Integration.Test", "OpenCover.Integration.Test\OpenCover.Integration.Test.csproj", "{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2} = {BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}
@@ -57,9 +59,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C4B551
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Gendarme.Signer", "OpenCover.Gendarme.Signer\OpenCover.Gendarme.Signer.csproj", "{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}"
-EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "OpenCover.Installer", "OpenCover.Installer\OpenCover.Installer.wixproj", "{F6D7F279-F302-4741-BE54-DD75D32E378F}"
+Project("{CFEE4113-1246-4D54-95CB-156813CB8593}") = "OpenCover.Installer", "OpenCover.Installer\OpenCover.Installer.wixproj", "{F6D7F279-F302-4741-BE54-DD75D32E378F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCover.Specs\OpenCover.Specs.csproj", "{5A908D9D-617E-408F-ACED-9E505693DE96}"
 EndProject
@@ -71,6 +71,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.UITest", "OpenCov
 	ProjectSection(ProjectDependencies) = postProject
 		{27AD5F08-0625-4093-8782-F7936737FAB7} = {27AD5F08-0625-4093-8782-F7936737FAB7}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.3rdParty.Signer", "OpenCover.3rdParty.Signer\OpenCover.3rdParty.Signer.csproj", "{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,14 +144,6 @@ Global
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x64.Build.0 = Release|Any CPU
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x86.ActiveCfg = Release|Any CPU
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F}.Release|x86.Build.0 = Release|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.Build.0 = Debug|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.Build.0 = Debug|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.ActiveCfg = Release|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.Build.0 = Release|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.ActiveCfg = Release|Any CPU
-		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.Build.0 = Release|Any CPU
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Debug|x64.ActiveCfg = Debug|x86
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Debug|x86.ActiveCfg = Debug|x86
 		{F6D7F279-F302-4741-BE54-DD75D32E378F}.Release|x64.ActiveCfg = Release|x86
@@ -180,18 +174,29 @@ Global
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.ActiveCfg = Release|Any CPU
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0}.Release|x86.Build.0 = Release|Any CPU
 		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x64.Build.0 = Debug|Any CPU
 		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Debug|x86.Build.0 = Debug|Any CPU
 		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x64.Build.0 = Release|Any CPU
 		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x86.ActiveCfg = Release|Any CPU
+		{E8513153-6298-411D-9BD9-0DB0CC708D34}.Release|x86.Build.0 = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x64.Build.0 = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Debug|x86.Build.0 = Debug|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x64.Build.0 = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.ActiveCfg = Release|Any CPU
+		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4337F24C-830C-4A9A-987B-2348F9222C39} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
-	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4337F24C-830C-4A9A-987B-2348F9222C39} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
 	EndGlobalSection
 EndGlobal
