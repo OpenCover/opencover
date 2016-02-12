@@ -9,7 +9,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Authentication;
 using System.Security.Principal;
 using System.ServiceProcess;
 using CrashReporterDotNET.com.drdump;
@@ -72,7 +71,7 @@ namespace OpenCover.Console
 
                 perfCounter.ResetCounters();
             }
-            catch (ExitApplicationWithoutReportingException eex)
+            catch (ExitApplicationWithoutReportingException)
             {
                 Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
                 Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
@@ -376,7 +375,7 @@ namespace OpenCover.Console
                     returnCode = process.ExitCode;
                 return returnCode;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
             }
@@ -574,7 +573,8 @@ namespace OpenCover.Console
                     {
                         var version = entryAssembly.GetName().Version;
                         System.Console.WriteLine("OpenCover version {0}", version);
-                        return false;
+                        if (args.Length == 1)
+                            return false;
                     }
                 }
 
