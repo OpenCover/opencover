@@ -9,7 +9,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Authentication;
 using System.Security.Principal;
 using System.ServiceProcess;
 using CrashReporterDotNET.com.drdump;
@@ -40,7 +39,7 @@ namespace OpenCover.Console
         {
             var returnCode = 0;
             var returnCodeOffset = 0;
-
+           
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
 
             try
@@ -72,7 +71,7 @@ namespace OpenCover.Console
 
                 perfCounter.ResetCounters();
             }
-            catch (ExitApplicationWithoutReportingException eex)
+            catch (ExitApplicationWithoutReportingException)
             {
                 Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
                 Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
@@ -121,7 +120,7 @@ namespace OpenCover.Console
                     {
                         AnonymousData = new AnonymousData
                         {
-                            ApplicationGuid = new Guid("e6542474-21df-42f4-826b-15a12764da6f"),
+                            ApplicationGuid = new Guid("dbbb1d35-be49-45e2-b81d-84f1042c455d"),
                             Exception = exception,
                             ToEmail = ""
                         }
@@ -376,7 +375,7 @@ namespace OpenCover.Console
                     returnCode = process.ExitCode;
                 return returnCode;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Logger.ErrorFormat("Failed to execute the following command '{0} {1}'", startInfo.FileName, startInfo.Arguments);
             }
@@ -574,7 +573,8 @@ namespace OpenCover.Console
                     {
                         var version = entryAssembly.GetName().Version;
                         System.Console.WriteLine("OpenCover version {0}", version);
-                        return false;
+                        if (args.Length == 1)
+                            return false;
                     }
                 }
 

@@ -150,6 +150,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
             builder.AppendLine("    [-oldStyle]");
+            builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
             builder.AppendLine("or");

@@ -359,6 +359,10 @@ namespace OpenCover.Framework.Manager
             }
         }
 
+        /// <summary>
+        /// Wait for the blocks to close
+        /// </summary>
+        /// <param name="bufferWaitCount"></param>
         public void WaitForBlocksToClose(int bufferWaitCount)
         {
             // we need to let the profilers dump the thread buffers over before they close - max 15s (ish)
@@ -379,6 +383,10 @@ namespace OpenCover.Framework.Manager
             }
         }
 
+        /// <summary>
+        /// fetch remaining buffer data
+        /// </summary>
+        /// <param name="processBuffer"></param>
         public void FetchRemainingBufferData(Action<byte[]> processBuffer)
         {
             lock (_lockObject)

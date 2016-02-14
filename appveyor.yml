@@ -13,6 +13,8 @@ environment:
     secure: +9YfPnwJzGsvdyto85pHwg==
   SONARQUBE_PASSWORD:
     secure: Ptvd9aDNKfVhXvPpq6o1Fw==
+  DRDUMP_TOKEN:
+    secure: 16PEs46poxfT7drt6BdHSHPPzAymXBYrIaqoAsHvY49os5Azz4rNTp3QaUhtITZ+
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
