@@ -1,4 +1,7 @@
 Version [[version]]
+#540 -version now also works when mixed with other args (feature) 
+
+Version 4.6.519
 #528 -safemode:on to address incomplete coverage due to thread based buffers (feature)
 #521 add exclude paths (feature)
 #376 protect buffer allocation in multithreaded environment (fix)
