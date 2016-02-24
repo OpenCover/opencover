@@ -8,6 +8,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarQube</sup> [![SonarQube](http://sonarcovbadge.epicapp.com/?server=sonar.many-monkeys.com:9000&resource=opencover&metrics=coverage)](http://sonar.many-monkeys.com:9000/dashboard/index/719) |
 | **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
+| **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 
 [![Build History](https://ci-buildstats.azurewebsites.net/appveyor/chart/sawilde/opencover?branch=master&includeBuildsFromPullRequest=false)](https://ci.appveyor.com/project/sawilde/opencover)
 
