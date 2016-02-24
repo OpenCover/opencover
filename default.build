@@ -152,6 +152,13 @@
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
       </filterchain>
     </copy>
+    <delete file="main\OpenCover.NugetPackage\readme_with_releasenotes.txt" />
+    <concat destfile="main\OpenCover.NugetPackage\readme_with_releasenotes.txt" append="true">
+        <fileset>
+            <include name="main\OpenCover.NugetPackage\readme.txt" />
+            <include name="ReleaseNotes.txt" />
+        </fileset>
+    </concat>
 	</target>
 
   <target name="replace-drdump-token" if="${environment::variable-exists('DRDUMP_TOKEN')}" >
