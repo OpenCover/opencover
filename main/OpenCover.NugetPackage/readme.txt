@@ -12,10 +12,14 @@ alongside the utility to get started or you can look at the documentation
 provided on the wiki https://github.com/OpenCover/opencover/wiki/Usage.
 
 Currently OpenCover has no visualization of its results and we recommend that
-your use ReportGenerator (2.1.8 and above) to view the results against your code.
+your use ReportGenerator (2.1.8 and above) to view the results against your 
+code.
 
 A sample project showing a possible way to use OpenCover with ReportGenerator 
 has also been provided for your convenience.  
 
-If you have any issues or feature requests with OpenCover please raise them 
+If you have any issues or feature requests for OpenCover please raise them 
 with the project owners on https://github.com/opencover/opencover.
+
+Release Notes
+ 

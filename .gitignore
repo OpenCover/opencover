@@ -42,7 +42,6 @@
 /tools/GendarmeSigned
 /main/TestResults
 *.suo
-ReleaseNotes.txt
 /samples/SampleSln/.nuget/packages.config
 /samples/SampleSln/nuget/packages.config
 /samples/SampleSln/coverage.bat
@@ -58,6 +57,11 @@ ReleaseNotes.txt
 /fakes/**/FakesAssemblies/**/*
 /fakes/packages
 !fakes/packages/repositories.config
+/results.xml
+
+#release-notes
+/main/OpenCover.NugetPackage/readme_with_releasenotes.txt
+ReleaseNotes.txt
 
 #Coverity
 cov-int*
