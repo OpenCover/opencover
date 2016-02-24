@@ -9,6 +9,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
+| **Review Ninja** | [![ReviewNinja](https://app.review.ninja/1396895/badge)](https://app.review.ninja/OpenCover/opencover) |
 
 [![Build History](https://ci-buildstats.azurewebsites.net/appveyor/chart/sawilde/opencover?branch=master&includeBuildsFromPullRequest=false)](https://ci.appveyor.com/project/sawilde/opencover)
 
