@@ -493,7 +493,20 @@ namespace OpenCover.Console
                 System.Console.WriteLine("Invalid `outputFile` supplied: {0}", ex.Message);
                 return false;
             }
-            if (!Directory.Exists(Path.GetDirectoryName(outputFile) ?? string.Empty))
+
+            string directoryName;
+            try
+            {
+                directoryName = Path.GetDirectoryName(outputFile);
+            }
+            catch (PathTooLongException pathTooLongEx)
+            {
+                System.Console.WriteLine("Output file path exceeds system limits, please use another. {0} File path is: {1}",
+                        pathTooLongEx.Message, outputFile);
+                return false;
+            }
+
+            if (!Directory.Exists(directoryName ?? string.Empty))
             {
                 System.Console.WriteLine("Output folder does not exist; please create it and make sure appropriate permissions are set.");
                 return false;
