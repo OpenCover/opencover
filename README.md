@@ -6,7 +6,7 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | --- | --- |
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
 | **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarQube</sup> [![SonarQube](http://sonarcovbadge.epicapp.com/?server=sonar.many-monkeys.com:9000&resource=opencover&metrics=coverage)](http://sonar.many-monkeys.com:9000/dashboard/index/719) |
-| **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
+| **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 | **Review Ninja** | [![ReviewNinja](https://app.review.ninja/1396895/badge)](https://app.review.ninja/OpenCover/opencover) |
@@ -20,7 +20,7 @@ The primary repo for the project is [on GitHub](https://github.com/opencover/ope
 [![Join the chat at https://gitter.im/OpenCover/opencover](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenCover/opencover?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ### Submissions and Community Licence Agreement
-You will be asked to agree to a CLA as part of the submission process; first pull request and it's all automatic no printing and signing etc. You can read the agreement here - [OpenCover CLA](https://gist.github.com/sawilde/4820db0a6151a1144a0c) and you cna read our [Q&A](https://github.com/OpenCover/opencover/wiki/Contributor-License-Agreement-Q&A) on the wiki.
+You will be asked to agree to a CLA as part of the submission process; first pull request only and it's all automatic no printing and signing etc. You can read the agreement here - [OpenCover CLA](https://gist.github.com/sawilde/4820db0a6151a1144a0c) and you can read our [Q&A](https://github.com/OpenCover/opencover/wiki/Contributor-License-Agreement-Q&A) on the wiki as to why.
 
 ### WIKI
 Please review the [wiki pages](https://github.com/opencover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/opencover/opencover/wiki/Usage).
