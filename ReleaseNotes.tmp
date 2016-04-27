@@ -1,5 +1,6 @@
 Version [[version]]
 #540 -version now also works when mixed with other args (feature) 
+#577 output filepath when handling exceptions with files (fix) 
 
 Version 4.6.519
 #528 -safemode:on to address incomplete coverage due to thread based buffers (feature)
