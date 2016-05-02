@@ -40,7 +40,7 @@
 
 #include <string>
 #include <vector>
-#include <hash_map>
+#include <unordered_map>
 
 #ifdef UNICODE
 #define tstring std::wstring

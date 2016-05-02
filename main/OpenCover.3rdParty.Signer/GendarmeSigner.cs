@@ -9,10 +9,10 @@ namespace OpenCover.ThirdParty.Signer
 
         private const string GendarmeVersion = "2.11.0.20121120";
 
-        private static readonly string GendarmeAssemblyName = string.Format("Mono.Gendarme.{0}", GendarmeVersion);
+        private static readonly string AssemblyName = $"Mono.Gendarme.{GendarmeVersion}";
 
         public static readonly string TargetFolder = Path.Combine("..", "tools", "GendarmeSigned");
-        private static readonly string SourceFolder = Path.Combine("packages", GendarmeAssemblyName, "tools");
+        private static readonly string SourceFolder = Path.Combine("packages", AssemblyName, "tools");
         private static readonly string StrongNameKey = Path.Combine("..", "build", "Version", "opencover.3rdparty.snk");
 
 
