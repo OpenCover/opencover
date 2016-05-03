@@ -37,7 +37,6 @@
       </Component>
       <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
         <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
-        <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
       </Component>
       <Component Id="CrashReporter_Signed_3rdParty" Guid="{d2a05736-4ed9-4bf1-9fc0-d507794a5a68}">
         <File Id="CRASHREPORTER_NET_DLL" Source="..\bin\Release\CrashReporter.NET.dll" KeyPath="yes" />

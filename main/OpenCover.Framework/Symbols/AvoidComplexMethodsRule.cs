@@ -14,14 +14,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using OpenCover.Framework;
 
 namespace Gendarme.Rules.Maintainability
 {
+    [ExcludeFromCoverage("3rd Party - imported due to Roslyn intellisense error CS0012")]
     [Problem("Methods with a large cyclomatic complexity are hard to understand and maintain.")]
     [FxCopCompatibility("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
     [Solution("Simplify the method using refactors like Extract Method.")]
     [EngineDependency(typeof(OpCodeEngine))]
-    public class AvoidComplexMethodsRule : Rule, IMethodRule, IRule
+    internal class AvoidComplexMethodsRule : Rule, IMethodRule, IRule
     {
         private static OpCodeBitmask ld = new OpCodeBitmask(68718871548UL, 1946399463954251744UL, 70373055920128UL, 3552UL);
         private static List<Instruction> targets = new List<Instruction>();
