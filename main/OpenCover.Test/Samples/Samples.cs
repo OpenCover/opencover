@@ -92,6 +92,7 @@ namespace OpenCover.Test.Samples
             switch (input)
             {
                 case 1:
+                case 2:
                 case 3:
                     return true;
                 default:
@@ -270,14 +271,14 @@ namespace OpenCover.Test.Samples
 
     public struct NotCoveredStruct
     {
-        public int Number { get; set; }
+        public int Number; // { get; set; }
     }
 
     public struct CoveredStruct
     {
-        private int number;
+        private int _number;
 // ReSharper disable ConvertToAutoProperty
-        public int Number { get { return number; } set { number = value; } }
+        public int Number { get { return _number; } set { _number = value; } }
 // ReSharper restore ConvertToAutoProperty
     }
 

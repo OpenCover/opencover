@@ -91,6 +91,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.NotNull(types);
+            var t = typeof(NotCoveredStruct);
             Assert.IsNull(types.FirstOrDefault(x => x.FullName == typeof(NotCoveredStruct).FullName));
         }
 
@@ -359,7 +360,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count()); // there's one branch generated for missing case = 2
+            Assert.AreEqual(4, points.Count()); 
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(points[0].Offset, points[3].Offset);

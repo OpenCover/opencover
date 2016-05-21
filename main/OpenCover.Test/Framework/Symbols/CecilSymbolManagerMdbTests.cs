@@ -16,10 +16,10 @@ namespace OpenCover.Test.Framework.Symbols
         public void TestFixtureSetUp()
         {
             var folder = Path.Combine(Environment.CurrentDirectory, "Mdb");
-            var source = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
+            var source = Path.Combine(Environment.CurrentDirectory, "Microsoft.Practices.ServiceLocation.dll");
             if (Directory.Exists(folder)) Directory.Delete(folder, true);
             Directory.CreateDirectory(folder);
-            var dest = Path.Combine(folder, "OpenCover.Test.dll");
+            var dest = Path.Combine(folder, "Microsoft.Practices.ServiceLocation.dll");
             File.Copy(source, dest);
             File.Copy(Path.ChangeExtension(source, "pdb"), Path.ChangeExtension(dest, "pdb"));
             var process = new ProcessStartInfo
@@ -52,10 +52,10 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
 
-            _location = Path.Combine(Environment.CurrentDirectory, "Mdb", "OpenCover.Test.dll");
+            _location = Path.Combine(Environment.CurrentDirectory, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
-            _reader.Initialise(_location, "OpenCover.Test");
+            _reader.Initialise(_location, "Microsoft.Practices.ServiceLocation");
         }
 
         [Test]

@@ -48,7 +48,7 @@ Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/
 Please refer to the wiki - [DNX Support](https://github.com/OpenCover/opencover/wiki/DNX-Support)
 
 #### Win8/Win10 Application Support
-Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no call for it I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
+Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no user call/demand for it, I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
 
 #### Service support
 Please refer to the wiki - [Service Support](https://github.com/OpenCover/opencover/wiki/Service-Support)
@@ -59,9 +59,9 @@ Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/op
 ### Building
 You will need:
 
-1. Visual Studio VS2015 (Community Edition) or later with C# and C++
+1. Visual Studio VS2015 (Community Edition) or later with C# and C++ (with Service Pack 2)
 2. WiX 3.10 or later (http://wix.codeplex.com/releases/view/619491)
-3. SpecFlow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
+3. SpecFlow for Visual Studio 2015 (https://visualstudiogallery.msdn.microsoft.com/c74211e7-cb6e-4dfa-855d-df0ad4a37dd6)
 4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 

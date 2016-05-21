@@ -180,8 +180,8 @@ namespace OpenCover.Specs.Steps
             // do both files have the same coverage
             var coverage86 = GetTotalCoverage(data86);
             var coverage64 = GetTotalCoverage(data64);
-            Assert.AreEqual(int.Parse(coverage64), int.Parse(coverage86));
-            Assert.Greater(int.Parse(coverage64), 0);
+            Assert.AreEqual(decimal.Parse(coverage64), decimal.Parse(coverage86));
+            Assert.Greater(decimal.Parse(coverage64), 0);
 
             // do both files have the same number of elements Summary and Sequence points and are their attributes the same
             CompareMatches(Regex.Matches(data64, summaryRegEx, RegexOptions.Multiline), Regex.Matches(data86, summaryRegEx, RegexOptions.Multiline));
