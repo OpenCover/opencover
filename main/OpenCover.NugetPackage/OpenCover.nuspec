@@ -19,6 +19,7 @@
     <file src="main\bin\Release\x64\OpenCover.Profiler.dll" target="tools\x64"/>
     <file src="main\bin\Release\x86\OpenCover.Profiler.dll" target="tools\x86"/>
     <file src="main\bin\Release\Gendarme.Framework.dll" target="tools"/>
+    <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.Configuration.dll" target="tools"/>
     <file src="main\bin\Release\Mono.Cecil.dll" target="tools"/>

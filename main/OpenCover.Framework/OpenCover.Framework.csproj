@@ -55,6 +55,9 @@
     <Reference Include="Gendarme.Framework, Version=2.11.0.0, Culture=neutral, PublicKeyToken=b07ccf3a9f1ab3c9, processorArchitecture=MSIL">
       <HintPath>..\..\tools\GendarmeSigned\Gendarme.Framework.dll</HintPath>
     </Reference>
+    <Reference Include="Gendarme.Rules.Maintainability">
+      <HintPath>..\..\tools\GendarmeSigned\Gendarme.Rules.Maintainability.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
@@ -142,7 +145,6 @@
     <Compile Include="Strategy\ITrackedMethodStrategyManager.cs" />
     <Compile Include="Strategy\TrackedMethodStrategyManager.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
-    <Compile Include="Symbols\AvoidComplexMethodsRule.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\SymbolFolder.cs" />
     <Compile Include="Utility\CodeCoverageStringTextSource.cs" />
