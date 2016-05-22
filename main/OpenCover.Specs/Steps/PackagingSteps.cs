@@ -16,7 +16,7 @@ namespace OpenCover.Specs.Steps
         [BeforeScenario]
         public void BeforeScenario()
         {
-            var assemblyPath = Path.GetDirectoryName(typeof(PackagingSteps).Assembly.Location);
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
             ScenarioContext.Current["assemblyPath"] = assemblyPath;
         }
 

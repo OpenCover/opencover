@@ -15,8 +15,10 @@ namespace OpenCover.Test.Framework.Symbols
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
-            var folder = Path.Combine(Environment.CurrentDirectory, "Mdb");
-            var source = Path.Combine(Environment.CurrentDirectory, "Microsoft.Practices.ServiceLocation.dll");
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+
+            var folder = Path.Combine(assemblyPath, "Mdb");
+            var source = Path.Combine(assemblyPath, "Microsoft.Practices.ServiceLocation.dll");
             if (Directory.Exists(folder)) Directory.Delete(folder, true);
             Directory.CreateDirectory(folder);
             var dest = Path.Combine(folder, "Microsoft.Practices.ServiceLocation.dll");
@@ -24,7 +26,7 @@ namespace OpenCover.Test.Framework.Symbols
             File.Copy(Path.ChangeExtension(source, "pdb"), Path.ChangeExtension(dest, "pdb"));
             var process = new ProcessStartInfo
             {
-                FileName = Path.Combine(Environment.CurrentDirectory, @"..\..\packages\Mono.pdb2mdb.0.1.0.20130128\tools\pdb2mdb.exe"),
+                FileName = Path.Combine(assemblyPath, @"..\..\packages\Mono.pdb2mdb.0.1.0.20130128\tools\pdb2mdb.exe"),
                 Arguments = dest,
                 WorkingDirectory = folder,
                 CreateNoWindow = true,
@@ -52,7 +54,8 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
 
-            _location = Path.Combine(Environment.CurrentDirectory, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            _location = Path.Combine(assemblyPath, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
             _reader.Initialise(_location, "Microsoft.Practices.ServiceLocation");

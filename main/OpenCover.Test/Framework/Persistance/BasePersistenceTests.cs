@@ -24,15 +24,25 @@ namespace OpenCover.Test.Framework.Persistance
     public class BasePersistenceTests :
         UnityAutoMockContainerBase<IPersistance, BasePersistanceStub>
     {
-        private readonly SkippedMethod[] _skippedReasonsModules = {SkippedMethod.Filter, SkippedMethod.MissingPdb, SkippedMethod.FolderExclusion, };
-
-        private readonly SkippedMethod[] _skippedReasonsClasses =
+        private static readonly SkippedMethod[] _skippedReasonsModules =
         {
-            SkippedMethod.Filter, SkippedMethod.File,
+            SkippedMethod.Filter,
+            SkippedMethod.MissingPdb,
+            SkippedMethod.FolderExclusion,
+        };
+
+        private static readonly SkippedMethod[] _skippedReasonsClasses =
+        {
+            SkippedMethod.Filter,
+            SkippedMethod.File,
             SkippedMethod.Attribute
         };
 
-        private readonly SkippedMethod[] _skippedReasonsMethods = {SkippedMethod.File, SkippedMethod.Attribute};
+        private static readonly SkippedMethod[] _skippedReasonsMethods =
+        {
+            SkippedMethod.File,
+            SkippedMethod.Attribute
+        };
 
         [Test]
         public void CanNot_Add_Invalid_Module_To_Session()
