@@ -1,9 +1,9 @@
 @echo off
 pushd %cd%
 setlocal
-@set ExcludeAdminOnly=/exclude:AdminOnly
+@set ExcludeAdminOnly=--where:cat!=AdminOnly
 @if "%appveyor%" == "True" set ExcludeAdminOnly=
 cd %~dp0
-OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.Runners.2.6.4\tools\nunit-console-x86.exe -targetargs:"OpenCover.Test.dll /noshadow %ExcludeAdminOnly%" -excludebyattribute:*.ExcludeFromCoverageAttribute -filter:"+[Open*]* -[OpenCover.T*]* -{nunit-console*}[*]* -{pdb*}[*]*" -output:opencovertests.xml -mergebyhash
+OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.ConsoleRunner.3.2.1\tools\nunit3-console.exe -targetargs:"OpenCover.Test.dll --x86 %ExcludeAdminOnly%" -excludebyattribute:*.ExcludeFromCoverageAttribute -filter:"+[Open*]* -[OpenCover.T*]* -{nunit-console*}[*]* -{pdb*}[*]*" -output:opencovertests.xml -mergebyhash
 endlocal
 popd

@@ -3,7 +3,7 @@
  
   <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
   <property name="platform" value="x86" unless="${property::exists('platform')}" />
-  <property name="nunit.path" value="${solution.folder}/packages/NUnit.Runners.2.6.4/tools"/>
+  <property name="nunit.path" value="${solution.folder}/packages/NUnit.ConsoleRunner.3.2.1/tools"/>
   <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
   <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
   <property name="open-cover-test-console" value="${solution.folder}/bin/${configuration}/OpenCover.Test.Profiler.exe"/>
@@ -11,20 +11,18 @@
   <property name="coveralls.exe" value="${solution.folder}/packages/coveralls.io.1.3.4/tools/coveralls.net.exe"/>
   <property name="appveyor" value="" />
   <property name="appveyor" value="${environment::get-variable('appveyor')}" if="${environment::variable-exists('appveyor')}"/>
-  <property name="exclude-admin-only" value="/exclude:AdminOnly" />
+  <property name="exclude-admin-only" value="--where:cat!=AdminOnly" />
   <property name="exclude-admin-only" value="" if="${appveyor=='True'}" />
 
 	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/14.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/14.0/Bin')}" />
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
   		
 	<choose>
-		<when test="${nunit-in-path}">
-			<property name="nunit-console" value="nunit-console" if="${platform=='x64'}" />
-			<property name="nunit-console" value="nunit-console-x86" if="${platform=='x86'}" />
+		<when test="${appveyor=='True'}">
+			<property name="nunit-console" value="${environment::get-variable('SYSTEMDRIVE')}/Tools/NUint3/nunit3-console.exe" />
 		</when>
 		<otherwise>
-			<property name="nunit-console" value="${nunit.path}/nunit-console.exe" if="${platform=='x64'}" />
-			<property name="nunit-console" value="${nunit.path}/nunit-console-x86.exe" if="${platform=='x86'}" />
+			<property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
 		</otherwise>
 	</choose>
 	
@@ -116,9 +114,9 @@
 		
     <exec program="${nunit-console}">
       <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
-      <arg value="/framework=4.5.2" />
+      <arg value="--x86" />
       <arg value="${exclude-admin-only}" />
-      <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
+      <arg value="--out=${solution.folder}/bin/${configuration}/TestResult.xml" />
     </exec>
         
   </target>
@@ -129,9 +127,9 @@
         
     <exec program="${nunit-console}">
       <arg value="${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
-      <arg value="/framework=4.5.2" />
+      <arg value="--x86" />
       <arg value="${exclude-admin-only}" />
-      <arg value="/xml=${solution.folder}/bin/${configuration}/TestResult.xml" />
+      <arg value="--out=${solution.folder}/bin/${configuration}/TestResult.xml" />
     </exec>
         
   </target>
