@@ -13,6 +13,13 @@ namespace OpenCover.Specs.Steps
     [Binding]
     public class PackagingSteps
     {
+        [BeforeScenario]
+        public void BeforeScenario()
+        {
+            var assemblyPath = Path.GetDirectoryName(typeof(PackagingSteps).Assembly.Location);
+            ScenarioContext.Current["assemblyPath"] = assemblyPath;
+        }
+
         [AfterScenario("ziptag", "nugettag")]
         public void DeleteZipFolder()
         {
@@ -31,7 +38,7 @@ namespace OpenCover.Specs.Steps
 
         private static dynamic GetTargetPackage(string folder, string ext)
         {
-            var files = Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "bin", folder), string.Format("*.{0}", ext));
+            var files = Directory.EnumerateFiles(Path.Combine((string)ScenarioContext.Current["assemblyPath"], "..", "..", "..", "bin", folder), string.Format("*.{0}", ext));
 
             var target = files.Select(f => Regex.Match(f, string.Format(@".*\.(?<version>\d+\.\d+\.\d+)(-rc(?<revision>\d+))?\.{0}", ext)))
                  .Select(m => new { File = m.Value, Version = m.Groups["version"].Value, Revision = m.Groups["revision"].Value })
@@ -61,8 +68,8 @@ namespace OpenCover.Specs.Steps
             Assert.NotNull(target, "Could not find a valid file.");
 
             var targetFile = Path.GetFullPath(target.File);
-            targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, dir));
-            targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, xml));
+            targetFolder = Path.GetFullPath(Path.Combine((string)ScenarioContext.Current["assemblyPath"], dir));
+            targetOutput = Path.GetFullPath(Path.Combine((string)ScenarioContext.Current["assemblyPath"], xml));
 
             if (File.Exists(targetOutput))
                 File.Delete(targetOutput);
