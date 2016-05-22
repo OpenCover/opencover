@@ -21,7 +21,13 @@ cache:
 nuget:
   disable_publish_on_pr: true
 build_script:
-- ps: "$nunitPath = \"$env:SYSTEMDRIVE\\Tools\\NUnit3\"\n\n$zipPath = \"$($env:USERPROFILE)\\Appveyor.NUnit3ResultWriter.zip\"\n(New-Object Net.WebClient).DownloadFile('http://www.appveyor.com/downloads/Appveyor.NUnit3ResultWriter.zip', $zipPath)\n7z x $zipPath -y -o\"$nunitPath\\bin\\addins\" | Out-Null\nMove-Item \"$nunitPath\\bin\\addins\\appveyor.addins\" \"$nunitPath\\bin\\appveyor.addins\"\n\nif ($env:APPVEYOR_SCHEDULED_BUILD -eq \"True\" -or $env:APPVEYOR_REPO_BRANCH -eq \"coverity\") {\n  & .\\build.bat create-coverity-release\n} else {  \n  & .\\build.bat create-release\n}"
+- ps: >-
+    if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
+      & .\build.bat create-coverity-release
+    } else {
+      & .\build.bat create-release
+    }
+    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi

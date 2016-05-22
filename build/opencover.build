@@ -16,13 +16,17 @@
 
 	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/14.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/14.0/Bin')}" />
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
-  		
+
+	<property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
+  
 	<choose>
 		<when test="${appveyor=='True'}">
-			<property name="nunit-console" value="${environment::get-variable('SYSTEMDRIVE')}/Tools/NUint3/nunit3-console.exe" />
+	    <property name="nunit-console" value="nunit3-console.exe" />
+			<property name="nunit-appveyor" value=";format=AppVeyor" />
 		</when>
 		<otherwise>
-			<property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
+	    <property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
+			<property name="nunit-appveyor" value="" />
 		</otherwise>
 	</choose>
 	
@@ -116,7 +120,7 @@
       <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
       <arg value="--x86" />
       <arg value="${exclude-admin-only}" />
-      <arg value="--out=${solution.folder}/bin/${configuration}/TestResult.xml" />
+      <arg value="--result=${solution.folder}/bin/${configuration}/TestResult.xml${nunit-appveyor}" />
     </exec>
         
   </target>
@@ -129,7 +133,7 @@
       <arg value="${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
       <arg value="--x86" />
       <arg value="${exclude-admin-only}" />
-      <arg value="--out=${solution.folder}/bin/${configuration}/TestResult.xml" />
+      <arg value="--result=${solution.folder}/bin/${configuration}/TestResult.xml${nunit-appveyor}" />
     </exec>
         
   </target>
