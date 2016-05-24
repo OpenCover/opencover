@@ -28,14 +28,14 @@ namespace OpenCover.Test.Framework
             public FilterType FilterTypeResult { get; set; }
         }
 
-        private readonly string[] _invalidFilterExpressions =
+        private static readonly string[] _invalidFilterExpressions =
         {
             "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][",
             @"-[\]", @"+[X]\", "-[X]]", "+[X][", "-<[*]*", "+>[*]*",
             "+<>[*]*", "-[*]", "-[]*", "-<*>[*]", "-<*>[]*", "-[\u00a0]*"
         };
 
-        private readonly FilterData[] _filterExpressions =
+        private static readonly FilterData[] _filterExpressions =
         {
             new FilterData
             {
@@ -151,7 +151,7 @@ namespace OpenCover.Test.Framework
             public bool ExpectedResult { get; set; }
         }
 
-        private readonly UseAssemblyData[] _useAssemblyData = 
+        private static readonly UseAssemblyData[] _useAssemblyData = 
                                                          {
                                                              new UseAssemblyData
                                                                  {
@@ -225,7 +225,7 @@ namespace OpenCover.Test.Framework
             public bool ExpectedResult { get; set; }
         }
 
-        private readonly InstrumentClassData[] _instrumentClassData =
+        private static readonly InstrumentClassData[] _instrumentClassData =
                                                                  {
                                                                      new InstrumentClassData
                                                                          {

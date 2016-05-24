@@ -33,8 +33,9 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
             _mockManager = new Mock<ITrackedMethodStrategyManager>();
-            
-            _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
+
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            _location = Path.Combine(assemblyPath, "OpenCover.Test.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
             _reader.Initialise(_location, "OpenCover.Test");
@@ -91,6 +92,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.NotNull(types);
+            var t = typeof(NotCoveredStruct);
             Assert.IsNull(types.FirstOrDefault(x => x.FullName == typeof(NotCoveredStruct).FullName));
         }
 
@@ -359,7 +361,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count()); // there's one branch generated for missing case = 2
+            Assert.AreEqual(4, points.Count()); 
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(points[0].Offset, points[3].Offset);
@@ -750,6 +752,10 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_Prepends_TargetDir_When_Assembly_NotFound()
         {
             // arrange
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            _mockCommandLine.SetupGet(x => x.TargetDir).Returns(@"c:\temp");
+            _mockCommandLine.SetupGet(x => x.SearchDirs).Returns(new [] {assemblyPath});
+
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
             _reader.Initialise(@"c:\OpenCover.Test.dll", "OpenCover.Test");
             _mockCommandLine.SetupGet(x => x.TargetDir).Returns(@"c:\temp");

@@ -48,4 +48,7 @@
       <Filter>Source Files\Instrumentation</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
 </Project>

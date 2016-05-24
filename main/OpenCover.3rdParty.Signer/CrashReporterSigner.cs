@@ -8,10 +8,10 @@ namespace OpenCover.ThirdParty.Signer
 
         private const string Version = "1.5";
 
-        private static readonly string GendarmeAssemblyName = string.Format("CrashReporterdotNet.{0}", Version);
+        private static readonly string AssemblyName = $"CrashReporterdotNet.{Version}";
 
         public static readonly string TargetFolder = Path.Combine("..", "tools", "CrashReporterSigned");
-        private static readonly string SourceFolder = Path.Combine("packages", GendarmeAssemblyName, "lib", "net20");
+        private static readonly string SourceFolder = Path.Combine("packages", AssemblyName, "lib", "net20");
         private static readonly string StrongNameKey = Path.Combine("..", "build", "Version", "opencover.3rdparty.snk");
 
 

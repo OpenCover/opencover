@@ -17,9 +17,10 @@ namespace OpenCover.Test.Framework.Model
         public void CreateModelBuilder_Creates_Model()
         {
             // arrange
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
 
             // act
-            var model = Instance.CreateModelBuilder(Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"), "OpenCover.Test");
+            var model = Instance.CreateModelBuilder(Path.Combine(assemblyPath, "OpenCover.Test.dll"), "OpenCover.Test");
 
             // assert
             Assert.IsNotNull(model);

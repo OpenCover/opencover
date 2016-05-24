@@ -87,8 +87,8 @@ struct OperationDetails
     TCHAR *stringName;
 };
 
-typedef std::hash_map<CanonicalName, OperationDetails> MapCanonicalNameOperationDetails;
-typedef std::hash_map<DWORD, OperationDetails> MapOpsOperationDetails;
+typedef std::unordered_map<CanonicalName, OperationDetails> MapCanonicalNameOperationDetails;
+typedef std::unordered_map<DWORD, OperationDetails> MapOpsOperationDetails;
 
 /// <summary>The container of the static lists used for the <c>OperationDetails</c> lookups</summary>
 /// <remarks>The lists are built when we instantiate our static instance m_operations</remarks>
