@@ -242,7 +242,56 @@ void Method::ReadBody()
     //DumpIL();
 }
 
-/// <summary>Read the section handler section.</summary>
+ExceptionHandler* Method::ReadExceptionHandler(
+	enum CorExceptionFlag type, 
+	long tryStart, long tryEnd, 
+	long handlerStart, long handlerEnd, 
+	long filterStart, ULONG token) {
+	
+	auto pSection = new ExceptionHandler();
+	pSection->m_handlerType = type;
+	pSection->m_tryStart = GetInstructionAtOffset(tryStart);
+	pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
+	pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
+	pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
+		(type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
+		(type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
+		(type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
+		(type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
+
+	if (filterStart!=0)	{
+		pSection->m_filterStart = GetInstructionAtOffset(filterStart);
+	}
+
+	pSection->m_token = token;
+	return pSection;
+}
+
+template<class flag, class start, class end>
+void Method::ReadExceptionHandlers(int count) {
+	for (auto i = 0; i < count; i++)
+	{
+		auto type = static_cast<CorExceptionFlag>(Read<flag>());
+		long tryStart = Read<start>();
+		long tryEnd = Read<end>();
+		long handlerStart = Read<start>();
+		long handlerEnd = Read<end>();
+		long filterStart = 0;
+		ULONG token = 0;
+		switch (type)
+		{
+		case COR_ILEXCEPTION_CLAUSE_FILTER:
+			filterStart = Read<long>();
+			break;
+		default:
+			token = Read<ULONG>();
+			break;
+		}
+		m_exceptions.push_back(ReadExceptionHandler(type, tryStart, tryEnd, handlerStart, handlerEnd, filterStart, token));
+	}
+}
+
+/// <summary>Read the exception handler section.</summary>
 /// <remarks>All 'Small' sections are to be converted to 'Fat' sections.</remarks>
 void Method::ReadSections()
 {
@@ -258,81 +307,13 @@ void Method::ReadSections()
             {
                 Advance(-1);
                 int count = ((Read<ULONG>() >> 8) / 24);
-                for (auto i = 0; i < count; i++)
-                {
-                    auto type = static_cast<CorExceptionFlag>(Read<ULONG>());
-                    auto tryStart = Read<long>();
-                    auto tryEnd = Read<long>();
-                    auto handlerStart = Read<long>();
-                    auto handlerEnd = Read<long>();
-                    long filterStart = 0;
-                    ULONG token = 0;
-                    switch (type)
-                    {
-                    case COR_ILEXCEPTION_CLAUSE_FILTER:
-                        filterStart = Read<long>();
-                        break;
-                    default:
-                        token = Read<ULONG>();
-                        break;
-                    }
-                    auto pSection = new ExceptionHandler();
-                    pSection->m_handlerType = type;
-                    pSection->m_tryStart = GetInstructionAtOffset(tryStart);
-                    pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
-                    pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
-                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
-                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
-                    if (filterStart!=0)
-                    {
-                        pSection->m_filterStart = GetInstructionAtOffset(filterStart);
-                    }
-                    pSection->m_token = token;
-                    m_exceptions.push_back(pSection);
-                }
+				ReadExceptionHandlers<ULONG, long, long>(count);
             }
             else
             {
                 auto count = static_cast<int>(Read<BYTE>() / 12);
                 Advance(2);
-                for (auto i = 0; i < count; i++)
-                {
-                    auto type = static_cast<CorExceptionFlag>(Read<USHORT>());
-                    long tryStart = Read<USHORT>();
-                    long tryEnd = Read<BYTE>();
-                    long handlerStart = Read<USHORT>();
-                    long handlerEnd = Read<BYTE>();
-                    long filterStart = 0;
-                    ULONG token = 0;
-                    switch (type)
-                    {
-                    case COR_ILEXCEPTION_CLAUSE_FILTER:
-                        filterStart = Read<long>();
-                        break;
-                    default:
-                        token = Read<ULONG>();
-                        break;
-                    }
-                    ExceptionHandler * pSection = new ExceptionHandler();
-                    pSection->m_handlerType = type;
-                    pSection->m_tryStart = GetInstructionAtOffset(tryStart);
-                    pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
-                    pSection->m_handlerStart = GetInstructionAtOffset(handlerStart);
-                    pSection->m_handlerEnd = GetInstructionAtOffset(handlerStart + handlerEnd, 
-                        (type & COR_ILEXCEPTION_CLAUSE_FINALLY) == COR_ILEXCEPTION_CLAUSE_FINALLY,
-                        (type & COR_ILEXCEPTION_CLAUSE_FAULT) == COR_ILEXCEPTION_CLAUSE_FAULT,
-                        (type & COR_ILEXCEPTION_CLAUSE_FILTER) == COR_ILEXCEPTION_CLAUSE_FILTER,
-                        (type & COR_ILEXCEPTION_CLAUSE_NONE) == COR_ILEXCEPTION_CLAUSE_NONE);
-                    if (filterStart!=0)
-                    {
-                        pSection->m_filterStart = GetInstructionAtOffset(filterStart);
-                    }
-                    pSection->m_token = token;
-                    m_exceptions.push_back(pSection);
-                }
+				ReadExceptionHandlers<USHORT,USHORT,BYTE>(count);
             }
         } while((flags & CorILMethod_Sect_MoreSects) == CorILMethod_Sect_MoreSects);
     }

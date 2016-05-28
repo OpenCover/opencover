@@ -41,22 +41,28 @@ public:
         m_header.MaxStack += extraStackSize;
     }
 
-    DWORD GetCodeSize(){ return m_header.CodeSize; }
+    DWORD GetCodeSize() const { return m_header.CodeSize; }
 
 
 public:
     void RecalculateOffsets();
-    Instruction* EndOfBranch(Instruction* toFollow);
 
 private:
     void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
     void ReadBody();
-    void ConvertShortBranches();
+	
+	void ConvertShortBranches();
     void ResolveBranches();
     Instruction * GetInstructionAtOffset(long offset);
     Instruction * GetInstructionAtOffset(long offset, bool isFinally, bool isFault, bool isFilter, bool isTyped);
     void ReadSections();
-    void WriteSections();
+    
+	template<class flag, class start, class end>
+	void ReadExceptionHandlers(int count);
+
+	ExceptionHandler* ReadExceptionHandler(enum CorExceptionFlag type, long tryStart, long tryEnd, long handlerStart, long handlerEnd, long filterStart, ULONG token);
+
+	void WriteSections();
     bool DoesTryHandlerPointToOffset(long offset);
 
 private:

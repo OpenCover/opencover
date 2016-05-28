@@ -77,3 +77,5 @@ coverity.zip
 /main/.sonarqube
 /main/.cxxresults
 /tools/sonarqube/cxx-runner
+/main/OpenCover.VC.db
+/TestResult.xml
