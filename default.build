@@ -135,7 +135,7 @@
     <copy file="tools\CxxSonarQubeMsbuidRunner.exe" tofile="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" />
     
     <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs13 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs15 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
     
   </target>
   
