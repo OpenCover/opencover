@@ -84,23 +84,16 @@
 
   </target>
   
-  <target name="sonarqube-build-ci" if="${environment::variable-exists('SONARQUBE_USER')}">
-    <property name="sonarqube.user" value="${environment::get-variable('SONARQUBE_USER')}" />
-    <property name="sonarqube.pwd" value="${environment::get-variable('SONARQUBE_PASSWORD')}" />
+  <target name="sonarqube-build-ci" if="${environment::variable-exists('SONARQUBE_TOKEN')}">
+    <property name="sonarqube.token" value="${environment::get-variable('SONARQUBE_TOKEN')}" />
     
-    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.user}">
+    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.token}">
       <namespaces>
         <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
       </namespaces>
     </xmlpoke>
 
-    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.password']" value="${sonarqube.pwd}">
-      <namespaces>
-        <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
-      </namespaces>
-    </xmlpoke>
-
-    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.host.url']" value="http://sonar.many-monkeys.com:9000">
+    <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.host.url']" value="https://nemo.sonarqube.org">
       <namespaces>
         <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
       </namespaces>
@@ -118,7 +111,7 @@
 
   </target>
   
-  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_USER')}">
+  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_TOKEN')}">
 
     <call target="sonarqube-build-ci" />
   
