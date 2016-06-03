@@ -155,10 +155,12 @@ namespace OpenCover.Specs.Steps
             var startInfo = new ProcessStartInfo(openCover)
             {
                 Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml),
-                UseShellExecute = false
+                UseShellExecute = false,
+                RedirectStandardOutput = true
             };
             var process = Process.Start(startInfo);
             Assert.NotNull(process);
+            var console = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
         }
 
