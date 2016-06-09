@@ -169,7 +169,9 @@ void Method::ReadBody()
     while (GetPosition() < m_header.CodeSize)
     {
         Instruction* pInstruction = new Instruction();
-        pInstruction->m_origOffset = pInstruction->m_offset = GetPosition();
+        pInstruction->m_offset = GetPosition();
+		pInstruction->m_origOffset = pInstruction->m_offset;
+
         BYTE op1 = REFPRE;
         BYTE op2 = Read<BYTE>();
         switch (op2)
