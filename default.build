@@ -87,6 +87,7 @@
   <target name="sonarqube-build-ci" if="${environment::variable-exists('SONARQUBE_TOKEN')}">
     <property name="sonarqube.token" value="${environment::get-variable('SONARQUBE_TOKEN')}" />
     
+    <!--
     <xmlpoke file="tools\sonarqube\runner\SonarQube.Analysis.xml" xpath="//m:Property[@Name='sonar.login']" value="${sonarqube.token}">
       <namespaces>
         <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
@@ -98,7 +99,8 @@
         <namespace prefix="m" uri="http://www.sonarsource.com/msbuild/integration/2015/1" />
       </namespaces>
     </xmlpoke>
-
+    -->
+    
   </target>
   
   <target name="reset-private-vars" >
@@ -114,9 +116,9 @@
   <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_TOKEN')}">
 
     <call target="sonarqube-build-ci" />
-  
-    <call target="dogfood-release" />
 
+    <call target="dogfood-release" />
+    
     <call target="reset-private-vars" />
     
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
@@ -125,10 +127,12 @@
 			<arg value="tools\CxxSonarQubeMsbuidRunner.zip" />
 		</exec>
 
+    <!--
     <copy file="tools\CxxSonarQubeMsbuidRunner.exe" tofile="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" />
+    -->
     
     <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /x:vs15 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /d:sonar.token=${sonarqube.token} /d:sonar.host.url=https://nemo.sonarqube.org /x:vs15 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
     
   </target>
   
