@@ -473,7 +473,8 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
 
     bool response = false;
     int repeat = 0;
-    while (!response && (++repeat <= 3)){
+    while (!response && (repeat <= 3)){
+		++repeat;
         _hostCommunicationActive = true;
         RequestInformation(
             [=]()
