@@ -62,6 +62,7 @@
   </target>
   
 	<target name="create-release" depends="clean-all, build-environment, replace-drdump-token, build-release-platforms, test, test-cpp, create-zip-package">
+		<call target="chocolatey-package" />
 		<call target="nuget-package" />
 		<call target="set-rc-property" />
 		<call target="nuget-package" />

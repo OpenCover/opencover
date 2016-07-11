@@ -36,6 +36,8 @@ artifacts:
   name: ZipArchive
 - path: main/bin/nugetpackage-rc/*.nupkg
   name: NugetCandidate
+- path: main/bin/chocpackage/*.nupkg
+  name: Chocolatey
 deploy:
 - provider: NuGet
   api_key:

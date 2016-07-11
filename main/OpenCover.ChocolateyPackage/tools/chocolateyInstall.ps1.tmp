@@ -1,0 +1,5 @@
+$packageName = 'opencover'
+$installerType = 'msi'
+$silentArgs= '/quiet'
+$url = 'https://github.com/OpenCover/opencover/releases/download/[[version]]/opencover.[[version]].msi'
+Install-ChocolateyPackage "$packageName" "$installerType" "$silentArgs" "$url" -validExitCodes @(0)
