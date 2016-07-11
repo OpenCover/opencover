@@ -1,4 +1,5 @@
 Version [[version]]
+#587 package samples in zip file
 #603 build chocolatey package for alternative distribution
 #540 -version now also works when mixed with other args (feature) 
 #577 output filepath when handling exceptions with files (fix) 

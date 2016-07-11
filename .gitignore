@@ -83,3 +83,4 @@ coverity.zip
 #chocolatey
 /main/OpenCover.ChocolateyPackage/tools/chocolateyInstall.ps1
 /main/bin/chocpackage/*.nupkg
+/samples/SampleSln.zip
