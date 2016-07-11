@@ -1,4 +1,5 @@
 Version [[version]]
+#579 remove false positive reporting on filter
 #587 package samples in zip file
 #603 build chocolatey package for alternative distribution
 #540 -version now also works when mixed with other args (feature) 
