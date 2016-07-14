@@ -23,10 +23,10 @@
 
 ### I have already...
 
-- [ ] repeated the problem using the latest stable release of OpenCover
+- [ ] repeated the problem using the latest stable release of OpenCover.
 - [ ] reviewed the [usage guide](https://github.com/opencover/opencover/wiki/usage) and [usage document](https://github.com/opencover/opencover/blob/master/main/OpenCover.Documentation/Usage.pdf).
-- [ ] have looked at the opencover output xml file in an attempt to resolve the issue
-- [ ] reviewed the [current issues](https://github.com/opencover/opencover/issues) to check that the issue isn't already known
+- [ ] have looked at the opencover output xml file in an attempt to resolve the issue.
+- [ ] reviewed the [current issues](https://github.com/opencover/opencover/issues) to check that the issue isn't already known.
 
 ### My issue is related to (check only those which apply):
 
