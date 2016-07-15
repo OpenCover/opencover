@@ -1,7 +1,8 @@
 Version [[version]]
-#579 remove false positive reporting on filter
-#587 package samples in zip file
-#603 build chocolatey package for alternative distribution
+#550 ensure the host and profiler are matched by version number (feature)
+#579 remove false positive reporting on filter (fix)
+#587 package samples in zip file (feature)
+#603 build chocolatey package for alternative distribution (feature)
 #540 -version now also works when mixed with other args (feature) 
 #577 output filepath when handling exceptions with files (fix) 
 
