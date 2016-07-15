@@ -9,6 +9,22 @@
   <property name="choco.exe" value="${choco.folder}/choco.exe" />
   <property name="chocolatey.output.folder" value="${solution.folder}\bin\chocpackage" />
 
+   <target name="generate-release-notes" depends="get-version-number" >
+    <delete file="ReleaseNotes.txt" />
+    <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="${solution.folder}\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt" />
+    <concat destfile="${solution.folder}\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt" append="true">
+        <fileset>
+            <include name="${solution.folder}\OpenCover.Packages\nuget\opencover\readme.txt" />
+            <include name="ReleaseNotes.txt" />
+        </fileset>
+    </concat>
+  </target>
+  
   <target name="prepare-sample-project" depends="get-version-number" >
     <delete file="samples\SampleSln\coverage.bat" />
     <copy file="samples\SampleSln\coverage.bat.tmp" tofile="samples\SampleSln\coverage.bat" >
@@ -48,7 +64,7 @@
     
   </target>
 
-  <target name="nuget-package" depends="prepare-sample-project">
+  <target name="nuget-package" depends="prepare-sample-project, generate-release-notes">
     <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
     <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     <property name="nugetpackage.folder" value="${out.folder}" />
@@ -56,13 +72,13 @@
     
     <mkdir dir="${nugetpackage.folder}" />
     <exec program="${nuget.exe}" 
-      commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
+      commandline="pack ${solution.folder}\OpenCover.Packages\nuget\opencover\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
   </target>
   
   <target name="chocolatey-package" depends="get-version-number" >
     
-    <delete file="${solution.folder}\OpenCover.ChocolateyPackage\tools\chocolateyInstall.ps1" />
-    <copy file="${solution.folder}\OpenCover.ChocolateyPackage\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.ChocolateyPackage\tools\chocolateyInstall.ps1" >
+    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" />
+    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" >
       <filterchain>
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
       </filterchain>
@@ -74,7 +90,7 @@
     <mkdir dir="${chocolatey.output.folder}" />
     
     <exec program="${choco.exe}" 
-      commandline="pack ${solution.folder}\OpenCover.ChocolateyPackage\OpenCover.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover\OpenCover.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
     
     <move todir="${chocolatey.output.folder}" >
       <fileset basedir=".">

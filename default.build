@@ -117,22 +117,6 @@
   <target name="set-rc-property" >
     <property name="buildnumber.ci" value="-rc" />
   </target>
-    
-  <target name="generate-release-notes" depends="get-version-number" >
-    <delete file="ReleaseNotes.txt" />
-    <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
-      <filterchain>
-        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-      </filterchain>
-    </copy>
-    <delete file="main\OpenCover.NugetPackage\readme_with_releasenotes.txt" />
-    <concat destfile="main\OpenCover.NugetPackage\readme_with_releasenotes.txt" append="true">
-        <fileset>
-            <include name="main\OpenCover.NugetPackage\readme.txt" />
-            <include name="ReleaseNotes.txt" />
-        </fileset>
-    </concat>
-  </target>
 
   <target name="replace-drdump-token" if="${environment::variable-exists('DRDUMP_TOKEN')}" >
     <property name="drdump.token" value="${environment::get-variable('DRDUMP_TOKEN')}" />

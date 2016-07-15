@@ -60,7 +60,7 @@
 /results.xml
 
 #release-notes
-/main/OpenCover.NugetPackage/readme_with_releasenotes.txt
+/main/OpenCover.Packages/nuget/opencover/readme_with_releasenotes.txt
 ReleaseNotes.txt
 
 #Coverity
@@ -81,6 +81,6 @@ coverity.zip
 /TestResult.xml
 
 #chocolatey
-/main/OpenCover.ChocolateyPackage/tools/chocolateyInstall.ps1
 /main/bin/chocpackage/*.nupkg
 /samples/SampleSln.zip
+/main/OpenCover.Packages/chocolatey/opencover/tools/chocolateyInstall.ps1

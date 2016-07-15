@@ -26,7 +26,7 @@
     <file src="main\bin\Release\Mono.Cecil.Pdb.dll" target="tools"/>
     <file src="main\bin\Release\Mono.Cecil.Mdb.dll" target="tools"/>
     <file src="License.rtf"/>
-    <file src="main\OpenCover.NugetPackage\readme_with_releasenotes.txt"/>
+    <file src="main\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt"/>
     <file src="main\bin\Release\OpenCover.Console.exe" target="tools"/>
     <file src="main\bin\Release\OpenCover.Console.pdb" target="tools"/>
     <file src="main\bin\Release\OpenCover.Console.exe.config" target="tools"/>
