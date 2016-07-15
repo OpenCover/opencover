@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
-    <id>OpenCover</id>
-    <version>1.0.0.0</version>
-    <title>OpenCover - an open source code coverage tool for .NET</title>
+    <id>opencover.portable</id>
+    <version>1.0.0</version>
+    <title>OpenCover (Portable) - an open source code coverage tool for .NET</title>
     <authors>sawilde</authors>
     <owners>sawilde</owners>
     <licenseUrl>https://github.com/opencover/opencover/blob/master/License.md</licenseUrl>

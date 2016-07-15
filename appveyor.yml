@@ -30,14 +30,16 @@ test: off
 artifacts:
 - path: main/bin/installer/*.msi
   name: Installer
-- path: main/bin/nugetpackage/*.nupkg
-  name: Nuget
 - path: main/bin/zip/*.zip
   name: ZipArchive
-- path: main/bin/nugetpackage-rc/*.nupkg
+- path: main/bin/packages/nuget/opencover/*.nupkg
+  name: Nuget
+- path: main/bin/packages/nuget/opencover-rc/*.nupkg
   name: NugetCandidate
-- path: main/bin/chocpackage/*.nupkg
+- path: main/bin/packages/chocolatey/opencover/*.nupkg
   name: Chocolatey
+- path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
+  name: ChocolateyPortable
 deploy:
 - provider: NuGet
   api_key:
