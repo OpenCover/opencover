@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Moq;
 using NUnit.Framework;
@@ -75,9 +76,14 @@ namespace OpenCover.Test.Framework.Communication
         public void Handles_MSG_AllocateMemoryBuffer()
         {
             // arrange 
+            var version = typeof(MSG_AllocateBuffer_Request).Assembly.GetName().Version;
             Container.GetMock<IMarshalWrapper>()
                 .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
-                .Returns(new MSG_AllocateBuffer_Request());
+                .Returns(new MSG_AllocateBuffer_Request()
+                {
+                    version_high = ((uint)version.Major << 16) + (uint)version.Minor,
+                    version_low = ((uint)version.Build << 16) + (uint)version.Revision
+                });
             uint bufferId;
             Container.GetMock<IMemoryManager>()
                      .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
@@ -90,6 +96,37 @@ namespace OpenCover.Test.Framework.Communication
             Container.GetMock<IMemoryManager>()
                 .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId), Times.Once());
 
+        }
+
+        [Test]
+        public void Handles_MSG_AllocateMemoryBuffer_WithMismatchedVersion()
+        {
+            // arrange 
+            var version = typeof(MSG_AllocateBuffer_Request).Assembly.GetName().Version;
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_AllocateBuffer_Request()
+                {
+                    version_high = 1,
+                    version_low = 1
+                });
+
+            var response = new MSG_AllocateBuffer_Response { allocated = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_AllocateBuffer_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_AllocateBuffer_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            uint bufferId;
+            Container.GetMock<IMemoryManager>()
+                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
+                     .Returns(new ManagedBufferBlock());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
+
+            // assert
+            Assert.IsFalse(response.allocated);
+            Assert.AreEqual(MSG_AllocateBufferFailure.ABF_ProfilerVersionMismatch, response.reason);
         }
 
         [Test]

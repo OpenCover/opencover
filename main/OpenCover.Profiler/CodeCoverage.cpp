@@ -21,6 +21,41 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
 	return OpenCoverInitialise(pICorProfilerInfoUnk);
 }
 
+void GetVersion(LPTSTR szVersionFile, DWORD *dwVersionHigh, DWORD *dwVersionLow) {
+	DWORD  verHandle = NULL;
+	UINT   size = 0;
+	VS_FIXEDFILEINFO *verInfo = NULL;
+	auto  verSize = GetFileVersionInfoSize(szVersionFile, &verHandle);
+
+	if (verSize != NULL)
+	{
+		auto verData = new BYTE[verSize];
+
+		if (GetFileVersionInfo(szVersionFile, verHandle, verSize, verData))
+		{
+			if (VerQueryValue(verData, _T("\\"), (VOID FAR* FAR*)&verInfo, &size))
+			{
+				if (size >= sizeof(VS_FIXEDFILEINFO))
+				{
+					if (verInfo->dwSignature == 0xfeef04bd)
+					{
+						RELTRACE(_T("File Version: %d.%d.%d.%d\n"),
+							(verInfo->dwFileVersionMS >> 16) & 0xffff,
+							(verInfo->dwFileVersionMS >> 0) & 0xffff,
+							(verInfo->dwFileVersionLS >> 16) & 0xffff,
+							(verInfo->dwFileVersionLS >> 0) & 0xffff
+						);
+
+						*dwVersionHigh = verInfo->dwFileVersionMS;
+						*dwVersionLow = verInfo->dwFileVersionLS;
+					}
+				}
+			}
+		}
+		delete[] verData;
+	}
+}
+
 HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 	ATLTRACE(_T("::OpenCoverInitialise"));
 
@@ -29,13 +64,13 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
     //::OutputDebugStringW(szGuid);
 
-    WCHAR szExeName[MAX_PATH];
-    GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
-    RELTRACE(L"    ::Initialize(...) => EXE = %s", szExeName);
+	TCHAR szExeName[MAX_PATH];
+    GetModuleFileName(nullptr, szExeName, MAX_PATH);
+    RELTRACE(_T("    ::Initialize(...) => EXE = %s"), szExeName);
 
-    WCHAR szModuleName[MAX_PATH];
-    GetModuleFileNameW(_AtlModule.m_hModule, szModuleName, MAX_PATH);
-    RELTRACE(L"    ::Initialize(...) => PROFILER = %s", szModuleName);
+    TCHAR szModuleName[MAX_PATH];
+    GetModuleFileName(_AtlModule.m_hModule, szModuleName, MAX_PATH);
+    RELTRACE(_T("    ::Initialize(...) => PROFILER = %s"), szModuleName);
     //::OutputDebugStringW(szModuleName);
 
     if (g_pProfiler!=nullptr) 
@@ -104,9 +139,12 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
         ATLTRACE(_T("    ::Initialize(...) => shortwait = %ul"), _shortwait);
     }
 
+	DWORD dwVersionHigh, dwVersionLow;
+	GetVersion(szModuleName, &dwVersionHigh, &dwVersionLow);
+
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    _host = std::make_shared<ProfilerCommunication>(_shortwait);
+    _host = std::make_shared<ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
 
     if (!_host->Initialise(key, ns, szExeName))
     {
