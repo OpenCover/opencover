@@ -1,19 +1,129 @@
 <?xml version="1.0"?>
 <project name="OpenCover" >
-	
-	<property name="nuget.folder" value="${solution.folder}/.nuget" />
-	<property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
-	<property name="out.folder" value="${solution.folder}\bin\nugetpackage" />
+  
+  <property name="nuget.folder" value="${solution.folder}/.nuget" />
+  <property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
+  <property name="out.folder" value="${solution.folder}\bin\packages\nuget\opencover" />
 
-	<target name="nuget-package" >
-   	<property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
-   	<property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
+  <property name="choco.folder" value="${solution.folder}/packages/chocolatey.0.9.10.3/tools/chocolateyInstall" />
+  <property name="choco.exe" value="${choco.folder}/choco.exe" />
+  <property name="chocolatey.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover" />
+  <property name="chocolatey.portable.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover.portable" />
+
+   <target name="generate-release-notes" depends="get-version-number" >
+    <delete file="ReleaseNotes.txt" />
+    <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="${solution.folder}\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt" />
+    <concat destfile="${solution.folder}\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt" append="true">
+        <fileset>
+            <include name="${solution.folder}\OpenCover.Packages\nuget\opencover\readme.txt" />
+            <include name="ReleaseNotes.txt" />
+        </fileset>
+    </concat>
+  </target>
+  
+  <target name="prepare-sample-project" depends="get-version-number" >
+    <delete file="samples\SampleSln\coverage.bat" />
+    <copy file="samples\SampleSln\coverage.bat.tmp" tofile="samples\SampleSln\coverage.bat" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="samples\SampleSln\.nuget\packages.config" />
+    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\.nuget\packages.config" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    <delete file="samples\SampleSln\nuget\packages.config" />
+    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\nuget\packages.config" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    
+    <delete file="samples\SampleSln.zip" />
+    <exec program="${tools.folder}/7-Zip/7za.exe" if="${directory::exists('samples\SampleSln')}">
+      <arg value="a" />
+      <arg value="samples\SampleSln.zip" />
+      <arg value="samples\SampleSln\coverage.bat"/>
+      <arg value="samples\SampleSln\BomSample.sln"/>
+      <arg value="samples\SampleSln\nuget\packages.config"/>
+      <arg value="samples\SampleSln\packages\repositories.config"/>
+      <arg value="samples\SampleSln\Bom\Bom.csproj"/>
+      <arg value="samples\SampleSln\Bom\BomManager.cs"/>
+      <arg value="samples\SampleSln\Bom\Properties\AssemblyInfo.cs"/>
+      <arg value="samples\SampleSln\BomTest\BomTest.csproj"/>
+      <arg value="samples\SampleSln\BomTest\BomManagerTests.cs"/>
+      <arg value="samples\SampleSln\BomTest\packages.config"/>
+      <arg value="samples\SampleSln\BomTest\Properties\AssemblyInfo.cs"/>  
+    </exec>
+    
+  </target>
+
+  <target name="nuget-package" depends="prepare-sample-project, generate-release-notes">
+    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
+    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     <property name="nugetpackage.folder" value="${out.folder}" />
     <property name="nugetpackage.folder" value="${out.folder}-rc" if="${buildnumber.rc != ''}"/>
     
-		<mkdir dir="${nugetpackage.folder}" />
-		<exec program="${nuget.exe}" 
-			commandline="pack ${solution.folder}\OpenCover.NugetPackage\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
-	</target>
-	
+    <mkdir dir="${nugetpackage.folder}" />
+    <exec program="${nuget.exe}" 
+      commandline="pack ${solution.folder}\OpenCover.Packages\nuget\opencover\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
+  </target>
+  
+  <target name="chocolatey-package" depends="get-version-number" >
+    
+    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" />
+    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    
+    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
+    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
+    
+    <mkdir dir="${chocolatey.output.folder}" />
+    
+    <exec program="${choco.exe}" 
+      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover\OpenCover.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+    
+    <move todir="${chocolatey.output.folder}" >
+      <fileset basedir=".">
+          <include name="*.nupkg" />
+      </fileset>
+    </move>
+    
+  </target>
+
+  <target name="chocolatey-package-portable" depends="get-version-number" >
+    
+    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1" />
+    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+      </filterchain>
+    </copy>
+    
+    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
+    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
+    
+    <mkdir dir="${chocolatey.output.folder}" />
+    
+    <exec program="${choco.exe}" 
+      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\OpenCover.portable.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+    
+    <move todir="${chocolatey.portable.output.folder}" >
+      <fileset basedir=".">
+          <include name="*.nupkg" />
+      </fileset>
+    </move>
+    
+  </target>
+  
 </project>

@@ -136,7 +136,7 @@
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\OpenCover.Profiler.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
@@ -172,7 +172,7 @@
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\OpenCover.Profiler.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
@@ -212,7 +212,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
@@ -250,7 +250,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>

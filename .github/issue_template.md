@@ -1,3 +1,5 @@
+Please provide the following information when submitting an issue, where appropriate replace the `[ ]` with a `[X]`
+
 ### My Framework
 
 - [ ] .NET 2

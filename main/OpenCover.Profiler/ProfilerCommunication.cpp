@@ -17,13 +17,16 @@
 
 #define MSG_UNION_SIZE sizeof(MSG_Union)
 
-ProfilerCommunication::ProfilerCommunication(DWORD short_wait) 
+ProfilerCommunication::ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low)
 {
     _bufferId = 0;
     _pMSG = nullptr;
     _pVisitPoints = nullptr;
     _hostCommunicationActive = false;
     _short_wait = short_wait;
+	_version_high = version_high;
+	_version_low = version_low;
+
     ATLASSERT(MAX_MSG_SIZE >= sizeof(MSG_Union));
     ATLASSERT(MAX_MSG_SIZE >= sizeof(MSG_SendVisitPoints_Request));
     ATLTRACE(_T("Buffer %d, Union %ld, Visit %ld"), MAX_MSG_SIZE, sizeof(MSG_Union), sizeof(MSG_SendVisitPoints_Request));
@@ -480,11 +483,14 @@ bool ProfilerCommunication::AllocateBuffer(LONG bufferSize, ULONG &bufferId)
             [=]()
             {
                 _pMSG->allocateBufferRequest.type = MSG_AllocateMemoryBuffer; 
-                _pMSG->allocateBufferRequest.lBufferSize = bufferSize;
+				_pMSG->allocateBufferRequest.lBufferSize = bufferSize;
+				_pMSG->allocateBufferRequest.dwVersionHigh = _version_high;
+				_pMSG->allocateBufferRequest.dwVersionLow = _version_low;
+
             }, 
             [=, &response, &bufferId]()->BOOL
             {
-                response =  _pMSG->allocateBufferResponse.bResponse == TRUE;
+                response =  _pMSG->allocateBufferResponse.allocated == TRUE;
                 bufferId = _pMSG->allocateBufferResponse.ulBufferId;
                 ::ZeroMemory(_pMSG, MSG_UNION_SIZE);
                 return FALSE;
@@ -524,7 +530,7 @@ void ProfilerCommunication::CloseChannel(bool sendSingleBuffer){
         },
         [=, &response]()->BOOL
         {
-            response = _pMSG->allocateBufferResponse.bResponse == TRUE;
+            response = _pMSG->closeChannelResponse.bResponse == TRUE;
             return FALSE;
         }
         , _short_wait

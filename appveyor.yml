@@ -30,18 +30,38 @@ test: off
 artifacts:
 - path: main/bin/installer/*.msi
   name: Installer
-- path: main/bin/nugetpackage/*.nupkg
-  name: Nuget
 - path: main/bin/zip/*.zip
   name: ZipArchive
-- path: main/bin/nugetpackage-rc/*.nupkg
+- path: main/bin/packages/nuget/opencover/*.nupkg
+  name: Nuget
+- path: main/bin/packages/nuget/opencover-rc/*.nupkg
   name: NugetCandidate
+- path: main/bin/packages/chocolatey/opencover/*.nupkg
+  name: Chocolatey
+- path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
+  name: ChocolateyPortable
 deploy:
 - provider: NuGet
   api_key:
     secure: yew/4xjmqdUs1U//LNGQjjMgB3JVantsz09C2LxmKaLXuG1gEsWJl+Nd+VRmB3TM
   skip_symbols: true
   artifact: Nuget
+  on:
+    branch: release
+- provider: NuGet
+  server: https://chocolatey.org/
+  api_key:
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: Chocolatey
+  on:
+    branch: release
+- provider: NuGet
+  server: https://chocolatey.org/
+  api_key:
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: ChocolateyPortable
   on:
     branch: release
 - provider: NuGet

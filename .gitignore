@@ -60,7 +60,7 @@
 /results.xml
 
 #release-notes
-/main/OpenCover.NugetPackage/readme_with_releasenotes.txt
+/main/OpenCover.Packages/nuget/opencover/readme_with_releasenotes.txt
 ReleaseNotes.txt
 
 #Coverity
@@ -79,3 +79,9 @@ coverity.zip
 /tools/sonarqube/cxx-runner
 /main/OpenCover.VC.db
 /TestResult.xml
+
+#chocolatey
+/main/bin/chocpackage/*.nupkg
+/samples/SampleSln.zip
+/main/OpenCover.Packages/chocolatey/opencover/tools/chocolateyInstall.ps1
+/main/OpenCover.Packages/chocolatey/opencover.portable/tools/chocolateyInstall.ps1

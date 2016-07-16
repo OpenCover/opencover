@@ -86,6 +86,22 @@ namespace OpenCover.Framework.Communication
     }
 
     /// <summary>
+    /// The type of results
+    /// </summary>
+    public enum MSG_AllocateBufferFailure : uint
+    {
+        /// <summary>
+        /// reason not applicable or unknown
+        /// </summary>
+        ABF_NotApplicable = 0,
+
+        /// <summary>
+        /// The profiler and host do not match - probably due to a new host being used with profiler from a different release.
+        /// </summary>
+        ABF_ProfilerVersionMismatch = 1,
+    }
+
+    /// <summary>
     /// Track an assembly
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Unicode)]
@@ -335,6 +351,16 @@ namespace OpenCover.Framework.Communication
         /// The buffer size
         /// </summary>
         public int bufferSize;
+
+        /// <summary>
+        /// The major.minor version parts of the attaching profiler
+        /// </summary>
+        public uint version_high;
+
+        /// <summary>
+        /// The build.revision version parts of the attaching profiler
+        /// </summary>
+        public uint version_low;
     }
 
     /// <summary>
@@ -353,6 +379,11 @@ namespace OpenCover.Framework.Communication
         /// The id assigned to the buffer
         /// </summary>
         public uint bufferId;
+
+        /// <summary>
+        /// If allocated == false, a reason for a buffer allocation failure if available
+        /// </summary>
+        public MSG_AllocateBufferFailure reason;
     }
 
     /// <summary>

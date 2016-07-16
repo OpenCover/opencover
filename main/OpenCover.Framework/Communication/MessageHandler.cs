@@ -5,6 +5,7 @@
 //
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using log4net;
 using OpenCover.Framework.Manager;
@@ -215,15 +216,30 @@ namespace OpenCover.Framework.Communication
         private int HandleAllocateBufferMessage(Action<ManagedBufferBlock> offloadHandling, IntPtr pinnedMemory)
         {
             var writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
-            var response = new MSG_AllocateBuffer_Response { allocated = false, bufferId = 0 };
+            var response = new MSG_AllocateBuffer_Response { allocated = false, bufferId = 0, reason = MSG_AllocateBufferFailure.ABF_NotApplicable };
             try
             {
                 var request = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
-                uint bufferId;
-                var block = _memoryManager.AllocateMemoryBuffer(request.bufferSize, out bufferId);
-                response.allocated=true;
-                response.bufferId = bufferId;
-                offloadHandling(block);
+
+                var executingVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var profilerVersion = new Version((int) (request.version_high >> 16 & 0xffff), (int) (request.version_high & 0xffff),
+                    (int) (request.version_low >> 16 & 0xffff), (int) (request.version_low & 0xffff));
+
+                if (profilerVersion == executingVersion)
+                {
+                    uint bufferId;
+                    var block = _memoryManager.AllocateMemoryBuffer(request.bufferSize, out bufferId);
+                    response.allocated = true;
+                    response.bufferId = bufferId;
+                    offloadHandling(block);
+                }
+                else
+                {
+                    Console.WriteLine("Incorrect profiler version detected: expected {0}, received {1}", executingVersion, profilerVersion);
+                    response.allocated = false;
+                    response.bufferId = 0;
+                    response.reason = MSG_AllocateBufferFailure.ABF_ProfilerVersionMismatch;
+                }
             }
             catch (Exception ex)
             {

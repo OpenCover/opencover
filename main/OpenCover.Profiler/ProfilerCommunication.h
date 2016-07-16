@@ -20,7 +20,7 @@ class ProfilerCommunication
 private:
 
 public:
-    ProfilerCommunication(DWORD short_wait);
+    ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low);
     ~ProfilerCommunication(void);
     bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
@@ -114,6 +114,10 @@ private:
 
     template<class Action>
     void static handle_sehexception(Action action, const tstring& message);
+
+private:
+	DWORD _version_high;
+	DWORD _version_low;
 
 private:
   
