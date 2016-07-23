@@ -54,16 +54,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DotNetCore.feature.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DotNetCore.feature</DependentUpon>
+    </Compile>
     <Compile Include="Packaging.feature.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Packaging.feature</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Steps\DotNetCoreSteps.cs" />
     <Compile Include="Steps\PackagingSteps.cs" />
+    <Compile Include="Steps\Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="DotNetCore.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>DotNetCore.feature.cs</LastGenOutput>
+    </None>
     <None Include="packages.config" />
     <None Include="Packaging.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

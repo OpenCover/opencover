@@ -302,7 +302,12 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
             assemblyId, W2CT(assemblyName.c_str()));
     }
 
-    return S_OK; 
+	if (MSCORLIB_NAME == assemblyName || DNCORLIB_NAME == assemblyName) {
+		cuckoo_module_ = assemblyName;
+		RELTRACE(_T("cuckoo => %s"), cuckoo_module_.c_str());
+	}
+
+	return S_OK; 
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -325,7 +330,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         if (m_allowModules[modulePath])
         {
-            ATLTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
+            RELTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
 
             std::vector<SequencePoint> seqPoints;
             std::vector<BranchPoint> brPoints;
@@ -418,7 +423,7 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
     }
     else
     {
-        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId);
+        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId, cuckoo_module_.c_str());
 
         InstructionList instructions;
         if (seqPoints.size() > 0)

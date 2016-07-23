@@ -18,6 +18,8 @@ cache:
 - build/Version/opencover.public.snk
 nuget:
   disable_publish_on_pr: true
+before_build:
+- appveyor-retry dotnet restore -v Minimal
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {

@@ -85,3 +85,6 @@ coverity.zip
 /samples/SampleSln.zip
 /main/OpenCover.Packages/chocolatey/opencover/tools/chocolateyInstall.ps1
 /main/OpenCover.Packages/chocolatey/opencover.portable/tools/chocolateyInstall.ps1
+/main/.vs
+project.lock.json
+/main/*.opendb

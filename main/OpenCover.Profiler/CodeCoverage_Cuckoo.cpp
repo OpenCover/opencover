@@ -128,7 +128,7 @@ HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 	return S_OK;
 }
 
-mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
+mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId, const WCHAR* moduleName)
 {
 	ATLTRACE(_T("::RegisterSafeCuckooMethod(%X) => %s"), moduleId, CUCKOO_SAFE_METHOD_NAME);
 
@@ -140,7 +140,7 @@ mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId)
 		_T("    ::RegisterSafeCuckooMethod(...) => GetModuleMetaData => 0x%X"));
 
 	mdModuleRef mscorlibRef;
-	COM_FAIL_MSG_RETURN_ERROR(GetModuleRef(moduleId, MSCORLIB_NAME, mscorlibRef),
+	COM_FAIL_MSG_RETURN_ERROR(GetModuleRef(moduleId, moduleName, mscorlibRef),
 		_T("    ::RegisterSafeCuckooMethod(...) => GetModuleRef => 0x%X"));
 
 	mdTypeDef nestToken;
@@ -217,8 +217,9 @@ HRESULT CCodeCoverage::CuckooSupportCompilation(
     if ((m_cuckooCriticalToken != functionToken) && (m_cuckooSafeToken != functionToken))
         return S_OK;
 
+	auto assemblyName = GetAssemblyName(assemblyId);
 	// check that we have the right module
-	if (MSCORLIB_NAME == GetAssemblyName(assemblyId))
+	if (MSCORLIB_NAME == assemblyName || DNCORLIB_NAME == assemblyName) 
 	{
 		if (m_cuckooCriticalToken == functionToken)
 		{
