@@ -53,11 +53,14 @@ namespace OpenCover.Specs.Steps
                 UseShellExecute = false,
                 RedirectStandardOutput = true
             };
+
+            //Console.WriteLine($"{info.FileName} {info.Arguments}");
+
             var process = Process.Start(info);
             Assert.NotNull(process);
             var console = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
-
+            
             Assert.True(File.Exists(outputXml));
 
             ScenarioContext.Current["OutputXml"] = outputXml;

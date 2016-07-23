@@ -92,7 +92,7 @@ namespace OpenCover.Specs.Steps
         {
             string targetFolder;
             string targetOutput;
-            var targetFile = BuildTargets("nugetpackage", "nupkg", "nuFolder", "nuoutput.xml", out targetFolder, out targetOutput);
+            var targetFile = BuildTargets(@"packages\nuget\opencover", "nupkg", "nuFolder", "nuoutput.xml", out targetFolder, out targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;

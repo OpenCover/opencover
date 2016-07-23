@@ -131,7 +131,6 @@
         
     <exec program="${nunit-console}">
       <arg value="${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
-      <arg value="--x86" />
       <arg value="${exclude-admin-only}" />
       <arg value="--result=${solution.folder}/bin/${configuration}/TestResult.xml${nunit-appveyor}" />
     </exec>
