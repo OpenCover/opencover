@@ -187,8 +187,8 @@ namespace OpenCover.Specs.Steps
             var data64 = File.ReadAllText(outputXml64);
 
             // do both files have the same coverage
-            var coverage86 = GetTotalCoverage(data86);
-            var coverage64 = GetTotalCoverage(data64);
+            var coverage86 = Utils.GetTotalCoverage(data86);
+            var coverage64 = Utils.GetTotalCoverage(data64);
             Assert.AreEqual(decimal.Parse(coverage64), decimal.Parse(coverage86));
             Assert.Greater(decimal.Parse(coverage64), 0);
 
@@ -197,15 +197,6 @@ namespace OpenCover.Specs.Steps
             CompareMatches(Regex.Matches(data64, seqPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, seqPointRegEx, RegexOptions.Multiline));
             CompareMatches(Regex.Matches(data64, branchPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, branchPointRegEx, RegexOptions.Multiline));
             CompareMatches(Regex.Matches(data64, methodPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, methodPointRegEx, RegexOptions.Multiline));
-        }
-
-        private static string GetTotalCoverage(string xml)
-        {
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
-            var coverage = xmlDoc.SelectSingleNode("/CoverageSession/Summary/@sequenceCoverage");
-            Assert.NotNull(coverage);
-            return coverage.Value;
         }
 
         private static void CompareMatches(MatchCollection matches1, MatchCollection matches2)
