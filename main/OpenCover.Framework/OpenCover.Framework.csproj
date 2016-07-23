@@ -53,9 +53,11 @@
       <HintPath>..\packages\Autofac.Configuration.3.3.0\lib\net40\Autofac.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="Gendarme.Framework, Version=2.11.0.0, Culture=neutral, PublicKeyToken=b07ccf3a9f1ab3c9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\GendarmeSigned\Gendarme.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="Gendarme.Rules.Maintainability">
+    <Reference Include="Gendarme.Rules.Maintainability, Version=2.11.0.0, Culture=neutral, PublicKeyToken=b07ccf3a9f1ab3c9, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\tools\GendarmeSigned\Gendarme.Rules.Maintainability.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -63,16 +65,20 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\Mono.Cecil\net_4_5_Debug\Mono.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Mdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\Mono.Cecil\net_4_5_Debug\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\Mono.Cecil\net_4_5_Debug\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil.Rocks, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.9.6.1\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\tools\Mono.Cecil\net_4_5_Debug\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
