@@ -27,6 +27,7 @@ using namespace ATL;
 #define COM_FAIL_MSG_RETURN_OTHER(hr, ret, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (ret); }
 
 #define MSCORLIB_NAME L"mscorlib"
+#define DNCORLIB_NAME L"System.Private.CoreLib"
 
 #include "CoverageInstrumentation.h"
 
@@ -150,11 +151,11 @@ private:
 
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
-    HRESULT GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef(ModuleID moduleId, const WCHAR*moduleName, mdModuleRef &mscorlibRef);
 
-    HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
-    HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
-    HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
 
 private:
 	HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId);
@@ -162,12 +163,13 @@ private:
     mdMethodDef m_cuckooCriticalToken;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
-    mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId);
+    mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId, const WCHAR* moduleName);
     void InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
 	HRESULT CuckooSupportCompilation(
 		AssemblyID assemblyId,
 		mdToken functionToken,
 		ModuleID moduleId);
+	std::wstring cuckoo_module_;
 
 private:
     CComPtr<ICorProfilerCallback4> m_chainedProfiler;

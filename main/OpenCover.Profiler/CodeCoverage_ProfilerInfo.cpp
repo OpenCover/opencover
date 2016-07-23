@@ -75,7 +75,7 @@ mdSignature CCodeCoverage::GetMethodSignatureToken_I4(ModuleID moduleID)
 }
 
 
-HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     CComPtr<IMetaDataEmit> metaDataEmit;
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
@@ -102,7 +102,7 @@ HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModul
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));
@@ -118,7 +118,7 @@ HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyE
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));
@@ -134,7 +134,7 @@ HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyE
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));

@@ -35,8 +35,8 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["TargetApp"] = targetApp;
         }
 
-        [When(@"I execute OpenCover against the target application using the oldstyle switch")]
-        public void WhenIExecuteOpenCoverAgainstTheTargetApplicationUsingTheOldstyleSwitch()
+        [When(@"I execute OpenCover against the target application using the switch '(.*)'")]
+        public void WhenIExecuteOpenCoverAgainstTheTargetApplicationUsingTheSwitch(string additionalSwitch)
         {
             var dotnetexe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"dotnet\dotnet.exe");
             var targetApp = (string)ScenarioContext.Current["TargetApp"];
@@ -48,7 +48,7 @@ namespace OpenCover.Specs.Steps
             var info = new ProcessStartInfo
             {
                 FileName = Path.Combine(targetFolder, "OpenCover.Console.exe"),
-                Arguments = $"-oldstyle -register:user \"-target:{dotnetexe}\" \"-targetargs:{targetApp}\" \"-output:{outputXml}\"",
+                Arguments = $"{additionalSwitch ?? ""} -register:user \"-target:{dotnetexe}\" \"-targetargs:{targetApp}\" \"-output:{outputXml}\"",
                 WorkingDirectory = targetFolder,
                 UseShellExecute = false,
                 RedirectStandardOutput = true
@@ -65,9 +65,9 @@ namespace OpenCover.Specs.Steps
 
             ScenarioContext.Current["OutputXml"] = outputXml;
         }
-        
-        [Then(@"I should have a '(.*)' file with a coverage greater than or equal to '(.*)'%")]
-        public void ThenIShouldHaveAFileWithACoverageGreaterThan(string resultsFile, decimal coveragePercentage)
+
+        [Then(@"I should have a results\.xml file with a coverage greater than or equal to '(.*)'%")]
+        public void ThenIShouldHaveAResults_XmlFileWithACoverageGreaterThanOrEqualTo(int coveragePercentage)
         {
             var xml = File.ReadAllText((string) ScenarioContext.Current["OutputXml"]);
             var coverage = Utils.GetTotalCoverage(xml);
