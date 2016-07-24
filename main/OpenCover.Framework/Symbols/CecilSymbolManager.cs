@@ -125,12 +125,11 @@ namespace OpenCover.Framework.Symbols
                 var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
                 _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
 
-                if (_sourceAssembly != null)
-                    _sourceAssembly.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
             }
             catch (Exception)
             {
-                // failure to here is quite normal for DLL's with no PDBs => no instrumentation
+                // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
                 _sourceAssembly = null;
             }
         }
@@ -152,7 +151,7 @@ namespace OpenCover.Framework.Symbols
                     }
                     if (_sourceAssembly == null && _logger.IsDebugEnabled)
                     {
-                        _logger.DebugFormat("Cannot instrument {0} as no PDB/MDB could be loaded", ModulePath);
+                        _logger.DebugFormat($"Cannot instrument {ModulePath} as no PDB/MDB could be loaded");
                     }
                 }
                 return _sourceAssembly;
@@ -200,6 +199,24 @@ namespace OpenCover.Framework.Symbols
             }                                                                                        
         }
 
+        private static IEnumerable<Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>> GetInstructionsWithSequencePoints(
+            MethodDefinition methodDefinition)
+        {
+            if (!methodDefinition.HasBody || !methodDefinition.DebugInformation.HasSequencePoints) yield break;
+            if (methodDefinition.SafeGetMethodBody() == null) yield break;
+
+            var iter = methodDefinition.Body.Instructions.OrderBy(x => x.Offset).GetEnumerator();
+            foreach (var sequencePoint in methodDefinition.DebugInformation.SequencePoints.OrderBy(x => x.Offset))
+            {
+                while (iter.MoveNext())
+                {
+                    if (iter.Current.Offset != sequencePoint.Offset) continue;
+                    yield return new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint);
+                    break;
+                }
+            }
+        }
+
         private static Class BuildClass(IFilter filter, string assemblyName, TypeDefinition typeDefinition)
         {
             var @class = new Class {FullName = typeDefinition.FullName};
@@ -217,9 +234,8 @@ namespace OpenCover.Framework.Symbols
             {
                 var files = from methodDefinition in typeDefinition.Methods
                     where methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null
-                    from instruction in methodDefinition.Body.Instructions
-                    where methodDefinition.DebugInformation.GetSequencePoint(instruction) != null
-                    select methodDefinition.DebugInformation.GetSequencePoint(instruction).Document.Url;
+                    from pts in GetInstructionsWithSequencePoints(methodDefinition)
+                    select pts.Item2.Document.Url;
 
                 list.AddRange(files.Distinct());
             }
@@ -241,9 +257,9 @@ namespace OpenCover.Framework.Symbols
         {
             if (methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null)
             {
-                var filePath = methodDefinition.Body.Instructions
-                    .FirstOrDefault(x => methodDefinition.DebugInformation.GetSequencePoint(x) != null && methodDefinition.DebugInformation.GetSequencePoint(x).Document != null && methodDefinition.DebugInformation.GetSequencePoint(x).StartLine != StepOverLineCode)
-                    .Maybe(x => methodDefinition.DebugInformation.GetSequencePoint(x).Document.Url);
+                var filePath = GetInstructionsWithSequencePoints(methodDefinition)
+                    .FirstOrDefault(x => x.Item2.Document != null && x.Item2.StartLine != StepOverLineCode)
+                    .Maybe(x => x.Item2.Document.Url);
                 return filePath;
             }
             return null;
@@ -385,14 +401,14 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 UInt32 ordinal = 0;
-                list.AddRange(from instruction in methodDefinition.Body.Instructions
-                    where methodDefinition.DebugInformation.GetSequencePoint(instruction) != null && methodDefinition.DebugInformation.GetSequencePoint(instruction).StartLine != StepOverLineCode
-                    let sp = methodDefinition.DebugInformation.GetSequencePoint(instruction)
-                              select new SequencePoint
+                list.AddRange(from x in GetInstructionsWithSequencePoints(methodDefinition)
+                    where x.Item2.StartLine != StepOverLineCode
+                    let sp = x.Item2
+                    select new SequencePoint
                     {
                         EndColumn = sp.EndColumn,
                         EndLine = sp.EndLine,
-                        Offset = instruction.Offset,
+                        Offset = sp.Offset,
                         Ordinal = ordinal++,
                         StartColumn = sp.StartColumn,
                         StartLine = sp.StartLine,
@@ -402,8 +418,7 @@ namespace OpenCover.Framework.Symbols
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    string.Format("An error occurred with 'GetSequencePointsForToken' for method '{0}'",
-                        methodDefinition.FullName), ex);
+                    $"An error occurred with 'GetSequencePointsForToken' for method '{methodDefinition.FullName}'", ex);
             }
         }
 
@@ -439,9 +454,9 @@ namespace OpenCover.Framework.Symbols
 
                     // store branch origin offset
                     var branchOffset = instruction.Offset;
-                    var closestSeqPt = FindClosestSequencePoints(methodDefinition.Body, instruction);
-                    var branchingInstructionLine = closestSeqPt.Maybe(x => methodDefinition.DebugInformation.GetSequencePoint(x).StartLine, -1);
-                    var document = closestSeqPt.Maybe(x => methodDefinition.DebugInformation.GetSequencePoint(x).Document.Url);
+                    var closestSeqPt = FindClosestInstructionWithSequencePoint(methodDefinition.Body, instruction).Maybe(i => methodDefinition.DebugInformation.GetSequencePoint(i));
+                    var branchingInstructionLine = closestSeqPt.Maybe(x => x.StartLine, -1);
+                    var document = closestSeqPt.Maybe(x => x.Document.Url);
 
                     if (null == instruction.Next)
                         return;
@@ -453,8 +468,7 @@ namespace OpenCover.Framework.Symbols
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    string.Format("An error occurred with 'GetBranchPointsForToken' for method '{0}'",
-                        methodDefinition.FullName), ex);
+                    $"An error occurred with 'GetBranchPointsForToken' for method '{methodDefinition.FullName}'", ex);
             }
         }
 
@@ -609,9 +623,9 @@ namespace OpenCover.Framework.Symbols
                 .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset)
                 .Where( e =>branchInstruction.Offset < e.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, e.HandlerStart.Offset)))
                 .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
-                .Any(eh => !methodDefinition.Body.Instructions
-                    .Where(i => methodDefinition.DebugInformation.GetSequencePoint(i) != null && methodDefinition.DebugInformation.GetSequencePoint(i).StartLine != StepOverLineCode)
-                    .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset))));
+                .Any(eh => !(GetInstructionsWithSequencePoints(methodDefinition)
+                    .Where(i => i.Item2.StartLine != StepOverLineCode)
+                    .Any(i => i.Item2.Offset >= eh.HandlerStart.Offset && i.Item2.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset)))));
         }
 
         private static int GetOffsetOfNextEndfinally(MethodBody body, int startOffset)
@@ -646,7 +660,7 @@ namespace OpenCover.Framework.Symbols
             return offsetList;
         }
 
-        private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        private static Instruction FindClosestInstructionWithSequencePoint(MethodBody methodBody, Instruction instruction)
         {
             var sequencePointsInMethod = methodBody.Instructions.Where(i => HasValidSequencePoint(i, methodBody.Method)).ToList();
             if (!sequencePointsInMethod.Any()) 
@@ -668,9 +682,10 @@ namespace OpenCover.Framework.Symbols
             return prev;
         }
 
-        private bool HasValidSequencePoint(Instruction instruction, MethodDefinition methodDefinition)
+        private static bool HasValidSequencePoint(Instruction instruction, MethodDefinition methodDefinition)
         {
-            return methodDefinition.DebugInformation.GetSequencePoint(instruction) != null && methodDefinition.DebugInformation.GetSequencePoint(instruction).StartLine != StepOverLineCode;
+            var sp = methodDefinition.DebugInformation.GetSequencePoint(instruction);
+            return sp != null && sp.StartLine != StepOverLineCode;
         }
 
         private class InstructionByOffsetComparer : IComparer<Instruction>
