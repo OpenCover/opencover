@@ -107,6 +107,31 @@ namespace OpenCover.Framework.Symbols
             return null;
         }
 
+        private bool IsPortablePdb()
+        {
+            var pdbFile = Path.Combine(Path.GetDirectoryName(ModulePath) ?? @".\", Path.GetFileNameWithoutExtension(ModulePath) + ".pdb");
+            if (System.IO.File.Exists(pdbFile))
+            {
+                try
+                {
+                    const uint portablePdbSignature = 0x424a5342;
+                    using (var stream = System.IO.File.Open(pdbFile, FileMode.Open))
+                    {
+                        var buffer = new byte[4];
+                        if (4 == stream.Read(buffer, 0, 4))
+                        {
+                            return BitConverter.ToInt32(buffer, 0) == portablePdbSignature;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+            return false;
+        }
+
         private void LoadSourceAssembly()
         {
             try
@@ -116,18 +141,27 @@ namespace OpenCover.Framework.Symbols
                     return;
                 var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
 
+                var readerProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider();
+                if (readerProvider.GetType() == typeof(PdbReaderProvider))
+                {
+                    // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
+                    if (IsPortablePdb())
+                        readerProvider = new PortablePdbReaderProvider();
+                }
+
                 var parameters = new ReaderParameters
                 {
-                    SymbolReaderProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider(),
+                    SymbolReaderProvider = readerProvider,
                     ReadingMode = ReadingMode.Deferred,
-                    ReadSymbols = true
+                    ReadSymbols = true,
+                    InMemory = true
                 };
                 var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
                 _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
 
-                _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
+                _sourceAssembly?.MainModule.ReadSymbols(readerProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
                 _sourceAssembly = null;

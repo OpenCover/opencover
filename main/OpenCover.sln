@@ -79,6 +79,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.3rdParty.Signer",
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenCover.Simple.Target.Core", "OpenCover.Simple.Target.Core\OpenCover.Simple.Target.Core.xproj", "{33008C83-1DE4-4C00-8F81-1E2226875F7A}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenCover.Simple.Target.Core.Portable", "OpenCover.Simple.Target.Core.Portable\OpenCover.Simple.Target.Core.Portable.xproj", "{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -202,6 +204,14 @@ Global
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Release|x64.Build.0 = Release|Any CPU
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Release|x86.ActiveCfg = Release|Any CPU
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A}.Release|x86.Build.0 = Release|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Debug|x64.Build.0 = Debug|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Debug|x86.Build.0 = Debug|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Release|x64.ActiveCfg = Release|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Release|x64.Build.0 = Release|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Release|x86.ActiveCfg = Release|Any CPU
+		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

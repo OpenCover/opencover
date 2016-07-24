@@ -22,13 +22,13 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["TargetFolder"] = targetFolder;
         }
 
-        [Given(@"I can find the target application")]
-        public void GivenICanFindTheTargetApplication()
+        [Given(@"I can find the target \.net core application '(.*)'")]
+        public void GivenICanFindTheTarget_NetCoreApplication(string application)
         {
 #if DEBUG
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Debug\netcoreapp1.0\OpenCover.Simple.Target.Core.dll"));
+            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.0\{application}.dll"));
 #else
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Release\netcoreapp1.0\OpenCover.Simple.Target.Core.dll"));
+            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.0\{application}.dll"));
 #endif
             Assert.IsTrue(File.Exists(targetApp));
 

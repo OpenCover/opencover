@@ -781,7 +781,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNull(source);
-            _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+            _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>()), Times.Once());
         }
 
         [Test]

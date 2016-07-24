@@ -75,7 +75,7 @@ this.ScenarioSetup(scenarioInfo);
 #line 7
  testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 8
- testRunner.And("I can find the target application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I can find the target .net core application \'OpenCover.Simple.Target.Core\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 9
  testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 10
@@ -94,10 +94,30 @@ this.ScenarioSetup(scenarioInfo);
 #line 13
  testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 14
- testRunner.And("I can find the target application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I can find the target .net core application \'OpenCover.Simple.Target.Core\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 15
  testRunner.When("I execute OpenCover against the target application using the switch \'\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 16
+ testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            this.ScenarioCleanup();
+        }
+        
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core application with debugType = portable")]
+        public virtual void GetCoverageOfA_NetCoreApplicationWithDebugTypePortable()
+        {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core application with debugType = portable", ((string[])(null)));
+#line 18
+ this.ScenarioSetup(scenarioInfo);
+#line 19
+ testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line 20
+ testRunner.And("I can find the target .net core application \'OpenCover.Simple.Target.Core.Portabl" +
+                    "e\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line 21
+ testRunner.When("I execute OpenCover against the target application using the switch \'\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line 22
  testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
