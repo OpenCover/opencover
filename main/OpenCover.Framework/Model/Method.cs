@@ -101,6 +101,15 @@ namespace OpenCover.Framework.Model
         public decimal BranchCoverage { get; set; }
 
         /// <summary>
+        /// What is the crap score of this method
+        /// based on the following calculation
+        /// CRAP1(m) = comp(m)^2 * (1 – cov(m)/100)^3 + comp(m)
+        /// </summary>
+        /// <remarks>Rounded for ease</remarks>
+        [XmlAttribute("crapScore")]
+        public decimal CrapScore { get; set; }
+
+        /// <summary>
         /// Is this method a constructor
         /// </summary>
         [XmlAttribute("isConstructor")]

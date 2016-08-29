@@ -260,7 +260,8 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedMethods);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumClasses);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedClasses);
-
+            Assert.AreEqual(1m, Instance.CoverageSession.Modules[0].Classes[0].Summary.MinCrapScore);
+            Assert.AreEqual(22.5m, Instance.CoverageSession.Modules[0].Classes[0].Summary.MaxCrapScore);
         }
 
 
@@ -279,6 +280,8 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Summary.VisitedBranchPoints);
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Summary.MinCrapScore);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Summary.MaxCrapScore);
         }
 
         [Test]
@@ -297,6 +300,8 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.VisitedBranchPoints);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.MinCrapScore);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Methods[0].Summary.MaxCrapScore);
         }
 
         [Test]
@@ -314,6 +319,8 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedBranchPoints);
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Summary.MinCrapScore);
+            Assert.AreEqual(0, Instance.CoverageSession.Modules[0].Classes[0].Summary.MaxCrapScore);
         }
 
         [Test]
@@ -331,6 +338,8 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(0, Instance.CoverageSession.Summary.VisitedBranchPoints);
             Assert.AreEqual(0, Instance.CoverageSession.Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(0, Instance.CoverageSession.Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(0, Instance.CoverageSession.Summary.MinCrapScore);
+            Assert.AreEqual(0, Instance.CoverageSession.Summary.MaxCrapScore);
         }
 
         [Test]
@@ -969,9 +978,13 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(4, Instance.CoverageSession.Modules[0].Classes[0].Summary.MinCyclomaticComplexity);
             Assert.AreEqual(17, Instance.CoverageSession.Modules[0].Classes[1].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(6, Instance.CoverageSession.Modules[0].Classes[1].Summary.MinCyclomaticComplexity);
+            Assert.AreEqual(42m, Instance.CoverageSession.Modules[0].Classes[1].Summary.MinCrapScore);
+            Assert.AreEqual(53.12m, Instance.CoverageSession.Modules[0].Classes[1].Summary.MaxCrapScore);
             Assert.AreEqual(17, Instance.CoverageSession.Modules[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(4, Instance.CoverageSession.Modules[0].Summary.MinCyclomaticComplexity);
-            
+            Assert.AreEqual(4m, Instance.CoverageSession.Modules[0].Summary.MinCrapScore);
+            Assert.AreEqual(53.12m, Instance.CoverageSession.Modules[0].Summary.MaxCrapScore);
+
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumMethods);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.VisitedMethods);
             Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Summary.NumClasses);
@@ -1163,10 +1176,21 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(66.67m, Instance.CoverageSession.Summary.BranchCoverage);
             Assert.AreEqual(7, Instance.CoverageSession.Modules[0].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(7, Instance.CoverageSession.Modules[0].Summary.MinCyclomaticComplexity);
+
+            Assert.AreEqual(7m, Instance.CoverageSession.Modules[0].Summary.MinCrapScore);
+            Assert.AreEqual(7m, Instance.CoverageSession.Modules[0].Summary.MaxCrapScore);
+
             Assert.AreEqual(6, Instance.CoverageSession.Modules[1].Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(3, Instance.CoverageSession.Modules[1].Summary.MinCyclomaticComplexity);
+
+            Assert.AreEqual(4.12m, Instance.CoverageSession.Modules[1].Summary.MinCrapScore);
+            Assert.AreEqual(42m, Instance.CoverageSession.Modules[1].Summary.MaxCrapScore);
+
             Assert.AreEqual(7, Instance.CoverageSession.Summary.MaxCyclomaticComplexity);
             Assert.AreEqual(3, Instance.CoverageSession.Summary.MinCyclomaticComplexity);
+
+            Assert.AreEqual(4.12m, Instance.CoverageSession.Summary.MinCrapScore);
+            Assert.AreEqual(42m, Instance.CoverageSession.Summary.MaxCrapScore);
         }
     }
 }
