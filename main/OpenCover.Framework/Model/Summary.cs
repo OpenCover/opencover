@@ -64,7 +64,7 @@ namespace OpenCover.Framework.Model
         public int MinCyclomaticComplexity { get; set; }
 
         /// <summary>
-        /// What is the maximum cyclomatic complexity.
+        /// What is the maximum crap score
         /// </summary>
         /// <remarks>Calculated using the Gendarme rules library</remarks>
         [XmlAttribute("maxCrapScore")]
