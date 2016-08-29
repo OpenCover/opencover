@@ -66,7 +66,6 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// What is the maximum crap score
         /// </summary>
-        /// <remarks>Calculated using the Gendarme rules library</remarks>
         [XmlAttribute("maxCrapScore")]
         public decimal MaxCrapScore { get; set; }
 
