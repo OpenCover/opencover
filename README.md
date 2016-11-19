@@ -62,7 +62,7 @@ You will need:
 1. Visual Studio VS2015 (Community Edition) or later with C# and C++ (with Service Pack 2)
 2. WiX 3.10 or later (http://wix.codeplex.com/releases/view/619491)
 3. SpecFlow for Visual Studio 2015 (https://visualstudiogallery.msdn.microsoft.com/c74211e7-cb6e-4dfa-855d-df0ad4a37dd6)
-4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
+4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 All other software should be included with this repository. 
 
