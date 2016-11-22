@@ -16,9 +16,13 @@ environment:
 install:
 - ps: >-
     Write-Host "Downloading Microsoft .NET Framework 4.6.2 Developer Pack..."
+    
     $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
+    
     (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/E/F/D/EFD52638-B804-4865-BB57-47F4B9C80269/NDP462-DevPack-KB3151934-ENU.exe ', $exePath)
+    
     Write-Host "Installing Microsoft .NET Framework 4.6.2 Developer Pack..."
+    
     cmd /c start /wait "$exePath" /q /norestart
 cache:
 - build/Version/opencover.snk
@@ -34,6 +38,7 @@ build_script:
     } else {
       & .\build.bat create-release
     }
+    
     if ($LastExitCode -ne 0) {
         throw "build.bat failed with exit code $LastExitCode."
     }
