@@ -13,6 +13,13 @@ environment:
     secure: DSwAr4fYt3Q35Sjob5qAN5ujYqFCPZQguJ2yhI3IN46AIK63sRLhpamof6BZr9lx
   DRDUMP_TOKEN:
     secure: 16PEs46poxfT7drt6BdHSHPPzAymXBYrIaqoAsHvY49os5Azz4rNTp3QaUhtITZ+
+install:
+- ps: >-
+    Write-Host "Downloading Microsoft .NET Framework 4.6.2 Developer Pack..."
+    $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
+    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/E/F/D/EFD52638-B804-4865-BB57-47F4B9C80269/NDP462-DevPack-KB3151934-ENU.exe ', $exePath)
+    Write-Host "Installing Microsoft .NET Framework 4.6.2 Developer Pack..."
+    cmd /c start /wait "$exePath" /q /norestart
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
