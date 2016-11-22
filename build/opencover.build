@@ -105,6 +105,7 @@
 		  <arg value="${solution.folder}/opencover.sln" />
 		  <arg value="/t:Clean,Rebuild" />
 		  <arg value="/p:Configuration=${configuration},Platform=${platform}" />
+		  <arg value="/v:Diagnostic" />
 		</exec>
       
     <property name="expected.output" value="${solution.folder}/bin/${configuration}/OpenCover.Console.exe"/>
