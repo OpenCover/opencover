@@ -54,6 +54,17 @@ namespace OpenCover.Test.Extensions.Strategy
             Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::TheoryTest(System.Double)")));
         }
 
+        [Test]
+        public void TestCaseSourceAttribute_Is_Recognized()
+        {
+          // arrange            
+
+          // act
+          var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+
+          // assert
+          Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::DivideTest(System.Int32,System.Int32,System.Int32)")));
+        }
 
         [Test]
         public void Repeat_Is_Not_Recognized()

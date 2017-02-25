@@ -13,7 +13,8 @@ namespace OpenCover.Extensions.Strategy
         {
             "NUnit.Framework.TestAttribute",
             "NUnit.Framework.TestCaseAttribute",
-            "NUnit.Framework.TheoryAttribute"
+            "NUnit.Framework.TheoryAttribute",
+            "NUnit.Framework.TestCaseSourceAttribute"
         };
 
         public TrackNUnitTestMethods() : base(NUnitStrategyName, TrackedAttributeTypeNames)
