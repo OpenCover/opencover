@@ -6,7 +6,7 @@
 #pragma once
 
 #ifndef _TOOLSETV71
-class CProfilerBase : public ICorProfilerCallback5
+class CProfilerBase : public ICorProfilerCallback7
 {
 #else
 class CProfilerBase : public ICorProfilerCallback3
@@ -427,6 +427,20 @@ public:
 		/* [size_is][in] */ ObjectID valueRefIds[  ],
 		/* [size_is][in] */ GCHandleID rootIds[  ]) override
 	{ return S_OK; }
+
+// ICorProfilerCallback6
+public:
+	virtual HRESULT STDMETHODCALLTYPE GetAssemblyReferences(
+		/* [string][in] */ const WCHAR *wszAssemblyPath,
+		/* [in] */ ICorProfilerAssemblyReferenceProvider *pAsmRefProvider) override
+	{ return S_OK; }
+
+// ICorProfilerCallback7
+public:
+	virtual HRESULT STDMETHODCALLTYPE ModuleInMemorySymbolsUpdated(
+		ModuleID moduleId) override
+	{ return S_OK; }
+
 #endif
 
 };

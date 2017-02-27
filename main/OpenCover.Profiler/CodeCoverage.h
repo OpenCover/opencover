@@ -65,7 +65,9 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback3)
 #ifndef _TOOLSETV71
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
-    COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback6)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback7)
 #endif
 END_COM_MAP()
 
