@@ -29,7 +29,9 @@ build_script:
     } else {
       & .\build.bat create-release
     }
-    
+    if ($LastExitCode -ne 0) {
+        throw "build.bat failed with exit code $LastExitCode."
+    }    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
