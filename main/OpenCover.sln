@@ -78,6 +78,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.3rdParty.Signer",
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenCover.Simple.Target.Core", "OpenCover.Simple.Target.Core\OpenCover.Simple.Target.Core.xproj", "{33008C83-1DE4-4C00-8F81-1E2226875F7A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sonar", "Sonar", "{2B929F9D-6E24-44F0-9BBC-A129E93262AC}"
+	ProjectSection(SolutionItems) = preProject
+		OpenCover.Profiler\sonar.h = OpenCover.Profiler\sonar.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -207,6 +212,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4337F24C-830C-4A9A-987B-2348F9222C39} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
+		{2B929F9D-6E24-44F0-9BBC-A129E93262AC} = {1E02E180-E417-4810-B8AF-939CB3DB4939}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
