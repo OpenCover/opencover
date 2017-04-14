@@ -9,7 +9,6 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | **Quality** | [![SonarQube](https://sonarqube.com/api/badges/gate?key=opencover)](https://sonarqube.org/dashboard?id=opencover) | 
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
-| **Review Ninja** | [![ReviewNinja](https://app.review.ninja/1396895/badge)](https://app.review.ninja/OpenCover/opencover) |
 
 ### Master 
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
