@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Mdb;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
@@ -69,64 +68,41 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-        private SymbolFolder FindSymbolFolder()
-        {
-            var origFolder = Path.GetDirectoryName(ModulePath);
-
-            var searchFolders = new List<string> { origFolder, _commandLine.TargetDir };
-            if (_commandLine.SearchDirs != null)
-                searchFolders.AddRange(_commandLine.SearchDirs);
-            searchFolders.Add(Environment.CurrentDirectory);
-
-            foreach (var searchFolder in searchFolders)
-            {
-                var symbolFolder = FindSymbolsFolder(ModulePath, searchFolder);
-                if (symbolFolder != null) 
-                    return symbolFolder;
-            }
-
-            return null;
-        }
-
-        private static SymbolFolder FindSymbolsFolder(string fileName, string targetfolder)
-        {
-            if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
-            {
-                var name = Path.GetFileName(fileName);
-                if (name != null)
-                {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new PdbReaderProvider());   
-                   
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".mdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new MdbReaderProvider());
-                }
-            }
-            return null;
-        }
 
         private void LoadSourceAssembly()
         {
             try
             {
-                var symbolFolder = FindSymbolFolder();
-                if (symbolFolder == null) 
+                var symbolFile = SymbolFile.FindSymbolFolder(ModulePath, _commandLine);
+                if (symbolFile == null) 
                     return;
-                var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
 
-                var parameters = new ReaderParameters
+                if (symbolFile.SymbolReaderProvider is PdbReaderProvider)
                 {
-                    SymbolReaderProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider(),
-                    ReadingMode = ReadingMode.Deferred,
-                    ReadSymbols = true
-                };
-                var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
-                _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
-
-                if (_sourceAssembly != null)
-                    _sourceAssembly.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                    using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var parameters = new ReaderParameters
+                        {
+                            SymbolReaderProvider = symbolFile.SymbolReaderProvider ?? new PdbReaderProvider(),
+                            ReadingMode = ReadingMode.Deferred,
+                            ReadSymbols = true,
+                            SymbolStream = stream
+                        };
+                        _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                        _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                    }
+                }
+                else
+                {
+                    var parameters = new ReaderParameters
+                    {
+                        SymbolReaderProvider = symbolFile.SymbolReaderProvider ?? new PdbReaderProvider(),
+                        ReadingMode = ReadingMode.Deferred,
+                        ReadSymbols = true
+                    };
+                    _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                    _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                }
             }
             catch (Exception)
             {
@@ -242,7 +218,7 @@ namespace OpenCover.Framework.Symbols
             if (definition.SafeGetMethodBody() != null && definition.Body.Instructions != null)
             {
                 var filePath = definition.Body.Instructions
-                    .FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
+                    .FirstOrDefault(x => x.SequencePoint?.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
                     .Maybe(x => x.SequencePoint.Document.Url);
                 return filePath;
             }
