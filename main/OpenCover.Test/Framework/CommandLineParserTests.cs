@@ -774,7 +774,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[] { "-servicestarttimeout:" + invalidTimeout, RequiredArgs });
 
             // act
-            var thrownException = Assert.Throws<Exception>(parser.ExtractAndValidateArguments);
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
 
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));

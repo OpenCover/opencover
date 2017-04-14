@@ -20,14 +20,14 @@ namespace OpenCover.Framework.Model
             InstrumentPoints = new List<InstrumentationPoint>(8192) {null};
         }
 
-        static internal void Clear()
+        internal static void Clear()
         {
             InstrumentPoints.Clear();
             InstrumentPoints.Add(null);
             _instrumentPoint = 0;
         }
 
-        static internal void ResetAfterLoading()
+        internal static void ResetAfterLoading()
         {
             var points = InstrumentPoints
                 .Where(x => x != null)
@@ -158,7 +158,7 @@ namespace OpenCover.Framework.Model
         {
             get
             {
-                return _tracked != null ? _tracked.ToArray() : null;
+                return _tracked?.ToArray();
             }
             set
             {
