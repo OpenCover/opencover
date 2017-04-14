@@ -9,24 +9,24 @@
 /// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
 /// when pulling in "opcode.def"</remarks>
 enum CanonicalName {
-        #define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) name,
-        #include "opcode.def"
-        #undef OPDEF
-    };
+#define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) name,
+#include <opcode.def>
+#undef OPDEF
+};
 
 /// <summary>A list of control flow types</summary>
 /// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 
 /// when pulling in "opcode.def"</remarks>
 enum ControlFlow {
-        NEXT,
-        BREAK,
-        CALL,
-        RETURN,
-        BRANCH,
-        COND_BRANCH,
-        THROW,
-        META
-    };
+    NEXT,
+    BREAK,
+    CALL,
+    RETURN,
+    BRANCH,
+    COND_BRANCH,
+    THROW,
+    META
+};
 
 /// <summary>A list of operand types/usage </summary>
 /// <remarks>Used, amongst other things, to build the <c>OperationDetails</c> structures 

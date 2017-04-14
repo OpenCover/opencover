@@ -24,9 +24,7 @@ using File = System.IO.File;
 
 namespace OpenCover.Console
 {
-
-
-    class Program
+    internal class Program
     {
         private static readonly ILog Logger = LogManager.GetLogger("OpenCover");
 
@@ -35,9 +33,9 @@ namespace OpenCover.Console
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
-        static int Main(string[] args)
+        private static int Main(string[] args)
         {
-            var returnCode = 0;
+            int returnCode;
             var returnCodeOffset = 0;
            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
@@ -169,7 +167,7 @@ namespace OpenCover.Console
                     }
                 }, servicePrincipal);
 
-                DisplayResults(persistance.CoverageSession, parser, Logger);
+                CalculateAndDisplayResults(persistance.CoverageSession, parser);
             }
             catch (Exception ex)
             {
@@ -189,7 +187,7 @@ namespace OpenCover.Console
         /// </summary>
         /// <param name="logger"></param>
         /// <returns>Returns wether the svchost.exe was restarted by the services.exe process or not</returns>
-        private static bool TerminateCurrentW3SvcHost(ILog logger)
+        private static bool TerminateCurrentW3SvcHost()
         {
             var processName = "svchost.exe";
             string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
@@ -203,15 +201,15 @@ namespace OpenCover.Console
                     var proc = (int)retObject["ProcessId"];
 
                     // Terminate, the restart is done automatically
-                    logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
+                    Logger.InfoFormat("Stopping svchost with pid '{0}'", proc);
                     try
                     {
                         Process.GetProcessById(proc).Kill();
-                        logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
+                        Logger.InfoFormat("svchost with pid '{0}' was stopped succcesfully", proc);
                     }
                     catch (Exception e)
                     {
-                        logger.InfoFormat("Unable to stop svchost with pid '{0}' IIS profiling may not work: {1}", proc, e.Message);
+                        Logger.InfoFormat("Unable to stop svchost with pid '{0}' IIS profiling may not work: {1}", proc, e.Message);
                     }
                 }
             }
@@ -233,7 +231,7 @@ namespace OpenCover.Console
                     if (cmdLine.EndsWith("-k iissvcs"))
                     {
                         var proc = (uint)retObject["ProcessId"];
-                        logger.InfoFormat("New svchost for w3svc with pid '{0}' was started", proc);
+                        Logger.InfoFormat("New svchost for w3svc with pid '{0}' was started", proc);
                         found = true;
                         break;
                     }
@@ -291,7 +289,7 @@ namespace OpenCover.Console
                     if (parser.Target.ToLower().Equals("w3svc"))
                     {
                         // Service will not automatically start
-                        if (! TerminateCurrentW3SvcHost(logger) ||
+                        if (! TerminateCurrentW3SvcHost() ||
                             !ServiceEnvironmentManagementEx.IsServiceStartAutomatic(parser.Target))
                         {
                             service.Start();
@@ -327,7 +325,7 @@ namespace OpenCover.Console
                     {
                         logger.InfoFormat("Please note that the 'w3svc' service may automatically start");
                     }
-                    TerminateCurrentW3SvcHost(logger);
+                    TerminateCurrentW3SvcHost();
                 }
             }
             finally
@@ -382,102 +380,116 @@ namespace OpenCover.Console
             return 1;
         }
 
-        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, ILog logger)
+        private class Results
         {
-            if (!logger.IsInfoEnabled) 
+            public int altTotalClasses;
+            public int altVisitedClasses;
+            public int altTotalMethods;
+            public int altVisitedMethods;
+            public List<string> unvisitedClasses = new List<string>();
+            public List<string> unvisitedMethods = new List<string>();
+        }
+
+        private static void CalculateAndDisplayResults(CoverageSession coverageSession, ICommandLine parser)
+        {
+            if (!Logger.IsInfoEnabled)
                 return;
 
-            var altTotalClasses = 0;
-            var altVisitedClasses = 0;
-
-            var altTotalMethods = 0;
-            var altVisitedMethods = 0;
-
-            var unvisitedClasses = new List<string>();
-            var unvisitedMethods = new List<string>();
+            var results = new Results();
 
             if (coverageSession.Modules != null)
             {
-                foreach (var @class in
-                    from module in coverageSession.Modules.Where(x=>x.Classes != null)
-                    from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
-                    select @class)
+                CalculateResults(coverageSession, results);
+            }
+
+            DisplayResults(coverageSession, parser, results);
+        }
+
+        private static void CalculateResults(CoverageSession coverageSession, Results results)
+        {
+            foreach (var @class in
+                                from module in coverageSession.Modules.Where(x => x.Classes != null)
+                                from @class in module.Classes.Where(c => !c.ShouldSerializeSkippedDueTo())
+                                select @class)
+            {
+                if (@class.Methods == null)
+                    continue;
+
+                if (!@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))
+                    && @class.Methods.Any(x => x.FileRef != null))
                 {
-                    if (@class.Methods == null) 
-                        continue;
+                    results.unvisitedClasses.Add(@class.FullName);
+                }
 
-                    if (!(@class.Methods.Any(x => !x.ShouldSerializeSkippedDueTo() && x.SequencePoints.Any(y => y.VisitCount > 0))))
-                        if ((@class.Methods.Any(x => x.FileRef != null)))
-                            unvisitedClasses.Add(@class.FullName);
+                if (@class.Methods.Any(x => x.Visited))
+                {
+                    results.altVisitedClasses += 1;
+                    results.altTotalClasses += 1;
+                }
+                else if (@class.Methods.Any())
+                {
+                    results.altTotalClasses += 1;
+                }
 
-                    if (@class.Methods.Any(x => x.Visited))
+                foreach (var method in @class.Methods.Where(x => !x.ShouldSerializeSkippedDueTo()))
+                {
+                    if (method.FileRef != null && !method.SequencePoints.Any(x => x.VisitCount > 0))
+                        results.unvisitedMethods.Add(string.Format("{0}", method.FullName));
+
+                    results.altTotalMethods += 1;
+                    if (method.Visited)
                     {
-                        altVisitedClasses += 1;
-                        altTotalClasses += 1;
-                    }
-                    else if (@class.Methods.Any())
-                    {
-                        altTotalClasses += 1;
-                    }
-
-                    foreach (var method in @class.Methods.Where(x=> !x.ShouldSerializeSkippedDueTo()))
-                    {
-                        if (!(method.SequencePoints.Any(x => x.VisitCount > 0)))
-                            if (method.FileRef != null)
-                                unvisitedMethods.Add(string.Format("{0}", method.FullName));
-
-                        altTotalMethods += 1;
-                        if (method.Visited)
-                        {
-                            altVisitedMethods += 1;
-                        }
+                        results.altVisitedMethods += 1;
                     }
                 }
             }
+        }
 
+        private static void DisplayResults(CoverageSession coverageSession, ICommandLine parser, Results results)
+        {
             if (coverageSession.Summary.NumClasses > 0)
             {
-                logger.InfoFormat("Visited Classes {0} of {1} ({2})", coverageSession.Summary.VisitedClasses,
+                Logger.InfoFormat("Visited Classes {0} of {1} ({2})", coverageSession.Summary.VisitedClasses,
                                   coverageSession.Summary.NumClasses, Math.Round(coverageSession.Summary.VisitedClasses * 100.0 / coverageSession.Summary.NumClasses, 2));
-                logger.InfoFormat("Visited Methods {0} of {1} ({2})", coverageSession.Summary.VisitedMethods,
+                Logger.InfoFormat("Visited Methods {0} of {1} ({2})", coverageSession.Summary.VisitedMethods,
                                   coverageSession.Summary.NumMethods, Math.Round(coverageSession.Summary.VisitedMethods * 100.0 / coverageSession.Summary.NumMethods, 2));
-                logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
+                Logger.InfoFormat("Visited Points {0} of {1} ({2})", coverageSession.Summary.VisitedSequencePoints,
                                   coverageSession.Summary.NumSequencePoints, coverageSession.Summary.SequenceCoverage);
-                logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
+                Logger.InfoFormat("Visited Branches {0} of {1} ({2})", coverageSession.Summary.VisitedBranchPoints,
                                   coverageSession.Summary.NumBranchPoints, coverageSession.Summary.BranchCoverage);
 
-                logger.InfoFormat("");
-                logger.InfoFormat(
+                Logger.InfoFormat("");
+                Logger.InfoFormat(
                     "==== Alternative Results (includes all methods including those without corresponding source) ====");
-                logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", altVisitedClasses,
-                                  altTotalClasses, altTotalClasses == 0 ? 0 : Math.Round(altVisitedClasses * 100.0 / altTotalClasses, 2));
-                logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", altVisitedMethods,
-                                  altTotalMethods, altTotalMethods == 0 ? 0 : Math.Round(altVisitedMethods * 100.0 / altTotalMethods, 2));
+                Logger.InfoFormat("Alternative Visited Classes {0} of {1} ({2})", results.altVisitedClasses,
+                                  results.altTotalClasses, results.altTotalClasses == 0 ? 0 : Math.Round(results.altVisitedClasses * 100.0 / results.altTotalClasses, 2));
+                Logger.InfoFormat("Alternative Visited Methods {0} of {1} ({2})", results.altVisitedMethods,
+                                  results.altTotalMethods, results.altTotalMethods == 0 ? 0 : Math.Round(results.altVisitedMethods * 100.0 / results.altTotalMethods, 2));
 
                 if (parser.ShowUnvisited)
                 {
-                    logger.InfoFormat("");
-                    logger.InfoFormat("====Unvisited Classes====");
-                    foreach (var unvisitedClass in unvisitedClasses)
+                    Logger.InfoFormat("");
+                    Logger.InfoFormat("====Unvisited Classes====");
+                    foreach (var unvisitedClass in results.unvisitedClasses)
                     {
-                        logger.InfoFormat(unvisitedClass);
+                        Logger.InfoFormat(unvisitedClass);
                     }
 
-                    logger.InfoFormat("");
-                    logger.InfoFormat("====Unvisited Methods====");
-                    foreach (var unvisitedMethod in unvisitedMethods)
+                    Logger.InfoFormat("");
+                    Logger.InfoFormat("====Unvisited Methods====");
+                    foreach (var unvisitedMethod in results.unvisitedMethods)
                     {
-                        logger.InfoFormat(unvisitedMethod);
+                        Logger.InfoFormat(unvisitedMethod);
                     }
                 }
             }
             else
             {
-                logger.InfoFormat("No results, this could be for a number of reasons. The most common reasons are:");
-                logger.InfoFormat("    1) missing PDBs for the assemblies that match the filter please review the");
-                logger.InfoFormat("    output file and refer to the Usage guide (Usage.rtf) about filters.");
-                logger.InfoFormat("    2) the profiler may not be registered correctly, please refer to the Usage");
-                logger.InfoFormat("    guide and the -register switch.");
+                Logger.InfoFormat("No results, this could be for a number of reasons. The most common reasons are:");
+                Logger.InfoFormat("    1) missing PDBs for the assemblies that match the filter please review the");
+                Logger.InfoFormat("    output file and refer to the Usage guide (Usage.rtf) about filters.");
+                Logger.InfoFormat("    2) the profiler may not be registered correctly, please refer to the Usage");
+                Logger.InfoFormat("    guide and the -register switch.");
             }
         }
 
