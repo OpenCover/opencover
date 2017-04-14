@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 
@@ -26,10 +27,15 @@ namespace OpenCover.Specs.Steps
         public void GivenICanFindTheTargetApplication()
         {
 #if DEBUG
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Debug\netcoreapp1.0\win10-x64\OpenCover.Simple.Target.Core.dll"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Debug\netcoreapp1.0"));
 #else
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Release\netcoreapp1.0\win10-x64\OpenCover.Simple.Target.Core.dll"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Release\netcoreapp1.0"));
 #endif
+            var targetApp = Directory.EnumerateFiles(targetPath, "OpenCover.Simple.Target.Core.dll", SearchOption.AllDirectories)
+                    .FirstOrDefault(p => File.Exists(Path.Combine(Path.GetDirectoryName(p) ?? ".", "hostpolicy.dll")));
+
+            Console.WriteLine($"Found target application in '{targetApp}'");
+
             Assert.IsTrue(File.Exists(targetApp));
 
             ScenarioContext.Current["TargetApp"] = targetApp;
