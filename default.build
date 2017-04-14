@@ -109,7 +109,7 @@
     </exec>
 
     <!-- assumes coverage file has been created -->
-    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /d:sonar.token=${sonarqube.token} /d:sonar.host.url=https://nemo.sonarqube.org /d:sonar.cfamily.build-wrapper-output.bypass=true /x:vs15 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program="tools\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe" commandline='/m:main\opencover.sln /d:sonar.token=${sonarqube.token} /d:sonar.host.url=https://sonarqube.com /d:sonar.cfamily.build-wrapper-output.bypass=true /x:vs15 /q:tools\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
         
   </target>
   
