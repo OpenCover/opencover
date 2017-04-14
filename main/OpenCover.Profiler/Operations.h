@@ -90,16 +90,19 @@ struct OperationDetails
 typedef std::unordered_map<CanonicalName, OperationDetails> MapCanonicalNameOperationDetails;
 typedef std::unordered_map<DWORD, OperationDetails> MapOpsOperationDetails;
 
-/// <summary>The container of the static lists used for the <c>OperationDetails</c> lookups</summary>
-/// <remarks>The lists are built when we instantiate our static instance m_operations</remarks>
-class Operations
+namespace Instrumentation
 {
-public:
-    static MapCanonicalNameOperationDetails m_mapNameOperationDetails;
-    static MapOpsOperationDetails m_mapOpsOperationDetails;
-protected:
-    Operations();
-private:
-    static Operations m_operations;
+	/// <summary>The container of the static lists used for the <c>OperationDetails</c> lookups</summary>
+	/// <remarks>The lists are built when we instantiate our static instance m_operations</remarks>
+	class Operations
+	{
+	public:
+		static MapCanonicalNameOperationDetails m_mapNameOperationDetails;
+		static MapOpsOperationDetails m_mapOpsOperationDetails;
+	protected:
+		Operations();
+	private:
+		static Operations m_operations;
 
-};
+	};
+}

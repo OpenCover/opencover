@@ -20,6 +20,8 @@ static COR_SIGNATURE ctorCallSignature[] =
 	ELEMENT_TYPE_VOID
 };
 
+using namespace Instrumentation;
+
 HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId){
 
 	CComPtr<IMetaDataEmit> metaDataEmit;
@@ -155,7 +157,6 @@ mdMemberRef CCodeCoverage::RegisterSafeCuckooMethod(ModuleID moduleId, const WCH
 	return cuckooSafeToken;
 }
 
-
 /// <summary>This is the method marked with the SecurityCriticalAttribute</summary>
 /// <remarks>This method makes the call into the profiler</remarks>
 HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
@@ -166,7 +167,7 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 	void(__fastcall *pt)(ULONG) = GetInstrumentPointVisit();
 
 	BYTE data[] = { (0x01 << 2) | CorILMethod_TinyFormat, CEE_RET };
-	Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
+	Instrumentation::Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
 	InstructionList instructions;
 	instructions.push_back(new Instruction(CEE_LDARG_0));
 #ifdef _WIN64
@@ -192,7 +193,7 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 	ATLTRACE(_T("::AddSafeCuckooBody => Adding SafeVisited..."));
 
 	BYTE data[] = { (0x01 << 2) | CorILMethod_TinyFormat, CEE_RET };
-	Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
+	Instrumentation::Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
 	InstructionList instructions;
 	instructions.push_back(new Instruction(CEE_LDARG_0));
 	instructions.push_back(new Instruction(CEE_CALL, m_cuckooCriticalToken));

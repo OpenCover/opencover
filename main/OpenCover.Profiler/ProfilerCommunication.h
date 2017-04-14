@@ -13,124 +13,132 @@
 
 #include <concurrent_unordered_map.h>
 
-/// <summary>Handles communication back to the profiler host</summary>
-/// <remarks>Currently this is handled by using the WebServices API</remarks>
-class ProfilerCommunication
+namespace Communication
 {
-private:
+	/// <summary>Handles communication back to the profiler host</summary>
+	/// <remarks>Currently this is handled by using the WebServices API</remarks>
+	class ProfilerCommunication
+	{
+	private:
 
-public:
-    ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low);
-    ~ProfilerCommunication(void);
-    bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
+	public:
+		ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low);
 
-public:
-    bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
-    bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
-    bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
-	inline void AddTestEnterPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }
-	inline void AddTestLeavePoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }
-	inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
-	inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
-    void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
-    void CloseChannel(bool sendSingleBuffer);
+		~ProfilerCommunication() {}
+		bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
-private:
-    bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
-    bool TrackProcess();
+	public:
+		bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
+		bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
+		bool TrackMethod(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, ULONG &uniqueId);
+		inline void AddTestEnterPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodEnter); }
+		inline void AddTestLeavePoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodLeave); }
+		inline void AddTestTailcallPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_MethodTailcall); }
+		inline void AddVisitPoint(ULONG uniqueId) { AddVisitPointToBuffer(uniqueId, IT_VisitPoint); }
+		void AddVisitPointToThreadBuffer(ULONG uniqueId, MSG_IdType msgType);
+		void CloseChannel(bool sendSingleBuffer);
 
-public: 
-    void ThreadCreated(ThreadID threadID, DWORD osThreadID);
-    void ThreadDestroyed(ThreadID threadID);
+	private:
+		bool InitializePrimarySynchronization(std::wstring sharedKey, std::basic_string<wchar_t>& resource_name);
+		bool InitializeBufferSynchronization(std::basic_string<wchar_t>& resource_name);
+		bool AllocateBuffer(LONG bufferSize, ULONG &bufferId);
+		bool TrackProcess();
 
-private:
-    void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
-    void SendVisitPoints();
-    void SendVisitPointsInternal();
-    void SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints);
-    void SendThreadVisitPointsInternal(MSG_SendVisitPoints_Request* pVisitPoints);
-    bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
-    bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
-    void SendRemainingThreadBuffers();
-    MSG_SendVisitPoints_Request* AllocateVisitMap(DWORD osThreadID);
+	public:
+		void ThreadCreated(ThreadID threadID, DWORD osThreadID);
+		void ThreadDestroyed(ThreadID threadID);
 
-private:
-    tstring _key;
-    tstring _namespace;
-    tstring _processName;
-    DWORD _short_wait;
+	private:
+		void AddVisitPointToBuffer(ULONG uniqueId, MSG_IdType msgType);
+		void SendVisitPoints();
+		void SendVisitPointsInternal();
+		void SendThreadVisitPoints(MSG_SendVisitPoints_Request* pVisitPoints);
+		void SendThreadVisitPointsInternal(MSG_SendVisitPoints_Request* pVisitPoints);
+		bool GetSequencePoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &points);
+		bool GetBranchPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<BranchPoint> &points);
+		void SendRemainingThreadBuffers();
+		MSG_SendVisitPoints_Request* AllocateVisitMap(DWORD osThreadID);
 
-    template<class BR, class PR>
-    void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
+	private:
+		tstring _key;
+		tstring _namespace;
+		tstring _processName;
+		DWORD _short_wait;
 
-    ULONG _bufferId;
+		template<class BR, class PR>
+		void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);
 
-    bool TestSemaphore(CSemaphoreEx &semaphore){
-        // the previous value should always be zero unless the host process has released 
-        // and that means we have disposed of the shared memory
-        if (_hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
-            _hostCommunicationActive = false;
-        }
-        return _hostCommunicationActive;
-    }
+		ULONG _bufferId;
 
-private:
-    CMutex _mutexCommunication;
-    CSharedMemory _memoryCommunication;
-    CEvent _eventProfilerRequestsInformation;
-    CEvent _eventInformationReadyForProfiler;
-    CEvent _eventInformationReadByProfiler;
-    MSG_Union *_pMSG;
-    CSemaphoreEx _semapore_communication;
+		bool TestSemaphore(Synchronization::CSemaphoreEx &semaphore) {
+			// the previous value should always be zero unless the host process has released 
+			// and that means we have disposed of the shared memory
+			if (_hostCommunicationActive && semaphore.ReleaseAndWait() != 0) {
+				_hostCommunicationActive = false;
+			}
+			return _hostCommunicationActive;
+		}
 
-private:
-    CSharedMemory _memoryResults;
-    CEvent _eventProfilerHasResults;
-    CEvent _eventResultsHaveBeenReceived;
-    MSG_SendVisitPoints_Request *_pVisitPoints;
-    CSemaphoreEx _semapore_results;
+	private:
+		Synchronization::CMutex _mutexCommunication;
+		CSharedMemory _memoryCommunication;
+		Synchronization::CEvent _eventProfilerRequestsInformation;
+		Synchronization::CEvent _eventInformationReadyForProfiler;
+		Synchronization::CEvent _eventInformationReadByProfiler;
+		MSG_Union *_pMSG;
+		Synchronization::CSemaphoreEx _semapore_communication;
 
-private:
-    ATL::CComAutoCriticalSection _critResults;
-    ATL::CComAutoCriticalSection _critComms;
-    bool _hostCommunicationActive;
+	private:
+		CSharedMemory _memoryResults;
+		Synchronization::CEvent _eventProfilerHasResults;
+		Synchronization::CEvent _eventResultsHaveBeenReceived;
+		MSG_SendVisitPoints_Request *_pVisitPoints;
+		Synchronization::CSemaphoreEx _semapore_results;
 
-private:
-    ATL::CComAutoCriticalSection _critThreads;
-    //std::unordered_map<ThreadID, ULONG> _threadmap;
-    //std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
+	private:
+		ATL::CComAutoCriticalSection _critResults;
+		ATL::CComAutoCriticalSection _critComms;
+		bool _hostCommunicationActive;
 
-    Concurrency::concurrent_unordered_map<ThreadID, ULONG> _threadmap;
-    Concurrency::concurrent_unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
+	private:
+		ATL::CComAutoCriticalSection _critThreads;
+		//std::unordered_map<ThreadID, ULONG> _threadmap;
+		//std::unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
 
-    MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
+		Concurrency::concurrent_unordered_map<ThreadID, ULONG> _threadmap;
+		Concurrency::concurrent_unordered_map<ULONG, MSG_SendVisitPoints_Request*> _visitmap;
 
-private:
-    void report_runtime(const std::runtime_error& re, const tstring &msg) const;
-    void report_exception(const std::exception& re, const tstring &msg) const;
+		MSG_SendVisitPoints_Request* GetVisitMapForOSThread(ULONG osThread);
 
-    template<class Action>
-    void handle_exception(Action action, const tstring& message);
+	private:
+		void report_runtime(const std::runtime_error& re, const tstring &msg) const;
+		void report_exception(const std::exception& re, const tstring &msg) const;
 
-    template<class Action>
-    void static handle_sehexception(Action action, const tstring& message);
+		template<class Action>
+		void handle_exception(Action action, const tstring& message);
 
-private:
-	DWORD _version_high;
-	DWORD _version_low;
+		template<class Action>
+		void static handle_sehexception(Action action, const tstring& message);
 
-private:
-  
-    class CommunicationException : std::exception
-    {
-        DWORD dwReason;
-        DWORD dwTimeout;
-    public:
-		CommunicationException(DWORD reason, DWORD timeout) {dwReason = reason; dwTimeout = timeout;}
+	private:
+		DWORD _version_high;
+		DWORD _version_low;
 
-        DWORD getReason() const {return dwReason;}
-        DWORD getTimeout() const {return dwTimeout;}
-    };
+	private:
 
-};
+		class CommunicationException : std::exception
+		{
+			DWORD dwReason;
+			DWORD dwTimeout;
+		public:
+			CommunicationException(DWORD reason, DWORD timeout) :
+				dwReason(reason), 
+				dwTimeout(timeout)
+			{ }
 
+			DWORD getReason() const { return dwReason; }
+			DWORD getTimeout() const { return dwTimeout; }
+		};
+
+	};
+}

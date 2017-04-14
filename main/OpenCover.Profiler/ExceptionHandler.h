@@ -7,30 +7,31 @@
 
 #pragma once
 
-class ExceptionHandler;
-class Method;
-
-typedef std::vector<ExceptionHandler *> ExceptionHandlerList;
-
-
-/// <summary>A representation of a try/catch section handler</summary>
-class ExceptionHandler
+namespace Instrumentation
 {
-public:
-    ExceptionHandler(void);
-    ~ExceptionHandler(void);
+	class ExceptionHandler;
+	class Method;
 
-private:
-    CorExceptionFlag m_handlerType;
-    Instruction * m_tryStart;
-    Instruction * m_tryEnd;
-    Instruction * m_handlerStart;
-    Instruction * m_handlerEnd;
-    Instruction * m_filterStart;
+	typedef std::vector<ExceptionHandler *> ExceptionHandlerList;
 
-    ULONG m_token;
+	/// <summary>A representation of a try/catch section handler</summary>
+	class ExceptionHandler
+	{
+	public:
+		ExceptionHandler();
+		~ExceptionHandler(){};
 
-public:
-    friend class Method;
-};
+	private:
+		CorExceptionFlag m_handlerType;
+		Instruction * m_tryStart;
+		Instruction * m_tryEnd;
+		Instruction * m_handlerStart;
+		Instruction * m_handlerEnd;
+		Instruction * m_filterStart;
 
+		ULONG m_token;
+
+	public:
+		friend class Method;
+	};
+}

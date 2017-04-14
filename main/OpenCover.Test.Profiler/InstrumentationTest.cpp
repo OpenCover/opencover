@@ -2,6 +2,7 @@
 #include "..\OpenCover.Profiler\Method.h"
 
 // NOTE: Using pseudo IL code to exercise the code and is not necessarily runnable IL
+using namespace Instrumentation;
 
 class InstrumentationTest : public ::testing::Test {
     virtual void SetUp() {

@@ -13,6 +13,8 @@
 CCodeCoverage* CCodeCoverage::g_pProfiler = nullptr;
 // CCodeCoverage
 
+using namespace Instrumentation;
+
 /// <summary>Handle <c>ICorProfilerCallback::Initialize</c></summary>
 /// <remarks>Initialize the profiling environment and establish connection to the host</remarks>
 HRESULT STDMETHODCALLTYPE CCodeCoverage::Initialize(
@@ -144,7 +146,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     m_useOldStyle = (tstring(instrumentation) == _T("oldSchool"));
 
-    _host = std::make_shared<ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
+    _host = std::make_shared<Communication::ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
 
     if (!_host->Initialise(key, ns, szExeName))
     {
@@ -345,7 +347,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
                     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->GetILFunctionBody(moduleId, functionToken, (LPCBYTE*)&pMethodHeader, &iMethodSize),
                         _T("    ::JITCompilationStarted(...) => GetILFunctionBody => 0x%X"));
 
-                    Method instumentedMethod(pMethodHeader);
+                    Instrumentation::Method instumentedMethod(pMethodHeader);
                     instumentedMethod.IncrementStackSize(2);
 
                     ATLTRACE(_T("::JITCompilationStarted(...) => Instrumenting..."));
@@ -399,7 +401,7 @@ ipv CCodeCoverage::GetInstrumentPointVisit(){
 	return &InstrumentPointVisit;
 }
 
-void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints)
+void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Instrumentation::Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints)
 {
     if (m_useOldStyle)
     {
@@ -423,7 +425,7 @@ void CCodeCoverage::InstrumentMethod(ModuleID moduleId, Method& method,  std::ve
     }
     else
     {
-        mdMethodDef injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId, cuckoo_module_.c_str());
+        auto injectedVisitedMethod = RegisterSafeCuckooMethod(moduleId, cuckoo_module_.c_str());
 
         InstructionList instructions;
         if (seqPoints.size() > 0)
@@ -449,7 +451,7 @@ HRESULT CCodeCoverage::InstrumentMethodWith(ModuleID moduleId, mdToken functionT
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetILFunctionBody(moduleId, functionToken, (LPCBYTE*)&pMethodHeader, &iMethodSize),
 		_T("    ::InstrumentMethodWith(...) => GetILFunctionBody => 0x%X"));
 
-    Method instumentedMethod(pMethodHeader);
+	Instrumentation::Method instumentedMethod(pMethodHeader);
 
 	instumentedMethod.InsertInstructionsAtOriginalOffset(0, instructions);
 

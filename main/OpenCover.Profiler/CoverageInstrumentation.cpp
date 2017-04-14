@@ -10,6 +10,8 @@
 
 namespace CoverageInstrumentation
 {
+	using namespace Instrumentation;
+
     Instruction* InsertInjectedMethod(InstructionList &instructions, mdMethodDef injectedMethodDef, ULONG uniqueId)
     {
         Instruction *firstInstruction = new Instruction(CEE_LDC_I4, uniqueId);
