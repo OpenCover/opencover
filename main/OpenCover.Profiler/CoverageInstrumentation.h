@@ -4,7 +4,7 @@
 #include "Messages.h"
 #include <algorithm>
 
-#if _WIN64
+#ifdef _WIN64
 typedef unsigned __int64 FPTR;
 #else
 typedef unsigned long FPTR;

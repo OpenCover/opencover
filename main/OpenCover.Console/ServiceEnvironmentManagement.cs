@@ -166,9 +166,9 @@ namespace OpenCover.Console
             IntPtr tokenHandle = IntPtr.Zero;
             if (!OpenProcessToken(processHandle, 0x20008, ref tokenHandle))
                 return new string[0];
-            IntPtr environmentPtr = IntPtr.Zero;
+            IntPtr environmentPtr;
             if (!CreateEnvironmentBlock(out environmentPtr, tokenHandle, false))
-                return new String[0];
+                return new string[0];
             unsafe
             {
                 string[] envStrings = null;

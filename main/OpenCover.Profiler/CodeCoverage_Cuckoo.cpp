@@ -169,7 +169,7 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 	Method criticalMethod((IMAGE_COR_ILMETHOD*)data);
 	InstructionList instructions;
 	instructions.push_back(new Instruction(CEE_LDARG_0));
-#if _WIN64
+#ifdef _WIN64
 	instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
 #else
 	instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
@@ -177,7 +177,6 @@ HRESULT CCodeCoverage::AddCriticalCuckooBody(ModuleID moduleId)
 	instructions.push_back(new Instruction(CEE_CALLI, pvsig));
 
 	criticalMethod.InsertInstructionsAtOffset(0, instructions);
-	//criticalMethod.DumpIL();
 
 	InstrumentMethodWith(moduleId, m_cuckooCriticalToken, instructions);
 
@@ -199,7 +198,6 @@ HRESULT CCodeCoverage::AddSafeCuckooBody(ModuleID moduleId)
 	instructions.push_back(new Instruction(CEE_CALL, m_cuckooCriticalToken));
 
 	criticalMethod.InsertInstructionsAtOffset(0, instructions);
-	//criticalMethod.DumpIL();
 
 	InstrumentMethodWith(moduleId, m_cuckooSafeToken, instructions);
 

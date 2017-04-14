@@ -418,7 +418,7 @@ namespace OpenCover.Framework
 
         private static Exception ExceptionForInvalidArgumentValue(string argumentName, string argumentValue)
         {
-            return new Exception(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
+            return new InvalidOperationException(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
         }
 
         private void ValidateArguments()

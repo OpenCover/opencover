@@ -22,7 +22,7 @@ namespace CoverageInstrumentation
     {
         Instruction *firstInstruction = new Instruction(CEE_LDC_I4, uniqueId);
         instructions.push_back(firstInstruction);
-    #if _WIN64
+    #ifdef _WIN64
         instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
     #else
         instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));
