@@ -188,6 +188,11 @@ namespace OpenCover.Framework.Symbols
                 @class.MarkAsSkipped(SkippedMethod.Attribute);
             }
 
+            if (new[] {"System.MulticastDelegate", "System.Delegate"}.Contains(typeDefinition.BaseType?.FullName))
+            {
+                @class.MarkAsSkipped(SkippedMethod.Delegate);
+            }
+
             var list = new List<string>();
             if (!@class.ShouldSerializeSkippedDueTo())
             {
@@ -208,8 +213,11 @@ namespace OpenCover.Framework.Symbols
         public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            if (!type.ShouldSerializeSkippedDueTo())
+            {
+                IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+                GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            }
             return methods.ToArray();
         }
 
