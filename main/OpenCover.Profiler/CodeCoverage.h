@@ -18,11 +18,7 @@
 
 #include <memory>
 
-using namespace ATL;
-
 #define COM_FAIL_MSG_RETURN_ERROR(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
-
-//#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
 
 #define COM_FAIL_MSG_RETURN_OTHER(hr, ret, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (ret); }
 
