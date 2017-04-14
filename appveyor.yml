@@ -18,8 +18,10 @@ cache:
 - build/Version/opencover.public.snk
 nuget:
   disable_publish_on_pr: true
+install:
+- rd /s /q "C:\Program Files\dotnet\sdk\1.0.1"
 before_build:
-- appveyor-retry dotnet restore -v Minimal
+- appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core -v Minimal
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
@@ -27,7 +29,9 @@ build_script:
     } else {
       & .\build.bat create-release
     }
-    
+    if ($LastExitCode -ne 0) {
+        throw "build.bat failed with exit code $LastExitCode."
+    }    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
@@ -103,3 +107,5 @@ on_success:
     } else {
       & .\build.bat dogfood-release
     }
+on_finish:
+  - ps: #$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
