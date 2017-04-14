@@ -814,5 +814,24 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(0, points.Count());
 
         }
+
+        [Test]
+        [TestCase("/HandleMeDelegate")]
+        [TestCase(".DontHandleMeDelegate")]
+        public void DelegatesAreSkippedAndDoNotExposeMethods(string delegateName)
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+
+            var type = types.First(x => x.FullName.EndsWith(delegateName));
+            Assert.NotNull(type);
+            Assert.AreEqual(SkippedMethod.Delegate, type.SkippedDueTo);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+            Assert.AreEqual(0, methods.Length);
+        }
     }
 }

@@ -588,7 +588,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -600,7 +600,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -624,7 +624,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]

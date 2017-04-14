@@ -309,4 +309,17 @@ namespace OpenCover.Test.Samples
             yield return "two";
         } 
     }
+
+
+    public class ClassWithDelegate
+    {
+        public delegate bool HandleMeDelegate();
+
+        public void CallMe(HandleMeDelegate handle)
+        {
+            
+        }
+    }
+
+    internal delegate bool DontHandleMeDelegate();
 }

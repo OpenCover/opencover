@@ -141,7 +141,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
-            builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
+            var skips = string.Join("|", Enum.GetNames(typeof(SkippedMethod)).Where(x => x != "Unknown"));
+            builder.AppendLine(string.Format("    [-hideskipped:{0}|All,[{0}|All]]", skips));
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
             builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
@@ -354,11 +355,7 @@ namespace OpenCover.Framework
                 switch (option.ToLowerInvariant())
                 {
                     case "all":
-                        list.Add(SkippedMethod.Attribute);
-                        list.Add(SkippedMethod.File);
-                        list.Add(SkippedMethod.Filter);
-                        list.Add(SkippedMethod.MissingPdb);
-                        list.Add(SkippedMethod.AutoImplementedProperty);
+                        list = Enum.GetValues(typeof(SkippedMethod)).Cast<SkippedMethod>().Where(x => x != SkippedMethod.Unknown).ToList();
                         break;
                     default:
                         SkippedMethod result;

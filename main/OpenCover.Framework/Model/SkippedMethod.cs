@@ -48,6 +48,11 @@ namespace OpenCover.Framework.Model
         /// <summary>
         /// Entity (dll) was skipped due to folder exclusion.
         /// </summary>
-        FolderExclusion = 9
+        FolderExclusion = 9,
+
+        /// <summary>
+        /// Entity (method) was skipped due to being a delegate.
+        /// </summary>
+        Delegate = 10
     }
 }
