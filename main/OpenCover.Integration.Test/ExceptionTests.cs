@@ -1,46 +1,37 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
+using Castle.Core.Internal;
 using NUnit.Framework;
+using OpenCover.Test.Integration;
 
 namespace OpenCover.Integration.Test
 {
+    [TestFixture]
     public class ExceptionTests : ProfilerBaseFixture
     {
-        [Test]
-        public void TryFault_NoExceptionThrown()
+        public static IEnumerable SimpleExceptionTestMethods
         {
-            ExecuteProfiler32((info) =>
+            get
             {
-                info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
-                info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFault_NoExceptionThrown";
-                info.WorkingDirectory = Environment.CurrentDirectory;
-            });
+                return typeof(SimpleExceptionTests)
+                    .GetMethods()
+                    .Where(m => m.HasAttribute<TestAttribute>())
+                    .Select(m => new TestCaseData(m.Name).SetName(m.Name));
+            }
         }
 
         [Test]
-        public void TryFinally_NoExceptionThrown()
+        [TestCaseSource(typeof(ExceptionTests), nameof(SimpleExceptionTestMethods))]
+        public void Run_ExceptionTest(string testName)
         {
             ExecuteProfiler32((info) =>
             {
-                info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
-                info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFinally_NoExceptionThrown";
+                info.FileName = Path.Combine(Environment.CurrentDirectory, TestRunner);
+                info.Arguments = $"--test:{testName} OpenCover.Test.dll ";
                 info.WorkingDirectory = Environment.CurrentDirectory;
             });
         }
-
-        [Test]
-        public void TryFilter_NoExceptionThrown()
-        {
-            ExecuteProfiler32((info) =>
-            {
-                info.FileName = Path.Combine(Environment.CurrentDirectory,
-                    @"..\..\..\main\packages\NUnit-2.5.9.10348\bin\net-2.0\nunit-console-x86.exe");
-                info.Arguments = "OpenCover.Test.dll /noshadow /run:OpenCover.Test.Integration.SimpleExceptionTests.TryFilter_NoExceptionThrown";
-                info.WorkingDirectory = Environment.CurrentDirectory;
-            });
-        }
-
     }
 }

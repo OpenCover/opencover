@@ -23,7 +23,7 @@
     <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -69,8 +69,13 @@
       <Project>{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}</Project>
       <Name>OpenCover.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OpenCover.Test\OpenCover.Test.csproj">
+      <Project>{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}</Project>
+      <Name>OpenCover.Test</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
