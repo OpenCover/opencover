@@ -23,7 +23,7 @@ namespace Instrumentation
 		void WriteMethod(IMAGE_COR_ILMETHOD* pMethod);
 		void InsertInstructionsAtOriginalOffset(long origOffset, const InstructionList &instructions);
 		void InsertInstructionsAtOffset(long offset, const InstructionList &instructions);
-		void DumpIL();
+		void DumpIL(bool enableDump);
 		ULONG GetILMapSize();
 		void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
 

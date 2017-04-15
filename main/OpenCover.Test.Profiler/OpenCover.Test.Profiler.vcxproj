@@ -96,6 +96,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\OpenCover.Profiler\CoverageInstrumentation.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\ExceptionHandler.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Instruction.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Method.cpp" />
@@ -112,6 +113,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <ClCompile Include="RegressionTest.cpp">
+      <FileType>Document</FileType>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -360,6 +360,9 @@ namespace OpenCover.Console
             if (parser.OldStyleInstrumentation)
                 startInfo.EnvironmentVariables[@"OpenCover_Profiler_Instrumentation"] = "oldSchool";
 
+            if (parser.DiagMode)
+                startInfo.EnvironmentVariables[@"OpenCover_Profiler_Diagnostics"] = "true";
+
             startInfo.Arguments = parser.TargetArgs;
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = parser.TargetDir;

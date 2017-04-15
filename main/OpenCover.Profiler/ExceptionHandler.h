@@ -21,7 +21,11 @@ namespace Instrumentation
 		ExceptionHandler();
 		~ExceptionHandler(){};
 
+#ifdef TEST_FRAMEWORK
+	public:
+#else
 	private:
+#endif
 		CorExceptionFlag m_handlerType;
 		Instruction * m_tryStart;
 		Instruction * m_tryEnd;

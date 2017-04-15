@@ -3,11 +3,6 @@
 
 #include <algorithm>
 
-#ifdef DEBUG
-// uncommment to get debug builds to dump out instrumented functions (slow)
-#define DUMP_PT 1
-#endif
-
 namespace CoverageInstrumentation
 {
 	using namespace Instrumentation;

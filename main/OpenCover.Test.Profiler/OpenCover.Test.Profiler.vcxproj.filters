@@ -47,8 +47,14 @@
     <ClCompile Include="..\OpenCover.Profiler\Operations.cpp">
       <Filter>Source Files\Instrumentation</Filter>
     </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\CoverageInstrumentation.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="RegressionTest.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

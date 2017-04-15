@@ -26,7 +26,6 @@ namespace OpenCover.Integration.Test
         }
     }
 
-    [TestFixture]
     public abstract class ProfilerBaseFixture
     {
         protected IFilter _filter;
@@ -35,7 +34,12 @@ namespace OpenCover.Integration.Test
         private IPersistance _persistance;
 
         protected string TestTarget { get; set; }
- 
+
+        protected string TestRunner
+        {
+            get { return @"..\..\..\main\packages\NUnit.ConsoleRunner.3.5.0\tools\nunit3-console.exe"; }
+        }
+
         [SetUp]
         public void SetUp()
         {

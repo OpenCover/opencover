@@ -9,10 +9,14 @@ using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Test.Framework.Symbols
 {
+    /// <summary>
+    /// This test fails when running under Resharper and shadow copy is turned on
+    /// Disable it using Resharper -> Options -> Unit Testing
+    /// </summary>
     [TestFixture]
     public class CecilSymbolManagerMdbTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
             var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);

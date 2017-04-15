@@ -1,11 +1,13 @@
 #include "stdafx.h"
 
 class ProfilerInstantiationTest : public ::testing::Test {
-    virtual void SetUp() {
+	void SetUp() override
+    {
         ::CoInitialize(NULL);
     }
 
-    virtual void TearDown() {
+	void TearDown() override
+    {
         ::CoUninitialize();
     }
 };

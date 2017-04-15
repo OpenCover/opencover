@@ -5,11 +5,13 @@
 using namespace Instrumentation;
 
 class InstrumentationTest : public ::testing::Test {
-    virtual void SetUp() {
+	void SetUp() override
+    {
         
     }
 
-    virtual void TearDown() {
+	void TearDown() override
+    {
         
     }
 };
@@ -553,7 +555,7 @@ TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
 
     instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
-    instrument.DumpIL();
+    instrument.DumpIL(true);
 
     ASSERT_EQ(4, instrument.m_instructions.size());
 
