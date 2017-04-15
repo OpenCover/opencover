@@ -8,7 +8,7 @@
 
 #ifdef DEBUG
 // uncommment to get debug builds to dump out instrumented functions (slow)
-#define DUMP_IL 1
+//#define DUMP_IL 1
 #endif
 namespace Instrumentation
 {
@@ -427,20 +427,20 @@ namespace Instrumentation
 			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
 			if (details.operandSize == Null)
 			{
-				ATLTRACE(_T("IL_%04X %s"), (*it)->m_offset, details.stringName);
+				ATLTRACE(_T("(IL_%04X) IL_%04X %s"), (*it)->m_origOffset, (*it)->m_offset, details.stringName);
 			}
 			else
 			{
 				if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
 				{
 					auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
-					ATLTRACE(_T("IL_%04X %s IL_%04X"),
-						(*it)->m_offset, details.stringName, offset);
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName, offset);
 				}
 				else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
 				{
-					ATLTRACE(_T("IL_%04X %s (%02X)%02X%02X%02X"),
-						(*it)->m_offset, details.stringName,
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName,
 						(BYTE)((*it)->m_operand >> 24),
 						(BYTE)((*it)->m_operand >> 16),
 						(BYTE)((*it)->m_operand >> 8),
@@ -448,22 +448,23 @@ namespace Instrumentation
 				}
 				else if (details.operandSize == Byte)
 				{
-					ATLTRACE(_T("IL_%04X %s %02X"),
-						(*it)->m_offset, details.stringName, (*it)->m_operand);
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else if (details.operandSize == Word)
 				{
-					ATLTRACE(_T("IL_%04X %s %04X"),
-						(*it)->m_offset, details.stringName, (*it)->m_operand);
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else if (details.operandSize == Dword)
 				{
-					ATLTRACE(_T("IL_%04X %s %08X"),
-						(*it)->m_offset, details.stringName, (*it)->m_operand);
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else
 				{
-					ATLTRACE(_T("IL_%04X %s %X"), (*it)->m_offset, details.stringName, (*it)->m_operand);
+					ATLTRACE(_T("(IL_%04X) IL_%04X %s %X"),
+						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 			}
 			for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end(); ++offsetIter)
@@ -690,7 +691,6 @@ namespace Instrumentation
 		}
 
 		RecalculateOffsets();
-		return;
 	}
 
 	/// <summary>Insert a sequence of instructions at a sequence point</summary>
@@ -739,7 +739,6 @@ namespace Instrumentation
 		}
 
 		RecalculateOffsets();
-		return;
 	}
 
 	/// <summary>Test if we have an exception where the handler start points to the 
@@ -750,8 +749,12 @@ namespace Instrumentation
 	{
 		for (auto it = m_exceptions.begin(); it != m_exceptions.end(); ++it)
 		{
-			if (((*it)->m_handlerType == COR_ILEXCEPTION_CLAUSE_NONE)
-				&& ((*it)->m_handlerStart->m_offset == offset)) return true;
+			if ((*it)->m_handlerType == COR_ILEXCEPTION_CLAUSE_NONE
+				&& ((*it)->m_handlerStart->m_offset == offset 
+				&& (*it)->m_handlerStart->m_operand == CEE_THROW))
+			{
+				return true;
+			}
 		}
 		return false;
 	}
