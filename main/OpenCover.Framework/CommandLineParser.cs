@@ -113,6 +113,7 @@ namespace OpenCover.Framework
             PrintVersion = false;
             ExcludeDirs = new string[0];
             SafeMode = true;
+            DiagMode = false;
         }
 
         /// <summary>
@@ -151,6 +152,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
             builder.AppendLine("    [-oldStyle]");
+            builder.AppendLine("    [-safeMode:on|off|yes|no]");
+            builder.AppendLine("    [-diagMode]");
             builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -302,6 +305,9 @@ namespace OpenCover.Framework
                         break;
                     case "version":
                         PrintVersion = true;
+                        break;
+                    case "diagmode":
+                        DiagMode = true;
                         break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
@@ -601,6 +607,12 @@ namespace OpenCover.Framework
         /// Sets the 'short' timeout between profiler and host (normally 10000ms)
         /// </summary>
         public int CommunicationTimeout { get; private set; }
+
+        /// <summary>
+        /// Enable diagnostics in the profiler
+        /// </summary>
+        public bool DiagMode { get; private set; }
+
     }
 
 }

@@ -5,11 +5,8 @@
 //
 #include "stdafx.h"
 #include "Method.h"
+#include "ReleaseTrace.h"
 
-#ifdef DEBUG
-// uncommment to get debug builds to dump out instrumented functions (slow)
-//#define DUMP_IL 1
-#endif
 namespace Instrumentation
 {
 	Method::Method(IMAGE_COR_ILMETHOD* pMethod)
@@ -418,28 +415,29 @@ namespace Instrumentation
 
 	/// <summary>Pretty print the IL</summary>
 	/// <remarks>Only works for Debug builds.</remarks>
-	void Method::DumpIL()
+	void Method::DumpIL(bool enableDump)
 	{
-#ifdef DUMP_IL
-		ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
+		if (!enableDump)
+			return;
+		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 		{
 			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
 			if (details.operandSize == Null)
 			{
-				ATLTRACE(_T("(IL_%04X) IL_%04X %s"), (*it)->m_origOffset, (*it)->m_offset, details.stringName);
+				RELTRACE(_T("(IL_%04X) IL_%04X %s"), (*it)->m_origOffset, (*it)->m_offset, details.stringName);
 			}
 			else
 			{
 				if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
 				{
 					auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName, offset);
 				}
 				else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
 				{
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName,
 						(BYTE)((*it)->m_operand >> 24),
 						(BYTE)((*it)->m_operand >> 16),
@@ -448,22 +446,22 @@ namespace Instrumentation
 				}
 				else if (details.operandSize == Byte)
 				{
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else if (details.operandSize == Word)
 				{
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else if (details.operandSize == Dword)
 				{
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 				else
 				{
-					ATLTRACE(_T("(IL_%04X) IL_%04X %s %X"),
+					RELTRACE(_T("(IL_%04X) IL_%04X %s %X"),
 						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 				}
 			}
@@ -472,7 +470,7 @@ namespace Instrumentation
 				if ((*it)->m_operation == CEE_SWITCH)
 				{
 					auto offset = (*it)->m_offset + (4 * static_cast<long>((*it)->m_operand)) + (*offsetIter) + details.length + details.operandSize;
-					ATLTRACE(_T("    IL_%04X"), offset);
+					RELTRACE(_T("    IL_%04X"), offset);
 				}
 			}
 		}
@@ -480,7 +478,7 @@ namespace Instrumentation
 		int i = 0;
 		for (auto it = m_exceptions.begin(); it != m_exceptions.end(); ++it)
 		{
-			ATLTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"),
+			RELTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"),
 				i++, (*it)->m_handlerType,
 				(*it)->m_tryStart != nullptr ? (*it)->m_tryStart->m_offset : 0,
 				(*it)->m_tryEnd != nullptr ? (*it)->m_tryEnd->m_offset : 0,
@@ -489,8 +487,7 @@ namespace Instrumentation
 				(*it)->m_filterStart != nullptr ? (*it)->m_filterStart->m_offset : 0,
 				(*it)->m_token);
 		}
-		ATLTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
-#endif
+		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
 	}
 
 	/// <summary>Converts all short branches to long branches.</summary>

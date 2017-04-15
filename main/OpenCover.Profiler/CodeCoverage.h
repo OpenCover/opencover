@@ -138,6 +138,7 @@ private:
 	ULONG m_threshold;
     bool m_tracingEnabled;
     bool safe_mode_;
+	bool enableDiagnostics_;
 
 private:
     std::vector<ULONG> m_thresholds;

@@ -927,5 +927,18 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.AreEqual(expectedValue, parser.SafeMode);
         }
+
+        [Test]
+        public void DetectsDiagmodeArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-diagmode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.DiagMode);
+        }
     }
 }
