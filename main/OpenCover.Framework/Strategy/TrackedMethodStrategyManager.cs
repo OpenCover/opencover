@@ -89,16 +89,31 @@ namespace OpenCover.Framework.Strategy
         /// <filterpriority>2</filterpriority>
         public void Dispose()
         {
-            _proxy = null;
-            if (_domain == null) 
-                return;
-            try
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool _disposed;
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        /// <param name="disposing"></param>
+        public virtual void Dispose(bool disposing)
+        {
+            if (!_disposed && disposing)
             {
-                AppDomain.Unload(_domain);
-            }
-            finally
-            {
-                _domain = null;
+                _disposed = true;
+                _proxy = null;
+                if (_domain == null)
+                    return;
+                try
+                {
+                    AppDomain.Unload(_domain);
+                }
+                finally
+                {
+                    _domain = null;
+                }
             }
         }
     }
