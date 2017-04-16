@@ -106,6 +106,13 @@ deploy:
   artifact: Installer, ZipArchive
   on:
     branch: release
+- provider: NuGet
+  server: https://www.myget.org/F/opencover/api/v2/package
+  api_key:
+    secure: UOHB7ZJL44zMDE+fM0+IWJwpQSlHg27zbFG79/HshiVdoAXnpW53KMayETaO9E5K
+  artifact: NugetCandidate
+  on:
+    branch: master
 notifications:
 - provider: Webhook
   url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
