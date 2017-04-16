@@ -78,7 +78,7 @@ namespace OpenCover.Framework.Symbols
                     return;
 
                 var readerProvider = symbolFile.SymbolReaderProvider;
-                if (readerProvider.GetType() == typeof(PdbReaderProvider))
+                if (readerProvider is PdbReaderProvider)
                 {
                     // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
                     if (IsPortablePdb())
@@ -97,7 +97,7 @@ namespace OpenCover.Framework.Symbols
                             SymbolStream = stream
                         };
                         _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                        _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                        _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
                     }
                 }
                 else
@@ -110,7 +110,7 @@ namespace OpenCover.Framework.Symbols
                         InMemory = true
                     };
                     _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                    _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                    _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
                 }
             }
             catch (Exception)
@@ -144,35 +144,6 @@ namespace OpenCover.Framework.Symbols
             }
             return false;
         }
-
-        //private void LoadSourceAssembly()
-        //{
-        //        var readerProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider();
-        //        if (readerProvider.GetType() == typeof(PdbReaderProvider))
-        //        {
-        //            // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
-        //            if (IsPortablePdb())
-        //                readerProvider = new PortablePdbReaderProvider();
-        //        }
-
-        //        var parameters = new ReaderParameters
-        //        {
-        //            SymbolReaderProvider = readerProvider,
-        //            ReadingMode = ReadingMode.Deferred,
-        //            ReadSymbols = true,
-        //            InMemory = true
-        //        };
-        //        var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
-        //        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
-
-        //        _sourceAssembly?.MainModule.ReadSymbols(readerProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
-        //        _sourceAssembly = null;
-        //    }
-        //}
 
         public AssemblyDefinition SourceAssembly
         {
