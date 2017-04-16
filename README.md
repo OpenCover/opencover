@@ -5,8 +5,8 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | | |
 | --- | --- |
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
-| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarQube</sup> [![SonarQube](https://sonarqube.com/api/badges/measure?key=opencover&metric=coverage)](https://sonarqube.org/dashboard?id=opencover) | 
-| **Quality** | [![SonarQube](https://sonarqube.com/api/badges/gate?key=opencover)](https://sonarqube.org/dashboard?id=opencover) | 
+| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarQube</sup> [![SonarQube](https://sonarqube.com/api/badges/measure?key=opencover&metric=coverage)](https://sonarqube.com/dashboard?id=opencover) | 
+| **Quality** | [![SonarQube](https://sonarqube.com/api/badges/gate?key=opencover)](https://sonarqube.com/dashboard?id=opencover) | 
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 
@@ -60,6 +60,7 @@ You will need:
 2. WiX 3.10 or later (http://wix.codeplex.com/releases/view/619491)
 3. SpecFlow for Visual Studio 2015 (https://visualstudiogallery.msdn.microsoft.com/c74211e7-cb6e-4dfa-855d-df0ad4a37dd6)
 4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
+5. Microsoft .NET Framework 4.6.2 Developer Pack (https://www.microsoft.com/en-us/download/details.aspx?id=53321)
 
 All other software should be included with this repository. 
 
