@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Mdb;
 using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
@@ -69,42 +68,56 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-        private SymbolFolder FindSymbolFolder()
+
+        private void LoadSourceAssembly()
         {
-            var origFolder = Path.GetDirectoryName(ModulePath);
-
-            var searchFolders = new List<string> { origFolder, _commandLine.TargetDir };
-            if (_commandLine.SearchDirs != null)
-                searchFolders.AddRange(_commandLine.SearchDirs);
-            searchFolders.Add(Environment.CurrentDirectory);
-
-            foreach (var searchFolder in searchFolders)
+            try
             {
-                var symbolFolder = FindSymbolsFolder(ModulePath, searchFolder);
-                if (symbolFolder != null) 
-                    return symbolFolder;
-            }
+                var symbolFile = SymbolFile.FindSymbolFolder(ModulePath, _commandLine);
+                if (symbolFile == null)
+                    return;
 
-            return null;
-        }
-
-        private static SymbolFolder FindSymbolsFolder(string fileName, string targetfolder)
-        {
-            if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
-            {
-                var name = Path.GetFileName(fileName);
-                if (name != null)
+                var readerProvider = symbolFile.SymbolReaderProvider;
+                if (readerProvider.GetType() == typeof(PdbReaderProvider))
                 {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new PdbReaderProvider());   
-                   
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".mdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new MdbReaderProvider());
+                    // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
+                    if (IsPortablePdb())
+                        readerProvider = new PortablePdbReaderProvider();
+                }
+
+                if (readerProvider is PdbReaderProvider)
+                {
+                    using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var parameters = new ReaderParameters
+                        {
+                            SymbolReaderProvider = readerProvider,
+                            ReadingMode = ReadingMode.Deferred,
+                            ReadSymbols = true,
+                            SymbolStream = stream
+                        };
+                        _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                        _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                    }
+                }
+                else
+                {
+                    var parameters = new ReaderParameters
+                    {
+                        SymbolReaderProvider = readerProvider,
+                        ReadingMode = ReadingMode.Deferred,
+                        ReadSymbols = true,
+                        InMemory = true
+                    };
+                    _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                    _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
                 }
             }
-            return null;
+            catch (Exception)
+            {
+                // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
+                _sourceAssembly = null;
+            }
         }
 
         private bool IsPortablePdb()
@@ -132,41 +145,34 @@ namespace OpenCover.Framework.Symbols
             return false;
         }
 
-        private void LoadSourceAssembly()
-        {
-            try
-            {
-                var symbolFolder = FindSymbolFolder();
-                if (symbolFolder == null) 
-                    return;
-                var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
+        //private void LoadSourceAssembly()
+        //{
+        //        var readerProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider();
+        //        if (readerProvider.GetType() == typeof(PdbReaderProvider))
+        //        {
+        //            // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
+        //            if (IsPortablePdb())
+        //                readerProvider = new PortablePdbReaderProvider();
+        //        }
 
-                var readerProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider();
-                if (readerProvider.GetType() == typeof(PdbReaderProvider))
-                {
-                    // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
-                    if (IsPortablePdb())
-                        readerProvider = new PortablePdbReaderProvider();
-                }
+        //        var parameters = new ReaderParameters
+        //        {
+        //            SymbolReaderProvider = readerProvider,
+        //            ReadingMode = ReadingMode.Deferred,
+        //            ReadSymbols = true,
+        //            InMemory = true
+        //        };
+        //        var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
+        //        _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
 
-                var parameters = new ReaderParameters
-                {
-                    SymbolReaderProvider = readerProvider,
-                    ReadingMode = ReadingMode.Deferred,
-                    ReadSymbols = true,
-                    InMemory = true
-                };
-                var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
-                _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
-
-                _sourceAssembly?.MainModule.ReadSymbols(readerProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
-            }
-            catch (Exception ex)
-            {
-                // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
-                _sourceAssembly = null;
-            }
-        }
+        //        _sourceAssembly?.MainModule.ReadSymbols(readerProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
+        //        _sourceAssembly = null;
+        //    }
+        //}
 
         public AssemblyDefinition SourceAssembly
         {
@@ -263,6 +269,11 @@ namespace OpenCover.Framework.Symbols
                 @class.MarkAsSkipped(SkippedMethod.Attribute);
             }
 
+            if (new[] {"System.MulticastDelegate", "System.Delegate"}.Contains(typeDefinition.BaseType?.FullName))
+            {
+                @class.MarkAsSkipped(SkippedMethod.Delegate);
+            }
+
             var list = new List<string>();
             if (!@class.ShouldSerializeSkippedDueTo())
             {
@@ -282,8 +293,11 @@ namespace OpenCover.Framework.Symbols
         public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            if (!type.ShouldSerializeSkippedDueTo())
+            {
+                IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+                GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            }
             return methods.ToArray();
         }
 

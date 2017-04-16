@@ -113,6 +113,7 @@ namespace OpenCover.Framework
             PrintVersion = false;
             ExcludeDirs = new string[0];
             SafeMode = true;
+            DiagMode = false;
         }
 
         /// <summary>
@@ -141,7 +142,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
-            builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
+            var skips = string.Join("|", Enum.GetNames(typeof(SkippedMethod)).Where(x => x != "Unknown"));
+            builder.AppendLine(string.Format("    [-hideskipped:{0}|All,[{0}|All]]", skips));
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
             builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
@@ -150,6 +152,8 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
             builder.AppendLine("    [-oldStyle]");
+            builder.AppendLine("    [-safeMode:on|off|yes|no]");
+            builder.AppendLine("    [-diagMode]");
             builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -302,6 +306,9 @@ namespace OpenCover.Framework
                     case "version":
                         PrintVersion = true;
                         break;
+                    case "diagmode":
+                        DiagMode = true;
+                        break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
                 }
@@ -354,11 +361,7 @@ namespace OpenCover.Framework
                 switch (option.ToLowerInvariant())
                 {
                     case "all":
-                        list.Add(SkippedMethod.Attribute);
-                        list.Add(SkippedMethod.File);
-                        list.Add(SkippedMethod.Filter);
-                        list.Add(SkippedMethod.MissingPdb);
-                        list.Add(SkippedMethod.AutoImplementedProperty);
+                        list = Enum.GetValues(typeof(SkippedMethod)).Cast<SkippedMethod>().Where(x => x != SkippedMethod.Unknown).ToList();
                         break;
                     default:
                         SkippedMethod result;
@@ -418,7 +421,7 @@ namespace OpenCover.Framework
 
         private static Exception ExceptionForInvalidArgumentValue(string argumentName, string argumentValue)
         {
-            return new Exception(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
+            return new InvalidOperationException(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
         }
 
         private void ValidateArguments()
@@ -604,6 +607,12 @@ namespace OpenCover.Framework
         /// Sets the 'short' timeout between profiler and host (normally 10000ms)
         /// </summary>
         public int CommunicationTimeout { get; private set; }
+
+        /// <summary>
+        /// Enable diagnostics in the profiler
+        /// </summary>
+        public bool DiagMode { get; private set; }
+
     }
 
 }

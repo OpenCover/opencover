@@ -300,6 +300,13 @@ namespace OpenCover.Framework.Persistance
             AddPoints(CoverageSession.Summary, module.Summary);
             CalculateCoverage(module.Summary);
 
+            if (CoverageSession.Summary.MinCrapScore == 0)
+            {
+                CoverageSession.Summary.MinCrapScore = module.Summary.MinCrapScore;
+            }
+            CoverageSession.Summary.MinCrapScore = Math.Min(CoverageSession.Summary.MinCrapScore, module.Summary.MinCrapScore);
+            CoverageSession.Summary.MaxCrapScore = Math.Max(CoverageSession.Summary.MaxCrapScore, module.Summary.MaxCrapScore);
+
             if (CoverageSession.Summary.MinCyclomaticComplexity == 0)
                 CoverageSession.Summary.MinCyclomaticComplexity = module.Summary.MinCyclomaticComplexity;
 
@@ -316,6 +323,13 @@ namespace OpenCover.Framework.Persistance
 
             AddPoints(module.Summary, @class.Summary);
             CalculateCoverage(@class.Summary);
+
+            if (module.Summary.MinCrapScore == 0)
+            {
+                module.Summary.MinCrapScore = @class.Summary.MinCrapScore;
+            }
+            module.Summary.MinCrapScore = Math.Min(module.Summary.MinCrapScore, @class.Summary.MinCrapScore);
+            module.Summary.MaxCrapScore = Math.Max(module.Summary.MaxCrapScore, @class.Summary.MaxCrapScore);
 
             if (module.Summary.MinCyclomaticComplexity == 0)
                 module.Summary.MinCyclomaticComplexity = @class.Summary.MinCyclomaticComplexity;
@@ -356,9 +370,31 @@ namespace OpenCover.Framework.Persistance
             method.SequenceCoverage = method.Summary.SequenceCoverage;
             method.BranchCoverage = method.Summary.BranchCoverage;
 
+            CalculateCrapScore(method, @class);
+
             CalculateNPathComplexity(method);
 
             CalculateCyclomaticComplexity(method, @class);
+        }
+
+        private static void CalculateCrapScore(Method method, Class @class)
+        {
+            method.CrapScore = Math.Round((decimal) Math.Pow(method.CyclomaticComplexity, 2) *
+                                          (decimal) Math.Pow(1.0 - (double) (method.SequenceCoverage / (decimal) 100.0), 3.0) +
+                                          method.CyclomaticComplexity, 
+                                          2);
+
+            // TODO: is 0 a possible crap score?
+            method.Summary.MinCrapScore = Math.Max(0, method.CrapScore);
+            method.Summary.MaxCrapScore = method.Summary.MinCrapScore;
+
+            if (@class.Summary.MinCrapScore == 0)
+            {
+                @class.Summary.MinCrapScore = method.Summary.MinCrapScore;
+            }
+
+            @class.Summary.MinCrapScore = Math.Min(@class.Summary.MinCrapScore, method.CrapScore);
+            @class.Summary.MaxCrapScore = Math.Max(@class.Summary.MaxCrapScore, method.CrapScore);
         }
 
         private static void CalculateCyclomaticComplexity(Method method, Class @class)

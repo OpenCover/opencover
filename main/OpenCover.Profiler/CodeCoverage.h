@@ -18,11 +18,7 @@
 
 #include <memory>
 
-using namespace ATL;
-
 #define COM_FAIL_MSG_RETURN_ERROR(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
-
-//#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
 
 #define COM_FAIL_MSG_RETURN_OTHER(hr, ret, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (ret); }
 
@@ -66,6 +62,8 @@ BEGIN_COM_MAP(CCodeCoverage)
 #ifndef _TOOLSETV71
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
     COM_INTERFACE_ENTRY(ICorProfilerCallback5)
+    COM_INTERFACE_ENTRY(ICorProfilerCallback6)
+    COM_INTERFACE_ENTRY(ICorProfilerCallback7)
 #endif
 END_COM_MAP()
 
@@ -102,7 +100,7 @@ public:
     void __fastcall AddVisitPoint(ULONG uniqueId);
 
 private:
-    std::shared_ptr<ProfilerCommunication> _host;
+    std::shared_ptr<Communication::ProfilerCommunication> _host;
     ULONG _shortwait;
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
 	DWORD AppendProfilerEventMask(DWORD currentEventMask);
@@ -142,6 +140,7 @@ private:
 	ULONG m_threshold;
     bool m_tracingEnabled;
     bool safe_mode_;
+	bool enableDiagnostics_;
 
 private:
     std::vector<ULONG> m_thresholds;
@@ -164,7 +163,7 @@ private:
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
     mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId, const WCHAR* moduleName);
-    void InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
+    void InstrumentMethod(ModuleID moduleId, Instrumentation::Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
 	HRESULT CuckooSupportCompilation(
 		AssemblyID assemblyId,
 		mdToken functionToken,
@@ -182,7 +181,7 @@ private:
     mdMethodDef CreatePInvokeHook(ModuleID moduleId);
     HRESULT OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
 	mdMethodDef Get_CurrentDomainMethod(ModuleID moduleID);
-	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, InstructionList &instructions);
+	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, Instrumentation::InstructionList &instructions);
 
     bool OpenCoverSupportRequired(AssemblyID assemblyId, FunctionID functionId);
 

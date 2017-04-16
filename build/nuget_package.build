@@ -89,6 +89,7 @@
     <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     
     <mkdir dir="${chocolatey.output.folder}" />
+    <mkdir dir="${choco.folder}\lib" />
     
     <exec program="${choco.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover\OpenCover.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
@@ -114,6 +115,7 @@
     <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     
     <mkdir dir="${chocolatey.output.folder}" />
+    <mkdir dir="${choco.folder}\lib" />
     
     <exec program="${choco.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\OpenCover.portable.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />

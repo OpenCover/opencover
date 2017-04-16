@@ -79,7 +79,7 @@ namespace OpenCover.Framework.Communication
         public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling)
         {
             IntPtr pinnedMemory = mcb.PinnedDataCommunication.AddrOfPinnedObject();
-            var writeSize = 0;
+            int writeSize;
             switch (msgType)
             {
                 case MSG_Type.MSG_TrackAssembly:

@@ -20,14 +20,14 @@ namespace OpenCover.Framework.Model
             InstrumentPoints = new List<InstrumentationPoint>(8192) {null};
         }
 
-        static internal void Clear()
+        internal static void Clear()
         {
             InstrumentPoints.Clear();
             InstrumentPoints.Add(null);
             _instrumentPoint = 0;
         }
 
-        static internal void ResetAfterLoading()
+        internal static void ResetAfterLoading()
         {
             var points = InstrumentPoints
                 .Where(x => x != null)
@@ -83,27 +83,34 @@ namespace OpenCover.Framework.Model
             {
                 var point = InstrumentPoints[(int) spid];
                 point.VisitCount += amount;
-                if (point.VisitCount < 0) 
+                if (point.VisitCount < 0)
+                {
                     point.VisitCount = int.MaxValue;
+                }
                 if (trackedMethodId != 0)
                 {
-                    point._tracked = point._tracked ?? new List<TrackedMethodRef>();
-                    var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
-                    if (tracked == null)
-                    {
-                        tracked = new TrackedMethodRef {UniqueId = trackedMethodId, VisitCount = amount};
-                        point._tracked.Add(tracked);
-                    }
-                    else
-                    {
-                        tracked.VisitCount += amount;
-                        if (tracked.VisitCount < 0)
-                            tracked.VisitCount = int.MaxValue;
-                    }
+                    AddOrUpdateTrackingPoint(trackedMethodId, amount, point);
                 }
                 return true;
             }
             return false;
+        }
+
+        private static void AddOrUpdateTrackingPoint(uint trackedMethodId, int amount, InstrumentationPoint point)
+        {
+            point._tracked = point._tracked ?? new List<TrackedMethodRef>();
+            var tracked = point._tracked.Find(x => x.UniqueId == trackedMethodId);
+            if (tracked == null)
+            {
+                tracked = new TrackedMethodRef {UniqueId = trackedMethodId, VisitCount = amount};
+                point._tracked.Add(tracked);
+            }
+            else
+            {
+                tracked.VisitCount += amount;
+                if (tracked.VisitCount < 0)
+                    tracked.VisitCount = int.MaxValue;
+            }            
         }
 
         private List<TrackedMethodRef> _tracked;
@@ -158,7 +165,7 @@ namespace OpenCover.Framework.Model
         {
             get
             {
-                return _tracked != null ? _tracked.ToArray() : null;
+                return _tracked?.ToArray();
             }
             set
             {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using NUnit.Framework;
 using TechTalk.SpecFlow;
 
@@ -26,10 +27,32 @@ namespace OpenCover.Specs.Steps
         public void GivenICanFindTheTarget_NetCoreApplication(string application)
         {
 #if DEBUG
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.0\{application}.dll"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.0"));
 #else
-            var targetApp = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.0\{application}.dll"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.0"));
 #endif
+            var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories)
+                    .FirstOrDefault(p => File.Exists(Path.Combine(Path.GetDirectoryName(p) ?? ".", "hostpolicy.dll")));
+
+            Console.WriteLine($"Found target application in '{targetApp}'");
+
+            Assert.IsTrue(File.Exists(targetApp));
+
+            ScenarioContext.Current["TargetApp"] = targetApp;
+        }
+
+        [Given(@"I can find the target \.net core portable application '(.*)'")]
+        public void GivenICanFindTheTarget_NetCorePortableApplication(string application)
+        {
+#if DEBUG
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.0"));
+#else
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.0"));
+#endif
+            var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories).FirstOrDefault();
+
+            Console.WriteLine($"Found target application in '{targetApp}'");
+
             Assert.IsTrue(File.Exists(targetApp));
 
             ScenarioContext.Current["TargetApp"] = targetApp;

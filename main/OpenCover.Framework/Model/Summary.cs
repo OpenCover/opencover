@@ -64,6 +64,18 @@ namespace OpenCover.Framework.Model
         public int MinCyclomaticComplexity { get; set; }
 
         /// <summary>
+        /// What is the maximum crap score
+        /// </summary>
+        [XmlAttribute("maxCrapScore")]
+        public decimal MaxCrapScore { get; set; }
+
+        /// <summary>
+        /// What is the minimum crap score.
+        /// </summary>
+        [XmlAttribute("minCrapScore")]
+        public decimal MinCrapScore { get; set; }
+
+        /// <summary>
         /// What is the number of visited classes
         /// </summary>
         [XmlAttribute("visitedClasses")]

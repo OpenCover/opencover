@@ -22,5 +22,20 @@ namespace OpenCover.Test.Extensions.Strategy
             // assert
             Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleXUnit::AddAttributeExclusionFilters_Handles_Null_Elements()")));
         }
+
+        [Test]
+        public void Can_Identify_Theories()
+        {
+            // arrange
+            var strategy = new TrackXUnitTestMethods();
+
+            var def = Mono.Cecil.AssemblyDefinition.ReadAssembly(typeof(TrackXUnitTestMethodsTests).Assembly.Location);
+
+            // act
+            var methods = strategy.GetTrackedMethods(def.MainModule.Types);
+
+            // assert
+            Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleXUnit::Test_Data_Is_Even(System.Int32)")));
+        }
     }
 }

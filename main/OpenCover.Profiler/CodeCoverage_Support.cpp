@@ -31,6 +31,8 @@ namespace {
 	};
 }
 
+using namespace Instrumentation;
+
 LPSAFEARRAY GetInjectedDllAsSafeArray()
 {
 	HINSTANCE hInst = _AtlModule.m_hModule;

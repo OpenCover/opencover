@@ -588,7 +588,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -600,7 +600,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -624,7 +624,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -774,7 +774,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[] { "-servicestarttimeout:" + invalidTimeout, RequiredArgs });
 
             // act
-            var thrownException = Assert.Throws<Exception>(parser.ExtractAndValidateArguments);
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
 
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
@@ -926,6 +926,19 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual(expectedValue, parser.SafeMode);
+        }
+
+        [Test]
+        public void DetectsDiagmodeArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-diagmode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.DiagMode);
         }
     }
 }

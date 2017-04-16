@@ -9,13 +9,17 @@ using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Test.Framework.Symbols
 {
+    /// <summary>
+    /// This test fails when running under Resharper and shadow copy is turned on
+    /// Disable it using Resharper -> Options -> Unit Testing
+    /// </summary>
     [TestFixture]
     public class CecilSymbolManagerMdbTests
     {
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
-            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
 
             var folder = Path.Combine(assemblyPath, "Mdb");
             var source = Path.Combine(assemblyPath, "Microsoft.Practices.ServiceLocation.dll");
@@ -54,7 +58,7 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
 
-            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
             _location = Path.Combine(assemblyPath, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
