@@ -32,7 +32,10 @@ install:
     
     cmd /c start /wait "$exePath" /q /norestart
 before_build:
-- appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core -v Minimal
+- ps: >-
+    cmd /c appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core -v Minimal
+    
+    cmd /c appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core.Portable -v Minimal
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
