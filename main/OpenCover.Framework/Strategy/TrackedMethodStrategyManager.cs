@@ -98,7 +98,7 @@ namespace OpenCover.Framework.Strategy
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
         /// <param name="disposing"></param>
-        public virtual void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposed && disposing)
             {
