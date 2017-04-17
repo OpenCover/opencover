@@ -58,26 +58,29 @@ namespace OpenCover.Test.Framework.Communication
         public void HandleCommunicationBlock_Informs_Profiler_When_Data_Is_Ready()
         {
             // arrange
-            var wait = new AutoResetEvent(false);
-            using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0, Enumerable.Empty<string>()))
+            using (var wait = new AutoResetEvent(false))
             {
-                // act
-                ThreadPool.QueueUserWorkItem(state =>
+                using (var mcb = new MemoryManager.ManagedCommunicationBlock("Local", "XYZ", 100, 0,
+                        Enumerable.Empty<string>()))
+                {
+                    // act
+                    ThreadPool.QueueUserWorkItem(state =>
                     {
                         Instance.HandleCommunicationBlock(mcb, block => { });
                         wait.Set();
                     });
 
-                // assert
-                Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
-                mcb.InformationReadByProfiler.Set();
-                wait.WaitOne();
+                    // assert
+                    Assert.IsTrue(mcb.InformationReadyForProfiler.WaitOne(new TimeSpan(0, 0, 0, 4)),
+                        "Profiler wasn't signalled");
+                    mcb.InformationReadByProfiler.Set();
+                    wait.WaitOne();
 
-                Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb,
-                    It.IsAny<Action<int, IManagedCommunicationBlock>>(),
-                    It.IsAny<Action<ManagedBufferBlock>>()), Times.Once());
+                    Container.GetMock<IMessageHandler>().Verify(x => x.StandardMessage(It.IsAny<MSG_Type>(), mcb,
+                        It.IsAny<Action<int, IManagedCommunicationBlock>>(),
+                        It.IsAny<Action<ManagedBufferBlock>>()), Times.Once());
+                }
             }
         }
-
     }
 }
