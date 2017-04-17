@@ -58,6 +58,8 @@ artifacts:
   name: Chocolatey
 - path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
   name: ChocolateyPortable
+- path: cov-int/build-log.txt
+  name: Coverity
 deploy:
 - provider: NuGet
   api_key:

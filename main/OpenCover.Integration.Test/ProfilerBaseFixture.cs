@@ -67,19 +67,21 @@ namespace OpenCover.Integration.Test
 
         private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
         {
-            var bootstrapper = new Bootstrapper(_logger.Object);
-            bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, new NullPerfCounter());
-            var harness = bootstrapper.Resolve<IProfilerManager>();
-
-            harness.RunProcess((environment) =>
+            using (var bootstrapper = new Bootstrapper(_logger.Object))
             {
-                var startInfo = new ProcessStartInfo();
-                environment(startInfo.EnvironmentVariables);
-                testProcess(startInfo);
-                startInfo.UseShellExecute = false;
-                var process = Process.Start(startInfo);
-                process.WaitForExit();
-            }, Enumerable.Empty<string>().ToArray());
+                bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, new NullPerfCounter());
+                var harness = bootstrapper.Resolve<IProfilerManager>();
+
+                harness.RunProcess((environment) =>
+                {
+                    var startInfo = new ProcessStartInfo();
+                    environment(startInfo.EnvironmentVariables);
+                    testProcess(startInfo);
+                    startInfo.UseShellExecute = false;
+                    var process = Process.Start(startInfo);
+                    process.WaitForExit();
+                }, Enumerable.Empty<string>().ToArray());
+            }
         }
 
     }
