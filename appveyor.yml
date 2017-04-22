@@ -61,6 +61,8 @@ artifacts:
   name: Chocolatey
 - path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
   name: ChocolateyPortable
+- path: cov-int/build-log.txt
+  name: Coverity
 deploy:
 - provider: NuGet
   api_key:
@@ -109,6 +111,13 @@ deploy:
   artifact: Installer, ZipArchive
   on:
     branch: release
+- provider: NuGet
+  server: https://www.myget.org/F/opencover/api/v2/package
+  api_key:
+    secure: UOHB7ZJL44zMDE+fM0+IWJwpQSlHg27zbFG79/HshiVdoAXnpW53KMayETaO9E5K
+  artifact: NugetCandidate
+  on:
+    branch: master
 notifications:
 - provider: Webhook
   url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
@@ -117,10 +126,13 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
-    if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
-      & .\build.bat sonarqube-build
-    } else {
-      & .\build.bat dogfood-release
+    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity")
+    {
+      if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        & .\build.bat sonarqube-build
+      } else {
+        & .\build.bat dogfood-release
+      }
     }
 on_finish:
   - ps: #$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

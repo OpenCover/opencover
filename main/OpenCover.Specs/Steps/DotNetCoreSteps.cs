@@ -93,7 +93,7 @@ namespace OpenCover.Specs.Steps
         public void ThenIShouldHaveAResults_XmlFileWithACoverageGreaterThanOrEqualTo(int coveragePercentage)
         {
             var xml = File.ReadAllText((string) ScenarioContext.Current["OutputXml"]);
-            var coverage = Utils.GetTotalCoverage(xml);
+            var coverage = Utils.GetTotalCoverage(xml) ?? "-1";
             Assert.GreaterOrEqual(decimal.Parse(coverage), coveragePercentage);
         }
     }
