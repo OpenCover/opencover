@@ -41,14 +41,47 @@ namespace OpenCover.Framework.Symbols
                 {
                     var symbolFile = Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb");
                     if (File.Exists(symbolFile))
+                    {
+                        if (IsPortablePdb(symbolFile))
+                        {
+                            return new SymbolFile(symbolFile, new PortablePdbReaderProvider());
+                        }
                         return new SymbolFile(symbolFile, new PdbReaderProvider());
+                    }
 
                     symbolFile = Path.Combine(targetfolder, fileName + ".mdb");
                     if (File.Exists(symbolFile))
+                    {
                         return new SymbolFile(symbolFile, new MdbReaderProvider());
+                    }
                 }
             }
             return null;
+        }
+
+        private static bool IsPortablePdb(string pdbFile)
+        {
+            if (File.Exists(pdbFile))
+            {
+                try
+                {
+                    // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
+                    const uint portablePdbSignature = 0x424a5342;
+                    using (var stream = File.Open(pdbFile, FileMode.Open))
+                    {
+                        var buffer = new byte[4];
+                        if (4 == stream.Read(buffer, 0, 4))
+                        {
+                            return BitConverter.ToInt32(buffer, 0) == portablePdbSignature;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            }
+            return false;
         }
     }
 }

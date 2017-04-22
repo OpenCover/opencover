@@ -80,13 +80,6 @@ namespace OpenCover.Framework.Symbols
                 var readerProvider = symbolFile.SymbolReaderProvider;
                 if (readerProvider is PdbReaderProvider)
                 {
-                    // HACK: is it portable see (https://github.com/jbevain/cecil/issues/282#issuecomment-234732197)
-                    if (IsPortablePdb())
-                        readerProvider = new PortablePdbReaderProvider();
-                }
-
-                if (readerProvider is PdbReaderProvider)
-                {
                     using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         var parameters = new ReaderParameters
@@ -118,31 +111,6 @@ namespace OpenCover.Framework.Symbols
                 // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
                 _sourceAssembly = null;
             }
-        }
-
-        private bool IsPortablePdb()
-        {
-            var pdbFile = Path.Combine(Path.GetDirectoryName(ModulePath) ?? @".\", Path.GetFileNameWithoutExtension(ModulePath) + ".pdb");
-            if (System.IO.File.Exists(pdbFile))
-            {
-                try
-                {
-                    const uint portablePdbSignature = 0x424a5342;
-                    using (var stream = System.IO.File.Open(pdbFile, FileMode.Open))
-                    {
-                        var buffer = new byte[4];
-                        if (4 == stream.Read(buffer, 0, 4))
-                        {
-                            return BitConverter.ToInt32(buffer, 0) == portablePdbSignature;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignored
-                }
-            }
-            return false;
         }
 
         public AssemblyDefinition SourceAssembly
