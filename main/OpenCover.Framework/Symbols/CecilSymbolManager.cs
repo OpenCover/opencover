@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
 using log4net;
@@ -73,43 +72,44 @@ namespace OpenCover.Framework.Symbols
         {
             try
             {
-                var symbolFile = SymbolFile.FindSymbolFolder(ModulePath, _commandLine);
-                if (symbolFile == null)
-                    return;
-
-                var readerProvider = symbolFile.SymbolReaderProvider;
-                if (readerProvider is PdbReaderProvider)
+                try
                 {
-                    using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        var parameters = new ReaderParameters
-                        {
-                            SymbolReaderProvider = readerProvider,
-                            ReadingMode = ReadingMode.Deferred,
-                            ReadSymbols = true,
-                            SymbolStream = stream
-                        };
-                        _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                        _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
-                    }
+                    _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
+                    var symbolReader = new DefaultSymbolReaderProvider(true)
+                        .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
+                    _sourceAssembly?.MainModule.ReadSymbols(symbolReader);
                 }
-                else
+                catch (FileNotFoundException)
                 {
-                    var parameters = new ReaderParameters
-                    {
-                        SymbolReaderProvider = readerProvider,
-                        ReadingMode = ReadingMode.Deferred,
-                        ReadSymbols = true,
-                        InMemory = true
-                    };
-                    _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                    _sourceAssembly?.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
+                    _sourceAssembly = null;
+                    SearchForSymbolsAndLoad();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
                 _sourceAssembly = null;
+            }
+        }
+
+        private void SearchForSymbolsAndLoad()
+        {
+            var symbolFile = SymbolFileHelper.FindSymbolFolder(ModulePath, _commandLine);
+            if (symbolFile == null)
+                return;
+
+            using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var parameters = new ReaderParameters
+                {
+                    SymbolReaderProvider = symbolFile.SymbolReaderProvider,
+                    ReadingMode = ReadingMode.Deferred,
+                    ReadSymbols = true,
+                    SymbolStream = stream
+                };
+                _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                _sourceAssembly.MainModule
+                    .ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
             }
         }
 
@@ -184,7 +184,7 @@ namespace OpenCover.Framework.Symbols
             if (!methodDefinition.HasBody || !methodDefinition.DebugInformation.HasSequencePoints) yield break;
             if (methodDefinition.SafeGetMethodBody() == null) yield break;
 
-            var iter = methodDefinition.Body.Instructions.OrderBy(x => x.Offset).GetEnumerator();
+            using (var iter = methodDefinition.Body.Instructions.OrderBy(x => x.Offset).GetEnumerator())
             foreach (var sequencePoint in methodDefinition.DebugInformation.SequencePoints.OrderBy(x => x.Offset))
             {
                 while (iter.MoveNext())

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using log4net;
 using Moq;
@@ -14,37 +13,8 @@ namespace OpenCover.Test.Framework.Symbols
     /// Disable it using Resharper -> Options -> Unit Testing
     /// </summary>
     [TestFixture]
-    public class CecilSymbolManagerMdbTests
+    public class CecilSymbolManagerMdbTests : BaseMdbTests
     {
-        [OneTimeSetUp]
-        public void TestFixtureSetUp()
-        {
-            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
-
-            var folder = Path.Combine(assemblyPath, "Mdb");
-            var source = Path.Combine(assemblyPath, "Microsoft.Practices.ServiceLocation.dll");
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
-            Directory.CreateDirectory(folder);
-            var dest = Path.Combine(folder, "Microsoft.Practices.ServiceLocation.dll");
-            File.Copy(source, dest);
-            File.Copy(Path.ChangeExtension(source, "pdb"), Path.ChangeExtension(dest, "pdb"));
-            var process = new ProcessStartInfo
-            {
-                FileName = Path.Combine(assemblyPath, @"..\..\packages\Mono.pdb2mdb.0.1.0.20130128\tools\pdb2mdb.exe"),
-                Arguments = dest,
-                WorkingDirectory = folder,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-            };
-
-            var proc = Process.Start(process);
-            proc.Do(_ => _.WaitForExit());
-
-            Assert.IsTrue(File.Exists(dest + ".mdb"));
-            File.Delete(Path.ChangeExtension(dest, "pdb"));
-            Assert.IsFalse(File.Exists(Path.ChangeExtension(dest, "pdb")));
-        }
-
         private CecilSymbolManager _reader;
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
