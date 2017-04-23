@@ -14,7 +14,7 @@
   <property name="exclude-admin-only" value="--where:cat!=AdminOnly" />
   <property name="exclude-admin-only" value="" if="${appveyor=='True'}" />
 
-	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/14.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/14.0/Bin')}" />
+	<property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin')}" />
 	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
 
 	<property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />

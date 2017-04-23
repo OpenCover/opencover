@@ -1,8 +1,42 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\environment.build = ..\build\environment.build
+		..\build\installer.build = ..\build\installer.build
+		..\build\opencover.build = ..\build\opencover.build
+		..\build\version.build = ..\build\version.build
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C4B551F8-0420-40EE-B5F8-67487627BFDD}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sonar", "Sonar", "{2B929F9D-6E24-44F0-9BBC-A129E93262AC}"
+	ProjectSection(SolutionItems) = preProject
+		OpenCover.Profiler\sonar.h = OpenCover.Profiler\sonar.h
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Profiler", "Profiler", "{A0C8DE33-594B-4927-8B68-52C008EF17A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{46A37479-1892-496B-98AB-6826E97D12F7}"
+	ProjectSection(SolutionItems) = preProject
+		..\appveyor.yml = ..\appveyor.yml
+		..\default.build = ..\default.build
+		..\ReleaseNotes.tmp = ..\ReleaseNotes.tmp
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Target", "Target", "{BB3EABCA-7978-4809-A5CF-51F85860DD55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{B791B5A9-DF44-474A-A10A-E4654F8792D7}"
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Profiler", "OpenCover.Profiler\OpenCover.Profiler.vcxproj", "{B2CE418E-A5C8-4C46-9513-771414B3CA4C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{31B0FAA6-A63F-46FC-96EE-697235DA2BB0} = {31B0FAA6-A63F-46FC-96EE-697235DA2BB0}
@@ -28,28 +62,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Framework", "Open
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E} = {0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
-	ProjectSection(SolutionItems) = preProject
-		..\build\environment.build = ..\build\environment.build
-		..\build\installer.build = ..\build\installer.build
-		..\build\opencover.build = ..\build\opencover.build
-		..\build\version.build = ..\build\version.build
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Integration.Test", "OpenCover.Integration.Test\OpenCover.Integration.Test.csproj", "{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23}"
 	ProjectSection(ProjectDependencies) = postProject
 		{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2} = {BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.MSBuild", "OpenCover.MSBuild\OpenCover.MSBuild.csproj", "{746A6B40-4570-40CB-BBE5-CEECEE9E220F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{C4B551F8-0420-40EE-B5F8-67487627BFDD}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "OpenCover.Installer", "OpenCover.Installer\OpenCover.Installer.wixproj", "{F6D7F279-F302-4741-BE54-DD75D32E378F}"
 EndProject
@@ -70,27 +88,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.UITest", "OpenCov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.3rdParty.Signer", "OpenCover.3rdParty.Signer\OpenCover.3rdParty.Signer.csproj", "{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenCover.Simple.Target.Core", "OpenCover.Simple.Target.Core\OpenCover.Simple.Target.Core.xproj", "{33008C83-1DE4-4C00-8F81-1E2226875F7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core", "OpenCover.Simple.Target.Core\OpenCover.Simple.Target.Core.csproj", "{33008C83-1DE4-4C00-8F81-1E2226875F7A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sonar", "Sonar", "{2B929F9D-6E24-44F0-9BBC-A129E93262AC}"
-	ProjectSection(SolutionItems) = preProject
-		OpenCover.Profiler\sonar.h = OpenCover.Profiler\sonar.h
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "OpenCover.Simple.Target.Core.Portable", "OpenCover.Simple.Target.Core.Portable\OpenCover.Simple.Target.Core.Portable.xproj", "{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Profiler", "Profiler", "{A0C8DE33-594B-4927-8B68-52C008EF17A8}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{46A37479-1892-496B-98AB-6826E97D12F7}"
-	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
-		..\default.build = ..\default.build
-		..\ReleaseNotes.tmp = ..\ReleaseNotes.tmp
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Target", "Target", "{BB3EABCA-7978-4809-A5CF-51F85860DD55}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{B791B5A9-DF44-474A-A10A-E4654F8792D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.Portable", "OpenCover.Simple.Target.Core.Portable\OpenCover.Simple.Target.Core.Portable.csproj", "{775426EC-CE9D-4C3D-A5BD-7C600A4BB255}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -228,13 +228,14 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{4337F24C-830C-4A9A-987B-2348F9222C39} = {46A37479-1892-496B-98AB-6826E97D12F7}
+		{2B929F9D-6E24-44F0-9BBC-A129E93262AC} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{B2CE418E-A5C8-4C46-9513-771414B3CA4C} = {A0C8DE33-594B-4927-8B68-52C008EF17A8}
 		{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC} = {A0C8DE33-594B-4927-8B68-52C008EF17A8}
 		{27AD5F08-0625-4093-8782-F7936737FAB7} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
-		{4337F24C-830C-4A9A-987B-2348F9222C39} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{C5533EEB-9AEF-4CC9-8E76-3FFE57D09C23} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{746A6B40-4570-40CB-BBE5-CEECEE9E220F} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{F6D7F279-F302-4741-BE54-DD75D32E378F} = {46A37479-1892-496B-98AB-6826E97D12F7}
@@ -244,7 +245,6 @@ Global
 		{E8513153-6298-411D-9BD9-0DB0CC708D34} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
-		{2B929F9D-6E24-44F0-9BBC-A129E93262AC} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
