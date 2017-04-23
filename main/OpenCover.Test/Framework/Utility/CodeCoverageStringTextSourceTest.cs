@@ -391,7 +391,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileTime == DateTime.MinValue);
             Assert.False (source.IsChanged (source.FileTime));
             Assert.False (source.IsChanged (DateTime.MinValue));
-            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.False (source.IsChanged (DateTime.UtcNow));
             Assert.False (source.IsChanged (timeReference));
 
             // arrange
@@ -408,7 +408,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (cSharpFileName));
             Assert.False (source.IsChanged (source.FileTime));
             Assert.False (source.IsChanged (DateTime.MinValue));
-            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.False (source.IsChanged (DateTime.UtcNow));
             Assert.True (source.IsChanged (timeReference));
 
             // destroy temp file
@@ -427,7 +427,7 @@ namespace OpenCover.Test.Framework.Utility
             Assert.True (source.FileTime == System.IO.File.GetLastWriteTimeUtc (vBasicFileName));
             Assert.False (source.IsChanged (source.FileTime));
             Assert.False (source.IsChanged (DateTime.MinValue));
-            Assert.False (source.IsChanged (DateTime.Now));
+            Assert.False (source.IsChanged (DateTime.UtcNow));
             Assert.True (source.IsChanged (timeReference));
 
             // destroy temp file

@@ -1,6 +1,6 @@
 version: 4.6.{build}
 skip_tags: true
-os: Visual Studio 2017
+image: Visual Studio 2017
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
@@ -20,8 +20,6 @@ nuget:
   disable_publish_on_pr: true
 install:
 - ps: >-
-    cmd /c rd /s /q "C:\Program Files\dotnet\sdk\1.0.1"
-    
     Write-Host 'Downloading Microsoft .NET Framework 4.6.2 Developer Pack...'
     
     $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
@@ -33,9 +31,7 @@ install:
     cmd /c start /wait "$exePath" /q /norestart
 before_build:
 - ps: >-
-    cmd /c appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core -v Minimal
-    
-    cmd /c appveyor-retry dotnet restore .\main\OpenCover.Simple.Target.Core.Portable -v Minimal
+    #do nothing
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
