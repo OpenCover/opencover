@@ -940,5 +940,18 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.IsTrue(parser.DiagMode);
         }
+
+        [Test]
+        public void DetectsDiagmodeCasedArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-diagMode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.DiagMode);
+        }
     }
 }

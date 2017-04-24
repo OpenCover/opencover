@@ -5,6 +5,7 @@
 //
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace OpenCover.Framework
 {
@@ -56,15 +57,16 @@ namespace OpenCover.Framework
             var colonidx = trimmed.IndexOf(':');
             if (colonidx > 0)
             {
-                var arg = trimmed.Substring(0, colonidx);
+                var key = trimmed.Substring(0, colonidx).ToLowerInvariant();
                 var val = trimmed.Substring(colonidx + 1);
-                if (!ParsedArguments.ContainsKey(arg))
-                    ParsedArguments.Add(arg, val);
+                if (!ParsedArguments.ContainsKey(key))
+                    ParsedArguments.Add(key, val);
                 else
-                    ParsedArguments[arg] = (ParsedArguments[arg] + " " + val).Trim();
+                    ParsedArguments[key] = (ParsedArguments[key] + " " + val).Trim();
             }
             else
             {
+                trimmed = trimmed.ToLowerInvariant();
                 if (!ParsedArguments.ContainsKey(trimmed))
                     ParsedArguments.Add(trimmed, String.Empty);
             }
