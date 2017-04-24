@@ -17,5 +17,24 @@ namespace OpenCover.ThirdParty.Signer
                 });
             }
         }
+
+        public static bool AlreadySigned(this string assemblyPath)
+        {
+            if (File.Exists(assemblyPath))
+            {
+                try
+                {
+                    using (var assemblyDefinition = AssemblyDefinition.ReadAssembly(assemblyPath))
+                    {
+                        return assemblyDefinition.Name.HasPublicKey;
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return false;
+        }
     }
 }

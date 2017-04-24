@@ -19,55 +19,29 @@ namespace OpenCover.ThirdParty.Signer
         public static bool AlreadySigned(string baseFolder)
         {
             var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
-            if (File.Exists(frameworkAssembly))
-            {
-                try
-                {
-                    var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly);
-                    return frameworkDefinition.Name.HasPublicKey;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return false;
+            return frameworkAssembly.AlreadySigned();
         }
 
         public static void SignGendarmeRulesMaintainability(string baseFolder)
         {
             var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Framework.dll");
-            var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly);
-            var frameworkAssemblyRef = AssemblyNameReference.Parse(frameworkDefinition.Name.ToString());
-
-            var key = Path.Combine(baseFolder, StrongNameKey);
-            var assembly = Path.Combine(baseFolder, SourceFolder, "Gendarme.Rules.Maintainability.dll");
-            var newAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Rules.Maintainability.dll");
-
-            assembly = Path.GetFullPath(assembly);
-            newAssembly = Path.GetFullPath(newAssembly);
-
-            File.Copy(assembly, newAssembly, true);
-            var definition = AssemblyDefinition.ReadAssembly(newAssembly);
-
-            // update all type references to the now signed base assembly
-            foreach (var typeReference in definition.MainModule.GetTypeReferences())
+            using (var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly))
             {
-                if (typeReference.Scope.Name == frameworkDefinition.Name.Name)
+                var key = Path.Combine(baseFolder, StrongNameKey);
+                var assembly = Path.Combine(baseFolder, SourceFolder, "Gendarme.Rules.Maintainability.dll");
+                var newAssembly = Path.Combine(baseFolder, TargetFolder, "Gendarme.Rules.Maintainability.dll");
+
+                assembly = Path.GetFullPath(assembly);
+                newAssembly = Path.GetFullPath(newAssembly);
+
+                File.Copy(assembly, newAssembly, true);
+                using (var definition = AssemblyDefinition.ReadAssembly(assembly))
                 {
-                    typeReference.Scope = frameworkAssemblyRef;
+                    BindAssemblyReference(definition, frameworkDefinition);
+                    RebindMonoCecil(definition);
+                    definition.SignFile(newAssembly, key);
                 }
             }
-
-            // update assembly references to use the now signed base assembly
-            var oldReference = definition.MainModule.AssemblyReferences.FirstOrDefault(x => x.Name == frameworkDefinition.Name.Name);
-            if (oldReference != null)
-            {
-                definition.MainModule.AssemblyReferences.Remove(oldReference);
-                definition.MainModule.AssemblyReferences.Add(frameworkAssemblyRef);
-            }
-
-            definition.SignFile(newAssembly, key);
         }
 
         public static void SignGendarmeFramework(string baseFolder)
@@ -79,10 +53,43 @@ namespace OpenCover.ThirdParty.Signer
             assembly = Path.GetFullPath(assembly);
             newAssembly = Path.GetFullPath(newAssembly);
 
-            File.Copy(assembly, newAssembly, true);
-            var definition = AssemblyDefinition.ReadAssembly(newAssembly);
+            using (var definition = AssemblyDefinition.ReadAssembly(assembly, new ReaderParameters { ReadWrite = true }))
+            {
+                RebindMonoCecil(definition);
+                definition.SignFile(newAssembly, key);
+            }
+        }
 
-            definition.SignFile(newAssembly, key);
+        private static void RebindMonoCecil(AssemblyDefinition definition)
+        {
+            var assembly = typeof(AssemblyDefinition).Assembly.Location;
+            using (var monoCecilDefinition = AssemblyDefinition.ReadAssembly(assembly))
+            {
+                BindAssemblyReference(definition, monoCecilDefinition);
+            }
+        }
+
+        private static void BindAssemblyReference(AssemblyDefinition sourceAssembly, AssemblyDefinition referenceAssembly)
+        {
+            var referenceAssemblyRef = AssemblyNameReference.Parse(referenceAssembly.Name.ToString());
+
+            foreach (var typeReference in sourceAssembly.MainModule.GetTypeReferences())
+            {
+                if (typeReference.Scope.Name == referenceAssembly.Name.Name)
+                {
+                    typeReference.Scope = referenceAssemblyRef;
+                }
+            }
+
+            var oldReference = sourceAssembly
+                .MainModule.AssemblyReferences
+                .FirstOrDefault(x => x.Name == referenceAssembly.Name.Name);
+
+            if (oldReference != null)
+            {
+                sourceAssembly.MainModule.AssemblyReferences.Remove(oldReference);
+                sourceAssembly.MainModule.AssemblyReferences.Add(referenceAssemblyRef);
+            }
         }
     }
 }

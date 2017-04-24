@@ -14,22 +14,26 @@
   <property name="exclude-admin-only" value="--where:cat!=AdminOnly" />
   <property name="exclude-admin-only" value="" if="${appveyor=='True'}" />
 
-	<property name="msbuild.exe" value="${program.files.x86}/MSBuild/14.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/MSBuild/14.0/Bin')}" />
-	<property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
+  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin')}" />
+  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin')}" unless="${property::exists('msbuild.exe')}" />
+  <property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
 
-	<property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
+  <property name="dotnet.exe" value="c:\dotnet\dotnet.exe" if="${directory::exists('c:\dotnet')}" />
+  <property name="dotnet.exe" value="dotnet.exe" unless="${property::exists('dotnet.exe')}"/>
+
+  <property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
   
-	<choose>
-		<when test="${appveyor=='True'}">
-	    <property name="nunit-console" value="nunit3-console.exe" />
-			<property name="nunit-appveyor" value=";format=AppVeyor" />
-		</when>
-		<otherwise>
-	    <property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
-			<property name="nunit-appveyor" value="" />
-		</otherwise>
-	</choose>
-	
+  <choose>
+    <when test="${appveyor=='True'}">
+      <property name="nunit-console" value="nunit3-console.exe" />
+      <property name="nunit-appveyor" value=";format=AppVeyor" />
+    </when>
+    <otherwise>
+      <property name="nunit-console" value="${nunit.path}/nunit3-console.exe" />
+      <property name="nunit-appveyor" value="" />
+    </otherwise>
+  </choose>
+  
   <target name="clean" description="Delete all previously compiled binaries.">
     <delete>
       <fileset>
@@ -93,29 +97,36 @@
     <call target="build.opencover" />
   </target>
 
-  <target name="fetch.solution.packages" description="pull solution nuget packages">
+  <target name="nuget.restore.solution" description="pull solution nuget packages">
     <exec program="${nuget.exe}">
       <arg value='restore "${solution.folder}/.nuget/packages.config" -packagesdirectory "${solution.folder}/packages"' />
     </exec>
   </target>
-  
-  <target name="build.opencover" depends="fetch.solution.packages">
-		
-		<exec program="${msbuild.exe}">
-		  <arg value="${solution.folder}/opencover.sln" />
-		  <arg value="/t:Clean,Rebuild" />
-		  <arg value="/p:Configuration=${configuration},Platform=${platform}" />
-		</exec>
+
+  <target name="dotnet.restore.solution" description="restore solution packages">
+    <exec program="${dotnet.exe}">
+      <arg value="restore" />
+      <arg value="${solution.folder}" />
+    </exec>
+  </target>
+    
+  <target name="build.opencover" depends="nuget.restore.solution, dotnet.restore.solution">
+
+    <exec program="${msbuild.exe}">
+      <arg value="${solution.folder}/opencover.sln" />
+      <arg value="/t:Clean,Rebuild" />
+      <arg value="/p:Configuration=${configuration},Platform=${platform}" />
+    </exec>
       
     <property name="expected.output" value="${solution.folder}/bin/${configuration}/OpenCover.Console.exe"/>
     <fail unless="${file::exists(expected.output)}">Output file doesn't exist in ${expected.output}</fail>
     
   </target>
-    	
-  <target name="test" description="Run unit tests" >
+
+  <target name="test" description="Run unit tests">
                 
-		<echo message="test: ${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
-		
+    <echo message="test: ${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
+
     <exec program="${nunit-console}">
       <arg value="${solution.folder}/bin/${configuration}/OpenCover.Test.dll" />
       <arg value="--x86" />
@@ -126,8 +137,8 @@
   </target>
 
   <target name="test-bdd" description="Run BDD tests" >
-        
-		<echo message="test-bdd: ${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
+
+    <echo message="test-bdd: ${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
         
     <exec program="${nunit-console}">
       <arg value="${solution.folder}/OpenCover.Specs/bin/${configuration}/OpenCover.Specs.dll" />
@@ -142,35 +153,35 @@
   <target name="test-cpp-internal" description="Run C++ tests" >
     <exec program="${open-cover-test-console}" if="${file::exists(open-cover-test-console)}" />
   </target>
-    
+
   <target name="unregister" description="Unregister the profiler assembly (per-user)" >
     <echo message="unregister: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
-    <exec program="regsvr32" >	
+    <exec program="regsvr32" >
       <arg value="/u" />
       <arg value="/n" />
       <arg value="/i:user" />
       <arg value="/s" />
-      <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />	
+      <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
     </exec>
   </target>
 
   <target name="register" description="Register the profiler assembly (per-user)" >
-	  <echo message="register: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
-    <exec program="regsvr32" >	
+    <echo message="register: ${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
+    <exec program="regsvr32" >  
       <arg value="/n" />
       <arg value="/i:user" />
       <arg value="/s" />
-      <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />	
+      <arg value="${solution.folder}/bin/${configuration}/${platform}/OpenCover.Profiler.dll" />
     </exec>
   </target>
     
   <target name="dogfood">
 
     <exec program="${solution.folder}/bin/${configuration}/dogfood.cmd" 
-      workingdir="${solution.folder}/bin/${configuration}"	/>
+      workingdir="${solution.folder}/bin/${configuration}"/>
 
     <exec program="${solution.folder}/bin/${configuration}/uitest.opencover.cmd"
-      workingdir="${solution.folder}/bin/${configuration}"	/>
+      workingdir="${solution.folder}/bin/${configuration}"/>
 
     <exec program="${coveralls.exe}" workingdir="${solution.folder}/bin/${configuration}">      
       <arg value="--opencover" />
@@ -184,10 +195,10 @@
     <property name="configuration" value="release" />
     
     <exec program="${solution.folder}/bin/${configuration}/dogfood_exattr.cmd"
-      workingdir="${solution.folder}/bin/${configuration}"	/>
+      workingdir="${solution.folder}/bin/${configuration}"/>
 
     <exec program="${solution.folder}/bin/${configuration}/uitest.opencover.cmd"
-      workingdir="${solution.folder}/bin/${configuration}"	/>
+      workingdir="${solution.folder}/bin/${configuration}"/>
 
     <exec program="${coveralls.exe}" workingdir="${solution.folder}/bin/${configuration}">      
       <arg value="--opencover" />

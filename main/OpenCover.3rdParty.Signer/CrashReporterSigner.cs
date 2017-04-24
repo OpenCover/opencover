@@ -17,20 +17,8 @@ namespace OpenCover.ThirdParty.Signer
 
         public static bool AlreadySigned(string baseFolder)
         {
-            var frameworkAssembly = Path.Combine(baseFolder, TargetFolder, "CrashReporter.NET.dll");
-            if (File.Exists(frameworkAssembly))
-            {
-                try
-                {
-                    var frameworkDefinition = AssemblyDefinition.ReadAssembly(frameworkAssembly);
-                    return frameworkDefinition.Name.HasPublicKey;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            return false;
+            var crashReporterAssembly = Path.Combine(baseFolder, TargetFolder, "CrashReporter.NET.dll");
+            return crashReporterAssembly.AlreadySigned();
         }
 
         public static void SignAssembly(string baseFolder)
@@ -42,10 +30,10 @@ namespace OpenCover.ThirdParty.Signer
             assembly = Path.GetFullPath(assembly);
             newAssembly = Path.GetFullPath(newAssembly);
 
-            File.Copy(assembly, newAssembly, true);
-            var definition = AssemblyDefinition.ReadAssembly(newAssembly);
-            
-            definition.SignFile(newAssembly, key);
+            using (var definition = AssemblyDefinition.ReadAssembly(assembly))
+            {
+                definition.SignFile(newAssembly, key);
+            }
         }
     }
 }

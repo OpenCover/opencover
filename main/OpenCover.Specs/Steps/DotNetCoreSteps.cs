@@ -23,16 +23,34 @@ namespace OpenCover.Specs.Steps
             ScenarioContext.Current["TargetFolder"] = targetFolder;
         }
 
-        [Given(@"I can find the target application")]
-        public void GivenICanFindTheTargetApplication()
+        [Given(@"I can find the target \.net core application '(.*)'")]
+        public void GivenICanFindTheTarget_NetCoreApplication(string application)
         {
 #if DEBUG
-            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Debug\netcoreapp1.0"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.1"));
 #else
-            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", @"..\..\..\OpenCover.Simple.Target.Core\bin\Release\netcoreapp1.0"));
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.1"));
 #endif
-            var targetApp = Directory.EnumerateFiles(targetPath, "OpenCover.Simple.Target.Core.dll", SearchOption.AllDirectories)
-                    .FirstOrDefault(p => File.Exists(Path.Combine(Path.GetDirectoryName(p) ?? ".", "hostpolicy.dll")));
+            //var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories)
+            //        .FirstOrDefault(p => File.Exists(Path.Combine(Path.GetDirectoryName(p) ?? ".", "hostpolicy.dll")));
+            var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories).FirstOrDefault();
+
+            Console.WriteLine($"Found target application in '{targetApp}'");
+
+            Assert.IsTrue(File.Exists(targetApp));
+
+            ScenarioContext.Current["TargetApp"] = targetApp;
+        }
+
+        [Given(@"I can find the target \.net core portable application '(.*)'")]
+        public void GivenICanFindTheTarget_NetCorePortableApplication(string application)
+        {
+#if DEBUG
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp1.1"));
+#else
+            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.1"));
+#endif
+            var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories).FirstOrDefault();
 
             Console.WriteLine($"Found target application in '{targetApp}'");
 

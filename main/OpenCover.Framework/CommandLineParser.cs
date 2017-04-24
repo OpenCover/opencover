@@ -151,9 +151,9 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
-            builder.AppendLine("    [-oldStyle]");
-            builder.AppendLine("    [-safeMode:on|off|yes|no]");
-            builder.AppendLine("    [-diagMode]");
+            builder.AppendLine("    [-oldstyle]");
+            builder.AppendLine("    [-safemode:on|off|yes|no]");
+            builder.AppendLine("    [-diagmode]");
             builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");

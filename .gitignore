@@ -58,6 +58,10 @@
 /fakes/packages
 !fakes/packages/repositories.config
 /results.xml
+.vs
+project.lock.json
+*.opendb
+!/tools/Mono.Cecil/**
 
 #release-notes
 /main/OpenCover.Packages/nuget/opencover/readme_with_releasenotes.txt
@@ -85,6 +89,3 @@ coverity.zip
 /samples/SampleSln.zip
 /main/OpenCover.Packages/chocolatey/opencover/tools/chocolateyInstall.ps1
 /main/OpenCover.Packages/chocolatey/opencover.portable/tools/chocolateyInstall.ps1
-/main/.vs
-project.lock.json
-/main/*.opendb

@@ -56,9 +56,9 @@ Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/op
 ### Building
 You will need:
 
-1. Visual Studio VS2015 (Community Edition) or later with C# and C++ (with Service Pack 2)
-2. WiX 3.10 or later (http://wix.codeplex.com/releases/view/619491)
-3. SpecFlow for Visual Studio 2015 (https://visualstudiogallery.msdn.microsoft.com/c74211e7-cb6e-4dfa-855d-df0ad4a37dd6)
+1. Visual Studio VS2017 (Community Edition) or later with C#, C++, .Net Core
+2. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
+3. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowforVisualStudio2017)
 4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 5. Microsoft .NET Framework 4.6.2 Developer Pack (https://www.microsoft.com/en-us/download/details.aspx?id=53321)
 
