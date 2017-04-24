@@ -82,7 +82,6 @@ namespace OpenCover.Framework
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         private bool _disposed;

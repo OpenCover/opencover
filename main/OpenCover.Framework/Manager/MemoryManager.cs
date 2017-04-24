@@ -148,7 +148,6 @@ namespace OpenCover.Framework.Manager
             public void Dispose()
             {
                 Dispose(true);
-                GC.SuppressFinalize(this);
             }
 
             private bool _disposed;
@@ -157,11 +156,9 @@ namespace OpenCover.Framework.Manager
                 if (!_disposed && disposing)
                 {
                     _disposed = true;
-                    _semaphore.Do(s =>
-                    {
-                        s.Release(1);
-                        s.Dispose();
-                    });
+                    _semaphore
+                        .Try(s => s.Release(1))
+                        .Do(s => s.Dispose());
                     ProfilerHasResults.Do(e => e.Dispose());
                     ResultsHaveBeenReceived.Do(e => e.Dispose());
                     StreamAccessorResults.Do(r => r.Dispose());
@@ -271,7 +268,6 @@ namespace OpenCover.Framework.Manager
             public void Dispose()
             {
                 Dispose(true);
-                GC.SuppressFinalize(this);
             }
 
             private bool _disposed;
@@ -280,11 +276,9 @@ namespace OpenCover.Framework.Manager
                 if (!_disposed && disposing)
                 {
                     _disposed = true;
-                    _semaphore.Do(s =>
-                    {
-                        s.Release(1);
-                        s.Dispose();
-                    });
+                    _semaphore
+                        .Try(s => s.Release(1))
+                        .Do(s => s.Dispose());
                     ProfilerRequestsInformation.Do(e => e.Dispose());
                     InformationReadyForProfiler.Do(e => e.Dispose());
                     InformationReadByProfiler.Do(e => e.Dispose());
@@ -450,7 +444,6 @@ namespace OpenCover.Framework.Manager
         public void Dispose()
         {
             Dispose(true);
-            GC.SuppressFinalize(this);
         }
 
         private bool _disposed;
