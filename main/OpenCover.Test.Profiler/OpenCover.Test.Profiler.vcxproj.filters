@@ -24,12 +24,15 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProfilerInstantiationTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InstrumentationTest.cpp">
@@ -51,6 +54,12 @@
       <Filter>Source Files\Instrumentation</Filter>
     </ClCompile>
     <ClCompile Include="RegressionTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerBaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerInstantiationTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

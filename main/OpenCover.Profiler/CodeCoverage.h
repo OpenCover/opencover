@@ -59,12 +59,10 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback)
     COM_INTERFACE_ENTRY(ICorProfilerCallback2)
     COM_INTERFACE_ENTRY(ICorProfilerCallback3)
-#ifndef _TOOLSETV71
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
     COM_INTERFACE_ENTRY(ICorProfilerCallback5)
     COM_INTERFACE_ENTRY(ICorProfilerCallback6)
     COM_INTERFACE_ENTRY(ICorProfilerCallback7)
-#endif
 END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -79,18 +77,14 @@ END_COM_MAP()
         if (m_profilerInfo != nullptr) m_profilerInfo.Release();
         if (m_profilerInfo2 != nullptr) m_profilerInfo2.Release();
         if (m_profilerInfo3 != nullptr) m_profilerInfo3.Release();
-#ifndef _TOOLSETV71
         if (m_profilerInfo4 != nullptr) m_profilerInfo4.Release();
-#endif
 	}
 
 public:
     CComQIPtr<ICorProfilerInfo> m_profilerInfo;
     CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
     CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
-#ifndef _TOOLSETV71
     CComQIPtr<ICorProfilerInfo4> m_profilerInfo4;
-#endif
 
     std::wstring GetModulePath(ModuleID moduleId);
     std::wstring GetModulePath(ModuleID moduleId, AssemblyID *pAssemblyId);
@@ -171,8 +165,14 @@ private:
 	std::wstring cuckoo_module_;
 
 private:
-    CComPtr<ICorProfilerCallback4> m_chainedProfiler;
-    HMODULE chained_module_;
+	CComQIPtr<ICorProfilerCallback> chainedProfiler_;
+	CComQIPtr<ICorProfilerCallback2> chainedProfiler2_;
+	CComQIPtr<ICorProfilerCallback3> chainedProfiler3_;
+	CComQIPtr<ICorProfilerCallback4> chainedProfiler4_;
+	CComQIPtr<ICorProfilerCallback5> chainedProfiler5_;
+	CComQIPtr<ICorProfilerCallback6> chainedProfiler6_;
+	CComQIPtr<ICorProfilerCallback7> chainedProfiler7_;
+	HMODULE chained_module_;
 
     CComObject<CProfilerInfo> *m_infoHook;
 
@@ -220,8 +220,8 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted(
 		/* [in] */ AppDomainID appDomainId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainCreationStarted(appDomainId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AppDomainCreationStarted(appDomainId);
 		return S_OK;
 	}
 
@@ -229,16 +229,16 @@ public:
 		/* [in] */ AppDomainID appDomainId,
 		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainCreationFinished(appDomainId, hrStatus);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AppDomainCreationFinished(appDomainId, hrStatus);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownStarted(
 		/* [in] */ AppDomainID appDomainId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainShutdownStarted(appDomainId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AppDomainShutdownStarted(appDomainId);
 		return S_OK;
 	}
 
@@ -246,8 +246,8 @@ public:
 		/* [in] */ AppDomainID appDomainId,
 		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainShutdownFinished(appDomainId, hrStatus);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AppDomainShutdownFinished(appDomainId, hrStatus);
 		return S_OK;
 	}
 
@@ -255,8 +255,8 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE AssemblyLoadStarted(
 		/* [in] */ AssemblyID assemblyId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyLoadStarted(assemblyId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AssemblyLoadStarted(assemblyId);
 		return S_OK;
 	}
 
@@ -264,16 +264,16 @@ public:
 		/* [in] */ AssemblyID assemblyId,
 		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyLoadFinished(assemblyId, hrStatus);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AssemblyLoadFinished(assemblyId, hrStatus);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadStarted(
 		/* [in] */ AssemblyID assemblyId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyUnloadStarted(assemblyId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AssemblyUnloadStarted(assemblyId);
 		return S_OK;
 	}
 
@@ -281,8 +281,8 @@ public:
 		/* [in] */ AssemblyID assemblyId,
 		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyUnloadFinished(assemblyId, hrStatus);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->AssemblyUnloadFinished(assemblyId, hrStatus);
 		return S_OK;
 	}
 
@@ -290,8 +290,8 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE ModuleLoadStarted(
 		/* [in] */ ModuleID moduleId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleLoadStarted(moduleId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->ModuleLoadStarted(moduleId);
 		return S_OK;
 	}
 
@@ -299,16 +299,16 @@ public:
 	//	/* [in] */ ModuleID moduleId,
 	//	/* [in] */ HRESULT hrStatus)
 	//{
-	//	if (m_chainedProfiler != NULL)
-	//		return m_chainedProfiler->ModuleLoadFinished(moduleId, hrStatus);
+	//	if (chainedProfiler_ != NULL)
+	//		return chainedProfiler_->ModuleLoadFinished(moduleId, hrStatus);
 	//	return S_OK;
 	//}
 
 	virtual HRESULT STDMETHODCALLTYPE ModuleUnloadStarted(
 		/* [in] */ ModuleID moduleId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleUnloadStarted(moduleId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->ModuleUnloadStarted(moduleId);
 		return S_OK;
 	}
 
@@ -316,8 +316,8 @@ public:
 		/* [in] */ ModuleID moduleId,
 		/* [in] */ HRESULT hrStatus) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleUnloadFinished(moduleId, hrStatus);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->ModuleUnloadFinished(moduleId, hrStatus);
 		return S_OK;
 	}
 
@@ -341,16 +341,16 @@ public:
 		/* [in] */ HRESULT hrStatus,
 		/* [in] */ BOOL fIsSafeToBlock) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITCompilationFinished(functionId, hrStatus, fIsSafeToBlock);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->JITCompilationFinished(functionId, hrStatus, fIsSafeToBlock);
 		return S_OK;
 	}
 
 	virtual HRESULT STDMETHODCALLTYPE JITFunctionPitched(
 		/* [in] */ FunctionID functionId) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITFunctionPitched(functionId);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->JITFunctionPitched(functionId);
 		return S_OK;
 	}
 
@@ -359,8 +359,8 @@ public:
 		/* [in] */ FunctionID calleeId,
 		/* [out] */ BOOL *pfShouldInline) override
 	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITInlining(callerId, calleeId, pfShouldInline);
+		if (chainedProfiler_ != nullptr)
+			return chainedProfiler_->JITInlining(callerId, calleeId, pfShouldInline);
 		return S_OK;
 	}
 

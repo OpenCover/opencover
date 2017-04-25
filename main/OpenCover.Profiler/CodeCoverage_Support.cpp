@@ -122,7 +122,8 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
             hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
             ATLASSERT(hr == S_OK);
 
-            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
+			CComPtr<ICorProfilerCallback> chainedProfiler;
+            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback), (void**)&chainedProfiler);
             ATLASSERT(hr == S_OK);
 
             HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
@@ -132,7 +133,15 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
 
             m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
 
-            hr = m_chainedProfiler->Initialize(m_infoHook);
+            hr = chainedProfiler->Initialize(m_infoHook);
+
+			chainedProfiler_ = chainedProfiler;
+			chainedProfiler2_ = chainedProfiler;
+			chainedProfiler3_ = chainedProfiler;
+			chainedProfiler4_ = chainedProfiler;
+			chainedProfiler5_ = chainedProfiler;
+			chainedProfiler6_ = chainedProfiler;
+			chainedProfiler7_ = chainedProfiler;
 
             ATLTRACE(_T("    ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
         }

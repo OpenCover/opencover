@@ -85,9 +85,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     if (m_profilerInfo2 != nullptr) ATLTRACE(_T("    ::Initialize (m_profilerInfo2 OK)"));
     if (m_profilerInfo2 == nullptr) return E_FAIL;
     m_profilerInfo3 = pICorProfilerInfoUnk;
-#ifndef _TOOLSETV71
     m_profilerInfo4 = pICorProfilerInfoUnk;
-#endif
 
     ZeroMemory(&m_runtimeVersion, sizeof(m_runtimeVersion));
     if (m_profilerInfo3 != nullptr) 
@@ -162,7 +160,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     OpenCoverSupportInitialize(pICorProfilerInfoUnk);
 
-	if (m_chainedProfiler == nullptr){
+	if (chainedProfiler_ == nullptr){
 		DWORD dwMask = AppendProfilerEventMask(0); 
 
 		COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask),
@@ -182,12 +180,11 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     g_pProfiler = this;
 
-#ifndef _TOOLSETV71
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEnterLeaveFunctionHooks2(
         _FunctionEnter2, _FunctionLeave2, _FunctionTailcall2), 
         _T("    ::Initialize(...) => SetEnterLeaveFunctionHooks2 => 0x%X"));
-#endif
-    RELTRACE(_T("::Initialize - Done!"));
+
+	RELTRACE(_T("::Initialize - Done!"));
     
     return S_OK; 
 }
@@ -207,13 +204,11 @@ DWORD CCodeCoverage::AppendProfilerEventMask(DWORD currentEventMask)
 	if (m_useOldStyle)
 		dwMask |= COR_PRF_DISABLE_TRANSPARENCY_CHECKS_UNDER_FULL_TRUST;      // Disables security transparency checks that are normally done during just-in-time (JIT) compilation and class loading for full-trust assemblies. This can make some instrumentation easier to perform.
 
-#ifndef _TOOLSETV71
 	if (m_profilerInfo4 != nullptr)
 	{
 		ATLTRACE(_T("    ::Initialize (m_profilerInfo4 OK)"));
 		dwMask |= COR_PRF_DISABLE_ALL_NGEN_IMAGES;
 	}
-#endif
 
     dwMask |= COR_PRF_MONITOR_THREADS;
 
@@ -225,8 +220,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 { 
     RELTRACE(_T("::Shutdown - Starting"));
 
-    if (m_chainedProfiler != nullptr)
-		m_chainedProfiler->Shutdown();
+    if (chainedProfiler_ != nullptr)
+		chainedProfiler_->Shutdown();
 
     if (chained_module_ != nullptr)
         FreeLibrary(chained_module_);
@@ -235,7 +230,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 
     WCHAR szExeName[MAX_PATH];
     GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
-    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), szExeName);
+    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), W2CT(szExeName));
     g_pProfiler = nullptr;
     return S_OK; 
 }
@@ -280,8 +275,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
 	/* [in] */ ModuleID moduleId,
 	/* [in] */ HRESULT hrStatus)
 {
-	if (m_chainedProfiler != nullptr)
-		m_chainedProfiler->ModuleLoadFinished(moduleId, hrStatus);
+	if (chainedProfiler_ != nullptr)
+		chainedProfiler_->ModuleLoadFinished(moduleId, hrStatus);
 
 	return RegisterCuckoos(moduleId);
 }
@@ -293,8 +288,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
-	if (m_chainedProfiler != nullptr)
-		m_chainedProfiler->ModuleAttachedToAssembly(moduleId, assemblyId);
+	if (chainedProfiler_ != nullptr)
+		chainedProfiler_->ModuleAttachedToAssembly(moduleId, assemblyId);
 
     std::wstring modulePath = GetModulePath(moduleId);
     std::wstring assemblyName = GetAssemblyName(assemblyId);
@@ -312,7 +307,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
 
 	if (MSCORLIB_NAME == assemblyName || DNCORLIB_NAME == assemblyName) {
 		cuckoo_module_ = assemblyName;
-		RELTRACE(_T("cuckoo => %s"), cuckoo_module_.c_str());
+		RELTRACE(_T("cuckoo nest => %s"), W2CT(cuckoo_module_.c_str()));
 	}
 
 	return S_OK; 
@@ -409,8 +404,8 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         }
     }
     
-    if (m_chainedProfiler != nullptr)
-        return m_chainedProfiler->JITCompilationStarted(functionId, fIsSafeToBlock);
+    if (chainedProfiler_ != nullptr)
+        return chainedProfiler_->JITCompilationStarted(functionId, fIsSafeToBlock);
 
     return S_OK; 
 }
