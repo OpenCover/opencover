@@ -1,112 +1,83 @@
 #include "stdafx.h"
 
 class ProfilerInstantiationTest : public ::testing::Test {
+
+private:
 	void SetUp() override
     {
-        ::CoInitialize(NULL);
-    }
+		auto cwd = executable_path();
+		system(("regsvr32.exe /i:user /n /s " + cwd + "\\OpenCover.Profiler.dll").c_str());
+		::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+	}
 
 	void TearDown() override
     {
-        ::CoUninitialize();
-    }
+		auto cwd = executable_path();
+		::CoUninitialize();
+		system(("regsvr32.exe /i:user /u /n /s " + cwd + "\\OpenCover.Profiler.dll").c_str());
+	}
+
+	static std::string executable_path()
+	{
+		char buf[MAX_PATH] = { 0 };
+		DWORD length = GetModuleFileNameA(NULL, buf, MAX_PATH);
+		PathRemoveFileSpecA(buf);
+		return buf;
+	}
+
+	const CLSID CLSID_CodeCoverage = { 0x1542C21D,0x80C3,0x45E6,0xA5,0x6C,0xA9,0xC1,0xE4,0xBE,0xB7,0xB8 };
+
+protected:
+	template<class T>
+	void InstantiateProfiler() const
+	{
+		T *pRequest = nullptr;
+
+		HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage,
+			NULL,
+			CLSCTX_INPROC_SERVER,
+			_ATL_IIDOF(T),
+			(void **)&pRequest);
+
+		ASSERT_HRESULT_SUCCEEDED(hr);
+		ASSERT_TRUE(pRequest != NULL);
+
+		pRequest->Release();
+	}
 };
 
-const CLSID CLSID_CodeCoverage = {0x1542C21D,0x80C3,0x45E6,0xA5,0x6C,0xA9,0xC1,0xE4,0xBE,0xB7,0xB8}; 
-const CLSID CLSID_CodeCoverage64 = {0xA7A1EDD8,0xD9A9,0x4D51,0x85,0xEA,0x51,0x4A,0x8C,0x4A,0x91,0x00}; 
 
 TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
-
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback),
-                           (void **)&pRequest);
-
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback>();
 }
 
 TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack2) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
-
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback2),
-                           (void **)&pRequest);
-
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback2>();
 }
 
 TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack3) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
-
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback3),
-                           (void **)&pRequest);
-
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback3>();
 }
 
-TEST_F(ProfilerInstantiationTest, Profiler64SuppportsICorProfilerCallack) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack4) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
-
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage64,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback),
-                           (void **)&pRequest);
-
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback4>();
 }
 
-TEST_F(ProfilerInstantiationTest, Profiler64SuppportsICorProfilerCallack2) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack5) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
-
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage64,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback2),
-                           (void **)&pRequest);
-
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback5>();
 }
 
-TEST_F(ProfilerInstantiationTest, Profiler64SuppportsICorProfilerCallack3) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack6) {
 
-    ICorProfilerCallback3 *pRequest = NULL;
+	InstantiateProfiler<ICorProfilerCallback6>();
+}
 
-    HRESULT hr = ::CoCreateInstance(CLSID_CodeCoverage64,
-                           NULL,
-                           CLSCTX_INPROC_SERVER,
-                           _ATL_IIDOF(ICorProfilerCallback3),
-                           (void **)&pRequest);
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack7) {
 
-    ASSERT_HRESULT_SUCCEEDED(hr);
-    ASSERT_TRUE(pRequest != NULL);
-
-    pRequest->Release();
+	InstantiateProfiler<ICorProfilerCallback7>();
 }

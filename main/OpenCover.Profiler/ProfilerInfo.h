@@ -30,6 +30,9 @@ public:
 		COM_INTERFACE_ENTRY(ICorProfilerInfo2)
 		COM_INTERFACE_ENTRY(ICorProfilerInfo3)
 		COM_INTERFACE_ENTRY(ICorProfilerInfo4)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo5)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo6)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo7)
 	END_COM_MAP()
 
 

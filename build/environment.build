@@ -15,7 +15,7 @@
 	</target>
 	
 	<target name="prepare-environment" >
-		<property name="target.folder" value="${tools.folder}/gtest-1.6.0" />
+		<property name="target.folder" value="${tools.folder}/gmock-1.7.0" />
 		<call target="extract" />
 		<property name="target.folder" value="${tools.folder}/atlsvr.9.0.70425" />
 		<call target="extract" />
