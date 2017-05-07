@@ -135,13 +135,7 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
 
             hr = chainedProfiler->Initialize(m_infoHook);
 
-			chainedProfiler_ = chainedProfiler;
-			chainedProfiler2_ = chainedProfiler;
-			chainedProfiler3_ = chainedProfiler;
-			chainedProfiler4_ = chainedProfiler;
-			chainedProfiler5_ = chainedProfiler;
-			chainedProfiler6_ = chainedProfiler;
-			chainedProfiler7_ = chainedProfiler;
+			HookChainedProfiler(chainedProfiler);
 
             ATLTRACE(_T("    ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
         }

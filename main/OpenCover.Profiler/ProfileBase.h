@@ -26,8 +26,18 @@ public:
 		if (chainedProfiler7_ != nullptr) chainedProfiler7_.Release();
     }
 
+private:
+	CComQIPtr<ICorProfilerCallback> chainedProfiler_;
+	CComQIPtr<ICorProfilerCallback2> chainedProfiler2_;
+	CComQIPtr<ICorProfilerCallback3> chainedProfiler3_;
+	CComQIPtr<ICorProfilerCallback4> chainedProfiler4_;
+	CComQIPtr<ICorProfilerCallback5> chainedProfiler5_;
+	CComQIPtr<ICorProfilerCallback6> chainedProfiler6_;
+	CComQIPtr<ICorProfilerCallback7> chainedProfiler7_;
+
+public:
 	void HookChainedProfiler(IUnknown* hookedProfiler)
-    {
+	{
 		chainedProfiler_ = hookedProfiler;
 		chainedProfiler2_ = hookedProfiler;
 		chainedProfiler3_ = hookedProfiler;
@@ -37,21 +47,21 @@ public:
 		chainedProfiler7_ = hookedProfiler;
 	}
 
-protected:
-	CComQIPtr<ICorProfilerCallback> chainedProfiler_;
-	CComQIPtr<ICorProfilerCallback2> chainedProfiler2_;
-	CComQIPtr<ICorProfilerCallback3> chainedProfiler3_;
-	CComQIPtr<ICorProfilerCallback4> chainedProfiler4_;
-	CComQIPtr<ICorProfilerCallback5> chainedProfiler5_;
-	CComQIPtr<ICorProfilerCallback6> chainedProfiler6_;
-	CComQIPtr<ICorProfilerCallback7> chainedProfiler7_;
+	bool IsChainedProfilerHooked() const { return chainedProfiler_ != nullptr; }
 
 protected:
-	template<class P, class BR, class PR>
-	static HRESULT ChainProfiler(P profiler, BR callChainedProfiler, PR callLocalProfiler)
+	template<class A, class B>
+	static HRESULT ChainCall(A callA, B callBIfAReturnS_OK)
 	{
-		HRESULT hr = profiler != nullptr ? callChainedProfiler(profiler) : S_OK;
-		return hr != S_OK ? hr : callLocalProfiler();
+		HRESULT hr = callA();
+		return hr != S_OK ? hr : callBIfAReturnS_OK();
+	}
+	
+	template<class P, class CCP, class CLP>
+	static HRESULT ChainProfiler(P profiler, CCP callChainedProfiler, CLP callLocalProfilerIfS_OK)
+	{
+		return ChainCall([&]() { return profiler != nullptr ? callChainedProfiler(profiler) : S_OK;	}, 
+			[&]() { return callLocalProfilerIfS_OK(); });
 	}
 
 // ICorProfilerCallback
