@@ -19,7 +19,6 @@ namespace Instrumentation
 	{
 	public:
 		ExceptionHandler();
-		~ExceptionHandler(){};
 
 #ifdef TEST_FRAMEWORK
 	public:

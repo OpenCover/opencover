@@ -8,7 +8,7 @@ using Mono.Cecil.Pdb;
 
 namespace OpenCover.Framework.Symbols
 {
-    internal class SymbolFileHelper
+    internal static class SymbolFileHelper
     {
         /// <summary>
         /// Locate symbol files (pbd/mdb) that are noto in the same folder as the assembly

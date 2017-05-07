@@ -144,14 +144,13 @@ namespace Instrumentation
 				Write<long>((*it)->m_handlerStart->m_offset);
 				Write<long>((*it)->m_handlerEnd->m_offset - (*it)->m_handlerStart->m_offset);
 
-				switch ((*it)->m_handlerType)
+				if (COR_ILEXCEPTION_CLAUSE_FILTER == (*it)->m_handlerType)
 				{
-				case COR_ILEXCEPTION_CLAUSE_FILTER:
 					Write<long>((*it)->m_filterStart->m_offset);
-					break;
-				default:
+				}
+				else
+				{
 					Write<ULONG>((*it)->m_token);
-					break;
 				}
 			}
 		}
@@ -172,15 +171,12 @@ namespace Instrumentation
 
 			BYTE op1 = REFPRE;
 			BYTE op2 = Read<BYTE>();
-			switch (op2)
+			if (STP1 == op2)
 			{
-			case STP1:
 				op1 = STP1;
 				op2 = Read<BYTE>();
-				break;
-			default:
-				break;
 			}
+
 			OperationDetails &details = Operations::m_mapOpsOperationDetails[MAKEWORD(op1, op2)];
 			pInstruction->m_operation = details.canonicalName;
 			switch (details.operandSize)
@@ -231,15 +227,11 @@ namespace Instrumentation
 
 		SetBuffer(nullptr);
 
-		//DumpIL();
-
 		ResolveBranches();
 
 		ConvertShortBranches();
 
 		RecalculateOffsets();
-
-		//DumpIL();
 	}
 
 	ExceptionHandler* Method::ReadExceptionHandler(
@@ -278,14 +270,14 @@ namespace Instrumentation
 			long handlerEnd = Read<end>();
 			long filterStart = 0;
 			ULONG token = 0;
-			switch (type)
+
+			if (COR_ILEXCEPTION_CLAUSE_FILTER == type)
 			{
-			case COR_ILEXCEPTION_CLAUSE_FILTER:
 				filterStart = Read<long>();
-				break;
-			default:
+			}
+			else
+			{
 				token = Read<ULONG>();
-				break;
 			}
 			m_exceptions.push_back(ReadExceptionHandler(type, tryStart, tryEnd, handlerStart, handlerEnd, filterStart, token));
 		}
@@ -420,6 +412,13 @@ namespace Instrumentation
 		if (!enableDump)
 			return;
 		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+- START -+-+-+-+-+-+-+-+-+-+-+-+"));
+		DumpInstructions();
+		DumpExceptionFilters();
+		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
+	}
+
+	void Method::DumpInstructions()
+	{
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 		{
 			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -427,44 +426,42 @@ namespace Instrumentation
 			{
 				RELTRACE(_T("(IL_%04X) IL_%04X %s"), (*it)->m_origOffset, (*it)->m_offset, details.stringName);
 			}
+			else if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
+			{
+				auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
+				RELTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName, offset);
+			}
+			else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
+			{
+				RELTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName,
+					(BYTE)((*it)->m_operand >> 24),
+					(BYTE)((*it)->m_operand >> 16),
+					(BYTE)((*it)->m_operand >> 8),
+					(BYTE)((*it)->m_operand & 0xFF));
+			}
+			else if (details.operandSize == Byte)
+			{
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+			}
+			else if (details.operandSize == Word)
+			{
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+			}
+			else if (details.operandSize == Dword)
+			{
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
+			}
 			else
 			{
-				if (details.operandParam == ShortInlineBrTarget || details.operandParam == InlineBrTarget)
-				{
-					auto offset = (*it)->m_offset + (*it)->m_branchOffsets[0] + details.length + details.operandSize;
-					RELTRACE(_T("(IL_%04X) IL_%04X %s IL_%04X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName, offset);
-				}
-				else if (details.operandParam == InlineMethod || details.operandParam == InlineString)
-				{
-					RELTRACE(_T("(IL_%04X) IL_%04X %s (%02X)%02X%02X%02X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName,
-						(BYTE)((*it)->m_operand >> 24),
-						(BYTE)((*it)->m_operand >> 16),
-						(BYTE)((*it)->m_operand >> 8),
-						(BYTE)((*it)->m_operand & 0xFF));
-				}
-				else if (details.operandSize == Byte)
-				{
-					RELTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
-				}
-				else if (details.operandSize == Word)
-				{
-					RELTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
-				}
-				else if (details.operandSize == Dword)
-				{
-					RELTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
-				}
-				else
-				{
-					RELTRACE(_T("(IL_%04X) IL_%04X %s %X"),
-						(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
-				}
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %X"),
+					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 			}
+			
 			for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end(); ++offsetIter)
 			{
 				if ((*it)->m_operation == CEE_SWITCH)
@@ -474,20 +471,26 @@ namespace Instrumentation
 				}
 			}
 		}
+	}
 
+	void Method::DumpExceptionFilters()
+	{
 		int i = 0;
 		for (auto it = m_exceptions.begin(); it != m_exceptions.end(); ++it)
 		{
+			auto tryStartOffset = (*it)->m_tryStart != nullptr ? (*it)->m_tryStart->m_offset : 0;
+			auto tryEndOffset = (*it)->m_tryEnd != nullptr ? (*it)->m_tryEnd->m_offset : 0;
+			auto handlerStartOffset = (*it)->m_handlerStart != nullptr ? (*it)->m_handlerStart->m_offset : 0;
+			auto handlerEndOffset = (*it)->m_handlerEnd != nullptr ? (*it)->m_handlerEnd->m_offset : 0;
+			auto filterStartOffset = (*it)->m_filterStart != nullptr ? (*it)->m_filterStart->m_offset : 0;
+
 			RELTRACE(_T("Section %d: %d %04X %04X %04X %04X %04X %08X"),
-				i++, (*it)->m_handlerType,
-				(*it)->m_tryStart != nullptr ? (*it)->m_tryStart->m_offset : 0,
-				(*it)->m_tryEnd != nullptr ? (*it)->m_tryEnd->m_offset : 0,
-				(*it)->m_handlerStart != nullptr ? (*it)->m_handlerStart->m_offset : 0,
-				(*it)->m_handlerEnd != nullptr ? (*it)->m_handlerEnd->m_offset : 0,
-				(*it)->m_filterStart != nullptr ? (*it)->m_filterStart->m_offset : 0,
+				i, (*it)->m_handlerType, tryStartOffset, tryEndOffset,
+				handlerStartOffset, handlerEndOffset, filterStartOffset,
 				(*it)->m_token);
+
+			++i;
 		}
-		RELTRACE(_T("-+-+-+-+-+-+-+-+-+-+-+-+-  END  -+-+-+-+-+-+-+-+-+-+-+-+"));
 	}
 
 	/// <summary>Converts all short branches to long branches.</summary>
@@ -635,10 +638,11 @@ namespace Instrumentation
 			if ((*it)->m_origOffset == offset)
 			{
 				foundInstructionAtOffset = true;
-				for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2, ++it)
+				for (auto it2 = instructions.begin(); it2 != instructions.end(); ++it2)
 				{
 					if (!(*it2)->Equivalent(*(*it)))
 						return false;
+					++it;
 				}
 				break;
 			}
@@ -661,13 +665,12 @@ namespace Instrumentation
 			clone.push_back(new Instruction(*(*it)));
 		}
 
-		//long actualOffset;
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 		{
 			if ((*it)->m_offset == offset)
 			{
-				//actualOffset = (*it)->m_offset;
-				m_instructions.insert(++it, clone.begin(), clone.end());
+				++it;
+				m_instructions.insert(it, clone.begin(), clone.end());
 				break;
 			}
 		}
@@ -679,7 +682,8 @@ namespace Instrumentation
 				auto orig = *(*it);
 				for (unsigned int i = 0; i < clone.size(); i++)
 				{
-					auto temp = it++;
+					auto temp = it;
+					++it;
 					*(*temp) = *(*it);
 				}
 				*(*it) = orig;
@@ -712,7 +716,8 @@ namespace Instrumentation
 			{
 				actualInstruction = *it;
 				actualOffset = (actualInstruction)->m_offset;
-				m_instructions.insert(++it, clone.begin(), clone.end());
+				++it;
+				m_instructions.insert(it, clone.begin(), clone.end());
 				break;
 			}
 		}
@@ -726,7 +731,8 @@ namespace Instrumentation
 					Instruction orig = *(*it);
 					for (unsigned int i = 0; i < clone.size(); i++)
 					{
-						auto temp = it++;
+						auto temp = it;
+						++it;
 						*(*temp) = *(*it);
 					}
 					*(*it) = orig;
