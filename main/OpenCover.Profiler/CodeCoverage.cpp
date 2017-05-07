@@ -160,7 +160,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     OpenCoverSupportInitialize(pICorProfilerInfoUnk);
 
-	if (chainedProfiler_ == nullptr){
+	if (!IsChainedProfilerHooked()){
 		DWORD dwMask = AppendProfilerEventMask(0); 
 
 		COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo2->SetEventMask(dwMask),
@@ -220,19 +220,20 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::Shutdown( void)
 { 
     RELTRACE(_T("::Shutdown - Starting"));
 
-    if (chainedProfiler_ != nullptr)
-		chainedProfiler_->Shutdown();
+	return ChainCall([&]() {return CProfilerBase::Shutdown(); }, 
+		[&]()
+	{
+		if (chained_module_ != nullptr)
+			FreeLibrary(chained_module_);
 
-    if (chained_module_ != nullptr)
-        FreeLibrary(chained_module_);
+		_host->CloseChannel(safe_mode_);
 
-    _host->CloseChannel(safe_mode_);
-
-    WCHAR szExeName[MAX_PATH];
-    GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
-    RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), W2CT(szExeName));
-    g_pProfiler = nullptr;
-    return S_OK; 
+		WCHAR szExeName[MAX_PATH];
+		GetModuleFileNameW(nullptr, szExeName, MAX_PATH);
+		RELTRACE(_T("::Shutdown - Nothing left to do but return S_OK(%s)"), W2CT(szExeName));
+		g_pProfiler = nullptr;
+		return S_OK;
+	});
 }
 
 /// <summary>An unmanaged callback that can be called from .NET that has a single I4 parameter</summary>
@@ -275,10 +276,9 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleLoadFinished(
 	/* [in] */ ModuleID moduleId,
 	/* [in] */ HRESULT hrStatus)
 {
-	if (chainedProfiler_ != nullptr)
-		chainedProfiler_->ModuleLoadFinished(moduleId, hrStatus);
 
-	return RegisterCuckoos(moduleId);
+	return ChainCall([&]() { return CProfilerBase::ModuleLoadFinished(moduleId, hrStatus); },
+		[&]() { return RegisterCuckoos(moduleId); });
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::ModuleAttachedToAssembly</c></summary>
@@ -288,29 +288,29 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::ModuleAttachedToAssembly(
     /* [in] */ ModuleID moduleId,
     /* [in] */ AssemblyID assemblyId)
 {
-	if (chainedProfiler_ != nullptr)
-		chainedProfiler_->ModuleAttachedToAssembly(moduleId, assemblyId);
+	return ChainCall([&]() { return CProfilerBase::ModuleAttachedToAssembly(moduleId, assemblyId); }, 
+		[&]() {
+		std::wstring modulePath = GetModulePath(moduleId);
+		std::wstring assemblyName = GetAssemblyName(assemblyId);
+		/*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
+		moduleId, W2CT(modulePath.c_str()),
+		assemblyId, W2CT(assemblyName.c_str()));*/
+		m_allowModules[modulePath] = _host->TrackAssembly(const_cast<LPWSTR>(modulePath.c_str()), const_cast<LPWSTR>(assemblyName.c_str()));
+		m_allowModulesAssemblyMap[modulePath] = assemblyName;
 
-    std::wstring modulePath = GetModulePath(moduleId);
-    std::wstring assemblyName = GetAssemblyName(assemblyId);
-    /*ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"), 
-        moduleId, W2CT(modulePath.c_str()), 
-        assemblyId, W2CT(assemblyName.c_str()));*/
-    m_allowModules[modulePath] = _host->TrackAssembly(const_cast<LPWSTR>(modulePath.c_str()), const_cast<LPWSTR>(assemblyName.c_str()));
-    m_allowModulesAssemblyMap[modulePath] = assemblyName;
+		if (m_allowModules[modulePath]) {
+			ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
+				moduleId, W2CT(modulePath.c_str()),
+				assemblyId, W2CT(assemblyName.c_str()));
+		}
 
-    if (m_allowModules[modulePath]){
-        ATLTRACE(_T("::ModuleAttachedToAssembly(...) => (%X => %s, %X => %s)"),
-            moduleId, W2CT(modulePath.c_str()),
-            assemblyId, W2CT(assemblyName.c_str()));
-    }
+		if (MSCORLIB_NAME == assemblyName || DNCORLIB_NAME == assemblyName) {
+			cuckoo_module_ = assemblyName;
+			RELTRACE(_T("cuckoo nest => %s"), W2CT(cuckoo_module_.c_str()));
+		}
 
-	if (MSCORLIB_NAME == assemblyName || DNCORLIB_NAME == assemblyName) {
-		cuckoo_module_ = assemblyName;
-		RELTRACE(_T("cuckoo nest => %s"), W2CT(cuckoo_module_.c_str()));
-	}
-
-	return S_OK; 
+		return S_OK;
+	});
 }
 
 /// <summary>Handle <c>ICorProfilerCallback::JITCompilationStarted</c></summary>
@@ -404,10 +404,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
         }
     }
     
-    if (chainedProfiler_ != nullptr)
-        return chainedProfiler_->JITCompilationStarted(functionId, fIsSafeToBlock);
-
-    return S_OK; 
+    return CProfilerBase::JITCompilationStarted(functionId, fIsSafeToBlock); 
 }
 
 ipv CCodeCoverage::GetInstrumentPointVisit(){
