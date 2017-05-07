@@ -77,7 +77,7 @@ namespace OpenCover.Framework.Symbols
                     _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
                     var symbolReader = new DefaultSymbolReaderProvider(true)
                         .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
-                    _sourceAssembly?.MainModule.ReadSymbols(symbolReader);
+                    _sourceAssembly.MainModule.ReadSymbols(symbolReader);
                 }
                 catch (FileNotFoundException)
                 {
@@ -85,7 +85,7 @@ namespace OpenCover.Framework.Symbols
                     SearchForSymbolsAndLoad();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
                 _sourceAssembly = null;
@@ -189,9 +189,11 @@ namespace OpenCover.Framework.Symbols
             {
                 while (iter.MoveNext())
                 {
-                    if (iter.Current.Offset != sequencePoint.Offset) continue;
-                    yield return new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint);
-                    break;
+                    if (iter.Current.Offset == sequencePoint.Offset)
+                    {
+                        yield return new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint);
+                        break;
+                    }
                 }
             }
         }
@@ -312,10 +314,7 @@ namespace OpenCover.Framework.Symbols
 
             if (methodDefinition.SafeGetMethodBody() == null)
             {
-                if (methodDefinition.IsNative)
-                    method.MarkAsSkipped(SkippedMethod.NativeCode);
-                else
-                    method.MarkAsSkipped(SkippedMethod.Unknown);
+                method.MarkAsSkipped(methodDefinition.IsNative ? SkippedMethod.NativeCode : SkippedMethod.Unknown);
                 return method;
             }
 

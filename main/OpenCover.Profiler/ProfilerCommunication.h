@@ -24,7 +24,6 @@ namespace Communication
 	public:
 		ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low);
 
-		~ProfilerCommunication() {}
 		bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
 
 	public:

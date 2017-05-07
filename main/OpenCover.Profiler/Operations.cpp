@@ -36,7 +36,6 @@ namespace Instrumentation
 	/// <summary>Build the static instance</summary>
 	Operations::Operations()
 	{
-		if (m_mapNameOperationDetails.size() != 0) return;
 #define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) \
     { \
     OperationDetails operation = {name, args, n##args, flow, stdlen, stdop1, stdop2, optp, _T(str)}; \

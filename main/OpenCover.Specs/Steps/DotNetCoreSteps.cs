@@ -31,8 +31,6 @@ namespace OpenCover.Specs.Steps
 #else
             var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp1.1"));
 #endif
-            //var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories)
-            //        .FirstOrDefault(p => File.Exists(Path.Combine(Path.GetDirectoryName(p) ?? ".", "hostpolicy.dll")));
             var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories).FirstOrDefault();
 
             Console.WriteLine($"Found target application in '{targetApp}'");
