@@ -83,9 +83,11 @@ coverity.zip
 /tools/sonarqube/cxx-runner
 /main/OpenCover.VC.db
 /TestResult.xml
+/main/sonarcpp/**
 
 #chocolatey
 /main/bin/chocpackage/*.nupkg
 /samples/SampleSln.zip
 /main/OpenCover.Packages/chocolatey/opencover/tools/chocolateyInstall.ps1
 /main/OpenCover.Packages/chocolatey/opencover.portable/tools/chocolateyInstall.ps1
+/tools/sonarqube
