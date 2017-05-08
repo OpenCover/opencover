@@ -97,8 +97,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.Embedded", "OpenCover.Simple.Target.Core.Embedded\OpenCover.Simple.Target.Core.Embedded.csproj", "{4E0FF782-F141-424A-AF7B-2308B526C58F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Logger", "Logger\Logger.vcxproj", "{4EA62A62-C652-4623-A199-EC79AE2A19F0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -304,17 +302,6 @@ Global
 		{4E0FF782-F141-424A-AF7B-2308B526C58F}.Release|x64.Build.0 = Release|Any CPU
 		{4E0FF782-F141-424A-AF7B-2308B526C58F}.Release|x86.ActiveCfg = Release|Any CPU
 		{4E0FF782-F141-424A-AF7B-2308B526C58F}.Release|x86.Build.0 = Release|Any CPU
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|Any CPU.Build.0 = Debug|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|x64.ActiveCfg = Debug|x64
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|x64.Build.0 = Debug|x64
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|x86.ActiveCfg = Debug|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Debug|x86.Build.0 = Debug|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Release|Any CPU.ActiveCfg = Release|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Release|x64.ActiveCfg = Release|x64
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Release|x64.Build.0 = Release|x64
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Release|x86.ActiveCfg = Release|Win32
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -339,7 +326,6 @@ Global
 		{33008C83-1DE4-4C00-8F81-1E2226875F7A} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{775426EC-CE9D-4C3D-A5BD-7C600A4BB255} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{4E0FF782-F141-424A-AF7B-2308B526C58F} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
-		{4EA62A62-C652-4623-A199-EC79AE2A19F0} = {A0C8DE33-594B-4927-8B68-52C008EF17A8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
