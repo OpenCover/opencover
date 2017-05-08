@@ -692,7 +692,7 @@ namespace OpenCover.Framework.Symbols
             var methodDefinition = GetMethodDefinition(token);
             if (methodDefinition == null) 
                 return;
-            complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
+            //complexity = Gendarme.Rules.Maintainability.AvoidComplexMethodsRule.GetCyclomaticComplexity(methodDefinition);
         }
 
         public TrackedMethod[] GetTrackedMethods()
