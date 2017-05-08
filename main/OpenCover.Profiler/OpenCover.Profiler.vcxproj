@@ -118,7 +118,6 @@
       <GenerateXMLDocumentationFiles>true</GenerateXMLDocumentationFiles>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
       <EnablePREfast>true</EnablePREfast>
-      <AdditionalIncludeDirectories>../Logger/</AdditionalIncludeDirectories>
     </ClCompile>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
