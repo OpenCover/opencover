@@ -9,6 +9,7 @@
 #include "SharedMemory.h"
 #include "Messages.h"
 #include "Timer.h"
+#include "ILogger.h"
 
 #include <exception>
 
@@ -128,6 +129,7 @@ namespace Communication
 		DWORD _version_high;
 		DWORD _version_low;
 		Timer _sendTimer;
+		ILogger& _logger;
 
 	private:
 
