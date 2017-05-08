@@ -6,7 +6,6 @@ using namespace std;
 namespace Communication
 {
 	Timer::Timer() :
-		_logger(GetDefaultLogger()),
 		_isRunning(false)
 	{
 	}
@@ -38,7 +37,7 @@ namespace Communication
 
 	void Timer::TimerMethod(int timerIntervalMsec)
 	{
-		_logger.Log("Timer : Started thread with interval %d msec\n", timerIntervalMsec);
+		ATLTRACE("Timer : Started thread with interval %d msec\n", timerIntervalMsec);
 
 		if (timerIntervalMsec == 0)
 			return;
@@ -55,6 +54,6 @@ namespace Communication
 				[&]() {return !_isRunning; });
 		}
 		
-		_logger.Log("Timer : Exited thread\n");
+		ATLTRACE("Timer : Exited thread\n");
 	}
 }
