@@ -114,6 +114,7 @@ namespace OpenCover.Framework
             ExcludeDirs = new string[0];
             SafeMode = true;
             DiagMode = false;
+            SendVisitPointsTimerInterval = 0;
         }
 
         /// <summary>
@@ -154,6 +155,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-oldstyle]");
             builder.AppendLine("    [-safemode:on|off|yes|no]");
             builder.AppendLine("    [-diagmode]");
+            builder.AppendLine("    [-sendvisitpointstimerinterval: 0 (no timer) | 1-maxint (timer interval in msec)");
             builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
@@ -308,6 +310,10 @@ namespace OpenCover.Framework
                         break;
                     case "diagmode":
                         DiagMode = true;
+                        break;
+                    case "sendvisitpointstimerinterval":
+                        SendVisitPointsTimerInterval = ExtractValue<uint>("sendvisitpointstimerinterval", () =>
+                        { throw new InvalidOperationException("The send visit points timer interval must be a non-negative integer"); });
                         break;
                     default:
                         throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
@@ -613,6 +619,10 @@ namespace OpenCover.Framework
         /// </summary>
         public bool DiagMode { get; private set; }
 
+        /// <summary>
+        /// Enable SendVisitPoints timer interval in msec (0 means do not run timer)
+        /// </summary>
+        public uint SendVisitPointsTimerInterval { get; private set; }
     }
 
 }
