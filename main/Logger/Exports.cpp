@@ -2,6 +2,11 @@
 #include "TraceLogger.h"
 #include "NullLogger.h"
 
+__declspec (dllexport) ILogger& GetDefaultLogger()
+{
+	return GetNullLogger();
+}
+
 __declspec (dllexport) ILogger& GetFileLogger(const char* fileName)
 {
 	static FileLogger logger(fileName);
@@ -19,3 +24,4 @@ __declspec (dllexport) ILogger& GetNullLogger()
 	static NullLogger logger;
 	return logger;
 }
+
