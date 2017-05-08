@@ -155,6 +155,10 @@
       <Project>{C6F40A34-101B-4BAF-A2F4-6EA28A264F57}</Project>
       <Name>OpenCover.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\OpenCover.Simple.Target\OpenCover.Simple.Target.csproj">
+      <Project>{27ad5f08-0625-4093-8782-f7936737fab7}</Project>
+      <Name>OpenCover.Simple.Target</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\Icons\Icon.ico">
