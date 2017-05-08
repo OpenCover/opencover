@@ -18,7 +18,8 @@
 #define MSG_UNION_SIZE sizeof(MSG_Union)
 namespace Communication
 {
-	ProfilerCommunication::ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low)
+	ProfilerCommunication::ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low) :
+		_logger(GetDefaultLogger())
 	{
 		_bufferId = 0;
 		_pMSG = nullptr;
@@ -342,6 +343,8 @@ namespace Communication
 		if (!_hostCommunicationActive)
 			return;
 		try {
+			_logger.Log("ProfilerCommunication : Flushing visit points to host\n");
+
 			_memoryResults.FlushViewOfFile();
 
 			DWORD dwSignal = _eventProfilerHasResults.SignalAndWait(_eventResultsHaveBeenReceived, _short_wait);
