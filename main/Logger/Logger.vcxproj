@@ -143,6 +143,7 @@
     <ClInclude Include="FormattedString.h" />
     <ClInclude Include="ILogger.h" />
     <ClInclude Include="FileLogger.h" />
+    <ClInclude Include="NullLogger.h" />
     <ClInclude Include="TraceLogger.h" />
   </ItemGroup>
   <ItemGroup>
