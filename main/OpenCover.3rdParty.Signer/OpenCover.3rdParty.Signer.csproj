@@ -85,8 +85,8 @@ $(SolutionDir)OpenCover.Gendarme.Signer\bin\$(ConfigurationName)\OpenCover.Genda
     <PostBuildEvent Condition=" '$(OS)' != 'Windows_NT' ">mono OpenCover.Gendarme.Signer.exe</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>cd $(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)
-$(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)\OpenCover.3rdParty.Signer.exe</PostBuildEvent>
+    <PostBuildEvent>cd "$(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)"
+"$(SolutionDir)OpenCover.3rdParty.Signer\bin\$(ConfigurationName)\OpenCover.3rdParty.Signer.exe"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
