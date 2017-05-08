@@ -143,6 +143,13 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
         ATLTRACE(_T("    ::Initialize(...) => shortwait = %ul"), _shortwait);
     }
 
+	int sendVisitPointsTimerInterval = 0;
+	TCHAR timerInterval[1024] = { 0 };
+	if (::GetEnvironmentVariable(_T("OpenCover_SendVisitPointsTimerInterval"), timerInterval, 1024) > 0) {
+		sendVisitPointsTimerInterval = _tcstoul(timerInterval, nullptr, 10);
+		ATLTRACE(_T("    ::Initialize(...) => sendVisitPointsTimerInterval = %ul"), timerInterval);
+	}
+
 	DWORD dwVersionHigh, dwVersionLow;
 	GetVersion(szModuleName, &dwVersionHigh, &dwVersionLow);
 
@@ -152,7 +159,8 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     _host = std::make_shared<Communication::ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
 
-    if (!_host->Initialise(key, ns, szExeName))
+    if (!_host->Initialise(key, ns, szExeName, 
+		safe_mode_, sendVisitPointsTimerInterval))
     {
         RELTRACE(_T("    ::Initialize => Profiler will not run for this process."));
         return E_FAIL;
