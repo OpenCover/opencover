@@ -26,7 +26,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <GtestRunnerTaskEnabled>false</GtestRunnerTaskEnabled>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -146,9 +146,7 @@
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
-    <PostBuildEvent>
-      <Command>copy "..\bin\Debug\Logger.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -225,9 +223,7 @@
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
-    <PostBuildEvent>
-      <Command>copy "..\bin\Release\Logger.dll" "$(OutDir)"</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
