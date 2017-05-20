@@ -22,7 +22,8 @@ namespace Communication
 
 	private:
 
-		void TimerMethod(int timerIntervalMsec);
+		void StopTimerMethod();
+		void StartTimerMethod(int timerIntervalMsec);
 
 		std::function<void()> _timerMethod;
 		std::mutex _mutex;
