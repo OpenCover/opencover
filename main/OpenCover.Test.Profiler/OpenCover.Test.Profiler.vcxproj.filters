@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Instrumentation">
       <UniqueIdentifier>{2015087e-0746-4663-b399-a176c17913df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Profiler">
+      <UniqueIdentifier>{875fbc0e-9ba2-4a3c-8f78-b456700629f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -61,6 +64,12 @@
     </ClCompile>
     <ClCompile Include="ProfilerInstantiationTest.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Timer.cpp">
+      <Filter>Source Files\Profiler</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

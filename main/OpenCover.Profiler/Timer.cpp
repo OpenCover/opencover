@@ -12,8 +12,7 @@ namespace Communication
 
 	Timer::~Timer()
 	{
-		Stop();
-		_thread.join();
+		Stop();	
 	}
 
 	void Timer::Start(
@@ -24,36 +23,48 @@ namespace Communication
 		_isRunning = true;
 		_thread = thread([=]()
 		{
-			TimerMethod(timerIntervalMsec);
+			StartTimerMethod(timerIntervalMsec);
 		});
 	}
 
 	void Timer::Stop()
+	{
+		StopTimerMethod();
+		if (_thread.native_handle() != nullptr)
+		{
+			_thread.join();
+		}
+	}
+
+	void Timer::StopTimerMethod()
 	{
 		unique_lock<mutex> lock(_mutex);
 		_isRunning = false;
 		_isRunningCondition.notify_one();
 	}
 
-	void Timer::TimerMethod(int timerIntervalMsec)
+	void Timer::StartTimerMethod(int timerIntervalMsec)
 	{
-		ATLTRACE("Timer : Started thread with interval %d msec\n", timerIntervalMsec);
-
 		if (timerIntervalMsec == 0)
 			return;
+
+	    ATLTRACE(_T("Timer : Started thread with interval %d msec"), timerIntervalMsec);
 
 		unique_lock<mutex> lock(_mutex);
 		
 		while (_isRunning)
 		{
-			_timerMethod();
-
 			_isRunningCondition.wait_for(
 				lock,
 				chrono::milliseconds(timerIntervalMsec),
 				[&]() {return !_isRunning; });
+
+			if (_isRunning)
+			{
+				_timerMethod();
+			}
 		}
 		
-		ATLTRACE("Timer : Exited thread\n");
+		ATLTRACE(_T("Timer : Exited thread"));
 	}
 }
