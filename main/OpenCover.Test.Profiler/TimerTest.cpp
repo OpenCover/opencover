@@ -78,3 +78,33 @@ TEST_F(TimerTest, CanStartStopRestartTimerAndExecuteExpectedNumberOfTimes)
 
 	ASSERT_EQ(10, counter);
 }
+
+TEST_F(TimerTest, CanStartNewTimerWithoutStoppingOld)
+{
+	auto timer = new Communication::Timer();
+
+	int counter = 0;
+	timer->Start([&]()
+	{
+		++counter;
+	}, 20);
+
+	Sleep(110);
+
+	ASSERT_EQ(5, counter);
+
+	timer->Start([&]()
+	{
+		++counter;
+	}, 50);
+
+	Sleep(110);
+
+	timer->Stop();
+
+	delete timer;
+
+	ASSERT_EQ(7, counter);
+
+}
+
