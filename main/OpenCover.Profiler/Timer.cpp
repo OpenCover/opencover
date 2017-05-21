@@ -19,6 +19,7 @@ namespace Communication
 		function<void()> timerMethod,
 		int timerIntervalMsec)
 	{
+		Stop();
 		_timerMethod = timerMethod;
 		_isRunning = true;
 		_thread = thread([=]()
@@ -29,9 +30,9 @@ namespace Communication
 
 	void Timer::Stop()
 	{
-		StopTimerMethod();
 		if (_thread.native_handle() != nullptr)
 		{
+			StopTimerMethod();
 			_thread.join();
 		}
 	}
