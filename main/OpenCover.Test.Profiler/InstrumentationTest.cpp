@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "..\OpenCover.Profiler\Method.h"
+#include <memory>
 
 // NOTE: Using pseudo IL code to exercise the code and is not necessarily runnable IL
 using namespace Instrumentation;
@@ -21,9 +22,9 @@ TEST_F(InstrumentationTest, CanReadMethodWithTinyHeader)
     BYTE data[] = {(0x02 << 2) + CorILMethod_TinyFormat, 
         CEE_NOP, CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(2, instrument.m_instructions.size());
+    ASSERT_EQ(2, instrument.GetNumberOfInstructions());
 }
 
 TEST_F(InstrumentationTest, CanReadMethodWithFatHeader)
@@ -34,15 +35,15 @@ TEST_F(InstrumentationTest, CanReadMethodWithFatHeader)
         0x00, 0x00, 0x00, 0x00,
         CEE_NOP, CEE_RET};
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat;
     pHeader->CodeSize = 2;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(2, instrument.m_instructions.size());
+    ASSERT_EQ(2, instrument.GetNumberOfInstructions());
 }
 
 TEST_F(InstrumentationTest, CanConvertSmallBranchesToLongBranches)
@@ -64,9 +65,9 @@ TEST_F(InstrumentationTest, CanConvertSmallBranchesToLongBranches)
         CEE_LEAVE_S, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(15, instrument.m_instructions.size());
+    ASSERT_EQ(15, instrument.GetNumberOfInstructions());
 
     ASSERT_EQ(CEE_BR, instrument.m_instructions[0]->m_operation);
     ASSERT_EQ(CEE_BRFALSE, instrument.m_instructions[1]->m_operation);
@@ -91,9 +92,9 @@ TEST_F(InstrumentationTest, BranchesPointToCorrectTargets)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(3, instrument.m_instructions.size());
+    ASSERT_EQ(3, instrument.GetNumberOfInstructions());
 
     ASSERT_EQ(instrument.m_instructions[2]->m_operation, 
         instrument.m_instructions[0]->m_branches[0]->m_operation);
@@ -108,9 +109,9 @@ TEST_F(InstrumentationTest, ConvertedBranchesPointToCorrectTargets)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(3, instrument.m_instructions.size());
+    ASSERT_EQ(3, instrument.GetNumberOfInstructions());
     ASSERT_EQ(CEE_BR, instrument.m_instructions[0]->m_operation);
 
     ASSERT_EQ(instrument.m_instructions[2]->m_operation, 
@@ -127,9 +128,9 @@ TEST_F(InstrumentationTest, HandlesSwitchBranches)
         0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(2, instrument.m_instructions.size());
+    ASSERT_EQ(2, instrument.GetNumberOfInstructions());
 
     ASSERT_EQ(instrument.m_instructions[1]->m_operation, 
         instrument.m_instructions[0]->m_branches[0]->m_operation);
@@ -170,16 +171,16 @@ TEST_F(InstrumentationTest, CanReadShortExceptionsWithFinally)
         
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 23;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(19, instrument.m_instructions.size());
-    ASSERT_EQ(3, instrument.m_exceptions.size());
+    ASSERT_EQ(19, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(3, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadShortExceptionsEndingWithFinally)
@@ -216,16 +217,16 @@ TEST_F(InstrumentationTest, CanReadShortExceptionsEndingWithFinally)
         0x02, 0x00, 0x01, 0x00, 0x11, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,  
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 21;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(22, instrument.m_instructions.size());
-    ASSERT_EQ(1, instrument.m_exceptions.size());
+    ASSERT_EQ(22, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(1, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadShortExceptionsWithFault)
@@ -261,16 +262,16 @@ TEST_F(InstrumentationTest, CanReadShortExceptionsWithFault)
         
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 23;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(19, instrument.m_instructions.size());
-    ASSERT_EQ(3, instrument.m_exceptions.size());
+    ASSERT_EQ(19, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(3, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadShortExceptionsEndingWithFault)
@@ -307,16 +308,16 @@ TEST_F(InstrumentationTest, CanReadShortExceptionsEndingWithFault)
         0x04, 0x00, 0x01, 0x00, 0x11, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,  
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 21;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(22, instrument.m_instructions.size());
-    ASSERT_EQ(1, instrument.m_exceptions.size());
+    ASSERT_EQ(22, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(1, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadFatExceptionsWithFinally)
@@ -352,16 +353,16 @@ TEST_F(InstrumentationTest, CanReadFatExceptionsWithFinally)
         
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 23;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(19, instrument.m_instructions.size());
-    ASSERT_EQ(3, instrument.m_exceptions.size());
+    ASSERT_EQ(19, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(3, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadFatExceptionsEndingWithFinally)
@@ -399,16 +400,16 @@ TEST_F(InstrumentationTest, CanReadFatExceptionsEndingWithFinally)
         
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    IMAGE_COR_ILMETHOD_FAT * pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 21;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(22, instrument.m_instructions.size());
-    ASSERT_EQ(1, instrument.m_exceptions.size());
+    ASSERT_EQ(22, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(1, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadFatExceptionsWithFault)
@@ -443,16 +444,16 @@ TEST_F(InstrumentationTest, CanReadFatExceptionsWithFault)
         0x04, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,  0x11, 0x00, 0x00, 0x00,  0x12, 0x00, 0x00, 0x00,  0x03, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,  
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    IMAGE_COR_ILMETHOD_FAT * pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 23;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(19, instrument.m_instructions.size());
-    ASSERT_EQ(3, instrument.m_exceptions.size());
+    ASSERT_EQ(19, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(3, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, CanReadFatExceptionsEndingWithFault)
@@ -489,16 +490,16 @@ TEST_F(InstrumentationTest, CanReadFatExceptionsEndingWithFault)
         0x04, 0x00, 0x00, 0x00,  0x01, 0x00, 0x00, 0x00,  0x11, 0x00, 0x00, 0x00,  0x12, 0x00, 0x00, 0x00,  0x03, 0x00, 0x00, 0x00,  0x00, 0x00, 0x00, 0x00,  
     };
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+    IMAGE_COR_ILMETHOD_FAT * pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
 
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 21;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(22, instrument.m_instructions.size());
-    ASSERT_EQ(1, instrument.m_exceptions.size());
+    ASSERT_EQ(22, instrument.GetNumberOfInstructions());
+    ASSERT_EQ(1, instrument.GetNumberOfExceptions());
 }
 
 TEST_F(InstrumentationTest, Calculates_Size_NoExceptionHandlers)
@@ -508,10 +509,10 @@ TEST_F(InstrumentationTest, Calculates_Size_NoExceptionHandlers)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
     
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     
-    ASSERT_EQ(23, (int)instrument.GetMethodSize());
+    ASSERT_EQ(23, static_cast<int>(instrument.GetMethodSize()));
 }
 
 TEST_F(InstrumentationTest, Calculates_Size_WithExceptionHandlers)
@@ -531,14 +532,14 @@ TEST_F(InstrumentationTest, Calculates_Size_WithExceptionHandlers)
         0x01, 0x0C, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // will be turned into a long exception handler
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 25;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-    ASSERT_EQ(68, (int)instrument.GetMethodSize());
+    ASSERT_EQ(68, static_cast<int>(instrument.GetMethodSize()));
 }
 
 TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
@@ -548,7 +549,7 @@ TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     InstructionList instructions;
     instructions.push_back(new Instruction(CEE_NOP, 0));
@@ -557,7 +558,7 @@ TEST_F(InstrumentationTest, CanInsertInstructions_Whilst_Maintaining_Pointer)
 
     instrument.DumpIL(true);
 
-    ASSERT_EQ(4, instrument.m_instructions.size());
+    ASSERT_EQ(4, instrument.GetNumberOfInstructions());
 
     ASSERT_EQ(CEE_NOP, instrument.m_instructions[2]->m_operation);
     ASSERT_EQ(CEE_RET, instrument.m_instructions[3]->m_operation);
@@ -572,22 +573,20 @@ TEST_F(InstrumentationTest, CanWriteMethod)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     int size = instrument.GetMethodSize();
 
-    BYTE* pBuffer = new BYTE[size];
+	std::unique_ptr<BYTE[]> buffer(new BYTE[size]);
 
-    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
+	auto newMethod = reinterpret_cast<COR_ILMETHOD_FAT*>(buffer.get());
 
-    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
+    instrument.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(newMethod));
     
     ASSERT_TRUE(newMethod->IsFat());
     ASSERT_EQ(0, newMethod->GetFlags() & CorILMethod_MoreSects);
     ASSERT_EQ(3, newMethod->GetSize());
     ASSERT_EQ(11, newMethod->GetCodeSize());
-
-    delete []newMethod;
 }
 
 TEST_F(InstrumentationTest, CanWriteMethodWithExceptions)
@@ -607,32 +606,30 @@ TEST_F(InstrumentationTest, CanWriteMethodWithExceptions)
         0x01, 0x0C, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}; // will be turned into a long exception handler
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = 25;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     int size = instrument.GetMethodSize();
 
-    BYTE* pBuffer = new BYTE[size];
+	std::unique_ptr<BYTE[]> buffer(new BYTE[size]);
 
-    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
+	auto newMethod = reinterpret_cast<COR_ILMETHOD_FAT*>(buffer.get());
 
-    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
+    instrument.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(newMethod));
     
     ASSERT_TRUE(newMethod->IsFat());
     ASSERT_EQ(CorILMethod_MoreSects, newMethod->GetFlags() & CorILMethod_MoreSects);
     ASSERT_EQ(3, newMethod->GetSize());
     ASSERT_EQ(25, newMethod->GetCodeSize());
 
-    const COR_ILMETHOD_SECT *pSect = newMethod->GetSect();
+	auto pSect = newMethod->GetSect();
     ASSERT_TRUE(pSect->IsFat());
     ASSERT_EQ(CorILMethod_Sect_EHTable, pSect->Kind());
     ASSERT_EQ(28, pSect->DataSize()); // 24 (1 FAT section) + 4
-
-    delete []newMethod;
 }
 
 TEST_F(InstrumentationTest, CanCalculateCorrectILMapSize)
@@ -642,7 +639,7 @@ TEST_F(InstrumentationTest, CanCalculateCorrectILMapSize)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     InstructionList instructions;
     instructions.push_back(new Instruction(CEE_NOP, 0));
@@ -650,7 +647,7 @@ TEST_F(InstrumentationTest, CanCalculateCorrectILMapSize)
 
     instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
-    ASSERT_EQ(3, (int)instrument.GetILMapSize());
+    ASSERT_EQ(3, static_cast<int>(instrument.GetILMapSize()));
 }
 
 TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
@@ -660,7 +657,7 @@ TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
         CEE_BR, 0x00, 0x00, 0x00, 0x00,
         CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
     InstructionList instructions;
     instructions.push_back(new Instruction(CEE_NOP, 0));
@@ -668,9 +665,9 @@ TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
 
     instrument.InsertInstructionsAtOriginalOffset(7, instructions);
 
-    COR_IL_MAP * map = new COR_IL_MAP[instrument.GetILMapSize()];
+	std::unique_ptr<COR_IL_MAP[]> map(new COR_IL_MAP[instrument.GetILMapSize()]);
 
-    instrument.PopulateILMap(3, map);
+    instrument.PopulateILMap(3, map.get());
 
     ASSERT_EQ(0, map[0].oldOffset);
     ASSERT_EQ(0, map[0].newOffset);
@@ -680,8 +677,6 @@ TEST_F(InstrumentationTest, CanPopulateSuppliedILMapSize)
 
     ASSERT_EQ(7, map[2].oldOffset);
     ASSERT_EQ(12, map[2].newOffset);
-
-    delete [] map;
 }
 
 TEST_F(InstrumentationTest, WillAddCodeLabelWhenClauseExtendsLastOpcode)
@@ -703,14 +698,14 @@ TEST_F(InstrumentationTest, WillAddCodeLabelWhenClauseExtendsLastOpcode)
 
 	DWORD codeSize = 26;
 
-    IMAGE_COR_ILMETHOD_FAT * pHeader = (IMAGE_COR_ILMETHOD_FAT*)data;
+	auto pHeader = reinterpret_cast<IMAGE_COR_ILMETHOD_FAT*>(data);
     pHeader->Flags = CorILMethod_FatFormat | CorILMethod_MoreSects;
     pHeader->CodeSize = codeSize;
     pHeader->Size = 3;
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
 
-	ASSERT_EQ(codeSize, (DWORD)instrument.GetCodeSize()); // no change in size	
+	ASSERT_EQ(codeSize, static_cast<DWORD>(instrument.GetCodeSize())); // no change in size	
 	ASSERT_EQ(CEE_CODE_LABEL, instrument.m_instructions.back()->m_operation);
 }
 
@@ -719,8 +714,8 @@ TEST_F(InstrumentationTest, CanIdentifyInstrumentedMethods)
     BYTE data[] = {(0x02 << 2) + CorILMethod_TinyFormat, 
         CEE_NOP, CEE_RET};
 
-    Method instrument((IMAGE_COR_ILMETHOD*)data);
-    ASSERT_EQ(2, instrument.m_instructions.size());
+    Method instrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(data));
+    ASSERT_EQ(2, instrument.GetNumberOfInstructions());
 
 	InstructionList instructions;
 	instructions.push_back(new Instruction(CEE_LDC_I4, 1234));
@@ -731,12 +726,12 @@ TEST_F(InstrumentationTest, CanIdentifyInstrumentedMethods)
 
 	// now we need to pretend we are rejitting 
     int size = instrument.GetMethodSize();
-    BYTE* pBuffer = new BYTE[size];
-    COR_ILMETHOD_FAT *newMethod = (COR_ILMETHOD_FAT*)pBuffer;
-    instrument.WriteMethod((IMAGE_COR_ILMETHOD*)newMethod);
 
-    Method newInstrument((IMAGE_COR_ILMETHOD*)newMethod);
-    delete []newMethod;
+	std::unique_ptr<BYTE[]> buffer(new BYTE[size]);
+	auto newMethod = reinterpret_cast<COR_ILMETHOD_FAT*>(buffer.get());
+    instrument.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(newMethod));
+
+    Method newInstrument(reinterpret_cast<IMAGE_COR_ILMETHOD*>(newMethod));
 
 	ASSERT_TRUE(newInstrument.IsInstrumented(0, instructions));
 	ASSERT_FALSE(newInstrument.IsInstrumented(5, instructions));

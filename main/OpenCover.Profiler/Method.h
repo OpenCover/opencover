@@ -75,12 +75,22 @@ namespace Instrumentation
 
 #ifdef TEST_FRAMEWORK
 	public:
+		ExceptionHandlerList m_exceptions;
 #else
 	private:
-#endif
 		ExceptionHandlerList m_exceptions;
-
+#endif
 	public:
 		InstructionList m_instructions;
+
+		int GetNumberOfInstructions() const
+		{
+			return m_instructions.size();
+		}
+
+		int GetNumberOfExceptions() const
+		{
+			return m_exceptions.size();
+		}
 	};
 }
