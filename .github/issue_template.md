@@ -1,4 +1,6 @@
-Please provide the following information when submitting an issue, where appropriate replace the `[ ]` with a `[X]`
+Please provide the following information when submitting an issue. 
+
+> Where appropriate replace the `[ ]` with a `[X]`
 
 ### My Framework
 
