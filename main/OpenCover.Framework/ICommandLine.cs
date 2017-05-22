@@ -75,5 +75,10 @@ namespace OpenCover.Framework
         /// Sets the 'short' timeout between profiler and host 
         /// </summary>
         int CommunicationTimeout { get; }
+
+        /// <summary>
+        /// The number of msec between sends of the visit points to the host regardless of the number that has accumulated
+        /// </summary>
+        uint SendVisitPointsTimerInterval { get; }
     }
 }

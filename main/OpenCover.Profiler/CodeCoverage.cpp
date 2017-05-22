@@ -152,7 +152,10 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
     _host = std::make_shared<Communication::ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
 
-    if (!_host->Initialise(key, ns, szExeName))
+	int sendVisitPointsTimerInterval = getSendVisitPointsTimerInterval();
+
+	if (!_host->Initialise(key, ns, szExeName,
+		safe_mode_, sendVisitPointsTimerInterval))
     {
         RELTRACE(_T("    ::Initialize => Profiler will not run for this process."));
         return E_FAIL;
@@ -480,4 +483,15 @@ HRESULT CCodeCoverage::InstrumentMethodWith(ModuleID moduleId, mdToken functionT
 		_T("    ::InstrumentMethodWith(...) => SetILFunctionBody => 0x%X"));
 
     return S_OK;
+}
+
+int CCodeCoverage::getSendVisitPointsTimerInterval()
+{
+	int timerIntervalValue = 0;
+	TCHAR timerIntervalString[1024] = { 0 };
+	if (::GetEnvironmentVariable(_T("OpenCover_SendVisitPointsTimerInterval"), timerIntervalString, 1024) > 0) {
+		timerIntervalValue = _tcstoul(timerIntervalString, nullptr, 10);
+		ATLTRACE(_T("    ::Initialize(...) => sendVisitPointsTimerInterval = %d"), timerIntervalValue);
+	}
+	return timerIntervalValue;
 }

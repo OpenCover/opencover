@@ -146,6 +146,7 @@
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -222,6 +223,7 @@
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -311,6 +313,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="xdlldata.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -348,6 +351,7 @@
     <ClInclude Include="Synchronization.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="xdlldata.h" />
     <ClInclude Include="Operations.h" />
   </ItemGroup>
@@ -355,7 +359,6 @@
     <ResourceCompile Include="OpenCover.Profiler.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\Common\OpenCover.Support.dll" />
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />

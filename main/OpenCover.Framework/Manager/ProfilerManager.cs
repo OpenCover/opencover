@@ -173,6 +173,7 @@ namespace OpenCover.Framework.Manager
                 dictionary["Cor_Profiler_Path"] = profilerPath;
                 dictionary["CorClr_Profiler_Path"] = profilerPath;
             }
+            dictionary["OpenCover_SendVisitPointsTimerInterval"] = _commandLine.SendVisitPointsTimerInterval.ToString();
         }
 
         private WaitCallback SaveVisitData(EventWaitHandle queueMgmt)

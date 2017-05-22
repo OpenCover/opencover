@@ -185,6 +185,8 @@ private:
     mdMethodDef GetUITestingHelperMethodRef(TCHAR* methodName, ModuleID moduleId);
     void InstrumentTestToolsUITesting(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId);
 
+	int getSendVisitPointsTimerInterval();
+
 	friend class CProfilerInfo;
 
 public:

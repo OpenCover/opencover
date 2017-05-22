@@ -181,6 +181,7 @@
     <ClCompile Include="..\OpenCover.Profiler\Instruction.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Method.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Operations.cpp" />
+    <ClCompile Include="..\OpenCover.Profiler\Timer.cpp" />
     <ClCompile Include="InstrumentationTest.cpp" />
     <ClCompile Include="ProfilerBaseTest.cpp" />
     <ClCompile Include="ProfilerInstantiationTest.cpp" />
@@ -190,6 +191,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TimerTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
