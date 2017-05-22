@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "Timer.h"
 
-using namespace std;
-
 namespace Communication
 {
 	Timer::Timer() :
@@ -16,13 +14,13 @@ namespace Communication
 	}
 
 	void Timer::Start(
-		function<void()> timerMethod,
+		std::function<void()> timerMethod,
 		int timerIntervalMsec)
 	{
 		Stop();
 		_timerMethod = timerMethod;
 		_isRunning = true;
-		_thread = thread([=]()
+		_thread = std::thread([=]()
 		{
 			StartTimerMethod(timerIntervalMsec);
 		});
@@ -39,7 +37,7 @@ namespace Communication
 
 	void Timer::StopTimerMethod()
 	{
-		unique_lock<mutex> lock(_mutex);
+		std::unique_lock<std::mutex> lock(_mutex);
 		_isRunning = false;
 		_isRunningCondition.notify_one();
 	}
@@ -51,13 +49,13 @@ namespace Communication
 
 	    ATLTRACE(_T("Timer : Started thread with interval %d msec"), timerIntervalMsec);
 
-		unique_lock<mutex> lock(_mutex);
+		std::unique_lock<std::mutex> lock(_mutex);
 		
 		while (_isRunning)
 		{
 			_isRunningCondition.wait_for(
 				lock,
-				chrono::milliseconds(timerIntervalMsec),
+				std::chrono::milliseconds(timerIntervalMsec),
 				[&]() {return !_isRunning; });
 
 			if (_isRunning)
