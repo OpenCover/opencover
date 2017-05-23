@@ -75,9 +75,12 @@ namespace OpenCover.Framework.Symbols
                 try
                 {
                     _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
-                    var symbolReader = new DefaultSymbolReaderProvider(true)
-                        .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
-                    _sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                    if (_sourceAssembly != null)
+                    {
+                        var symbolReader = new DefaultSymbolReaderProvider(true)
+                            .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
+                        _sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                    }
                 }
                 catch (FileNotFoundException)
                 {
@@ -108,8 +111,12 @@ namespace OpenCover.Framework.Symbols
                     SymbolStream = stream
                 };
                 _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                _sourceAssembly.MainModule
-                    .ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName));
+                if (_sourceAssembly != null)
+                {
+                    var symbolReader = parameters.SymbolReaderProvider
+                        .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
+                    _sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                }
             }
         }
 

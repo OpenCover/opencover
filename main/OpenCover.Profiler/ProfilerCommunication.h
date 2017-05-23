@@ -30,6 +30,8 @@ namespace Communication
 			TCHAR* key, TCHAR *ns, TCHAR *processName, 
 			bool safe_mode, int sendVisitPointsTimerInterval);
 
+		bool Initialise(TCHAR* key, TCHAR *ns, TCHAR *processName);
+
 	public:
 		bool TrackAssembly(WCHAR* pModulePath, WCHAR* pAssemblyName);
 		bool GetPoints(mdToken functionToken, WCHAR* pModulePath, WCHAR* pAssemblyName, std::vector<SequencePoint> &seqPoints, std::vector<BranchPoint> &brPoints);
