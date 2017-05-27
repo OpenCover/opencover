@@ -1192,5 +1192,32 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(4.12m, Instance.CoverageSession.Summary.MinCrapScore);
             Assert.AreEqual(42m, Instance.CoverageSession.Summary.MaxCrapScore);
         }
+
+        [Test]
+        public void Method_NPath_IsCalculated()
+        {
+            // arrange
+            var methodSingleBranch = new Method
+            {
+                FullName = "SingleBranch",
+                SequencePoints = new[] { new SequencePoint { Offset = 0 } },
+                BranchPoints = new[] { new BranchPoint { Offset = 0 }, new BranchPoint { Offset = 0} }
+            };
+
+            Instance.CoverageSession.Modules = new[]
+            {
+                new Module
+                {
+                    Classes = new[]
+                    { new Class { Methods = new[] { methodSingleBranch }}}
+                }
+            };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(2, methodSingleBranch.NPathComplexity);
+        }
     }
 }
