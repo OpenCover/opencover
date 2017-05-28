@@ -547,11 +547,8 @@ namespace OpenCover.Framework.Symbols
 
             var ignoreSequences = new[]
             {
-                new[]
-                {Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Br_S, Code.Ldsfld},
-                // CachedAnonymousMethodDelegate field allocation - debug
-                new[] {Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Ldsfld}
-                // CachedAnonymousMethodDelegate field allocation
+                // we may need other samples
+                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld, Code.Newobj}, // CachedAnonymousMethodDelegate field allocation 
             };
 
             var bs = offsets.Min();
@@ -560,12 +557,8 @@ namespace OpenCover.Framework.Symbols
             var range = instructions.Where(i => (i.Offset >= bs) && (i.Offset <= be)).ToList();
 
             var match = ignoreSequences
-                .Where(ignoreSequence => range.Count() >= ignoreSequence.Count())
-                .Select(
-                    x =>
-                        x.Zip(range, (code, i1) => new {Code1 = code, Code2 = i1.OpCode.Code})
-                            .All(y => y.Code1 == y.Code2))
-                .Any();
+                .Where(ignoreSequence => range.Count >= ignoreSequence.Length)
+                .Any(ignoreSequence => range.Zip(ignoreSequence, (instruction, code) => instruction.OpCode.Code == code).All(x => x));
 
             var count = range
                 .Count(i => methodDefinition.DebugInformation.GetSequencePoint(i) != null);
