@@ -1204,6 +1204,26 @@ namespace OpenCover.Test.Framework.Persistance
                 BranchPoints = new[] { new BranchPoint { Offset = 0 }, new BranchPoint { Offset = 0} }
             };
 
+            Instance.CoverageSession.Modules = new[]
+            {
+                new Module
+                {
+                    Classes = new[]
+                    { new Class { Methods = new[] { methodSingleBranch }}}
+                }
+            };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(2, methodSingleBranch.NPathComplexity);
+        }
+
+        [Test]
+        public void WhenNPathExceedsStorageCapacityDefaultsToMaxValue()
+        {
+            // arrange
             var methodnPathOverflow = new Method
             {
                 FullName = "nPathOverflow",
@@ -1250,7 +1270,7 @@ namespace OpenCover.Test.Framework.Persistance
                 new Module
                 {
                     Classes = new[]
-                    { new Class { Methods = new[] { methodSingleBranch, methodnPathOverflow }}}
+                    { new Class { Methods = new[] { methodnPathOverflow }}}
                 }
             };
 
@@ -1258,7 +1278,6 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.DoesNotThrow(() => Instance.Commit());
 
             // assert
-            Assert.AreEqual(2, methodSingleBranch.NPathComplexity);
             Assert.AreEqual(int.MaxValue, methodnPathOverflow.NPathComplexity);
         }
     }
