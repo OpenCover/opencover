@@ -443,7 +443,6 @@ namespace OpenCover.Framework.Persistance
                     }
                     catch (OverflowException ex)
                     {
-                        DebugLogger.Info("nPath calculation overflow", ex);
                         method.NPathComplexity = int.MaxValue;
                         break;
                     }
