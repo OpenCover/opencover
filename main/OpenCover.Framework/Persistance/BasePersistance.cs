@@ -437,7 +437,15 @@ namespace OpenCover.Framework.Persistance
                 }
                 else
                 {
-                    method.NPathComplexity *= branches;
+                    try
+                    {
+                        method.NPathComplexity = checked(method.NPathComplexity * branches);
+                    }
+                    catch (OverflowException ex)
+                    {
+                        method.NPathComplexity = int.MaxValue;
+                        break;
+                    }
                 }
             }
         }
