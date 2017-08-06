@@ -4,11 +4,10 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Persistance;
-using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Framework.Service
 {
@@ -27,12 +26,19 @@ namespace OpenCover.Framework.Service
             _instrumentationModelBuilderFactory = instrumentationModelBuilderFactory;
         }
 
-        public bool TrackAssembly(string modulePath, string assemblyName)
+        public bool TrackAssembly(string processPath, string modulePath, string assemblyName)
         {
-            if (_persistance.IsTracking(modulePath)) return true;
+            if (_persistance.IsTracking(modulePath)) 
+                return true;
             Module module = null;
             var builder = _instrumentationModelBuilderFactory.CreateModelBuilder(modulePath, assemblyName);
-            if (!_filter.UseAssembly(assemblyName))
+
+            if (!_filter.UseModule(modulePath))
+            {
+                module = builder.BuildModuleModel(false);
+                module.MarkAsSkipped(SkippedMethod.FolderExclusion);
+            }
+            else if (!_filter.UseAssembly(Path.GetFileNameWithoutExtension (processPath), assemblyName))
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.Filter);
@@ -41,6 +47,11 @@ namespace OpenCover.Framework.Service
             {
                 module = builder.BuildModuleModel(false);
                 module.MarkAsSkipped(SkippedMethod.MissingPdb);
+            }
+            else if (builder.CanInstrument && _filter.ExcludeByAttribute(builder.GetAssemblyDefinition))
+            {
+                module = builder.BuildModuleModel(false);
+                module.MarkAsSkipped(SkippedMethod.Attribute);
             }
 
             module = module ?? builder.BuildModuleModel(true);
@@ -53,38 +64,38 @@ namespace OpenCover.Framework.Service
             return !module.ShouldSerializeSkippedDueTo();
         }
 
-        public bool GetBranchPoints(string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
+        public bool GetBranchPoints(string processPath, string modulePath, string assemblyName, int functionToken, out BranchPoint[] instrumentPoints)
         {
             BranchPoint[] points = null;
 
             var ret = GetPoints(() => _persistance.GetBranchPointsForFunction(modulePath, functionToken, out points),
-                    modulePath, assemblyName, functionToken, out instrumentPoints);
+                    processPath, modulePath, assemblyName, functionToken, out instrumentPoints);
 
             instrumentPoints = points;
             return ret;
         }
 
-        public bool GetSequencePoints(string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] instrumentPoints)
+        public bool GetSequencePoints(string processPath, string modulePath, string assemblyName, int functionToken, out InstrumentationPoint[] instrumentPoints)
         {
             InstrumentationPoint[] points = null;
 
             var ret = GetPoints(() => _persistance.GetSequencePointsForFunction(modulePath, functionToken, out points),
-                                modulePath, assemblyName, functionToken, out instrumentPoints);
+                                processPath, modulePath, assemblyName, functionToken, out instrumentPoints);
 
             instrumentPoints = points;
             return ret;
         }
 
-        private bool GetPoints<T>(Func<bool> getPointsFunc, string modulePath, string assemblyName, int functionToken, out T[] points)
+        private bool GetPoints<T>(Func<bool> getPointsFunc, string processPath, string modulePath, string assemblyName, int functionToken, out T[] points)
         {
             points = new T[0];
-            return CanReturnPoints(modulePath, assemblyName, functionToken) && getPointsFunc();
+            return CanReturnPoints(processPath, modulePath, assemblyName, functionToken) && getPointsFunc();
         }
 
-        private bool CanReturnPoints(string modulePath, string assemblyName, int functionToken)
+        private bool CanReturnPoints(string processPath, string modulePath, string assemblyName, int functionToken)
         {
             var className = _persistance.GetClassFullName(modulePath, functionToken);
-            return _filter.InstrumentClass(assemblyName, className);
+            return _filter.InstrumentClass(Path.GetFileNameWithoutExtension (processPath), assemblyName, className);
         }
 
         public void Stopping()
@@ -95,6 +106,11 @@ namespace OpenCover.Framework.Service
         public bool TrackMethod(string modulePath, string assemblyName, int functionToken, out uint uniqueId)
         {
             return _persistance.GetTrackingMethod(modulePath, assemblyName,functionToken, out uniqueId);
+        }
+
+        public bool TrackProcess(string processPath)
+        {
+            return _filter.InstrumentProcess(Path.GetFileNameWithoutExtension (processPath));
         }
     }
 }

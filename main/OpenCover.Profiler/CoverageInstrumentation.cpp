@@ -3,13 +3,10 @@
 
 #include <algorithm>
 
-#ifdef DEBUG
-// uncommment to get debug builds to dump out instrumented functions (slow)
-#define DUMP_PT 1
-#endif
-
 namespace CoverageInstrumentation
 {
+	using namespace Instrumentation;
+
     Instruction* InsertInjectedMethod(InstructionList &instructions, mdMethodDef injectedMethodDef, ULONG uniqueId)
     {
         Instruction *firstInstruction = new Instruction(CEE_LDC_I4, uniqueId);
@@ -22,7 +19,7 @@ namespace CoverageInstrumentation
     {
         Instruction *firstInstruction = new Instruction(CEE_LDC_I4, uniqueId);
         instructions.push_back(firstInstruction);
-    #if _WIN64
+    #ifdef _WIN64
         instructions.push_back(new Instruction(CEE_LDC_I8, (ULONGLONG)pt));
     #else
         instructions.push_back(new Instruction(CEE_LDC_I4, (ULONG)pt));

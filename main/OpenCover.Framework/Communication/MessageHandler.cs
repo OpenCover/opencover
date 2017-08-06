@@ -4,32 +4,63 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using log4net;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Service;
-using SequencePoint = OpenCover.Framework.Model.SequencePoint;
 
 namespace OpenCover.Framework.Communication
 {
+    /// <summary>
+    /// Defines the Message Handler
+    /// </summary>
     public interface IMessageHandler
     {
-        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
+        /// <summary>
+        /// Process a Standard Message
+        /// </summary>
+        /// <param name="msgType"></param>
+        /// <param name="mcb"></param>
+        /// <param name="chunkReady"></param>
+        /// <param name="offloadHandling"></param>
+        /// <returns></returns>
+        int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling);
+        
+        /// <summary>
+        /// Maximum size of a base message
+        /// </summary>
         int ReadSize { get; }
+        
+        /// <summary>
+        /// Finished
+        /// </summary>
         void Complete();
+
     }
 
+    /// <summary>
+    /// Implements IMessageHandler
+    /// </summary>
     public class MessageHandler : IMessageHandler
     {
-        const int GSP_BufSize = 50;
-        const int GBP_BufSize = 50;
+        const int GspBufSize = 8000;
+        const int GbpBufSize = 2000;
 
         private readonly IProfilerCommunication _profilerCommunication;
         private readonly IMarshalWrapper _marshalWrapper;
         private readonly IMemoryManager _memoryManager;
 
+        private static readonly ILog DebugLogger = LogManager.GetLogger("DebugLogger");
+
+        /// <summary>
+        /// Construct a Message Handler
+        /// </summary>
+        /// <param name="profilerCommunication"></param>
+        /// <param name="marshalWrapper"></param>
+        /// <param name="memoryManager"></param>
         public MessageHandler(IProfilerCommunication profilerCommunication, IMarshalWrapper marshalWrapper, IMemoryManager memoryManager)
         {
             _profilerCommunication = profilerCommunication;
@@ -37,132 +68,286 @@ namespace OpenCover.Framework.Communication
             _memoryManager = memoryManager;
         }
 
-        // TODO: change pinnedMemory to an byte[], pass in mcb as well
-        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
+        /// <summary>
+        /// Process a Standard Message
+        /// </summary>
+        /// <param name="msgType"></param>
+        /// <param name="mcb"></param>
+        /// <param name="chunkReady"></param>
+        /// <param name="offloadHandling"></param>
+        /// <returns></returns>
+        public int StandardMessage(MSG_Type msgType, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady, Action<ManagedBufferBlock> offloadHandling)
         {
             IntPtr pinnedMemory = mcb.PinnedDataCommunication.AddrOfPinnedObject();
-            var writeSize = 0;
+            int writeSize;
             switch (msgType)
             {
                 case MSG_Type.MSG_TrackAssembly:
-                    {
-                        var msgTA = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
-                        var responseTA = new MSG_TrackAssembly_Response();
-                        responseTA.track = _profilerCommunication.TrackAssembly(msgTA.modulePath, msgTA.assemblyName);
-                        _marshalWrapper.StructureToPtr(responseTA, pinnedMemory, false);
-                        writeSize = Marshal.SizeOf(typeof (MSG_TrackAssembly_Response));
-                    }
+                    writeSize = HandleTrackAssemblyMessage(pinnedMemory);
                     break;
 
                 case MSG_Type.MSG_GetSequencePoints:
-                    {
-                        var msgGSP = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
-                        InstrumentationPoint[] origPoints;
-                        var responseCSP = new MSG_GetSequencePoints_Response();
-                        _profilerCommunication.GetSequencePoints(msgGSP.modulePath, msgGSP.assemblyName,
-                                                                 msgGSP.functionToken, out origPoints);
-                        var num = origPoints == null ? 0 : origPoints.Length;
-
-                        var index = 0;
-                        var chunk = Marshal.SizeOf(typeof (MSG_SequencePoint));
-                        do
-                        {
-                            writeSize = Marshal.SizeOf(typeof (MSG_GetSequencePoints_Response));
-                            responseCSP.more = num > GSP_BufSize;
-                            responseCSP.count = num > GSP_BufSize ? GSP_BufSize : num;
-                            _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
-                            for (var i = 0; i < responseCSP.count; i++)
-                            {
-                                var point = new MSG_SequencePoint();
-                                point.offset = origPoints[index].Offset;
-                                point.uniqueId = origPoints[index].UniqueSequencePoint;
-
-                                _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
-                                writeSize += chunk;
-                                index++;
-                            }
-
-                            if (responseCSP.more)
-                            {
-                                chunkReady(writeSize, mcb);
-                                num -= GSP_BufSize;
-                            }
-                        } while (responseCSP.more);
-                    }
+                    writeSize = HandleGetSequencePointsMessage(pinnedMemory, mcb, chunkReady);
                     break;
 
                 case MSG_Type.MSG_GetBranchPoints:
-                    {
-                        var msgGBP = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
-                        BranchPoint[] origPoints;
-                        var responseCSP = new MSG_GetBranchPoints_Response();
-                        _profilerCommunication.GetBranchPoints(msgGBP.modulePath, msgGBP.assemblyName,
-                                                                 msgGBP.functionToken, out origPoints);
-                        var num = origPoints == null ? 0 : origPoints.Length;
-           
-                        var index = 0;
-                        var chunk = Marshal.SizeOf(typeof (MSG_BranchPoint));
-                        do
-                        {
-                            writeSize = Marshal.SizeOf(typeof (MSG_GetBranchPoints_Response));
-                            responseCSP.more = num > GBP_BufSize;
-                            responseCSP.count = num > GBP_BufSize ? GBP_BufSize : num;
-                            _marshalWrapper.StructureToPtr(responseCSP, pinnedMemory, false);
-                            for (var i = 0; i < responseCSP.count; i++)
-                            {
-                                var point = new MSG_BranchPoint();
-                                point.offset = origPoints[index].Offset;
-                                point.uniqueId = origPoints[index].UniqueSequencePoint;
-                                point.path = origPoints[index].Path;
-
-                                _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
-                                writeSize += chunk;
-                                index++;
-                            }
-
-                            if (responseCSP.more)
-                            {
-                                chunkReady(writeSize, mcb);
-                                num -= GBP_BufSize;
-                            }
-                        } while (responseCSP.more);
-                    }
+                    writeSize = HandleGetBranchPointsMessage(pinnedMemory, mcb, chunkReady);
                     break;
 
                 case MSG_Type.MSG_TrackMethod:
-                    {
-                        var msgTM = _marshalWrapper.PtrToStructure<MSG_TrackMethod_Request>(pinnedMemory);
-                        var responseTM = new MSG_TrackMethod_Response();
-                        uint uniqueId;
-                        responseTM.track = _profilerCommunication.TrackMethod(msgTM.modulePath, 
-                            msgTM.assemblyName, msgTM.functionToken, out uniqueId);
-                        responseTM.uniqueId = uniqueId;
-                        _marshalWrapper.StructureToPtr(responseTM, pinnedMemory, false);
-                        writeSize = Marshal.SizeOf(typeof(MSG_TrackMethod_Response));
-                    }
+                    writeSize = HandleTrackMethodMessage(pinnedMemory);
                     break;
 
                 case MSG_Type.MSG_AllocateMemoryBuffer:
-                    {
-                        var msgAB = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
-                        
-                        var block = _memoryManager.AllocateMemoryBuffer(msgAB.bufferSize, _bufferId);
-
-                        var responseAB = new MSG_AllocateBuffer_Response {allocated = true, bufferId = _bufferId };
-                        _marshalWrapper.StructureToPtr(responseAB, pinnedMemory, false);
-                        writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
-                        _bufferId++;
-
-                        offloadHandling(block.Item1, block.Item2);
-                    }
+                    writeSize = HandleAllocateBufferMessage(offloadHandling, pinnedMemory);
                     break;
+
+                case MSG_Type.MSG_CloseChannel:
+                    writeSize = HandleCloseChannelMessage(pinnedMemory);
+                    break;
+
+                case MSG_Type.MSG_TrackProcess:
+                    writeSize = HandleTrackProcessMessage(pinnedMemory);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+
             }
             return writeSize;                
         }
 
-        private int _readSize;
-        private uint _bufferId = 0;
+        private int HandleGetSequencePointsMessage(IntPtr pinnedMemory, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady)
+        {
+            var writeSize = 0;
+            var response = new MSG_GetSequencePoints_Response();
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_GetSequencePoints_Request>(pinnedMemory);
+                InstrumentationPoint[] origPoints;
+                _profilerCommunication.GetSequencePoints(request.processPath, request.modulePath, request.assemblyName,
+                    request.functionToken, out origPoints);
+                var num = origPoints.Maybe(o => o.Length);
 
+                var index = 0;
+                var chunk = Marshal.SizeOf(typeof (MSG_SequencePoint));
+                do
+                {
+                    writeSize = Marshal.SizeOf(typeof (MSG_GetSequencePoints_Response));
+                    response.more = num > GspBufSize;
+                    response.count = num > GspBufSize ? GspBufSize : num;
+                    _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+                    var point = new MSG_SequencePoint();
+                    for (var i = 0; i < response.count; i++)
+                    {
+                        point.offset = origPoints[index].Offset;
+                        point.uniqueId = origPoints[index].UniqueSequencePoint;
+
+                        _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
+                        writeSize += chunk;
+                        index++;
+                    }
+
+                    if (response.more)
+                    {
+                        chunkReady(writeSize, mcb);
+                        num -= GspBufSize;
+                    }
+                } while (response.more);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleGetSequencePointsMessage => {0}:{1}", ex.GetType(), ex);
+                response.more = false;
+                response.count = 0;
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleGetBranchPointsMessage(IntPtr pinnedMemory, IManagedCommunicationBlock mcb, Action<int, IManagedCommunicationBlock> chunkReady)
+        {
+            var writeSize = 0;
+            var response = new MSG_GetBranchPoints_Response();
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_GetBranchPoints_Request>(pinnedMemory);
+                BranchPoint[] origPoints;
+                _profilerCommunication.GetBranchPoints(request.processPath, request.modulePath, request.assemblyName,
+                    request.functionToken, out origPoints);
+                var num = origPoints.Maybe(o => o.Length);
+
+                var index = 0;
+                var chunk = Marshal.SizeOf(typeof (MSG_BranchPoint));
+                do
+                {
+                    writeSize = Marshal.SizeOf(typeof (MSG_GetBranchPoints_Response));
+                    response.more = num > GbpBufSize;
+                    response.count = num > GbpBufSize ? GbpBufSize : num;
+                    _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+                    var point = new MSG_BranchPoint();
+                    for (var i = 0; i < response.count; i++)
+                    {
+                        point.offset = origPoints[index].Offset;
+                        point.uniqueId = origPoints[index].UniqueSequencePoint;
+                        point.path = origPoints[index].Path;
+
+                        _marshalWrapper.StructureToPtr(point, pinnedMemory + writeSize, false);
+                        writeSize += chunk;
+                        index++;
+                    }
+
+                    if (response.more)
+                    {
+                        chunkReady(writeSize, mcb);
+                        num -= GbpBufSize;
+                    }
+                } while (response.more);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleGetBranchPointsMessage => {0}:{1}", ex.GetType(), ex);
+                response.more = false;
+                response.count = 0;
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleAllocateBufferMessage(Action<ManagedBufferBlock> offloadHandling, IntPtr pinnedMemory)
+        {
+            var writeSize = Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response));
+            var response = new MSG_AllocateBuffer_Response { allocated = false, bufferId = 0, reason = MSG_AllocateBufferFailure.ABF_NotApplicable };
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_AllocateBuffer_Request>(pinnedMemory);
+
+                var executingVersion = Assembly.GetExecutingAssembly().GetName().Version;
+                var profilerVersion = new Version((int) (request.version_high >> 16 & 0xffff), (int) (request.version_high & 0xffff),
+                    (int) (request.version_low >> 16 & 0xffff), (int) (request.version_low & 0xffff));
+
+                if (profilerVersion == executingVersion)
+                {
+                    uint bufferId;
+                    var block = _memoryManager.AllocateMemoryBuffer(request.bufferSize, out bufferId);
+                    response.allocated = true;
+                    response.bufferId = bufferId;
+                    offloadHandling(block);
+                }
+                else
+                {
+                    Console.WriteLine("Incorrect profiler version detected: expected {0}, received {1}", executingVersion, profilerVersion);
+                    response.allocated = false;
+                    response.bufferId = 0;
+                    response.reason = MSG_AllocateBufferFailure.ABF_ProfilerVersionMismatch;
+                }
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandlerAllocateBufferMessage => {0}:{1}", ex.GetType(), ex);
+                response.allocated = false;
+                response.bufferId = 0;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleCloseChannelMessage(IntPtr pinnedMemory)
+        {
+            var writeSize = Marshal.SizeOf(typeof(MSG_CloseChannel_Response));
+            var response = new MSG_CloseChannel_Response { done = true };
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_CloseChannel_Request>(pinnedMemory);
+                var bufferId = request.bufferId;
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+                _memoryManager.DeactivateMemoryBuffer(bufferId);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleCloseChannelMessage => {0}:{1}", ex.GetType(), ex);
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleTrackMethodMessage(IntPtr pinnedMemory)
+        {
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackMethod_Response));
+            var response = new MSG_TrackMethod_Response();
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackMethod_Request>(pinnedMemory);
+                uint uniqueId;
+                response.track = _profilerCommunication.TrackMethod(request.modulePath,
+                    request.assemblyName, request.functionToken, out uniqueId);
+                response.uniqueId = uniqueId;
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleTrackMethodMessage => {0}:{1}", ex.GetType(), ex);
+                response.track = false;
+                response.uniqueId = 0;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleTrackAssemblyMessage(IntPtr pinnedMemory)
+        {
+            var response = new MSG_TrackAssembly_Response();
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackAssembly_Response));
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackAssembly_Request>(pinnedMemory);
+                response.track = _profilerCommunication.TrackAssembly(request.processPath, request.modulePath, request.assemblyName);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleTrackAssemblyMessage => {0}:{1}", ex.GetType(), ex);
+                response.track = false;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int HandleTrackProcessMessage(IntPtr pinnedMemory)
+        {
+            var response = new MSG_TrackProcess_Response();
+            var writeSize = Marshal.SizeOf(typeof(MSG_TrackProcess_Response));
+            try
+            {
+                var request = _marshalWrapper.PtrToStructure<MSG_TrackProcess_Request>(pinnedMemory);
+                response.track = _profilerCommunication.TrackProcess(request.processPath);
+            }
+            catch (Exception ex)
+            {
+                DebugLogger.ErrorFormat("HandleTrackProcessMessage => {0}:{1}", ex.GetType(), ex);
+                response.track = false;
+            }
+            finally
+            {
+                _marshalWrapper.StructureToPtr(response, pinnedMemory, false);
+            }
+            return writeSize;
+        }
+
+        private int _readSize;
+
+        /// <summary>
+        /// Maximum size of a base message
+        /// </summary>
         public int ReadSize
         {
             get
@@ -180,12 +365,17 @@ namespace OpenCover.Framework.Communication
                         Marshal.SizeOf(typeof(MSG_TrackMethod_Response)), 
                         Marshal.SizeOf(typeof(MSG_AllocateBuffer_Request)), 
                         Marshal.SizeOf(typeof(MSG_AllocateBuffer_Response)), 
+                        Marshal.SizeOf(typeof(MSG_CloseChannel_Request)), 
+                        Marshal.SizeOf(typeof(MSG_CloseChannel_Response)) 
                     }).Max();
                 }
                 return _readSize;
             }
         }
 
+        /// <summary>
+        /// Finished
+        /// </summary>
         public void Complete()
         {
             _profilerCommunication.Stopping();

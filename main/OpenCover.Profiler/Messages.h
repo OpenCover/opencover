@@ -6,8 +6,9 @@
 #pragma once
 
 #define SEQ_BUFFER_SIZE 8000
-#define BRANCH_BUFFER_SIZE 4000
+#define BRANCH_BUFFER_SIZE 2000
 #define VP_BUFFER_SIZE 16000
+#define MAX_MSG_SIZE 65536
 
 #pragma pack(push)
 #pragma pack(1)
@@ -40,6 +41,8 @@ enum MSG_Type : int
     MSG_GetBranchPoints = 3,
     MSG_TrackMethod = 4,
     MSG_AllocateMemoryBuffer = 5,
+    MSG_CloseChannel = 6,
+    MSG_TrackProcess = 7,
 };
 
 enum MSG_IdType : ULONG
@@ -50,12 +53,19 @@ enum MSG_IdType : ULONG
     IT_MethodTailcall = 0xC0000000,
 };
 
+enum MSG_AllocateBufferFailure : ULONG
+{
+	ABF_NotApplicable = 0,
+	ABF_ProfilerVersionMismatch = 1,
+};
+
 #pragma pack(push)
 #pragma pack(1)
 
 typedef struct _MSG_TrackAssembly_Request
 {
     MSG_Type type;
+    WCHAR szProcessName[512];
     WCHAR szModulePath[512];
     WCHAR szAssemblyName[512];
 } MSG_TrackAssembly_Request;
@@ -69,6 +79,7 @@ typedef struct _MSG_GetSequencePoints_Request
 {
     MSG_Type type;
     int functionToken;
+    WCHAR szProcessName[512];
     WCHAR szModulePath[512];
     WCHAR szAssemblyName[512];
 } MSG_GetSequencePoints_Request;
@@ -84,6 +95,7 @@ typedef struct _MSG_GetBranchPoints_Request
 {
     MSG_Type type;
     int functionToken;
+    WCHAR szProcessName[512];
     WCHAR szModulePath[512];
     WCHAR szAssemblyName[512];
 } MSG_GetBranchPoints_Request;
@@ -119,13 +131,38 @@ typedef struct _MSG_AllocateBuffer_Request
 {
     MSG_Type type;
     LONG lBufferSize;
+	DWORD dwVersionHigh;
+	DWORD dwVersionLow;
 } MSG_AllocateBuffer_Request;
 
 typedef struct _MSG_AllocateBuffer_Response
 {
-    BOOL bResponse;
+    BOOL allocated;
     ULONG ulBufferId;
+	MSG_AllocateBufferFailure reason;
 } MSG_AllocateBuffer_Response;
+
+typedef struct _MSG_CloseChannel_Request
+{
+    MSG_Type type;
+    ULONG ulBufferId;
+} MSG_CloseChannel_Request;
+
+typedef struct _MSG_CloseChannel_Response
+{
+    BOOL bResponse;
+} MSG_CloseChannel_Response;
+
+typedef struct _MSG_TrackProcess_Request
+{
+    MSG_Type type;
+    WCHAR szProcessName[512];
+} MSG_TrackProcess_Request;
+
+typedef struct _MSG_TrackProcess_Response
+{
+    BOOL bResponse;
+} MSG_TrackProcess_Response;
 
 #pragma pack(pop)
 
@@ -142,5 +179,9 @@ typedef union _MSG_Union
     MSG_TrackMethod_Response trackMethodResponse;
     MSG_AllocateBuffer_Request allocateBufferRequest;
     MSG_AllocateBuffer_Response allocateBufferResponse;
+    MSG_CloseChannel_Request closeChannelRequest;
+    MSG_CloseChannel_Response closeChannelResponse;
+    MSG_TrackProcess_Request trackProcessRequest;
+    MSG_TrackProcess_Response trackProcessResponse;
 } MSG_Union;
 

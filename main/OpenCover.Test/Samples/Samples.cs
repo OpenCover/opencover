@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace OpenCover.Test.Samples
 {
     class ConstructorNotDeclaredClass
-    {
-        
+    {        
     }
-
     class DeclaredConstructorClass
     {
         DeclaredConstructorClass() { }
@@ -92,6 +92,7 @@ namespace OpenCover.Test.Samples
             switch (input)
             {
                 case 1:
+                case 2:
                 case 3:
                     return true;
                 default:
@@ -104,7 +105,7 @@ namespace OpenCover.Test.Samples
             string value;
             try
             {
-
+                
             }
             finally
             {
@@ -117,6 +118,18 @@ namespace OpenCover.Test.Samples
             return value;
         }
 
+        public void HasSimpleTaskWithLambda()
+        {
+            var t = new Task(() => { });
+        }
+
+        public string UsingWithException_Issue243()
+        {
+            using (var ms = new MemoryStream()) // IL generates a finally block for using to dispose the stream
+            {
+                throw new Exception();
+            }
+        }
     }
 
     class DeclaredMethodClass
@@ -159,6 +172,14 @@ namespace OpenCover.Test.Samples
     {
     }
 
+    [AttributeUsage(AttributeTargets.Assembly)]
+    internal class ExcludeAssemblyAttribute : Attribute
+    {
+        public ExcludeAssemblyAttribute()
+        {
+        }
+    }
+
     [ExcludeClassAttribute]
     public class Concrete : AbstractBase
     {
@@ -178,7 +199,32 @@ namespace OpenCover.Test.Samples
         [ExcludeMethodAttribute]
         public override void Method()
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();    
+        }
+        
+        protected class InnerConcrete
+        {
+            public InnerConcrete()
+            {
+                
+            }
+
+            public void Method()
+            {
+                var t = new Task(() =>
+                {
+                    Method();
+                    Method();
+                });
+            }
+
+            protected class InnerInnerConcrete
+            {
+                public InnerInnerConcrete()
+                {
+
+                }
+            }
         }
     }
 
@@ -225,14 +271,14 @@ namespace OpenCover.Test.Samples
 
     public struct NotCoveredStruct
     {
-        public int Number { get; set; }
+        public int Number; // { get; set; }
     }
 
     public struct CoveredStruct
     {
-        private int number;
+        private int _number;
 // ReSharper disable ConvertToAutoProperty
-        public int Number { get { return number; } set { number = value; } }
+        public int Number { get { return _number; } set { _number = value; } }
 // ReSharper restore ConvertToAutoProperty
     }
 
@@ -254,4 +300,26 @@ namespace OpenCover.Test.Samples
             }
         }
     }
+
+    public class Iterator
+    {
+        public IEnumerable<string> Fetch()
+        {
+            yield return "one";
+            yield return "two";
+        } 
+    }
+
+
+    public class ClassWithDelegate
+    {
+        public delegate bool HandleMeDelegate();
+
+        public void CallMe(HandleMeDelegate handle)
+        {
+            
+        }
+    }
+
+    internal delegate bool DontHandleMeDelegate();
 }

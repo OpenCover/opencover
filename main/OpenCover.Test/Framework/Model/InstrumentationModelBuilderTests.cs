@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Mono.Cecil;
 using Moq;
@@ -7,6 +8,7 @@ using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.MoqFramework;
+using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Model
 {
@@ -23,7 +25,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns("ModulePath");
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -31,7 +33,7 @@ namespace OpenCover.Test.Framework.Model
 
             // assert
             Assert.IsNotNull(module);
-            Assert.AreEqual("ModulePath", module.FullName);
+            Assert.AreEqual("ModulePath", module.ModulePath);
             Assert.AreEqual("ModulePath", module.Aliases[0]);
         }
 
@@ -44,7 +46,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns("ModuleName");
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -64,7 +66,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] {@class});
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -88,7 +90,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { @class });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -119,7 +121,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { new SequencePoint() });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -150,7 +152,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -179,22 +181,41 @@ namespace OpenCover.Test.Framework.Model
         }
 
         [Test]
+        public void CanGetDefinition_If_AssemblyFound()
+        {
+            // arrange 
+            var mockDef = AssemblyDefinition.CreateAssembly(
+                new AssemblyNameDefinition("temp", new Version()), "temp", ModuleKind.Dll);
+            Container.GetMock<ISymbolManager>()
+                .SetupGet(x => x.SourceAssembly)
+                .Returns(mockDef);
+
+            // act
+            var definition = Instance.GetAssemblyDefinition;
+
+            // assert
+            Assert.AreSame(mockDef, definition);
+        }
+
+        [Test]
         public void CanBuildModelOf_RealAssembly()
         {
             // arrange
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+
             Container.GetMock<ISymbolManager>()
                 .SetupGet(x => x.ModulePath)
-                .Returns(System.IO.Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"));
+                .Returns(Path.Combine(assemblyPath, "OpenCover.Test.dll"));
             
             Container.GetMock<IFilter>()
-               .Setup(x => x.UseAssembly(It.IsAny<string>()))
+               .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
             var module = Instance.BuildModuleModel(true);
 
             // assert
-            Assert.IsNotNullOrEmpty(module.ModuleHash);
+            Assert.IsFalse(string.IsNullOrEmpty(module.ModuleHash));
 
         }
 
@@ -256,7 +277,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -287,7 +308,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { seqPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -323,7 +344,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { brPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act
@@ -354,7 +375,7 @@ namespace OpenCover.Test.Framework.Model
                 .Returns(new[] { brPoint });
 
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
             // act

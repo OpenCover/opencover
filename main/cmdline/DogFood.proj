@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="All">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0" DefaultTargets="All">
 
   <!-- The following is needed for dev tests only -->
   <PropertyGroup>
@@ -12,8 +12,7 @@
   -->
 
   <ItemGroup>
-    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.3\tools\nunit-console-x86.exe" />
-    <NUnitConsole Include="..\..\..\main\packages\NUnit.Runners.2.6.3\tools\nunit-console.exe" />
+    <NUnitConsole Include="..\..\..\main\packages\NUnit.ConsoleRunner.3.2.1\tools\nunit3-console.exe" />
   </ItemGroup>
 
   <Target Name="All"
@@ -23,7 +22,7 @@
   <Target Name="Default">
     <OpenCover
       Target="%(NUnitConsole.Identity)"
-      TargetArgs="OpenCover.Test.dll /noshadow"
+      TargetArgs="OpenCover.Test.dll"
       Filter="+[Open*]*;-[OpenCover.T*]*"
       Output="opencovertests.xml"
     />
@@ -32,7 +31,7 @@
   <Target Name="CoverByTest">
     <OpenCover
       Target="%(NUnitConsole.Identity)"
-      TargetArgs="OpenCover.Test.dll /noshadow"
+      TargetArgs="OpenCover.Test.dll"
       Filter="+[Open*]*;-[OpenCover.T*]*"
       CoverByTest="*.Test.dll"
       Output="opencovertests.xml"
@@ -42,7 +41,7 @@
   <Target Name="ExcludeByAttribute">
     <OpenCover
       Target="%(NUnitConsole.Identity)"
-      TargetArgs="OpenCover.Test.dll /noshadow"
+      TargetArgs="OpenCover.Test.dll"
       Filter="+[Open*]*;-[Open*]*Boot*;-[OpenCover.T*]*"
       ExcludeByAttribute="*.ExcludeFromCoverageAttribute"
       Output="opencovertests.xml"
@@ -52,7 +51,7 @@
   <Target Name="ExcludeByFile">
     <OpenCover
       Target="%(NUnitConsole.Identity)"
-      TargetArgs="OpenCover.Test.dll /noshadow"
+      TargetArgs="OpenCover.Test.dll"
       Filter="+[Open*]*;-[OpenCover.T*]*"
       ExcludeByFile="*\ProfilerRegistration.*"
       Output="opencovertests.xml"

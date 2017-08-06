@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.IO;
 using log4net;
 using Moq;
@@ -9,36 +8,13 @@ using OpenCover.Framework.Symbols;
 
 namespace OpenCover.Test.Framework.Symbols
 {
+    /// <summary>
+    /// This test fails when running under Resharper and shadow copy is turned on
+    /// Disable it using Resharper -> Options -> Unit Testing
+    /// </summary>
     [TestFixture]
-    public class CecilSymbolManagerMdbTests
+    public class CecilSymbolManagerMdbTests : BaseMdbTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            var folder = Path.Combine(Environment.CurrentDirectory, "Mdb");
-            var source = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
-            if (Directory.Exists(folder)) Directory.Delete(folder, true);
-            Directory.CreateDirectory(folder);
-            var dest = Path.Combine(folder, "OpenCover.Test.dll");
-            File.Copy(source, dest);
-            File.Copy(Path.ChangeExtension(source, "pdb"), Path.ChangeExtension(dest, "pdb"));
-            var process = new ProcessStartInfo
-            {
-                FileName = Path.Combine(Environment.CurrentDirectory, @"..\..\packages\Mono.pdb2mdb.0.1.0.20130128\tools\pdb2mdb.exe"),
-                Arguments = dest,
-                WorkingDirectory = folder,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-            };
-
-            var proc = Process.Start(process);
-            proc.Do(_ => _.WaitForExit());
-
-            Assert.IsTrue(File.Exists(dest + ".mdb"));
-            File.Delete(Path.ChangeExtension(dest, "pdb"));
-            Assert.IsFalse(File.Exists(Path.ChangeExtension(dest, "pdb")));
-        }
-
         private CecilSymbolManager _reader;
         private string _location;
         private Mock<ICommandLine> _mockCommandLine;
@@ -52,10 +28,11 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
 
-            _location = Path.Combine(Environment.CurrentDirectory, "Mdb", "OpenCover.Test.dll");
+            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
+            _location = Path.Combine(assemblyPath, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
-            _reader.Initialise(_location, "OpenCover.Test");
+            _reader.Initialise(_location, "Microsoft.Practices.ServiceLocation");
         }
 
         [Test]

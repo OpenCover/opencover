@@ -2,7 +2,6 @@
 using System.IO;
 using System.Threading;
 using OpenCover.Framework.Manager;
-using OpenCover.Framework.Service;
 
 namespace OpenCover.Framework.Communication
 {
@@ -16,7 +15,7 @@ namespace OpenCover.Framework.Communication
         /// </summary>
         /// <param name="mcb"></param>
         /// <param name="offloadHandling"></param>
-        void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling);
+        void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<ManagedBufferBlock> offloadHandling);
 
         /// <summary>
         /// process a results block from the profiler
@@ -46,7 +45,12 @@ namespace OpenCover.Framework.Communication
             _messageHandler = messageHandler;
         }
 
-        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<IManagedCommunicationBlock, IManagedMemoryBlock> offloadHandling)
+        /// <summary>
+        /// Process a communication related message from a profiler
+        /// </summary>
+        /// <param name="mcb"></param>
+        /// <param name="offloadHandling"></param>
+        public void HandleCommunicationBlock(IManagedCommunicationBlock mcb, Action<ManagedBufferBlock> offloadHandling)
         {
             mcb.ProfilerRequestsInformation.Reset();
 
@@ -63,23 +67,36 @@ namespace OpenCover.Framework.Communication
         {
             mcb.StreamAccessorComms.Seek(0, SeekOrigin.Begin);
             mcb.StreamAccessorComms.Write(mcb.DataCommunication, 0, writeSize);
+            mcb.StreamAccessorComms.Flush();
 
-            WaitHandle.SignalAndWait(mcb.InformationReadyForProfiler, mcb.InformationReadByProfiler);
+            WaitHandle.SignalAndWait(mcb.InformationReadyForProfiler, mcb.InformationReadByProfiler, 10000, false);
             mcb.InformationReadByProfiler.Reset();
         }
 
+        /// <summary>
+        /// process a results block from the profiler
+        /// </summary>
+        /// <param name="mmb"></param>
         public byte[] HandleMemoryBlock(IManagedMemoryBlock mmb)
         {
-            var data = new byte[mmb.BufferSize];
             mmb.ProfilerHasResults.Reset();
+            do
+            {
+                mmb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
+            } while (mmb.StreamAccessorResults.Read(mmb.Buffer, 0, mmb.BufferSize) != mmb.BufferSize);
 
-            mmb.StreamAccessorResults.Seek(0, SeekOrigin.Begin);
-            mmb.StreamAccessorResults.Read(data, 0, mmb.BufferSize);
-
+            var nCount = (int)BitConverter.ToUInt32(mmb.Buffer, 0);
+            var dataSize = (nCount + 1)*sizeof (UInt32);
+            var newData = new byte[dataSize];
+            Buffer.BlockCopy(mmb.Buffer, 0, newData, 0, dataSize);
             mmb.ResultsHaveBeenReceived.Set();
-            return data;
+
+            return newData;
         }
 
+        /// <summary>
+        /// Communication is over
+        /// </summary>
         public void Complete()
         {
             _messageHandler.Complete();

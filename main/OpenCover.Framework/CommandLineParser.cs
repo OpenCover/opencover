@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenCover.Framework.Model;
@@ -59,6 +60,32 @@ namespace OpenCover.Framework
     }
 
     /// <summary>
+    /// SafeMode values
+    /// </summary>
+    public enum SafeMode
+    {
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        On,
+
+        /// <summary>
+        /// SafeMode is on (default)
+        /// </summary>
+        Yes = On,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        Off,
+
+        /// <summary>
+        /// SafeMode is off
+        /// </summary>
+        No = Off
+    }
+
+    /// <summary>
     /// Parse the command line arguments and set the appropriate properties
     /// </summary>
     public class CommandLineParser : CommandLineParserBase, ICommandLine
@@ -80,8 +107,14 @@ namespace OpenCover.Framework
             EnablePerformanceCounters = false;
             TraceByTest = false;
             ServiceEnvironment = ServiceEnvironment.None;
+            ServiceStartTimeout = new TimeSpan(0, 0, 30);
             RegExFilters = false;
             Registration = Registration.Normal;
+            PrintVersion = false;
+            ExcludeDirs = new string[0];
+            SafeMode = true;
+            DiagMode = false;
+            SendVisitPointsTimerInterval = 0;
         }
 
         /// <summary>
@@ -94,6 +127,7 @@ namespace OpenCover.Framework
             builder.AppendLine("Usage:");
             builder.AppendLine("    [\"]-target:<target application>[\"]");
             builder.AppendLine("    [[\"]-targetdir:<target directory>[\"]]");
+            builder.AppendLine("    [[\"]-searchdirs:<additional PDB directory>[;<additional PDB directory>][;<additional PDB directory>][\"]]");
             builder.AppendLine("    [[\"]-targetargs:<arguments for the target process>[\"]]");
             builder.AppendLine("    [-register[:user]]");
             builder.AppendLine("    [[\"]-output:<path to file>[\"]]");
@@ -108,18 +142,28 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
             builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-hideskipped:File|Filter|Attribute|MissingPdb|All,[File|Filter|Attribute|MissingPdb|All]]");
+            builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
+            var skips = string.Join("|", Enum.GetNames(typeof(SkippedMethod)).Where(x => x != "Unknown"));
+            builder.AppendLine(string.Format("    [-hideskipped:{0}|All,[{0}|All]]", skips));
             builder.AppendLine("    [-log:[Off|Fatal|Error|Warn|Info|Debug|Verbose|All]]");
             builder.AppendLine("    [-service[:byname]]");
+            builder.AppendLine("    [-servicestarttimeout:<minutes+seconds e.g. 1m23s>");
+            builder.AppendLine("    [-communicationtimeout:<integer, e.g. 10000>");
             builder.AppendLine("    [-threshold:<max count>]");
             builder.AppendLine("    [-enableperformancecounters]");
             builder.AppendLine("    [-skipautoprops]");
-            builder.AppendLine("    [-oldStyle]");
+            builder.AppendLine("    [-oldstyle]");
+            builder.AppendLine("    [-safemode:on|off|yes|no]");
+            builder.AppendLine("    [-diagmode]");
+            builder.AppendLine("    [-sendvisitpointstimerinterval: 0 (no timer) | 1-maxint (timer interval in msec)");
+            builder.AppendLine("    -version");
             builder.AppendLine("or");
             builder.AppendLine("    -?");
+            builder.AppendLine("or");
+            builder.AppendLine("    -version");
             builder.AppendLine("");
             builder.AppendLine("For further information on the command line please visit the wiki");
-            builder.AppendLine("    https://github.com/sawilde/opencover/wiki/Usage");
+            builder.AppendLine("    https://github.com/OpenCover/opencover/wiki/Usage");
             builder.AppendLine("");
             builder.AppendLine("Filters:");
             builder.AppendLine("    Filters are used to include and exclude assemblies and types in the");
@@ -140,6 +184,8 @@ namespace OpenCover.Framework
         /// </summary>
         public void ExtractAndValidateArguments()
         {
+            ParseArguments();
+
             foreach (var key in ParsedArguments.Keys)
             {
                 var lower = key.ToLowerInvariant();
@@ -156,6 +202,19 @@ namespace OpenCover.Framework
                         break;
                     case "targetdir":
                         TargetDir = GetArgumentValue("targetdir");
+                        break;
+                    case "searchdirs":
+                        SearchDirs = GetArgumentValue("searchdirs").Split(';');
+                        break;
+                    case "excludedirs":
+                        ExcludeDirs =
+                            GetArgumentValue("excludedirs")
+                                .Split(';')
+                                .Where(_ => _ != null)
+                                .Select(_ => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), _)))
+                                .Where(Directory.Exists)
+                                .Distinct()
+                                .ToArray();
                         break;
                     case "targetargs":
                         TargetArgs = GetArgumentValue("targetargs");
@@ -182,6 +241,11 @@ namespace OpenCover.Framework
                         ReturnTargetCode = true;
                         ReturnCodeOffset = ExtractValue<int>("returntargetcode", () =>
                             { throw new InvalidOperationException("The return target code offset must be an integer"); });
+                        break;
+                    case "communicationtimeout":
+                        CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
+                        { throw new InvalidOperationException(string.Format("The communication timeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
+                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));
@@ -218,6 +282,10 @@ namespace OpenCover.Framework
                             ServiceEnvironment = val;
                         }
                         break;
+                    case "servicestarttimeout":
+                        var timeoutValue = GetArgumentValue("servicestarttimeout");
+                        ServiceStartTimeout = ParseTimeoutValue(timeoutValue);                        
+                        break;
                     case "oldstyle":
                         OldStyleInstrumentation = true;
                         break;
@@ -231,20 +299,28 @@ namespace OpenCover.Framework
                     case "skipautoprops":
                         SkipAutoImplementedProperties = true;
                         break;
+                    case "safemode":
+                        SafeMode = ExtractSafeMode(GetArgumentValue("safemode")) == Framework.SafeMode.On;
+                        break;
                     case "?":
                         PrintUsage = true;
                         break;
+                    case "version":
+                        PrintVersion = true;
+                        break;
+                    case "diagmode":
+                        DiagMode = true;
+                        break;
+                    case "sendvisitpointstimerinterval":
+                        SendVisitPointsTimerInterval = ExtractValue<uint>("sendvisitpointstimerinterval", () =>
+                        { throw new InvalidOperationException("The send visit points timer interval must be a non-negative integer"); });
+                        break;
                     default:
-                        throw new InvalidOperationException(string.Format("The argument {0} is not recognised", key));
+                        throw new InvalidOperationException(string.Format("The argument '-{0}' is not recognised", key));
                 }
             }
 
-            if (PrintUsage) return;
-
-            if (string.IsNullOrWhiteSpace(Target))
-            {
-                throw new InvalidOperationException("The target argument is required");
-            }
+            ValidateArguments();
         }
 
         private T ExtractValue<T>(string argumentName, Action onError)
@@ -268,16 +344,22 @@ namespace OpenCover.Framework
 
         private static List<string> ExtractFilters(string rawFilters)
         {
-            const string strRegex = @"([+-][\[].*?[\]].+?\s)|([+-][\[].*?[\]].*)";
-            const RegexOptions myRegexOptions = RegexOptions.None;
+            // starts with required +-
+            // followed by optional process-filter
+            // followed by required assembly-filter 
+            // followed by optional class-filter, where class-filter excludes -+" and space characters
+            // followed by optional space 
+            // NOTE: double-quote character from test-values somehow sneaks into default filter as last character?
+            const string strRegex = @"[\-\+](<.*?>)?\[.*?\][^\-\+\s\x22]*";
+            const RegexOptions myRegexOptions = RegexOptions.Singleline | RegexOptions.ExplicitCapture;
             var myRegex = new Regex(strRegex, myRegexOptions);
             
             return (from Match myMatch in myRegex.Matches(rawFilters) where myMatch.Success select myMatch.Value.Trim()).ToList();
         }
 
-        private static List<SkippedMethod> ExtractSkipped(string skipped)
+        private static List<SkippedMethod> ExtractSkipped(string skippedArg)
         {
-            if (string.IsNullOrWhiteSpace(skipped)) skipped = "All";
+            var skipped = string.IsNullOrWhiteSpace(skippedArg) ? "All" : skippedArg;
             var options = skipped.Split(';');
             var list = new List<SkippedMethod>();
             foreach (var option in options)
@@ -285,11 +367,7 @@ namespace OpenCover.Framework
                 switch (option.ToLowerInvariant())
                 {
                     case "all":
-                        list.Add(SkippedMethod.Attribute);
-                        list.Add(SkippedMethod.File);
-                        list.Add(SkippedMethod.Filter);
-                        list.Add(SkippedMethod.MissingPdb);
-                        list.Add(SkippedMethod.AutoImplementedProperty);
+                        list = Enum.GetValues(typeof(SkippedMethod)).Cast<SkippedMethod>().Where(x => x != SkippedMethod.Unknown).ToList();
                         break;
                     default:
                         SkippedMethod result;
@@ -304,10 +382,76 @@ namespace OpenCover.Framework
             return list.Distinct().ToList();
         }
 
+        private static SafeMode ExtractSafeMode(string safeModeArg)
+        {
+            SafeMode result;
+            if (!Enum.TryParse(safeModeArg, true, out result))
+            {
+                throw new InvalidOperationException(string.Format("The safemode option {0} is not valid", safeModeArg));
+            }
+            return result;
+        }
+
+        private TimeSpan ParseTimeoutValue(string timeoutValue)
+        {
+            var match = Regex.Match(timeoutValue, @"((?<minutes>\d+)m)?((?<seconds>\d+)s)?");
+            if (match.Success)
+            {
+                int minutes = 0;
+                int seconds = 0;
+
+                var minutesMatch = match.Groups["minutes"];
+                if (minutesMatch.Success)
+                {
+                    minutes = int.Parse(minutesMatch.Value);
+                }
+
+                var secondsMatch = match.Groups["seconds"];
+                if (secondsMatch.Success)
+                {
+                    seconds = int.Parse(secondsMatch.Value);
+                }
+
+                if (minutes == 0 && seconds == 0)
+                {
+                    throw ExceptionForInvalidArgumentValue(timeoutValue, "servicestarttimeout");
+                }
+
+                return new TimeSpan(0, minutes, seconds);
+            }
+            else
+            {
+                throw ExceptionForInvalidArgumentValue(timeoutValue, "servicestarttimeout");
+            }
+        }
+
+        private static Exception ExceptionForInvalidArgumentValue(string argumentName, string argumentValue)
+        {
+            return new InvalidOperationException(string.Format("Incorrect argument: {0} for {1}", argumentValue, argumentName));
+        }
+
+        private void ValidateArguments()
+        {
+            if (PrintUsage || PrintVersion) 
+                return;
+
+            if (string.IsNullOrWhiteSpace(Target))
+            {
+                throw new InvalidOperationException("The target argument is required");
+            }
+        }
+
+
         /// <summary>
         /// the switch -register was supplied
         /// </summary>
         public bool Register { get; private set; }
+
+        /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        public bool SafeMode { get; private set; }
 
         /// <summary>
         /// the switch -register with the user argument was supplied i.e. -register:user
@@ -320,7 +464,7 @@ namespace OpenCover.Framework
         public bool SkipAutoImplementedProperties { get; private set; }
 
         /// <summary>
-        /// The target executable that is to be profiles
+        /// The target executable that is to be profiled
         /// </summary>
         public string Target { get; private set; }
 
@@ -328,6 +472,16 @@ namespace OpenCover.Framework
         /// The working directory that the action is to take place
         /// </summary>
         public string TargetDir { get; private set; }
+
+        /// <summary>
+        /// Alternate locations where PDBs can be found
+        /// </summary>
+        public string[] SearchDirs { get; private set; }
+
+        /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        public string[] ExcludeDirs { get; private set; }
 
         /// <summary>
         /// The arguments that are to be passed to the Target
@@ -425,6 +579,11 @@ namespace OpenCover.Framework
         public ServiceEnvironment ServiceEnvironment { get; private set; }
 
         /// <summary>
+        /// Gets the timeout to wait for the service to start up
+        /// </summary>
+        public TimeSpan ServiceStartTimeout { get; private set; }
+
+        /// <summary>
         /// Use the old style of instrumentation that even though not APTCA friendly will
         /// work when - ngen install /Profile "mscorlib" - has been used
         /// </summary>
@@ -444,6 +603,26 @@ namespace OpenCover.Framework
         /// If an existing output exists then load it and allow merging of test runs
         /// </summary>
         public bool MergeExistingOutputFile { get; private set; }
+
+        /// <summary>
+        /// Instructs the console to print its version and exit
+        /// </summary>
+        public bool PrintVersion { get; private set; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host (normally 10000ms)
+        /// </summary>
+        public int CommunicationTimeout { get; private set; }
+
+        /// <summary>
+        /// Enable diagnostics in the profiler
+        /// </summary>
+        public bool DiagMode { get; private set; }
+
+        /// <summary>
+        /// Enable SendVisitPoints timer interval in msec (0 means do not run timer)
+        /// </summary>
+        public uint SendVisitPointsTimerInterval { get; private set; }
     }
 
 }

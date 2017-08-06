@@ -16,15 +16,12 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
 using OpenCover.Framework;
-using System.ServiceProcess;
-using System.ComponentModel;
 
 namespace OpenCover.Console
 {
@@ -33,13 +30,13 @@ namespace OpenCover.Console
         public static bool IsServiceDisabled(string serviceName)
         {
             var entry = GetServiceKey(serviceName);
-            return (int)entry.GetValue("Start") == 4;
+            return entry != null && (int)entry.GetValue("Start") == 4;
         }
 
         public static bool IsServiceStartAutomatic(string serviceName)
         {
             var entry = GetServiceKey(serviceName);
-            return (int)entry.GetValue("Start") == 2;
+            return entry != null && (int)entry.GetValue("Start") == 2;
         }
     }
 
@@ -58,7 +55,7 @@ namespace OpenCover.Console
             // variables in the registry for the service, otherwise it's better to temporarily set it for the account,
             // assuming we can find out the account SID
             // Network Service works better with environments is better on the service too
-            var serviceAccountName = MachineQualifiedServiceAccountName(this._serviceName);
+            var serviceAccountName = MachineQualifiedServiceAccountName(_serviceName);
             if (serviceAccountName != "LocalSystem")
             {
                 _serviceAccountSid = LookupAccountSid(serviceAccountName);
@@ -78,12 +75,12 @@ namespace OpenCover.Console
 
         public static string MachineQualifiedServiceAccountName(string serviceName)
         {
-            string serviceAccountName = GetServiceAccountName(serviceName);
+            string serviceAccountName = GetServiceAccountName(serviceName) ?? string.Empty;
             if (serviceAccountName.StartsWith(@".\"))
             {
                 serviceAccountName = Environment.MachineName + serviceAccountName.Substring(1);
             }
-            else if (serviceAccountName.ToLower().Contains("localsystem"))
+            else if (serviceAccountName.ToLowerInvariant().Contains("localsystem"))
             {
                 serviceAccountName = "NT Authority\\SYSTEM";
             }
@@ -169,9 +166,9 @@ namespace OpenCover.Console
             IntPtr tokenHandle = IntPtr.Zero;
             if (!OpenProcessToken(processHandle, 0x20008, ref tokenHandle))
                 return new string[0];
-            IntPtr environmentPtr = IntPtr.Zero;
+            IntPtr environmentPtr;
             if (!CreateEnvironmentBlock(out environmentPtr, tokenHandle, false))
-                return new String[0];
+                return new string[0];
             unsafe
             {
                 string[] envStrings = null;
@@ -202,8 +199,7 @@ namespace OpenCover.Console
         private static unsafe int wcslen(char* s)
         {
             char* e;
-            for (e = s; *e != '\0'; e++)
-                ;
+            for (e = s; *e != '\0'; e++){/* intentionally do nothing */}
             return (int)(e - s);
         }
 

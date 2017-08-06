@@ -75,7 +75,7 @@ mdSignature CCodeCoverage::GetMethodSignatureToken_I4(ModuleID moduleID)
 }
 
 
-HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     CComPtr<IMetaDataEmit> metaDataEmit;
     COM_FAIL_MSG_RETURN_ERROR(m_profilerInfo->GetModuleMetaData(moduleId, 
@@ -102,7 +102,7 @@ HRESULT CCodeCoverage::GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModul
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));
@@ -118,7 +118,7 @@ HRESULT CCodeCoverage::GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyE
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));
@@ -134,7 +134,7 @@ HRESULT CCodeCoverage::GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyE
     return S_OK;
 }
 
-HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef)
+HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR*moduleName, mdModuleRef &mscorlibRef)
 {
     ASSEMBLYMETADATA assembly;
     ZeroMemory(&assembly, sizeof(assembly));
@@ -149,5 +149,31 @@ HRESULT CCodeCoverage::GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyE
         _T("GetModuleRef2050(...) => DefineAssemblyRef => 0x%X"));
 
     return S_OK;
+}
+
+std::wstring CCodeCoverage::GetTypeAndMethodName(FunctionID functionId)
+{
+	std::wstring empty = L"";
+	CComPtr<IMetaDataImport2> metaDataImport2;
+	mdMethodDef functionToken;
+	COM_FAIL_MSG_RETURN_OTHER(m_profilerInfo->GetTokenAndMetaDataFromFunction(functionId, IID_IMetaDataImport, (IUnknown **)&metaDataImport2, &functionToken),
+		empty, _T("GetTokenAndMetaDataFromFunction"));
+
+	mdTypeDef classId;
+	WCHAR szMethodName[512] = {};
+	COM_FAIL_MSG_RETURN_OTHER(metaDataImport2->GetMethodProps(functionToken, &classId, szMethodName, 512, NULL, NULL, NULL, NULL, NULL, NULL),
+		empty, _T("GetMethodProps"));
+
+	WCHAR szTypeName[512] = {};
+	COM_FAIL_MSG_RETURN_OTHER(metaDataImport2->GetTypeDefProps(classId, szTypeName, 512, NULL, NULL, NULL),
+		empty, _T("GetTypeDefProps"));
+
+	std::wstring methodName = szTypeName;
+	methodName += L"::";
+	methodName += szMethodName;
+
+	//ATLTRACE(_T("::GetTypeAndMethodName(%s)"), W2CT(methodName.c_str()));
+
+	return methodName;
 }
 

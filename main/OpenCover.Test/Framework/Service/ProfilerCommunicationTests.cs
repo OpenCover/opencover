@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using Mono.Cecil;
+using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
 using OpenCover.Framework.Model;
@@ -17,8 +18,16 @@ namespace OpenCover.Test.Framework.Service
         {
             // arrange
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
@@ -34,7 +43,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(new Module());
 
             // act
-            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
             
             // assert
             Assert.IsTrue(track);
@@ -63,7 +72,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns<Module, bool>((m, f) => m);
 
             // act
-            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
 
             // assert
             Assert.IsFalse(track);
@@ -76,8 +85,12 @@ namespace OpenCover.Test.Framework.Service
         {
             // arrange
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(false);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
@@ -89,7 +102,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(new Module());
 
             // act
-            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
 
             // assert
             Assert.IsFalse(track);
@@ -102,8 +115,16 @@ namespace OpenCover.Test.Framework.Service
         {
             // arrange
             Container.GetMock<IFilter>()
-                .Setup(x => x.UseAssembly(It.IsAny<string>()))
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
 
             var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
             Container.GetMock<IInstrumentationModelBuilderFactory>()
@@ -119,12 +140,86 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(false);
 
             // act
-            var track = Instance.TrackAssembly("moduleName", "assemblyName");
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
 
             // assembly
             Assert.IsFalse(track);
             Container.GetMock<IPersistance>()
                 .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.MissingPdb)), Times.Once());
+
+        }
+
+        [Test]
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_UseModuleIsFalse()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(false);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(false);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(false);
+
+            // act
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
+
+            // assembly
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.FolderExclusion)), Times.Once());
+
+        }
+
+        [Test]
+        public void TrackAssembly_Adds_AssemblyToModel_AsSkipped_If_ExcludedByAttribute()
+        {
+            // arrange
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.UseModule(It.IsAny<string>()))
+                .Returns(true);
+
+            Container.GetMock<IFilter>()
+                .Setup(x => x.ExcludeByAttribute(It.IsAny<AssemblyDefinition>()))
+                .Returns(true);
+
+            var mockModelBuilder = new Mock<IInstrumentationModelBuilder>();
+            Container.GetMock<IInstrumentationModelBuilderFactory>()
+                .Setup(x => x.CreateModelBuilder(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(mockModelBuilder.Object);
+
+            mockModelBuilder
+                .Setup(x => x.BuildModuleModel(It.IsAny<bool>()))
+                .Returns(new Module());
+
+            mockModelBuilder
+                .SetupGet(x => x.CanInstrument)
+                .Returns(true);
+
+            // act
+            var track = Instance.TrackAssembly("processName", "moduleName", "assemblyName");
+
+            // assembly
+            Assert.IsFalse(track);
+            Container.GetMock<IPersistance>()
+                .Verify(x => x.PersistModule(It.Is<Module>(m => m.SkippedDueTo == SkippedMethod.Attribute)), Times.Once());
 
         }
 
@@ -154,12 +249,12 @@ namespace OpenCover.Test.Framework.Service
                .Setup(x => x.IsTracking(It.IsAny<string>()))
                .Returns(true);
             Container.GetMock<IFilter>()
-               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
             InstrumentationPoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsFalse(result);
@@ -180,7 +275,7 @@ namespace OpenCover.Test.Framework.Service
            
             // act
             InstrumentationPoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsFalse(result);
@@ -205,7 +300,7 @@ namespace OpenCover.Test.Framework.Service
 
             // act
             InstrumentationPoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsFalse(result);
@@ -226,12 +321,12 @@ namespace OpenCover.Test.Framework.Service
                .Setup(x => x.IsTracking(It.IsAny<string>()))
                .Returns(true);
             Container.GetMock<IFilter>()
-               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
             InstrumentationPoint[] instrumentPoints;
-            var result = Instance.GetSequencePoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetSequencePoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsTrue(result);
@@ -252,12 +347,12 @@ namespace OpenCover.Test.Framework.Service
                .Setup(x => x.IsTracking(It.IsAny<string>()))
                .Returns(true);
             Container.GetMock<IFilter>()
-               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
             BranchPoint[] instrumentPoints;
-            var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetBranchPoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsFalse(result);
@@ -268,7 +363,7 @@ namespace OpenCover.Test.Framework.Service
         public void GetBranchPoints_Returns_SequencePoints_When_Data_In_Model()
         {
             // arrange
-            var points = new[] { new BranchPoint(),  };
+            var points = new[] { new BranchPoint() };
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetBranchPointsForFunction(It.IsAny<string>(), It.IsAny<int>(), out points))
                 .Returns(true)
@@ -277,12 +372,12 @@ namespace OpenCover.Test.Framework.Service
                .Setup(x => x.IsTracking(It.IsAny<string>()))
                .Returns(true);
             Container.GetMock<IFilter>()
-               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+               .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                .Returns(true);
 
             // act
             BranchPoint[] instrumentPoints;
-            var result = Instance.GetBranchPoints("moduleName", "moduleName", 1, out instrumentPoints);
+            var result = Instance.GetBranchPoints("processName", "moduleName", "moduleName", 1, out instrumentPoints);
 
             // assert
             Assert.IsTrue(result);
@@ -300,7 +395,7 @@ namespace OpenCover.Test.Framework.Service
                 .Returns(true);
 
             // act
-            uint uniqueId = 0;
+            uint uniqueId;
             var result = Instance.TrackMethod("", "", 0, out uniqueId);
 
             // assert
@@ -312,18 +407,32 @@ namespace OpenCover.Test.Framework.Service
         public void TrackMethod_False_When_MethodNotTracked()
         {
             // arrange
-            uint trackid = 0;
+            uint trackid;
             Container.GetMock<IPersistance>()
                 .Setup(x => x.GetTrackingMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out trackid))
                 .Returns(false);
 
             // act
-            uint uniqueId = 0;
+            uint uniqueId;
             var result = Instance.TrackMethod("", "", 0, out uniqueId);
 
             // assert
             Assert.IsFalse(result);
         }
 
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TrackProcessResponse_IsFulfilledByFilter(bool expected)
+        {
+            // arrange
+            Container.GetMock<IFilter>().Setup(x => x.InstrumentProcess(It.IsAny<string>())).Returns(expected);
+
+            // action
+            var response = Instance.TrackProcess("abc");
+
+            // assert
+            Assert.AreEqual(expected, response);
+        }
     }
 }

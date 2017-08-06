@@ -34,5 +34,25 @@ namespace OpenCover.Framework.Model
         /// Entity (method) was skipped as it is an auto-implemented property.
         /// </summary>
         AutoImplementedProperty = 6,
+
+        /// <summary>
+        /// Entity (method) was skipped as it is native code.
+        /// </summary>
+        NativeCode = 7,
+
+        /// <summary>
+        /// Entity (method) was skipped for other reasons.
+        /// </summary>
+        Unknown = 8,
+
+        /// <summary>
+        /// Entity (dll) was skipped due to folder exclusion.
+        /// </summary>
+        FolderExclusion = 9,
+
+        /// <summary>
+        /// Entity (method) was skipped due to being a delegate.
+        /// </summary>
+        Delegate = 10
     }
 }

@@ -1,0 +1,4 @@
+$packageName = 'opencover.portable'
+$url = 'https://github.com/OpenCover/opencover/releases/download/[[version]]/opencover.[[version]].zip'
+$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
+Install-ChocolateyZipPackage $packageName $url $toolsDir

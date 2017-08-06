@@ -1,28 +1,22 @@
 using System.Collections.Generic;
-using System.Linq;
-using Mono.Cecil;
-using OpenCover.Framework.Model;
-using OpenCover.Framework.Strategy;
 
 namespace OpenCover.Extensions.Strategy
 {
     /// <summary>
     /// Track xUnit test methods
     /// </summary>
-    public class TrackXUnitTestMethods : ITrackedMethodStrategy
+    public class TrackXUnitTestMethods : TrackedMethodStrategyBase
     {
-        public IEnumerable<TrackedMethod> GetTrackedMethods(IEnumerable<TypeDefinition> typeDefinitions)
+        private const string xUnitStrategyName = "xUnitTest";
+
+        private static readonly IList<string> TrackedAttributeTypeNames = new List<string>
         {
-            return (from typeDefinition in typeDefinitions
-                    from methodDefinition in typeDefinition.Methods
-                    from customAttribute in methodDefinition.CustomAttributes
-                    where customAttribute.AttributeType.FullName == "Xunit.FactAttribute"
-                    select new TrackedMethod()
-                        {
-                            MetadataToken = methodDefinition.MetadataToken.ToInt32(),
-                            Name = methodDefinition.FullName,
-                            Strategy = "xUnitTest"
-                        });
+            "Xunit.FactAttribute",
+            "Xunit.TheoryAttribute",
+        };
+
+        public TrackXUnitTestMethods() : base(xUnitStrategyName, TrackedAttributeTypeNames)
+        {                
         }
     }
 }

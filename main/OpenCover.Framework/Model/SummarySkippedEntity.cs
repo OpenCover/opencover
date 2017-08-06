@@ -6,6 +6,9 @@ namespace OpenCover.Framework.Model
     /// </summary>
     public abstract class SummarySkippedEntity : SkippedEntity
     {
+        /// <summary>
+        /// Initialise
+        /// </summary>
         protected SummarySkippedEntity()
         {
             Summary = new Summary();

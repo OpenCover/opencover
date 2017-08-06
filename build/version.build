@@ -2,7 +2,7 @@
 <project name="OpenCover" >
 
 	<target name="netfx.tools" >
-		<fail message="Please install 'Microsoft Windows SDK for Windows 7 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
+		<fail message="Please install 'Microsoft Windows SDK for Windows 8 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
 	</target>
 		
 	<target name="create-snk" depends="netfx.tools">
@@ -10,16 +10,14 @@
 		<property name="opencover.snk.file" value="${build.folder}\Version\opencover.snk" />
 		<property name="opencover.public.snk.file" value="${build.folder}\Version\opencover.public.snk" />
 
-				<copy file="${source.opencover.snk.file}" todir="${build.folder}\Version" 
-					if="${file::exists(source.opencover.snk.file) and not file::exists(opencover.snk.file)}" />
+		<copy file="${source.opencover.snk.file}" todir="${build.folder}\Version" 
+			if="${file::exists(source.opencover.snk.file) and not file::exists(opencover.snk.file)}" />
 
 		<exec program="${netfx.tools.folder}\sn.exe" commandline='-k "${opencover.snk.file}"' unless="${file::exists(opencover.snk.file)}"/>
 		<exec program="${netfx.tools.folder}\sn.exe" commandline='-p "${opencover.snk.file}" "${opencover.public.snk.file}"' unless="${file::exists(opencover.public.snk.file)}"/>
 	</target>
 
 	<target name="get-version-number" >
-		<property name="version.file" value="${build.folder}\Version\build.number" />
-		<version path="${version.file}" buildtype="MonthDay" revisiontype="Increment" startdate="01/08/2012" />
 		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
 		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>

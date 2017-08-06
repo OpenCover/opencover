@@ -5,6 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
+using OpenCover.Test.Samples;
+
 [assembly: AssemblyTitle("OpenCover.Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -17,4 +19,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("ea182ab1-5768-4ed8-a406-e603c24b1107")]
+
+// hide assembly from coverage
+[assembly: ExcludeAssembly]
 

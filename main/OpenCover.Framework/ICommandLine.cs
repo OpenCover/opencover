@@ -20,6 +20,17 @@ namespace OpenCover.Framework
         string TargetDir { get; }
 
         /// <summary>
+        /// Alternate locations where PDBs can be found
+        /// </summary>
+        string[] SearchDirs { get; }
+
+        /// <summary>
+        /// Assemblies loaded form these dirs will be excluded
+        /// </summary>
+        string[] ExcludeDirs { get; }
+
+
+        /// <summary>
         /// If specified then results to be merged by matching hash 
         /// </summary>
         bool MergeByHash { get; }
@@ -45,6 +56,12 @@ namespace OpenCover.Framework
         bool TraceByTest { get; }
 
         /// <summary>
+        /// Set when we should not use thread based buffers. 
+        /// May not be as performant in some circumstances but avoids data loss
+        /// </summary>
+        bool SafeMode { get; }
+
+        /// <summary>
         /// The type of profiler registration
         /// </summary>
         Registration Registration { get; }
@@ -53,5 +70,15 @@ namespace OpenCover.Framework
         /// Should auto implemented properties be skipped
         /// </summary>
         bool SkipAutoImplementedProperties { get; }
+
+        /// <summary>
+        /// Sets the 'short' timeout between profiler and host 
+        /// </summary>
+        int CommunicationTimeout { get; }
+
+        /// <summary>
+        /// The number of msec between sends of the visit points to the host regardless of the number that has accumulated
+        /// </summary>
+        uint SendVisitPointsTimerInterval { get; }
     }
 }

@@ -6,18 +6,16 @@
 #include "StdAfx.h"
 #include "ExceptionHandler.h"
 
-
-ExceptionHandler::ExceptionHandler(void)
+namespace Instrumentation
 {
-    m_tryStart = NULL;
-    m_tryEnd = NULL;
-    m_handlerStart = NULL;
-    m_handlerEnd = NULL;
-    m_filterStart = NULL;
-    m_token = 0;
-}
-
-
-ExceptionHandler::~ExceptionHandler(void)
-{
+	ExceptionHandler::ExceptionHandler()
+	{
+		m_tryStart = nullptr;
+		m_tryEnd = nullptr;
+		m_handlerStart = nullptr;
+		m_handlerEnd = nullptr;
+		m_filterStart = nullptr;
+		m_token = 0;
+		m_handlerType = COR_ILEXCEPTION_CLAUSE_NONE;
+	}
 }

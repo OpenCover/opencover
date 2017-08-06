@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
@@ -16,6 +16,9 @@
     <Filter Include="Source Files\Instrumentation">
       <UniqueIdentifier>{2015087e-0746-4663-b399-a176c17913df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Profiler">
+      <UniqueIdentifier>{875fbc0e-9ba2-4a3c-8f78-b456700629f2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -24,12 +27,15 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MockProfiler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ProfilerInstantiationTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="InstrumentationTest.cpp">
@@ -47,5 +53,26 @@
     <ClCompile Include="..\OpenCover.Profiler\Operations.cpp">
       <Filter>Source Files\Instrumentation</Filter>
     </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\CoverageInstrumentation.cpp">
+      <Filter>Source Files\Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="RegressionTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerBaseTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProfilerInstantiationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimerTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OpenCover.Profiler\Timer.cpp">
+      <Filter>Source Files\Profiler</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
   </ItemGroup>
 </Project>

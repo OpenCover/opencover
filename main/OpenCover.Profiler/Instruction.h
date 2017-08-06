@@ -6,48 +6,45 @@
 #include "Operations.h"
 
 #pragma once
-#include "Messages.h"
-
-class Instruction;
-class Method;
-
-typedef std::vector<Instruction*> InstructionList;
 
 #define UNSAFE_BRANCH_OPERAND 0xDEADBABE
 
-/// <summary>A representation of an IL instruction.</summary>
-class Instruction
-{
-public:
-    Instruction(CanonicalName operation, ULONGLONG operand);
-    Instruction(CanonicalName operation);
-    ~Instruction(void);
-protected:
-    Instruction(void);
-    Instruction& operator = (const Instruction& b);
-    bool Equivalent(const Instruction& b);
+namespace Instrumentation {
+	class Instruction;
+	class Method;
+
+	typedef std::vector<Instruction*> InstructionList;
+
+	/// <summary>A representation of an IL instruction.</summary>
+	class Instruction
+	{
+	public:
+		Instruction(CanonicalName operation, ULONGLONG operand);
+		Instruction(CanonicalName operation);
+
+		protected:
+		Instruction();
+		Instruction& operator = (const Instruction& b);
+		bool Equivalent(const Instruction& b);
 
 #ifdef TEST_FRAMEWORK
-public:
+	public:
 #else
-public:
+	public:
 #endif
-    long m_offset;
-    CanonicalName m_operation;
-    ULONGLONG m_operand;
-    bool m_isBranch;
+		long m_offset;
+		CanonicalName m_operation;
+		ULONGLONG m_operand;
+		bool m_isBranch;
 
-    std::vector<long> m_branchOffsets;
-    InstructionList m_branches;
-    InstructionList m_joins;
-    Instruction* m_jump;
-    SequencePoint m_seqp;
+		std::vector<long> m_branchOffsets;
+		InstructionList m_branches;
+		InstructionList m_joins;
 
-    long m_origOffset;
+		long m_origOffset;
 
-public:
+	public:
 
-    friend class Method;
-};
-
-
+		friend class Method;
+	};
+}

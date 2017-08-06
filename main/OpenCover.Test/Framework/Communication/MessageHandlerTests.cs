@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Moq;
 using NUnit.Framework;
@@ -45,11 +46,11 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_TrackAssembly_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
 
             // assert
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x=>x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+                .Verify(x => x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once());
 
         }
 
@@ -62,7 +63,7 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_TrackMethod_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
 
             // assert
             uint uniqueId;
@@ -75,22 +76,57 @@ namespace OpenCover.Test.Framework.Communication
         public void Handles_MSG_AllocateMemoryBuffer()
         {
             // arrange 
+            var version = typeof(MSG_AllocateBuffer_Request).Assembly.GetName().Version;
             Container.GetMock<IMarshalWrapper>()
                 .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
-                .Returns(new MSG_AllocateBuffer_Request());
-
+                .Returns(new MSG_AllocateBuffer_Request()
+                {
+                    version_high = ((uint)version.Major << 16) + (uint)version.Minor,
+                    version_low = ((uint)version.Build << 16) + (uint)version.Revision
+                });
+            uint bufferId;
             Container.GetMock<IMemoryManager>()
-                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()))
-                     .Returns(new Tuple<IManagedCommunicationBlock, IManagedMemoryBlock>(null, null));
+                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
+                     .Returns(new ManagedBufferBlock());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
 
             // assert
-            uint uniqueId;
             Container.GetMock<IMemoryManager>()
-                .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), It.IsAny<uint>()), Times.Once());
+                .Verify(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId), Times.Once());
 
+        }
+
+        [Test]
+        public void Handles_MSG_AllocateMemoryBuffer_WithMismatchedVersion()
+        {
+            // arrange 
+            var version = typeof(MSG_AllocateBuffer_Request).Assembly.GetName().Version;
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_AllocateBuffer_Request()
+                {
+                    version_high = 1,
+                    version_low = 1
+                });
+
+            var response = new MSG_AllocateBuffer_Response { allocated = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_AllocateBuffer_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_AllocateBuffer_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            uint bufferId;
+            Container.GetMock<IMemoryManager>()
+                     .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
+                     .Returns(new ManagedBufferBlock());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
+
+            // assert
+            Assert.IsFalse(response.allocated);
+            Assert.AreEqual(MSG_AllocateBufferFailure.ABF_ProfilerVersionMismatch, response.reason);
         }
 
         [Test]
@@ -102,12 +138,12 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetSequencePoints_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
 
             // assert
             InstrumentationPoint[] points;
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
+                .Verify(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
         }
 
@@ -120,12 +156,13 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetSequencePoints_Request());
 
             var points = Enumerable.Repeat(new InstrumentationPoint(), 2).ToArray();
+            Assert.NotNull(points);
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, block => { });
             
             // assert
             Container.GetMock<IMarshalWrapper>()
@@ -142,19 +179,20 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetSequencePoints_Request());
 
-            var points = Enumerable.Repeat(new InstrumentationPoint(), 100).ToArray();
+            var points = Enumerable.Repeat(new InstrumentationPoint(), 10000).ToArray();
+            Assert.NotNull(points);
 
             //var points = new[] { new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint(), new SequencePoint() };
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
             
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, block => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()
-                .Verify(x => x.StructureToPtr(It.IsAny<MSG_SequencePoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(100));
+                .Verify(x => x.StructureToPtr(It.IsAny<MSG_SequencePoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(10000));
 
             Assert.True(chunked);
 
@@ -169,12 +207,12 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetBranchPoints_Request());
 
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
 
             // assert
             BranchPoint[] points;
             Container.GetMock<IProfilerCommunication>()
-                .Verify(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
+                .Verify(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points), Times.Once());
 
         }
 
@@ -187,12 +225,14 @@ namespace OpenCover.Test.Framework.Communication
                 .Returns(new MSG_GetBranchPoints_Request());
 
             var points = Enumerable.Repeat(new BranchPoint(), 2).ToArray();
+            Assert.NotNull(points);
+
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, block => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()
@@ -209,18 +249,19 @@ namespace OpenCover.Test.Framework.Communication
                 .Setup(x => x.PtrToStructure<MSG_GetBranchPoints_Request>(It.IsAny<IntPtr>()))
                 .Returns(new MSG_GetBranchPoints_Request());
 
-            var points = Enumerable.Repeat(new BranchPoint(), 100).ToArray();
+            var points = Enumerable.Repeat(new BranchPoint(), 10000).ToArray();
+            Assert.NotNull(points);
 
             Container.GetMock<IProfilerCommunication>()
-                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points));
 
             var chunked = false;
             // act
-            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, (block, memoryBlock) => { });
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object, (i, block) => { chunked = true; }, block => { });
 
             // assert
             Container.GetMock<IMarshalWrapper>()
-                .Verify(x => x.StructureToPtr(It.IsAny<MSG_BranchPoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(100));
+                .Verify(x => x.StructureToPtr(It.IsAny<MSG_BranchPoint>(), It.IsAny<IntPtr>(), It.IsAny<bool>()), Times.Exactly(10000));
 
             Assert.True(chunked);
         }
@@ -230,6 +271,9 @@ namespace OpenCover.Test.Framework.Communication
         {
             var size = Instance.ReadSize;
             Assert.AreNotEqual(0, size);
+            size = Instance.ReadSize; // cover cached size by reading twice
+            Assert.AreNotEqual(0, size);
+            
         }
 
         [Test]
@@ -240,6 +284,259 @@ namespace OpenCover.Test.Framework.Communication
 
             // assert
             Container.GetMock<IProfilerCommunication>().Verify(x => x.Stopping(), Times.Once());
+        }
+
+        [Test]
+        public void Handles_MSG_CloseChannel_ReturnsDoneAsTrue()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_CloseChannel_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_CloseChannel_Request());
+
+            var response = new MSG_CloseChannel_Response { done = false };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_CloseChannel_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_CloseChannel_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_CloseChannel, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(true, response.done);
+            Container.GetMock<IMemoryManager>()
+                .Verify(x => x.DeactivateMemoryBuffer(It.IsAny<uint>()), Times.Once);
+
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_GetSequencePoints_ReturnsLastBlockAsEmpty()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_GetSequencePoints_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_GetSequencePoints_Request());
+
+            var points = Enumerable.Repeat(new SequencePoint(), 100).ToArray<InstrumentationPoint>();
+            Assert.NotNull(points);
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.GetSequencePoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Throws<NullReferenceException>();
+
+            var response = new MSG_GetSequencePoints_Response{count = -1, more = true};
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_GetSequencePoints_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_GetSequencePoints_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            var chunked = false;
+            
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_GetSequencePoints, _mockCommunicationBlock.Object, 
+                (i, block) => { chunked = true; }, 
+                block => { });
+
+            // assert
+            Assert.False(chunked);
+            Assert.AreEqual(0, response.count);
+            Assert.AreEqual(false, response.more);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_GetBranchPoints_ReturnsLastBlockAsEmpty()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_GetBranchPoints_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_GetBranchPoints_Request());
+
+            var points = Enumerable.Repeat(new BranchPoint(), 100).ToArray();
+            Assert.NotNull(points);
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.GetBranchPoints(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out points))
+                .Throws<NullReferenceException>();
+
+            var response = new MSG_GetBranchPoints_Response { count = -1, more = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_GetBranchPoints_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_GetBranchPoints_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            var chunked = false;
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_GetBranchPoints, _mockCommunicationBlock.Object,
+                (i, block) => { chunked = true; },
+                block => { });
+
+            // assert
+            Assert.False(chunked);
+            Assert.AreEqual(0, response.count);
+            Assert.AreEqual(false, response.more);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_AllocateMemoryBuffer_ReturnsAllocatedAsFalse()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_AllocateBuffer_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_AllocateBuffer_Request());
+
+            var response = new MSG_AllocateBuffer_Response { allocated = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_AllocateBuffer_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_AllocateBuffer_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            uint bufferId;
+            Container.GetMock<IMemoryManager>()
+                .Setup(x => x.AllocateMemoryBuffer(It.IsAny<int>(), out bufferId))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_AllocateMemoryBuffer, _mockCommunicationBlock.Object,
+                (i, block) => {  },
+                block => { });
+
+            // assert
+            Assert.AreEqual(false, response.allocated);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_CloseChannel_ReturnsDoneAsTrue()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_CloseChannel_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_CloseChannel_Request());
+
+            var response = new MSG_CloseChannel_Response { done = false };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_CloseChannel_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_CloseChannel_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            Container.GetMock<IMemoryManager>()
+                .Setup(x => x.DeactivateMemoryBuffer(It.IsAny<uint>()))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_CloseChannel, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(true, response.done);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_TrackMethod_ReturnsTrackAsFalse()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackMethod_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackMethod_Request());
+
+            var response = new MSG_TrackMethod_Response { track = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_TrackMethod_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_TrackMethod_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            uint uniqueId;
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.TrackMethod(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), out uniqueId))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackMethod, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(false, response.track);
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_TrackAssembly_ReturnsTrackAsFalse()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackAssembly_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackAssembly_Request());
+
+            var response = new MSG_TrackAssembly_Response { track = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_TrackAssembly_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_TrackAssembly_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.TrackAssembly(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackAssembly, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(false, response.track);
+        }
+
+        [Test]
+        public void Handles_MSG_TrackProcess()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackProcess_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackProcess_Request());
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackProcess, _mockCommunicationBlock.Object, (i, block) => { }, block => { });
+
+            // assert
+            Container.GetMock<IProfilerCommunication>()
+                .Verify(x => x.TrackProcess(It.IsAny<string>()), Times.Once());
+
+        }
+
+        [Test]
+        public void ExceptionDuring_MSG_TrackProcess_ReturnsTrackAsFalse()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackProcess_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackProcess_Request());
+
+            var response = new MSG_TrackProcess_Response { track = true };
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.StructureToPtr(It.IsAny<MSG_TrackProcess_Response>(), It.IsAny<IntPtr>(), It.IsAny<bool>()))
+                .Callback<MSG_TrackProcess_Response, IntPtr, bool>((msg, ptr, b) => { response = msg; });
+
+            Container.GetMock<IProfilerCommunication>()
+                .Setup(x => x.TrackProcess(It.IsAny<string>()))
+                .Throws<NullReferenceException>();
+
+            // act
+            Instance.StandardMessage(MSG_Type.MSG_TrackProcess, _mockCommunicationBlock.Object,
+                (i, block) => { },
+                block => { });
+
+            // assert
+            Assert.AreEqual(false, response.track);
+        }
+
+        [Test]
+        public void Unsupported_MSG_Type_Throws_Exception()
+        {
+            // arrange 
+            Container.GetMock<IMarshalWrapper>()
+                .Setup(x => x.PtrToStructure<MSG_TrackMethod_Request>(It.IsAny<IntPtr>()))
+                .Returns(new MSG_TrackMethod_Request());
+
+            // act           
+            Assert.Throws<InvalidOperationException>(() => Instance.StandardMessage(MSG_Type.MSG_Unknown, _mockCommunicationBlock.Object, (i, block) => { }, block => { }));
+
         }
     }
 }
