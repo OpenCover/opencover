@@ -7,7 +7,7 @@ namespace OpenCover.Extensions.Strategy
     /// </summary>
     public class TrackXUnitTestMethods : TrackedMethodStrategyBase
     {
-        private const string xUnitStrategyName = "xUnitTest";
+        private const string XUnitStrategyName = "xUnitTest";
 
         private static readonly IList<string> TrackedAttributeTypeNames = new List<string>
         {
@@ -15,7 +15,7 @@ namespace OpenCover.Extensions.Strategy
             "Xunit.TheoryAttribute",
         };
 
-        public TrackXUnitTestMethods() : base(xUnitStrategyName, TrackedAttributeTypeNames)
+        public TrackXUnitTestMethods() : base(XUnitStrategyName, TrackedAttributeTypeNames)
         {                
         }
     }

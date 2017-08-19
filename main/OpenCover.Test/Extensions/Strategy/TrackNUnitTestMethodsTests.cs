@@ -7,14 +7,14 @@ namespace OpenCover.Test.Extensions.Strategy
     [TestFixture]
     public class TrackNUnitTestMethodsTests
     {
-        private TrackNUnitTestMethods strategy;
-        private Mono.Cecil.AssemblyDefinition assemblyDefinition;
+        private TrackNUnitTestMethods _strategy;
+        private Mono.Cecil.AssemblyDefinition _assemblyDefinition;
 
         [SetUp]
         public void SetUp()
         {
-            strategy = new TrackNUnitTestMethods();
-            assemblyDefinition = Mono.Cecil.AssemblyDefinition.ReadAssembly(typeof(TrackNUnitTestMethodsTests).Assembly.Location);
+            _strategy = new TrackNUnitTestMethods();
+            _assemblyDefinition = Mono.Cecil.AssemblyDefinition.ReadAssembly(typeof(TrackNUnitTestMethodsTests).Assembly.Location);
         }
 
         [Test]
@@ -23,7 +23,7 @@ namespace OpenCover.Test.Extensions.Strategy
             // arrange            
             
             // act
-            var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+            var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
 
             // assert
             Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::ASingleTest()")));
@@ -35,7 +35,7 @@ namespace OpenCover.Test.Extensions.Strategy
             // arrange            
 
             // act
-            var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+            var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
 
             // assert
             Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::ASingleTestCase()")));
@@ -48,7 +48,7 @@ namespace OpenCover.Test.Extensions.Strategy
             // arrange            
 
             // act
-            var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+            var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
 
             // assert
             Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::TheoryTest(System.Double)")));
@@ -60,7 +60,7 @@ namespace OpenCover.Test.Extensions.Strategy
           // arrange            
 
           // act
-          var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+          var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
 
           // assert
           Assert.True(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::DivideTest(System.Int32,System.Int32,System.Int32)")));
@@ -72,10 +72,22 @@ namespace OpenCover.Test.Extensions.Strategy
             // arrange            
 
             // act
-            var methods = strategy.GetTrackedMethods(assemblyDefinition.MainModule.Types);
+            var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
 
             // assert
             Assert.False(methods.Any(x => x.FullName.EndsWith("SimpleNUnit::RepeatWithoutTest()")));
+        }
+
+        [Test]
+        public void Can_Identify_Methods_InNestedClasses()
+        {
+            // arrange            
+
+            // act
+            var methods = _strategy.GetTrackedMethods(_assemblyDefinition.MainModule.Types);
+
+            // assert
+            Assert.True(methods.Any(x => x.FullName.EndsWith(".Samples.ComplexNUnit/InnerTests::InnerExecuteMethod()")));
         }
     }
 }

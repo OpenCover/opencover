@@ -201,6 +201,7 @@
     <Compile Include="MoqFramework\UnityAutoMockContainerBaseTests.cs" />
     <Compile Include="MoqFramework\UnityAutoMockContainerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Samples\ComplexNUnit.cs" />
     <Compile Include="Samples\Samples.cs" />
     <Compile Include="Samples\SimpleMsTest.cs" />
     <Compile Include="Samples\SimpleNUnit.cs" />
