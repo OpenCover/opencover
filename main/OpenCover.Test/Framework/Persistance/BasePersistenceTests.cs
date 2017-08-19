@@ -1192,5 +1192,93 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.AreEqual(4.12m, Instance.CoverageSession.Summary.MinCrapScore);
             Assert.AreEqual(42m, Instance.CoverageSession.Summary.MaxCrapScore);
         }
+
+        [Test]
+        public void Method_NPath_IsCalculated()
+        {
+            // arrange
+            var methodSingleBranch = new Method
+            {
+                FullName = "SingleBranch",
+                SequencePoints = new[] { new SequencePoint { Offset = 0 } },
+                BranchPoints = new[] { new BranchPoint { Offset = 0 }, new BranchPoint { Offset = 0} }
+            };
+
+            Instance.CoverageSession.Modules = new[]
+            {
+                new Module
+                {
+                    Classes = new[]
+                    { new Class { Methods = new[] { methodSingleBranch }}}
+                }
+            };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(2, methodSingleBranch.NPathComplexity);
+        }
+
+        [Test]
+        public void WhenNPathExceedsStorageCapacityDefaultsToMaxValue()
+        {
+            // arrange
+            var methodnPathOverflow = new Method
+            {
+                FullName = "nPathOverflow",
+                SequencePoints = new[] { new SequencePoint { Offset = 0 } },
+                BranchPoints = new[]
+                {
+                    new BranchPoint { Offset = 0x0000 }, new BranchPoint { Offset = 0x0000},
+                    new BranchPoint { Offset = 0x0100 }, new BranchPoint { Offset = 0x0100},
+                    new BranchPoint { Offset = 0x0200 }, new BranchPoint { Offset = 0x0200},
+                    new BranchPoint { Offset = 0x0300 }, new BranchPoint { Offset = 0x0300},
+                    new BranchPoint { Offset = 0x0400 }, new BranchPoint { Offset = 0x0400},
+                    new BranchPoint { Offset = 0x0500 }, new BranchPoint { Offset = 0x0500},
+                    new BranchPoint { Offset = 0x0600 }, new BranchPoint { Offset = 0x0600},
+                    new BranchPoint { Offset = 0x0700 }, new BranchPoint { Offset = 0x0700},
+                    new BranchPoint { Offset = 0x0800 }, new BranchPoint { Offset = 0x0800},
+                    new BranchPoint { Offset = 0x0900 }, new BranchPoint { Offset = 0x0900},
+                    new BranchPoint { Offset = 0x0A00 }, new BranchPoint { Offset = 0x0A00},
+                    new BranchPoint { Offset = 0x0B00 }, new BranchPoint { Offset = 0x0B00},
+                    new BranchPoint { Offset = 0x0C00 }, new BranchPoint { Offset = 0x0C00},
+                    new BranchPoint { Offset = 0x0D00 }, new BranchPoint { Offset = 0x0D00},
+                    new BranchPoint { Offset = 0x0E00 }, new BranchPoint { Offset = 0x0E00},
+                    new BranchPoint { Offset = 0x0F00 }, new BranchPoint { Offset = 0x0F00},
+                    new BranchPoint { Offset = 0x1000 }, new BranchPoint { Offset = 0x1000},
+                    new BranchPoint { Offset = 0x1100 }, new BranchPoint { Offset = 0x1100},
+                    new BranchPoint { Offset = 0x1200 }, new BranchPoint { Offset = 0x1200},
+                    new BranchPoint { Offset = 0x1300 }, new BranchPoint { Offset = 0x1300},
+                    new BranchPoint { Offset = 0x1400 }, new BranchPoint { Offset = 0x1400},
+                    new BranchPoint { Offset = 0x1500 }, new BranchPoint { Offset = 0x1500},
+                    new BranchPoint { Offset = 0x1600 }, new BranchPoint { Offset = 0x1600},
+                    new BranchPoint { Offset = 0x1700 }, new BranchPoint { Offset = 0x1700},
+                    new BranchPoint { Offset = 0x1800 }, new BranchPoint { Offset = 0x1800},
+                    new BranchPoint { Offset = 0x1900 }, new BranchPoint { Offset = 0x1900},
+                    new BranchPoint { Offset = 0x1A00 }, new BranchPoint { Offset = 0x1A00},
+                    new BranchPoint { Offset = 0x1B00 }, new BranchPoint { Offset = 0x1B00},
+                    new BranchPoint { Offset = 0x1C00 }, new BranchPoint { Offset = 0x1C00},
+                    new BranchPoint { Offset = 0x1D00 }, new BranchPoint { Offset = 0x1D00},
+                    new BranchPoint { Offset = 0x1E00 }, new BranchPoint { Offset = 0x1E00},
+                    new BranchPoint { Offset = 0x1F00 }, new BranchPoint { Offset = 0x1F00},
+                }
+            };
+
+            Instance.CoverageSession.Modules = new[]
+            {
+                new Module
+                {
+                    Classes = new[]
+                    { new Class { Methods = new[] { methodnPathOverflow }}}
+                }
+            };
+
+            // act
+            Assert.DoesNotThrow(() => Instance.Commit());
+
+            // assert
+            Assert.AreEqual(int.MaxValue, methodnPathOverflow.NPathComplexity);
+        }
     }
 }
