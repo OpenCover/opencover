@@ -87,16 +87,18 @@ namespace OpenCover.Test.Samples
             return ret;
         }
 
-        public bool HasSwitchWithMultipleCases(int input)
+        public int HasSwitchWithMultipleCases(int input)
         {
             switch (input)
             {
                 case 1:
+                    return -1;
                 case 2:
+                    return 2001;
                 case 3:
-                    return true;
+                    return -5001;
                 default:
-                    return false;
+                    return 7;
             }
         }
 
