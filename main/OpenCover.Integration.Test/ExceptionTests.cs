@@ -17,7 +17,7 @@ namespace OpenCover.Integration.Test
             {
                 return typeof(SimpleExceptionTests)
                     .GetMethods()
-                    .Where(m => m.HasAttribute<TestAttribute>())
+                    .Where(m => m.GetAttribute<TestAttribute>() != null)
                     .Select(m => new TestCaseData(m.Name).SetName(m.Name));
             }
         }
