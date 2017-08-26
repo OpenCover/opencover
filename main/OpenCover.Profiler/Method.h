@@ -85,12 +85,12 @@ namespace Instrumentation
 
 		int GetNumberOfInstructions() const
 		{
-			return m_instructions.size();
+			return static_cast<int>(m_instructions.size());
 		}
 
 		int GetNumberOfExceptions() const
 		{
-			return m_exceptions.size();
+			return static_cast<int>(m_exceptions.size());
 		}
 	};
 }

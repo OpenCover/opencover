@@ -77,7 +77,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -89,7 +89,7 @@
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\x86</OutDir>
+    <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

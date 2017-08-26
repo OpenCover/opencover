@@ -601,11 +601,13 @@ namespace Communication
 
 	void ProfilerCommunication::report_runtime(const std::runtime_error& re, const tstring &msg) const {
 		USES_CONVERSION;
+#pragma warning (suppress : 6255) // can't fix ATL macro
 		RELTRACE(_T("Runtime error: %s - %s"), msg.c_str(), A2T(re.what()));
 	}
 
 	void ProfilerCommunication::report_exception(const std::exception& re, const tstring &msg) const {
 		USES_CONVERSION;
+#pragma warning (suppress : 6255) // can't fix ATL macro
 		RELTRACE(_T("Error occurred: %s - %s"), msg.c_str(), A2T(re.what()));
 	}
 

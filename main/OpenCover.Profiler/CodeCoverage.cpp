@@ -33,7 +33,7 @@ void GetVersion(LPTSTR szVersionFile, DWORD *dwVersionHigh, DWORD *dwVersionLow)
 	{
 		auto verData = new BYTE[verSize];
 
-		if (GetFileVersionInfo(szVersionFile, verHandle, verSize, verData))
+		if (GetFileVersionInfo(szVersionFile, 0, verSize, verData))
 		{
 			if (VerQueryValue(verData, _T("\\"), (VOID FAR* FAR*)&verInfo, &size))
 			{
@@ -58,11 +58,12 @@ void GetVersion(LPTSTR szVersionFile, DWORD *dwVersionHigh, DWORD *dwVersionLow)
 	}
 }
 
+#pragma warning (suppress : 6262) // Function uses '17528' bytes of stack; heap not wanted
 HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 	ATLTRACE(_T("::OpenCoverInitialise"));
 
     OLECHAR szGuid[40]={0};
-    ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
+    (void) ::StringFromGUID2(CLSID_CodeCoverage, szGuid, 40);
     RELTRACE(L"    ::Initialize(...) => CLSID == %s", szGuid);
     //::OutputDebugStringW(szGuid);
 
