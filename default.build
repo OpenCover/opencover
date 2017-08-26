@@ -138,4 +138,11 @@
     <delete file="main\OpenCover.Console\Program.cx" />
   </target>
     
+  <target name="cover-cpp" depends="clean-all, build-environment, build-debug-platforms" >
+    
+    <exec program="${tools.folder}/OpenCppCoverage/OpenCppCoverage.exe" commandline="--modules main\bin\Debug\x64\ --sources ${root.folder}\main --excluded_sources packages -- main\bin\Debug\x64\OpenCover.Test.Profiler.exe" />
+
+  </target>
+
+
 </project>
