@@ -17,7 +17,8 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>True</IsCodedUITest>
+    <IsCodedUITest Condition="EXISTS('$(ReferencePath)')">True</IsCodedUITest>
+    <IsCodedUITest Condition="!EXISTS('$(ReferencePath)')">False</IsCodedUITest>
     <TestProjectType>CodedUITest</TestProjectType>
     <TargetFrameworkProfile />
   </PropertyGroup>
