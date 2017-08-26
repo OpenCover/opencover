@@ -42,10 +42,8 @@ namespace OpenCover.Console
 
             try
             {
-                CommandLineParser parser;
-                if (!ParseCommandLine(args, out parser)) 
+                if (!ParseCommandLine(args, out CommandLineParser parser)) 
                     return parser.ReturnCodeOffset + 1;
-
 
                 LogManager.GetRepository().Threshold = parser.LogLevel;
 
@@ -53,8 +51,7 @@ namespace OpenCover.Console
                 var filter = BuildFilter(parser);
                 var perfCounter = CreatePerformanceCounter(parser);
 
-                string outputFile;
-                if (!GetFullOutputFile(parser, out outputFile)) 
+                if (!GetFullOutputFile(parser, out string outputFile)) 
                     return returnCodeOffset + 1;
 
                 using (var container = new Bootstrapper(Logger))

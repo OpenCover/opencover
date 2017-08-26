@@ -454,8 +454,7 @@ namespace OpenCover.Framework.Persistance
         {
             foreach (var pt in points.Where(p => p.FileId == 0))
             {
-                uint fileid;
-                filesDictionary.TryGetValue(pt.Document ?? "", out fileid);
+                filesDictionary.TryGetValue(pt.Document ?? "", out uint fileid);
                 pt.FileId = fileid;
                 // clear document if FileId is found
                 pt.Document = pt.FileId != 0 ? null : pt.Document;
@@ -494,8 +493,7 @@ namespace OpenCover.Framework.Persistance
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {
             sequencePoints = new InstrumentationPoint[0];
-            Class @class;
-            var method = GetMethod(modulePath, functionToken, out @class);
+            var method = GetMethod(modulePath, functionToken, out Class @class);
             if (method != null && method.SequencePoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.FullName, method.MetadataToken);
@@ -519,8 +517,7 @@ namespace OpenCover.Framework.Persistance
         public bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints)
         {
             branchPoints = new BranchPoint[0];
-            Class @class;
-            var method = GetMethod(modulePath, functionToken, out @class);
+            var method = GetMethod(modulePath, functionToken, out Class @class);
             if (method != null && method.BranchPoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.FullName, method.MetadataToken);
@@ -562,9 +559,8 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public string GetClassFullName(string modulePath, int functionToken)
         {
-            Class @class;
-            GetMethod(modulePath, functionToken, out @class);
-            return @class != null ? @class.FullName : null;
+            GetMethod(modulePath, functionToken, out Class @class);
+            return @class?.FullName;
         }
 
         /// <summary>
