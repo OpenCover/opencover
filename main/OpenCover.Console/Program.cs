@@ -185,7 +185,6 @@ namespace OpenCover.Console
         /// <summary>
         /// Terminates current W3SVC hosting process (svchost.exe -k iissvcs)
         /// </summary>
-        /// <param name="logger"></param>
         /// <returns>Returns wether the svchost.exe was restarted by the services.exe process or not</returns>
         private static bool TerminateCurrentW3SvcHost()
         {

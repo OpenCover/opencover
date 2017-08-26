@@ -441,7 +441,7 @@ namespace OpenCover.Framework.Persistance
                     {
                         method.NPathComplexity = checked(method.NPathComplexity * branches);
                     }
-                    catch (OverflowException ex)
+                    catch (OverflowException)
                     {
                         method.NPathComplexity = int.MaxValue;
                         break;

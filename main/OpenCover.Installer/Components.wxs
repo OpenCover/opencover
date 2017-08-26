@@ -6,7 +6,7 @@
 
     <DirectoryRef Id="APPLICATIONFOLDER">
       <Component Id="RegistryEntries" Guid="7E7875AC-274A-46EC-B704-9327ABC45F1A" >
-        <RegistryKey Root="HKMU" Key="Software" Action="none" >
+        <RegistryKey Root="HKMU" Key="Software" >
           <RegistryKey Key="OpenCover" >
             <RegistryValue Name="Path" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
             <RegistryValue Name="Version" Type="string" Value="$(var.Version)" />

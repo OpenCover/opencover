@@ -18,7 +18,7 @@
 #define APPLICATIONUNDERTEST_START L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::Start"
 #define APPLICATIONUNDERTEST_CCTOR L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::.cctor"
 
-#import <mscorlib.tlb> raw_interfaces_only
+#import <mscorlib.tlb> raw_interfaces_only, rename("ReportEvent","ReportEvent_")
 using namespace mscorlib;
 
 extern COpenCoverProfilerModule _AtlModule;
@@ -39,11 +39,14 @@ LPSAFEARRAY GetInjectedDllAsSafeArray()
 	HRSRC hClrHookDllRes = FindResource(hInst, MAKEINTRESOURCE(IDR_SUPPORT), L"ASSEMBLY");
 	ATLASSERT(hClrHookDllRes != NULL);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	HGLOBAL hClrHookDllHGlb = LoadResource(hInst, hClrHookDllRes);
 	ATLASSERT(hClrHookDllHGlb != NULL);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	DWORD dllMemorySize = SizeofResource(hInst, hClrHookDllRes);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	LPBYTE lpDllData = (LPBYTE)LockResource(hClrHookDllHGlb);
 	ATLASSERT(lpDllData != NULL);
 

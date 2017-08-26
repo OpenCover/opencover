@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26730.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C-830C-4A9A-987B-2348F9222C39}"
 	ProjectSection(SolutionItems) = preProject
@@ -70,6 +70,13 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.MSBuild", "OpenCover.MSBuild\OpenCover.MSBuild.csproj", "{746A6B40-4570-40CB-BBE5-CEECEE9E220F}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "OpenCover.Installer", "OpenCover.Installer\OpenCover.Installer.wixproj", "{F6D7F279-F302-4741-BE54-DD75D32E378F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{27AD5F08-0625-4093-8782-F7936737FAB7} = {27AD5F08-0625-4093-8782-F7936737FAB7}
+		{42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2} = {42EA7A31-2D5C-4B50-ACEA-D56C3BAB0CC2}
+		{C6F40A34-101B-4BAF-A2F4-6EA28A264F57} = {C6F40A34-101B-4BAF-A2F4-6EA28A264F57}
+		{EE9B358A-335C-43E9-BC35-853807C5E776} = {EE9B358A-335C-43E9-BC35-853807C5E776}
+		{B2CE418E-A5C8-4C46-9513-771414B3CA4C} = {B2CE418E-A5C8-4C46-9513-771414B3CA4C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Specs", "OpenCover.Specs\OpenCover.Specs.csproj", "{5A908D9D-617E-408F-ACED-9E505693DE96}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -262,5 +269,6 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 	EndGlobalSection
 EndGlobal
