@@ -570,6 +570,35 @@ namespace OpenCover.Test.Framework
         }
 
         [Test]
+        public void Can_Identify_Excluded_FSharp_Methods()
+        {
+            var location = System.IO.Path.Combine(
+                System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location),
+                @"Samples\Library1.dll");
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+
+            var direct = sourceAssembly.MainModule.Types.ToList();
+            var indirect = direct
+                .Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(); // MyUnion, MyThing
+            var indirect2 = indirect.Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(); // Foo, Bar, ...
+            Assert.That(
+                indirect2.Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(),
+                Is.Empty);
+
+            var filter = new Filter(false);
+            var pass = direct.Concat(indirect).Concat(indirect2).SelectMany(x => x.Methods)
+                .Where(x => !filter.IsFSharpInternal(x))
+                .Select(x => x.Name)
+                .OrderBy(x => x)
+                .ToList();
+
+            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing", "testMakeUnion" };
+
+            Assert.That(pass, Is.EquivalentTo(expected));
+        }
+
+
+        [Test]
         public void Can_Identify_Excluded_Anonymous_Issue99()
         {
             var sourceAssembly = AssemblyDefinition.ReadAssembly(typeof(Samples.Anonymous).Assembly.Location);

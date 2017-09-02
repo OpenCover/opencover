@@ -56,8 +56,7 @@ namespace OpenCover.Framework
         /// as it is the class that is being filtered within these unless the class filter is *</remarks>
         public bool UseAssembly(string processName, string assemblyName)
         {
-            IList<AssemblyAndClassFilter> matchingExclusionFilters;
-            if (ExcludeProcessOrAssembly(processName, assemblyName, out matchingExclusionFilters)) 
+            if (ExcludeProcessOrAssembly(processName, assemblyName, out IList<AssemblyAndClassFilter> matchingExclusionFilters))
                 return false;
 
             if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName != ".*"))
@@ -82,8 +81,7 @@ namespace OpenCover.Framework
                 return false;
             }
 
-            IList<AssemblyAndClassFilter> matchingExclusionFilters;
-            if (ExcludeProcessOrAssembly(processName, assemblyName, out matchingExclusionFilters)) 
+            if (ExcludeProcessOrAssembly(processName, assemblyName, out IList<AssemblyAndClassFilter> matchingExclusionFilters))
                 return false;
 
             if (matchingExclusionFilters
@@ -126,11 +124,8 @@ namespace OpenCover.Framework
         /// </param>
         public void AddFilter(string processAssemblyClassFilter)
         {
-            string assemblyFilter;
-            string classFilter;
-            string processFilter;
-            FilterType filterType;
-            GetAssemblyClassName(processAssemblyClassFilter, RegExFilters, out filterType, out assemblyFilter, out classFilter, out processFilter);
+            GetAssemblyClassName(processAssemblyClassFilter, RegExFilters, out FilterType filterType,
+                out string assemblyFilter, out string classFilter, out string processFilter);
 
             try
             {
@@ -210,8 +205,7 @@ namespace OpenCover.Framework
             var entity = originalEntity;
             while (entity != null)
             {
-                bool excludeByAttribute;
-                if (IsExcludedByAttributeSimple(entity, out excludeByAttribute))
+                if (IsExcludedByAttributeSimple(entity, out bool excludeByAttribute))
                     return excludeByAttribute;
 
                 entity = GetDeclaringMethod(entity);
@@ -226,8 +220,7 @@ namespace OpenCover.Framework
         /// <returns></returns>
         private static IMemberDefinition GetDeclaringMethod(IMemberDefinition entity)
         {
-            MethodDefinition target;
-            if (!MatchDeclaringMethod(entity, out target))
+            if (!MatchDeclaringMethod(entity, out MethodDefinition target))
                 return null;
 
             if (target.IsGetter || target.IsSetter)
@@ -341,6 +334,81 @@ namespace OpenCover.Framework
                 return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Is the method an F# implementation detail
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        /// <remarks>This may need to be extended for other F# versions than 4.1</remarks>
+        public bool IsFSharpInternal(MethodDefinition method)
+        {
+            // Discriminated Union/Sum/Algebraic data types are implemented as
+            // subtypes nested in the base type
+            var baseType = Enumerable.Empty<CustomAttribute>();
+            if (method.DeclaringType.DeclaringType != null
+                && method.DeclaringType.DeclaringType.HasCustomAttributes)
+            {
+                baseType = method.DeclaringType.DeclaringType.CustomAttributes;
+            }
+
+            // Algebraic types have debug proxies nested in the base type which are not attributed at the type level
+            if (!method.HasCustomAttributes && !(method.DeclaringType.HasCustomAttributes || baseType.Any()))
+            {
+                return false;
+            }
+
+            // Use string literals rather than adding F# as a dependency
+            // as it's not a part of the default VS2017 desktop install,
+            // and to avoid having to install it ourselves with the
+            // opencover binaries
+            var mappings = method.DeclaringType.CustomAttributes.Concat(baseType)
+                                 .Where(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                                 .ToList();
+
+            if (!mappings.Any())
+            {
+                return false;
+            }
+
+            // Getting attribute constructor arguments for the F# types needs 
+            // the F# core assembly to resolve them; look to the raw binary instead
+            mappings = mappings
+                .Where(x =>
+                {
+                    // expect 01, 00, 01, 00, 00, 00, 00, 00 or 01, 00, 02, 00, 00, 00, 00, 00
+                    var y = x.GetBlob();
+                    if(y.Length != 8 || y[0] != 1 || y[1] != 0 || y.Skip(3).Any(z => z!=0))
+                    {
+                        return false;
+                    }
+
+                    return y[2].Equals(1)  // sum
+                        || y[2].Equals(2); // record
+                }).ToList();
+
+            var fieldGetter = false;
+            if(method.IsGetter)
+            {
+                // record type has getters marked as field
+                var owner = method.DeclaringType.Properties
+                    .Where(x => x.GetMethod == method)
+                    .First();
+                if(owner.HasCustomAttributes)
+                {
+                    fieldGetter = owner.CustomAttributes.Where(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                        .Any(x => x.GetBlob()[2] == 4); // Field
+                }
+            }
+
+            // The exclusions list may be overkill
+            return mappings.Any() &&
+                (method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName)
+                || method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(System.Diagnostics.DebuggerNonUserCodeAttribute).FullName)
+                || method.CustomAttributes.Any(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                || method.IsConstructor
+                || fieldGetter);
         }
 
         /// <summary>
