@@ -96,6 +96,13 @@ namespace OpenCover.Framework
         bool IsAutoImplementedProperty(MethodDefinition method);
 
         /// <summary>
+        /// Is the method an F# implementation detail
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        bool IsFSharpInternal(MethodDefinition method);
+
+        /// <summary>
         /// filters should be treated as regular expressions rather than wildcard
         /// </summary>
         bool RegExFilters { get; }

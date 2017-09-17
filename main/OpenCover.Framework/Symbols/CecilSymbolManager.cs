@@ -330,7 +330,9 @@ namespace OpenCover.Framework.Symbols
             else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
                 method.MarkAsSkipped(SkippedMethod.File);
             else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
-                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);                
+                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);
+            else if (filter.IsFSharpInternal(methodDefinition))
+                method.MarkAsSkipped(SkippedMethod.FSharpInternal);
 
             var definition = methodDefinition;
             method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))

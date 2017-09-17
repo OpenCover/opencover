@@ -205,6 +205,13 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="Samples\Library1.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Samples\Library1.fs" />
+    <None Include="Samples\Library1.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
