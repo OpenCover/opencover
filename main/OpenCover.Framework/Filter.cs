@@ -379,26 +379,29 @@ namespace OpenCover.Framework
                 {
                     // expect 01, 00, 01, 00, 00, 00, 00, 00 or 01, 00, 02, 00, 00, 00, 00, 00
                     var y = x.GetBlob();
-                    if(y.Length != 8 || y[0] != 1 || y[1] != 0 || y.Skip(3).Any(z => z!=0))
+                    if (y.Length != 8 || y[0] != 1 || y[1] != 0 || y.Skip(3).Any(z => z != 0))
                     {
                         return false;
                     }
 
-                    return y[2].Equals(1)  // sum
-                        || y[2].Equals(2); // record
+                    // Mask out the class kind from its public/non-public state
+                    // SourceConstructFlags.NonPublicRepresentation = 32
+                    // SourceConstructFlags.KindMask = 31
+                    return (y[2] & 31).Equals(1)  // SourceConstructFlags.SumType = 1
+                        || (y[2] & 31).Equals(2); // SourceConstructFlags.RecordType = 2
                 }).ToList();
 
             var fieldGetter = false;
-            if(method.IsGetter)
+            if (method.IsGetter)
             {
                 // record type has getters marked as field
                 var owner = method.DeclaringType.Properties
                     .Where(x => x.GetMethod == method)
                     .First();
-                if(owner.HasCustomAttributes)
+                if (owner.HasCustomAttributes)
                 {
                     fieldGetter = owner.CustomAttributes.Where(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
-                        .Any(x => x.GetBlob()[2] == 4); // Field
+                        .Any(x => (x.GetBlob()[2] & 31) == 4); // SourceConstructFlags.Field = 4
                 }
             }
 
