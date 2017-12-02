@@ -34,5 +34,14 @@ namespace OpenCover.Framework.Utility
         {
             LogManager.GetLogger(loggerName).InfoFormat (message);
         }
+
+        /// <summary>
+        /// Use to inform user
+        /// </summary>
+        /// <param name="message"></param>
+        public static void InformUserSoft(this string message)
+        {
+            LogManager.GetLogger(loggerName).DebugFormat(message);
+        }
     }
 }

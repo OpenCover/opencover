@@ -259,16 +259,28 @@ namespace OpenCover.Framework.Utility
         public static CodeCoverageStringTextSource GetSource(string filePath) {
 
             var retSource = new CodeCoverageStringTextSource (null, filePath); // null indicates source-file not found
-            try {
-                using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                using (var reader = new StreamReader (stream, Encoding.Default, true)) {
-                    stream.Position = 0;
-                    retSource = new CodeCoverageStringTextSource(reader.ReadToEnd(), filePath);
+            if (System.IO.File.Exists(filePath))
+            {
+                try
+                {
+                    using (Stream stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                    using (var reader = new StreamReader(stream, Encoding.Default, true))
+                    {
+                        stream.Position = 0;
+                        retSource = new CodeCoverageStringTextSource(reader.ReadToEnd(), filePath);
+                    }
                 }
-            } catch (Exception e) { 
-                // Source is optional (for excess-branch removal), application can continue without it
-                e.InformUser(); // Do not throw ExitApplicationWithoutReportingException
+                catch (Exception e)
+                {
+                    // Source is optional (for excess-branch removal), application can continue without it
+                    e.InformUser(); // Do not throw ExitApplicationWithoutReportingException
+                }
             }
+            else
+            {
+                String.Format("Source file {0} not found", filePath).InformUserSoft();
+            }
+
             return retSource;
         }
 
