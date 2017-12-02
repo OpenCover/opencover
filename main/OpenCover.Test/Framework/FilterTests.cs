@@ -576,7 +576,25 @@ namespace OpenCover.Test.Framework
                 System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location),
                 @"Samples\Library1.dll");
             var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing", "testMakeUnion" };
 
+            Identify_FSharp_Methods(sourceAssembly, expected);
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_FSharp_NonPublic_Methods()
+        {
+            var location = System.IO.Path.Combine(
+                System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location),
+                @"Samples\Library2.dll");
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing2", "testMakeUnion2" };
+
+            Identify_FSharp_Methods(sourceAssembly, expected);
+        }
+
+        private static void Identify_FSharp_Methods(AssemblyDefinition sourceAssembly, string[] expected)
+        {
             var direct = sourceAssembly.MainModule.Types.ToList();
             var indirect = direct
                 .Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(); // MyUnion, MyThing
@@ -592,11 +610,8 @@ namespace OpenCover.Test.Framework
                 .OrderBy(x => x)
                 .ToList();
 
-            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing", "testMakeUnion" };
-
             Assert.That(pass, Is.EquivalentTo(expected));
         }
-
 
         [Test]
         public void Can_Identify_Excluded_Anonymous_Issue99()

@@ -212,6 +212,13 @@
     <None Include="Samples\Library1.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Samples\Library2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Samples\Library2.fs" />
+    <None Include="Samples\Library2.pdb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
