@@ -111,12 +111,12 @@
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\runner')}">
       <arg value="x" />
       <arg value="-otools\sonarqube\runner" />
-      <arg value="tools\sonar-scanner-msbuild-2.3.1.554.zip" />
+      <arg value="tools\sonar-scanner-msbuild-4.0.0.821.zip" />
     </exec>
 
     <!-- assumes coverage file has been created -->
-    <exec program='${tools.folder}\sonarqube\cxx-runner\builddrop\CxxSonarQubeMsbuidRunner.exe' 
-    commandline='/m:main\opencover.sln /d:sonar.sourceEncoding=UTF-8 /d:sonar.login=${sonarqube.token} /d:sonar.host.url=https://sonarqube.com /d:sonar.cxx.forceIncludes=sonar.h /d:sonar.cfamily.build-wrapper-output.bypass=true /x:vs17 /q:${tools.folder}\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+    <exec program='${tools.folder}\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe' 
+    commandline='/m:main\opencover.sln /d:sonar.sourceEncoding=UTF-8 /d:sonar.login=${sonarqube.token} /d:sonar.host.url=https://sonarcloud.io /d:sonar.cxx.forceIncludes=sonar.h /d:sonar.cfamily.build-wrapper-output.bypass=true /x:vs17 /q:${tools.folder}\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml" /d:sonar.sources="**\OpenCover.Console\**,**\OpenCover.Framework\**,**\OpenCover.Extentions\**,**\OpenCover.Profiler\**,**\OpenCover.Support\**" /d:sonar.tests="**\OpenCover.Test\**,**\OpenCover.Test.Profiler\**,**\OpenCover.Specs\**"' />
         
   </target>
   
