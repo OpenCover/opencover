@@ -115,9 +115,26 @@
     </exec>
 
     <!-- assumes coverage file has been created -->
-    <exec program='${tools.folder}\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe' 
-    commandline='/m:main\opencover.sln /d:sonar.sourceEncoding=UTF-8 /d:sonar.login=${sonarqube.token} /d:sonar.host.url=https://sonarcloud.io /d:sonar.cxx.forceIncludes=sonar.h /d:sonar.cfamily.build-wrapper-output.bypass=true /x:vs17 /q:${tools.folder}\sonarqube\runner\MSBuild.SonarQube.Runner.exe /n:opencover /k:opencover /p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false /v:"${ci.fullBuildNumber}" /d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml" /d:sonar.sources="**\OpenCover.Console\**,**\OpenCover.Framework\**,**\OpenCover.Extentions\**,**\OpenCover.Profiler\**,**\OpenCover.Support\**" /d:sonar.tests="**\OpenCover.Test\**,**\OpenCover.Test.Profiler\**,**\OpenCover.Specs\**"' />
-        
+    <exec program='${tools.folder}\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe'>
+      <arg value='/m:main\opencover.sln' />
+      <arg value='/d:sonar.verbose=true' />
+      <arg value='/d:sonar.sourceEncoding=UTF-8' />
+      <arg value='/d:sonar.login=${sonarqube.token}' />
+      <arg value='/d:sonar.host.url=https://sonarcloud.io' />
+      <arg value='/d:sonar.cxx.forceIncludes=sonar.h' />
+      <arg value='/d:sonar.cfamily.build-wrapper-output.bypass=true' />
+      <arg value='/x:vs17' />
+      <arg value='/q:${tools.folder}\sonarqube\runner\MSBuild.SonarQube.Runner.exe' />
+      <arg value='/n:opencover' />
+      <arg value='/k:opencover' />
+      <arg value='/o:sawilde-github' />
+      <arg value='/p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false' />
+      <arg value='/v:"${ci.fullBuildNumber}"' />
+      <arg value='/d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+      <arg value='/d:sonar.sources="main\OpenCover.Console,main\OpenCover.Framework,main\OpenCover.Extentions,main\OpenCover.Profiler,main\OpenCover.Support,main\OpenCover.MSBuild"' />
+      <arg value='/d:sonar.tests="main\OpenCover.Test,main\OpenCover.Test.Profiler,main\OpenCover.Specs,main\OpenCover.UITest"' />
+      <arg value='/d:sonar.exclusions="**\*.config"' />
+    </exec>        
   </target>
   
   <target name="quick-build-release" depends="clean, build-environment, build-release-platforms, test, test-cpp" />

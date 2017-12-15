@@ -10,7 +10,7 @@ environment:
   COVERITY_EMAIL:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
   SONARQUBE_TOKEN:
-    secure: DSwAr4fYt3Q35Sjob5qAN5ujYqFCPZQguJ2yhI3IN46AIK63sRLhpamof6BZr9lx
+    secure: WRLqxS8frIuLNHeSMOj6SXvR3S0gx3RM0bgGkWeglXMIPSVS/VNmfUEqdHYZ2QOB
   DRDUMP_TOKEN:
     secure: 16PEs46poxfT7drt6BdHSHPPzAymXBYrIaqoAsHvY49os5Azz4rNTp3QaUhtITZ+
 cache:
