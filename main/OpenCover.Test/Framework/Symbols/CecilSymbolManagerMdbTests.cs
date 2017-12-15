@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using log4net;
 using Moq;
@@ -28,11 +27,11 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
 
-            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
-            _location = Path.Combine(assemblyPath, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
+            var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
+            _location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
-            _reader.Initialise(_location, "Microsoft.Practices.ServiceLocation");
+            _reader.Initialise(_location, "Unity.ServiceLocation");
         }
 
         [Test]

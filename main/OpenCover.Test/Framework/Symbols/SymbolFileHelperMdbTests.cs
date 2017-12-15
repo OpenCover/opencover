@@ -15,8 +15,8 @@ namespace OpenCover.Test.Framework.Symbols
         public void CanFindAndLoadProviderForMdbFile()
         {
             var commandLine = new Mock<ICommandLine>();
-            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
-            var location = Path.Combine(assemblyPath, "Mdb", "Microsoft.Practices.ServiceLocation.dll");
+            var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
+            var location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
 
             var symbolFile = SymbolFileHelper.FindSymbolFolder(location, commandLine.Object);
 
