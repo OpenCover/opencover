@@ -1,4 +1,4 @@
-version: 4.6.{build}
+version: 4.7.{build}
 skip_tags: true
 image: Visual Studio 2017
 shallow_clone: true
@@ -20,13 +20,13 @@ nuget:
   disable_publish_on_pr: true
 install:
 - ps: >-
-    Write-Host 'Downloading Microsoft .NET Framework 4.6.2 Developer Pack...'
+    Write-Host 'Downloading Microsoft .NET Framework 4.7.1 Developer Pack...'
     
     $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
     
-    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/E/F/D/EFD52638-B804-4865-BB57-47F4B9C80269/NDP462-DevPack-KB3151934-ENU.exe', $exePath)
+    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/9/0/1/901B684B-659E-4CBD-BEC8-B3F06967C2E7/NDP471-DevPack-ENU.exe', $exePath)
     
-    Write-Host 'Installing Microsoft .NET Framework 4.6.2 Developer Pack...'
+    Write-Host 'Installing Microsoft .NET Framework 4.7.1 Developer Pack...'
     
     cmd /c start /wait "$exePath" /q /norestart
     

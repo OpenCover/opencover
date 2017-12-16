@@ -256,4 +256,17 @@ public:
 public:
 	MOCK_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, ModuleInMemorySymbolsUpdated, HRESULT(
 		/* [in] */ ModuleID moduleId));
+
+	// ICorProfilerCallback8
+public:
+	MOCK_METHOD4_WITH_CALLTYPE(STDMETHODCALLTYPE, DynamicMethodJITCompilationStarted, HRESULT(
+		/* [in] */ FunctionID functionId,
+		/* [in] */ BOOL fIsSafeToBlock,
+		/* [in] */ LPCBYTE pILHeader,
+		/* [in] */ ULONG cbILHeader));
+	MOCK_METHOD3_WITH_CALLTYPE(STDMETHODCALLTYPE, DynamicMethodJITCompilationFinished, HRESULT(
+		/* [in] */ FunctionID functionId,
+		/* [in] */ HRESULT hrStatus,
+		/* [in] */ BOOL fIsSafeToBlock));
+
 };

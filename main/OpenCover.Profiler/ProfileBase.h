@@ -7,7 +7,7 @@
 
 using namespace ATL;
 
-class CProfilerBase : public ICorProfilerCallback7
+class CProfilerBase : public ICorProfilerCallback8
 {
 public:
     virtual ~CProfilerBase()
@@ -24,7 +24,8 @@ public:
 		if (chainedProfiler5_ != nullptr) chainedProfiler5_.Release();
 		if (chainedProfiler6_ != nullptr) chainedProfiler6_.Release();
 		if (chainedProfiler7_ != nullptr) chainedProfiler7_.Release();
-    }
+		if (chainedProfiler8_ != nullptr) chainedProfiler8_.Release();
+	}
 
 private:
 	CComQIPtr<ICorProfilerCallback> chainedProfiler_;
@@ -34,6 +35,7 @@ private:
 	CComQIPtr<ICorProfilerCallback5> chainedProfiler5_;
 	CComQIPtr<ICorProfilerCallback6> chainedProfiler6_;
 	CComQIPtr<ICorProfilerCallback7> chainedProfiler7_;
+	CComQIPtr<ICorProfilerCallback8> chainedProfiler8_;
 
 public:
 	void HookChainedProfiler(IUnknown* hookedProfiler)
@@ -45,6 +47,7 @@ public:
 		chainedProfiler5_ = hookedProfiler;
 		chainedProfiler6_ = hookedProfiler;
 		chainedProfiler7_ = hookedProfiler;
+		chainedProfiler8_ = hookedProfiler;
 	}
 
 	bool IsChainedProfilerHooked() const { return chainedProfiler_ != nullptr; }
@@ -834,7 +837,7 @@ public:
 			[]() { return S_OK; });
     }
 
-    // ICorProfilerCallback7
+// ICorProfilerCallback7
 public:
     virtual HRESULT STDMETHODCALLTYPE ModuleInMemorySymbolsUpdated(
         ModuleID moduleId) override
@@ -843,4 +846,27 @@ public:
 			[&](ICorProfilerCallback7 *profiler) { return profiler->ModuleInMemorySymbolsUpdated(moduleId); },
 			[]() { return S_OK; });
     }
+
+// ICorProfilerCallback8
+public:
+	virtual HRESULT STDMETHODCALLTYPE DynamicMethodJITCompilationStarted(
+		/* [in] */ FunctionID functionId,
+		/* [in] */ BOOL fIsSafeToBlock,
+		/* [in] */ LPCBYTE pILHeader,
+		/* [in] */ ULONG cbILHeader) override 
+	{
+		return ChainProfiler(chainedProfiler8_,
+			[&](ICorProfilerCallback8 *profiler) { return profiler->DynamicMethodJITCompilationStarted(functionId, fIsSafeToBlock, pILHeader, cbILHeader); },
+			[]() { return S_OK; });
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE DynamicMethodJITCompilationFinished(
+		/* [in] */ FunctionID functionId,
+		/* [in] */ HRESULT hrStatus,
+		/* [in] */ BOOL fIsSafeToBlock) override
+	{
+		return ChainProfiler(chainedProfiler8_,
+			[&](ICorProfilerCallback8 *profiler) { return profiler->DynamicMethodJITCompilationFinished(functionId, hrStatus, fIsSafeToBlock); },
+			[]() { return S_OK; });
+	}
 };

@@ -1,12 +1,13 @@
 #include "stdafx.h"
 #include "TestProfiler.h"
 #include "MockProfiler.h"
+#include "ComBaseTest.h"
 
 using ::testing::_;
 using ::testing::Return;
 using ::testing::Invoke;
 
-class ProfilerBaseTest : public ::testing::Test {
+class ProfilerBaseTest : public ComBaseTest {
 public:
 	ProfilerBaseTest()
 		: mockProfiler_(nullptr),
@@ -29,23 +30,14 @@ private:
 	}
 
 protected:
-	template<class T>
-	void CreateComObject(CComObject<T> **profilerInfo) const
-	{
-		*profilerInfo = new CComObject<T>();
-		HRESULT hr = CComObject<T>::CreateInstance(profilerInfo);
-		ASSERT_EQ(S_OK, hr);
-		(*profilerInfo)->AddRef();
-	}
-
 	CComObject<MockProfiler> *mockProfiler_;
 	CComObject<CTestProfiler> *testProfiler_;
 };
 
 TEST_F(ProfilerBaseTest, ChainedProfiler_HasHookedAllAvailableInterfaces)
 {
-	ASSERT_EQ(7, mockProfiler_->Release());
-	ASSERT_EQ(8, mockProfiler_->AddRef());
+	ASSERT_EQ(8, mockProfiler_->Release());
+	ASSERT_EQ(9, mockProfiler_->AddRef());
 }
 
 TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_Initialize_AndReturnSuccess)
@@ -1114,4 +1106,31 @@ TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_ModuleInMemorySymbol
 
 	EXPECT_CALL(*mockProfiler_, ModuleInMemorySymbolsUpdated(_)).Times(1);
 	ASSERT_EQ(S_OK, testProfiler_->ModuleInMemorySymbolsUpdated(0));
+}
+
+TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_DynamicMethodJITCompilationStarted)
+{
+	ON_CALL(*mockProfiler_, DynamicMethodJITCompilationStarted(_, _, _, _))
+		.WillByDefault(Invoke([this](/* [in] */ FunctionID functionId,
+			/* [in] */ BOOL fIsSafeToBlock,
+			/* [in] */ LPCBYTE pILHeader,
+			/* [in] */ ULONG cbILHeader) {
+		return S_OK;
+	}));
+
+	EXPECT_CALL(*mockProfiler_, DynamicMethodJITCompilationStarted(_, _, _, _)).Times(1);
+	ASSERT_EQ(S_OK, testProfiler_->DynamicMethodJITCompilationStarted(0, 0, nullptr, 0));
+}
+
+TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_DynamicMethodJITCompilationFinished)
+{
+	ON_CALL(*mockProfiler_, DynamicMethodJITCompilationFinished(_, _, _))
+		.WillByDefault(Invoke([this](/* [in] */ FunctionID functionId,
+			/* [in] */ HRESULT hrStatus,
+			/* [in] */ BOOL fIsSafeToBlock) {
+		return S_OK;
+	}));
+
+	EXPECT_CALL(*mockProfiler_, DynamicMethodJITCompilationFinished(_, _, _)).Times(1);
+	ASSERT_EQ(S_OK, testProfiler_->DynamicMethodJITCompilationFinished(0, 0, 0));
 }

@@ -132,9 +132,9 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
             HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
             ULONG count = m_infoHook->AddRef();
 
-            m_infoHook->m_pProfilerHook = this;
+            m_infoHook->SetProfilerHook(this);
 
-            m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
+            m_infoHook->ChainProfilerInfo(pICorProfilerInfoUnk);
 
             hr = chainedProfiler->Initialize(m_infoHook);
 
