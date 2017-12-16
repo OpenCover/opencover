@@ -8,9 +8,13 @@ namespace Moq
         using System.Diagnostics;
         using System.Linq;
         using System.Reflection;
-        using Microsoft.Practices.ObjectBuilder2;
-        using Microsoft.Practices.Unity;
-        using Microsoft.Practices.Unity.ObjectBuilder;
+        using Unity;
+        using Unity.Builder;
+        using Unity.Builder.Strategy;
+        using Unity.Container;
+        using Unity.Extension;
+        using Unity.Lifetime;
+        using Unity.ObjectBuilder.BuildPlan.Selection;
 
         /// <summary>
         /// AutoMocking container that leverages the Unity IOC container and the Moq 

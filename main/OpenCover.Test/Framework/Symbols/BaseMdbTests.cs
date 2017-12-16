@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using NUnit.Framework;
@@ -7,16 +8,20 @@ namespace OpenCover.Test.Framework.Symbols
 {
     public abstract class BaseMdbTests
     {
+
+        protected Type TargetType = typeof(Moq.IMocked);
+        protected string TargetAssembly = "Moq.dll";
+
         [OneTimeSetUp]
         public void TestFixtureSetUp()
         {
-            var assemblyPath = Path.GetDirectoryName(typeof(Microsoft.Practices.ServiceLocation.ServiceLocator).Assembly.Location);
+            var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
 
             var folder = Path.Combine(assemblyPath, "Mdb");
-            var source = Path.Combine(assemblyPath, "Microsoft.Practices.ServiceLocation.dll");
+            var source = Path.Combine(assemblyPath, TargetAssembly);
             if (Directory.Exists(folder)) Directory.Delete(folder, true);
             Directory.CreateDirectory(folder);
-            var dest = Path.Combine(folder, "Microsoft.Practices.ServiceLocation.dll");
+            var dest = Path.Combine(folder, TargetAssembly);
             File.Copy(source, dest);
             File.Copy(Path.ChangeExtension(source, "pdb"), Path.ChangeExtension(dest, "pdb"));
             var process = new ProcessStartInfo

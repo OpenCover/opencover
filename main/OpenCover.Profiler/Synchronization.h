@@ -16,8 +16,8 @@ namespace Synchronization
 
 	public:
 		void Initialise(const TCHAR * pName) { CloseHandle(); m_hMutex = ::CreateMutex(nullptr, false, pName); }
-		void Enter() { if (m_hMutex != nullptr) { ::WaitForSingleObject(m_hMutex, INFINITE); } }
-		void Leave() { if (m_hMutex != nullptr) { ::ReleaseMutex(m_hMutex); } }
+		void Enter() const { if (m_hMutex != nullptr) { ::WaitForSingleObject(m_hMutex, INFINITE); } }
+		void Leave() const { if (m_hMutex != nullptr) { ::ReleaseMutex(m_hMutex); } }
 
 	private:
 		HANDLE m_hMutex;
@@ -33,10 +33,14 @@ namespace Synchronization
 
 	public:
 		void Initialise(const TCHAR * pName) { CloseHandle(); m_hSemaphore = ::CreateSemaphore(nullptr, 0, 2, pName); _handleName = pName; }
-		void Enter() { if (IsValid()) { ::WaitForSingleObject(m_hSemaphore, INFINITE); } }
-		void Leave() { if (IsValid()) { ::ReleaseSemaphore(m_hSemaphore, 1, nullptr); } }
+		void Enter() const { if (IsValid()) { ::WaitForSingleObject(m_hSemaphore, INFINITE); } }
+		void Leave() const { if (IsValid()) { ::ReleaseSemaphore(m_hSemaphore, 1, nullptr); } }
 
 	protected:
+		HANDLE getSemaphore() const { return m_hSemaphore; }
+		tstring& getHandleName() { return _handleName; }
+
+	private:
 		HANDLE m_hSemaphore;
 		tstring _handleName;
 
@@ -49,14 +53,14 @@ namespace Synchronization
 		LONG ReleaseAndWait() {
 			if (IsValid()) {
 				LONG prevCount = -1;
-				if (::ReleaseSemaphore(m_hSemaphore, 1, &prevCount) && prevCount == 0) { // +1
-					if (::WaitForSingleObject(m_hSemaphore, 1000) == WAIT_TIMEOUT) {     // -1
-						RELTRACE(_T("Semaphore wait timed out => %s"), _handleName.c_str());
+				if (::ReleaseSemaphore(getSemaphore(), 1, &prevCount) && prevCount == 0) { // +1
+					if (::WaitForSingleObject(getSemaphore(), 1000) == WAIT_TIMEOUT) {     // -1
+						RELTRACE(_T("Semaphore wait timed out => %s"), getHandleName().c_str());
 						return -1;
 					}
 				}
 				else {
-					RELTRACE(_T("Semaphore count failed => %s, %d"), _handleName.c_str(), prevCount);
+					RELTRACE(_T("Semaphore count failed => %s, %d"), getHandleName().c_str(), prevCount);
 				}
 				return prevCount;
 			}
@@ -84,11 +88,11 @@ namespace Synchronization
 
 	public:
 		void Initialise(const TCHAR * pName, BOOL bManualReset = TRUE) { CloseHandle(); m_hEvent = ::CreateEvent(nullptr, bManualReset, FALSE, pName); }
-		void Set() { ::SetEvent(m_hEvent); }
-		void Wait() { ::WaitForSingleObject(m_hEvent, INFINITE); }
+		void Set() const { ::SetEvent(m_hEvent); }
+		void Wait() const { ::WaitForSingleObject(m_hEvent, INFINITE); }
 
-		void Reset() { ::ResetEvent(m_hEvent); }
-		DWORD SignalAndWait(CEvent &waitEvent, DWORD dwMilliSeconds = INFINITE) { return ::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, dwMilliSeconds, FALSE); }
+		void Reset() const { ::ResetEvent(m_hEvent); }
+		DWORD SignalAndWait(CEvent &waitEvent, DWORD dwMilliSeconds = INFINITE) const { return ::SignalObjectAndWait(m_hEvent, waitEvent.m_hEvent, dwMilliSeconds, FALSE); }
 
 	private:
 		HANDLE m_hEvent;

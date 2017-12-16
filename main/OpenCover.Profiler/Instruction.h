@@ -20,7 +20,7 @@ namespace Instrumentation {
 	{
 	public:
 		Instruction(CanonicalName operation, ULONGLONG operand);
-		Instruction(CanonicalName operation);
+		explicit Instruction(CanonicalName operation);
 
 		protected:
 		Instruction();

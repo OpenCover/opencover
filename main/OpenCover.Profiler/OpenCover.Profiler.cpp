@@ -17,23 +17,23 @@
 __control_entrypoint(DllExport)
 STDAPI DllCanUnloadNow(void)
 {
-	#ifdef _MERGE_PROXYSTUB
+#ifdef _MERGE_PROXYSTUB
 	HRESULT hr = PrxDllCanUnloadNow();
 	if (hr != S_OK)
 		return hr;
 #endif
-			return _AtlModule.DllCanUnloadNow();
-	}
+	return _AtlModule.DllCanUnloadNow();
+}
 
 // Returns a class factory to create an object of the requested type.
 _Check_return_
 STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID* ppv)
 {
-	#ifdef _MERGE_PROXYSTUB
+#ifdef _MERGE_PROXYSTUB
 	if (PrxDllGetClassObject(rclsid, riid, ppv) == S_OK)
 		return S_OK;
 #endif
-		return _AtlModule.DllGetClassObject(rclsid, riid, ppv);
+	return _AtlModule.DllGetClassObject(rclsid, riid, ppv);
 }
 
 // DllRegisterServer - Adds entries to the system registry.
@@ -42,12 +42,12 @@ STDAPI DllRegisterServer(void)
 {
 	// registers object, typelib and all interfaces in typelib
 	HRESULT hr = _AtlModule.DllRegisterServer();
-	#ifdef _MERGE_PROXYSTUB
+#ifdef _MERGE_PROXYSTUB
 	if (FAILED(hr))
 		return hr;
 	hr = PrxDllRegisterServer();
 #endif
-		return hr;
+	return hr;
 }
 
 // DllUnregisterServer - Removes entries from the system registry.
@@ -55,7 +55,7 @@ __control_entrypoint(DllExport)
 STDAPI DllUnregisterServer(void)
 {
 	HRESULT hr = _AtlModule.DllUnregisterServer();
-	#ifdef _MERGE_PROXYSTUB
+#ifdef _MERGE_PROXYSTUB
 	if (FAILED(hr))
 		return hr;
 	hr = PrxDllRegisterServer();
@@ -63,7 +63,7 @@ STDAPI DllUnregisterServer(void)
 		return hr;
 	hr = PrxDllUnregisterServer();
 #endif
-		return hr;
+	return hr;
 }
 
 // DllInstall - Adds/Removes entries to the system registry per user per machine.
@@ -80,7 +80,7 @@ STDAPI DllInstall(BOOL bInstall, _In_opt_ LPCWSTR pszCmdLine)
 	}
 
 	if (bInstall)
-	{	
+	{
 		hr = DllRegisterServer();
 		if (FAILED(hr))
 		{
