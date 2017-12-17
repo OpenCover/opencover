@@ -5,21 +5,22 @@
 
 using namespace ATL;
 
-class CProfilerInfoBase : public ICorProfilerInfo7
+class CProfilerInfoBase : public ICorProfilerInfo8
 {
 public:
     virtual ~CProfilerInfoBase()
     {
     }
 
-    void SetProfilerInfo(IUnknown *pICorProfilerInfoUnk){
+    void ChainProfilerInfo(IUnknown *pICorProfilerInfoUnk){
 		m_pProfilerInfo = pICorProfilerInfoUnk;
 		m_pProfilerInfo2 = pICorProfilerInfoUnk;
 		m_pProfilerInfo3 = pICorProfilerInfoUnk;
 		m_pProfilerInfo4 = pICorProfilerInfoUnk;
         m_pProfilerInfo5 = pICorProfilerInfoUnk;
         m_pProfilerInfo6 = pICorProfilerInfoUnk;
-        m_pProfilerInfo7 = pICorProfilerInfoUnk;
+		m_pProfilerInfo7 = pICorProfilerInfoUnk;
+		m_pProfilerInfo8 = pICorProfilerInfoUnk;
 	}
 
 private:
@@ -29,7 +30,8 @@ private:
 	CComQIPtr<ICorProfilerInfo4> m_pProfilerInfo4;
     CComQIPtr<ICorProfilerInfo5> m_pProfilerInfo5;
     CComQIPtr<ICorProfilerInfo6> m_pProfilerInfo6;
-    CComQIPtr<ICorProfilerInfo7> m_pProfilerInfo7;
+	CComQIPtr<ICorProfilerInfo7> m_pProfilerInfo7;
+	CComQIPtr<ICorProfilerInfo8> m_pProfilerInfo8;
 
 public: // ICorProfilerInfo
 	virtual HRESULT STDMETHODCALLTYPE GetClassFromObject(
@@ -818,4 +820,35 @@ public:
         return m_pProfilerInfo7->ReadInMemorySymbols(moduleId, symbolsReadOffset, pSymbolBytes, countSymbolBytes, pCountSymbolBytesRead);
     }
 
+// ICorProfilerInfo8
+public:
+	virtual HRESULT STDMETHODCALLTYPE IsFunctionDynamic(
+		/* [in] */ FunctionID functionId,
+		/* [out] */ BOOL *isDynamic) override
+	{
+		//ATLTRACE(_T("IsFunctionDynamic"));
+		return m_pProfilerInfo8->IsFunctionDynamic(functionId, isDynamic);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE GetFunctionFromIP3(
+		/* [in] */ LPCBYTE ip,
+		/* [out] */ FunctionID *functionId,
+		/* [out] */ ReJITID *pReJitId) override
+	{
+		//ATLTRACE(_T("GetFunctionFromIP3"));
+		return m_pProfilerInfo8->GetFunctionFromIP3(ip, functionId, pReJitId);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE GetDynamicFunctionInfo(
+		/* [in] */ FunctionID functionId,
+		/* [out] */ ModuleID *moduleId,
+		/* [out] */ PCCOR_SIGNATURE *ppvSig,
+		/* [out] */ ULONG *pbSig,
+		/* [in] */ ULONG cchName,
+		/* [out] */ ULONG *pcchName,
+		/* [out] */ WCHAR wszName[]) override
+	{
+		//ATLTRACE(_T("GetDynamicFunctionInfo"));
+		return m_pProfilerInfo8->GetDynamicFunctionInfo(functionId, moduleId, ppvSig, pbSig, cchName, pcchName, wszName);
+	}
 };

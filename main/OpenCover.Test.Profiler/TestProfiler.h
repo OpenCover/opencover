@@ -18,6 +18,7 @@ public:
 		COM_INTERFACE_ENTRY(ICorProfilerCallback5)
 		COM_INTERFACE_ENTRY(ICorProfilerCallback6)
 		COM_INTERFACE_ENTRY(ICorProfilerCallback7)
+		COM_INTERFACE_ENTRY(ICorProfilerCallback8)
 	END_COM_MAP()
 
 	DECLARE_PROTECT_FINAL_CONSTRUCT()

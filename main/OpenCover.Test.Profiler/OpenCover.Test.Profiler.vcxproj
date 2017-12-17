@@ -22,7 +22,7 @@
     <ProjectGuid>{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>OpenCoverTestProfiler</RootNamespace>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -75,25 +75,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(DotNetSdkRoot)..\4.6.2\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
     <LibraryPath>$(MSBuildProjectDirectory)\..\..\tools\gtest-1.6.0\msvc\gtest\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
   </PropertyGroup>
@@ -105,6 +105,7 @@
       <PreprocessorDefinitions>TEST_FRAMEWORK;WIN32;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_VARIADIC_MAX=10</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\tools\gmock-1.7.0;..\..\tools\gmock-1.7.0\include;..\..\tools\gmock-1.7.0\gtest;..\..\tools\gmock-1.7.0\gtest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +125,7 @@
       <PreprocessorDefinitions>TEST_FRAMEWORK;WIN32;_WINDOWS;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_VARIADIC_MAX=10</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\tools\gmock-1.7.0;..\..\tools\gmock-1.7.0\include;..\..\tools\gmock-1.7.0\gtest;..\..\tools\gmock-1.7.0\gtest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +147,7 @@
       <PreprocessorDefinitions>TEST_FRAMEWORK;WIN32;_WINDOWS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_VARIADIC_MAX=10</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\tools\gmock-1.7.0;..\..\tools\gmock-1.7.0\include;..\..\tools\gmock-1.7.0\gtest;..\..\tools\gmock-1.7.0\gtest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -165,6 +168,7 @@
       <PreprocessorDefinitions>TEST_FRAMEWORK;WIN32;_WINDOWS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);_VARIADIC_MAX=10</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalIncludeDirectories>..\..\tools\gmock-1.7.0;..\..\tools\gmock-1.7.0\include;..\..\tools\gmock-1.7.0\gtest;..\..\tools\gmock-1.7.0\gtest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -176,10 +180,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ComBaseTest.h" />
     <ClInclude Include="MockProfiler.h" />
+    <ClInclude Include="MockProfilerHook.h" />
+    <ClInclude Include="MockProfilerInfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TestProfiler.h" />
+    <ClInclude Include="TestProfilerInfo.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\OpenCover.Profiler\CoverageInstrumentation.cpp" />
@@ -187,9 +195,12 @@
     <ClCompile Include="..\OpenCover.Profiler\Instruction.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Method.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Operations.cpp" />
+    <ClCompile Include="..\OpenCover.Profiler\ProfilerInfo.cpp" />
     <ClCompile Include="..\OpenCover.Profiler\Timer.cpp" />
     <ClCompile Include="InstrumentationTest.cpp" />
     <ClCompile Include="ProfilerBaseTest.cpp" />
+    <ClCompile Include="ProfilerInfoBaseTest.cpp" />
+    <ClCompile Include="ProfilerInfoTest.cpp" />
     <ClCompile Include="ProfilerInstantiationTest.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

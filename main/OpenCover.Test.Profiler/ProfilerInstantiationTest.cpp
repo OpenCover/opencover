@@ -47,37 +47,42 @@ protected:
 };
 
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback) {
 
 	InstantiateProfiler<ICorProfilerCallback>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack2) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback2) {
 
 	InstantiateProfiler<ICorProfilerCallback2>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack3) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback3) {
 
 	InstantiateProfiler<ICorProfilerCallback3>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack4) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback4) {
 
 	InstantiateProfiler<ICorProfilerCallback4>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack5) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback5) {
 
 	InstantiateProfiler<ICorProfilerCallback5>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack6) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback6) {
 
 	InstantiateProfiler<ICorProfilerCallback6>();
 }
 
-TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallack7) {
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback7) {
 
 	InstantiateProfiler<ICorProfilerCallback7>();
+}
+
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback8) {
+
+	InstantiateProfiler<ICorProfilerCallback8>();
 }

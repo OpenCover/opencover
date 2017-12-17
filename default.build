@@ -101,6 +101,8 @@
     <call target="dogfood-release" />
     
     <call target="reset-private-vars" />
+        
+    <call target="transformcppcoverage" />
     
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
       <arg value="x" />
@@ -131,6 +133,7 @@
       <arg value='/p:Configuration=release,Platform=x64,GtestRunnerTaskEnabled=false' />
       <arg value='/v:"${ci.fullBuildNumber}"' />
       <arg value='/d:sonar.cs.opencover.reportsPaths="${root.folder}\main\bin\release\opencovertests.xml"' />
+      <arg value='/d:sonar.coverageReportPaths="${root.folder}\GenericCoverage.xml"' />      
       <arg value='/d:sonar.sources="main\OpenCover.Console,main\OpenCover.Framework,main\OpenCover.Extentions,main\OpenCover.Profiler,main\OpenCover.Support,main\OpenCover.MSBuild"' />
       <arg value='/d:sonar.tests="main\OpenCover.Test,main\OpenCover.Test.Profiler,main\OpenCover.Specs,main\OpenCover.UITest"' />
       <arg value='/d:sonar.exclusions="**\*.config"' />
@@ -160,6 +163,25 @@
     <exec program="${tools.folder}/OpenCppCoverage/OpenCppCoverage.exe" commandline="--modules main\bin\Debug\x64\ --sources ${root.folder}\main --excluded_sources packages -- main\bin\Debug\x64\OpenCover.Test.Profiler.exe" />
 
   </target>
+  
+  <target name="cover-cpp-release" >  
+    <exec program="${tools.folder}/OpenCppCoverage/OpenCppCoverage.exe" >
+      <arg value='--modules'/>
+      <arg value='main\bin\Release\x64'/>
+      <arg value='--sources'/>
+      <arg value='${root.folder}\main'/>
+      <arg value='--export_type=cobertura'/>
+      <arg value='--excluded_sources'/>
+      <arg value='packages'/>
+      <arg value='--excluded_sources'/>
+      <arg value='OpenCover.Test.Profiler'/>
+      <arg value='--'/>
+      <arg value='main\bin\Release\x64\OpenCover.Test.Profiler.exe'/>
+    </exec>
+  </target>
 
-
+  <target name="transformcppcoverage" depends="cover-cpp-release" >
+    <style style="${tools.folder}\OpenCppCoverageToGenCoverage.xsl" in="${root.folder}\OpenCover.Test.ProfilerCoverage.xml" out="${root.folder}\GenericCoverage.xml"/>
+  </target>
+  
 </project>

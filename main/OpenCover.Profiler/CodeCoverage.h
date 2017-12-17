@@ -37,7 +37,7 @@ typedef void(__fastcall *ipv)(ULONG);
 class ATL_NO_VTABLE CCodeCoverage :
     public CComObjectRootEx<CComMultiThreadModel>,
     public CComCoClass<CCodeCoverage, &CLSID_CodeCoverage>,
-    public CProfilerBase
+    public CProfilerBase, CProfilerHook
 {
 public:
     CCodeCoverage() 
@@ -62,7 +62,8 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
     COM_INTERFACE_ENTRY(ICorProfilerCallback5)
     COM_INTERFACE_ENTRY(ICorProfilerCallback6)
-    COM_INTERFACE_ENTRY(ICorProfilerCallback7)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback7)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback8)
 END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -94,10 +95,12 @@ public:
     void __fastcall AddVisitPoint(ULONG uniqueId);
 
 private:
+	DWORD AppendProfilerEventMask(DWORD currentEventMask) override;
+
+private:
     std::shared_ptr<Communication::ProfilerCommunication> _host;
     ULONG _shortwait;
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
-	DWORD AppendProfilerEventMask(DWORD currentEventMask);
 
 	ipv static GetInstrumentPointVisit();
 

@@ -4,6 +4,7 @@
 // This source code is released under the MIT License; see the accompanying license file.
 //
 #pragma once
+#include "ReleaseTrace.h"
 
 namespace Synchronization
 {

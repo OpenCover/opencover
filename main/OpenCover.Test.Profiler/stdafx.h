@@ -29,7 +29,7 @@
 #pragma pack(4)
 
 #include <cor.h>
-#include <corsym.h>
+#include <corsym.h> 
 #include <corprof.h>
 #include <corhlpr.h>
 
@@ -38,6 +38,13 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <memory>
+
+#ifdef UNICODE
+#define tstring std::wstring
+#else
+#define tstring std::string
+#endif
 
 // This line ensures that gmock.h can be compiled on its own, even
 // when it's fused.

@@ -2,7 +2,6 @@
 
 #include "stdafx.h"
 #include "ProfilerInfo.h"
-#include "CodeCoverage.h"
 
 // CProfilerInfo
 HRESULT STDMETHODCALLTYPE CProfilerInfo::SetEventMask(
@@ -21,8 +20,8 @@ HRESULT STDMETHODCALLTYPE CProfilerInfo::SetEventMask(
 	ATLTRACE(_T("CProfilerInfo::SetEventMask => received => 0x%X, expected 0x%X"), dwEvents, expected);
     ATLASSERT(expected == (dwEvents | expected)); // assert that nothing new has been added that we haven't already tested against
 
-	if (m_pProfilerHook!=NULL)
-		dwEvents = m_pProfilerHook->AppendProfilerEventMask(dwEvents);
+	if (profilerHook_ !=nullptr)
+		dwEvents = profilerHook_->AppendProfilerEventMask(dwEvents);
 
 	return CProfilerInfoBase::SetEventMask(dwEvents);
 }

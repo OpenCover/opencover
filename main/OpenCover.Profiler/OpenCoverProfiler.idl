@@ -26,6 +26,7 @@ library OpenCoverProfilerLib
 		interface ICorProfilerCallback4;
 		interface ICorProfilerCallback5;
         interface ICorProfilerCallback6;
-        interface ICorProfilerCallback7;
+		interface ICorProfilerCallback7;
+		interface ICorProfilerCallback8;
 	};
 };

@@ -94,3 +94,7 @@ coverity.zip
 
 #OpenCppCoverage
 /CoverageReport*/**/*
+/GenericCoverage.xml
+/OpenCover.Test.ProfilerCoverage.xml
+/main/after.opencover.sln.targets
+/LastCoverageResults.log
