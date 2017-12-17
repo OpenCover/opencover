@@ -70,6 +70,10 @@ artifacts:
   name: ChocolateyPortable
 - path: cov-int/build-log.txt
   name: Coverity
+- path: GenericCoverage.xml
+  name: cpp-coverage
+- path: main\bin\release\opencovertests.xml
+  name: cs-coverage
 deploy:
 - provider: NuGet
   api_key:
