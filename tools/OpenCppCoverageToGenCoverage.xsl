@@ -33,11 +33,18 @@
           <xsl:variable name="newpath">
             <xsl:call-template name="string-replace-all">
               <xsl:with-param name="text" select="translate(@filename, '\', '/')" />
+              <xsl:with-param name="replace" select="'projects/opencover/main/'" />
+              <xsl:with-param name="by" select="''" />
+            </xsl:call-template>
+          </xsl:variable>
+          <xsl:variable name="newpath2">
+            <xsl:call-template name="string-replace-all">
+              <xsl:with-param name="text" select="translate($newpath, '\', '/')" />
               <xsl:with-param name="replace" select="'opencover/main/'" />
               <xsl:with-param name="by" select="''" />
             </xsl:call-template>
           </xsl:variable>
-          <xsl:attribute name="path"><xsl:value-of select="$newpath" /></xsl:attribute>
+          <xsl:attribute name="path"><xsl:value-of select="$newpath2" /></xsl:attribute>
           <xsl:text>&#10;</xsl:text>
           <xsl:for-each select="lines/line">
             <lineToCover>
