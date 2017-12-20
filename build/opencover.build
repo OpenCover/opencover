@@ -184,11 +184,6 @@
 
     <exec program="${solution.folder}/bin/${configuration}/uitest.opencover.cmd"
       workingdir="${solution.folder}/bin/${configuration}"/>
-
-    <exec program="${coveralls.exe}" workingdir="${solution.folder}/bin/${configuration}">      
-      <arg value="--opencover" />
-      <arg value="opencovertests.xml" />
-    </exec>
         
   </target>
 
@@ -201,12 +196,16 @@
 
     <exec program="${solution.folder}/bin/${configuration}/uitest.opencover.cmd"
       workingdir="${solution.folder}/bin/${configuration}"/>
-
+        
+  </target>
+  
+  <target name="update-coveralls" depends="dogfood-release" >
+  
     <exec program="${coveralls.exe}" workingdir="${solution.folder}/bin/${configuration}">      
       <arg value="--opencover" />
       <arg value="opencovertests.xml" />
     </exec>
-        
+  
   </target>
     
 </project>

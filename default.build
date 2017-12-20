@@ -61,6 +61,8 @@
         tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
   </target>
   
+  <target name="generate-coverage-files" depends="dogfood-release, transformcppcoverage" />
+  
   <target name="create-release" depends="clean-all, build-environment, replace-drdump-token, build-release-platforms, test, test-cpp, create-zip-package">
     <call target="chocolatey-package" />
     <call target="chocolatey-package-portable" />
@@ -69,6 +71,7 @@
     <call target="nuget-package" />
     <call target="copy-artefacts" />
     <call target="test-bdd" />
+    <call target="generate-coverage-files" />
   </target>
   
   <target name="create-coverity-release" depends="clean-all, build-environment" if="${property::exists('coverity.exe')}">
@@ -94,15 +97,11 @@
 
   </target>
   
-  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_TOKEN')}">
+  <target name="sonarqube-build" if="${environment::variable-exists('SONARQUBE_TOKEN')}" depends="generate-coverage-files, update-coveralls">
 
     <property name="sonarqube.token" value="${environment::get-variable('SONARQUBE_TOKEN')}" />
-
-    <call target="dogfood-release" />
     
     <call target="reset-private-vars" />
-        
-    <call target="transformcppcoverage" />
     
     <exec program="${tools.folder}/7-Zip/7za.exe" unless="${directory::exists('tools\sonarqube\cxx-runner')}">
       <arg value="x" />
