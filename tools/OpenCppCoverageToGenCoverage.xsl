@@ -33,14 +33,14 @@
           <xsl:variable name="newpath">
             <xsl:call-template name="string-replace-all">
               <xsl:with-param name="text" select="translate(@filename, '\', '/')" />
-              <xsl:with-param name="replace" select="'projects/opencover/main/opencover.profiler/'" />
+              <xsl:with-param name="replace" select="'/projects/opencover/main/opencover.profiler/'" />
               <xsl:with-param name="by" select="'OpenCover.Profiler/'" />
             </xsl:call-template>
           </xsl:variable>
           <xsl:variable name="newpath2">
             <xsl:call-template name="string-replace-all">
               <xsl:with-param name="text" select="translate($newpath, '\', '/')" />
-              <xsl:with-param name="replace" select="'opencover/main/opencover.profiler/'" />
+              <xsl:with-param name="replace" select="'/opencover/main/opencover.profiler/'" />
               <xsl:with-param name="by" select="'OpenCover.Profiler/'" />
             </xsl:call-template>
           </xsl:variable>
