@@ -160,12 +160,12 @@
     
   <target name="cover-cpp" depends="clean-all, build-environment, build-debug-platforms" >
     
-    <exec program="${tools.folder}/OpenCppCoverage/OpenCppCoverage.exe" commandline="--modules main\bin\Debug\x64\ --sources ${root.folder}\main --excluded_sources packages -- main\bin\Debug\x64\OpenCover.Test.Profiler.exe" />
+    <exec program="${tools.folder}\OpenCppCoverage\OpenCppCoverage.exe" commandline="--modules main\bin\Debug\x64\ --sources ${root.folder}\main --excluded_sources packages -- main\bin\Debug\x64\OpenCover.Test.Profiler.exe" />
 
   </target>
   
   <target name="cover-cpp-release" >  
-    <exec program="${tools.folder}/OpenCppCoverage/OpenCppCoverage.exe" >
+    <exec program="${tools.folder}\OpenCppCoverage\OpenCppCoverage.exe" >
       <arg value='--modules'/>
       <arg value='main\bin\Release\x64'/>
       <arg value='--sources'/>
@@ -181,6 +181,13 @@
   </target>
 
   <target name="transformcppcoverage" depends="cover-cpp-release" >
+  
+    <exec program="powershell" >
+      <arg value="${tools.folder}\CorrectFileCaseOnCppCoverage.ps1" />
+      <arg value="-xmlFile" />
+      <arg value="${root.folder}\OpenCover.Test.ProfilerCoverage.xml" />
+    </exec>
+    
     <style style="${tools.folder}\OpenCppCoverageToGenCoverage.xsl" in="${root.folder}\OpenCover.Test.ProfilerCoverage.xml" out="${root.folder}\GenericCoverage.xml"/>
   </target>
   
