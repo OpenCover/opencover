@@ -100,6 +100,8 @@ namespace OpenCover.MSBuild
                 builder.AppendSwitch("-nodefaultfilters");
             if (MergeByHash)
                 builder.AppendSwitch("-mergebyhash");
+            if (SkipAutoProps)
+                builder.AppendSwitch("-skipautoprops");
             if (ShowUnvisited)
                 builder.AppendSwitch("-showunvisited");
             if (ReturnTargetCode)
@@ -120,6 +122,9 @@ namespace OpenCover.MSBuild
 
             if ((CoverByTest!=null) && (CoverByTest.Length>0))
                 builder.AppendSwitchIfNotNull("-coverbytest:", string.Join<ITaskItem>(";", CoverByTest));
+
+            if ((HideSkipped != null) && (HideSkipped.Length > 0))
+                builder.AppendSwitchIfNotNull("-hideskipped:", string.Join<ITaskItem>(";", HideSkipped));
 
             builder.AppendSwitchIfNotNull("-output:", Output);
 
@@ -202,6 +207,28 @@ namespace OpenCover.MSBuild
         /// Merge the result by assembly file-hash.
         /// </summary>
         public bool MergeByHash
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Remove information from output file.
+        /// HideSkipped = <criteria>[;<criteria>]*
+        /// <criteria> = [File|Filter|Attribute|MissingPdb|All
+        /// </summary>
+        public ITaskItem[] HideSkipped
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Neither track nor record auto-implemented properties.
+        /// That is, skip getters and setters like these:
+        /// public bool Service { get; set; }
+        /// </summary>
+        public bool SkipAutoProps
         {
             get;
             set;
