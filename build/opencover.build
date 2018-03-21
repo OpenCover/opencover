@@ -105,7 +105,7 @@
   </target>
 
   <target name="dotnet.restore.solution" description="restore solution packages">
-    <exec program="${dotnet.exe}">
+    <exec program="${dotnet.exe}" workingdir="${solution.folder}">
       <arg value="restore" />
       <arg value="${solution.folder}" />
     </exec>
