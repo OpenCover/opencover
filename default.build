@@ -116,7 +116,8 @@
     </exec>
 
     <!-- assumes coverage file has been created -->
-    <exec program='${tools.folder}\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe'>
+    <exec program='${tools.folder}\sonarqube\cxx-runner\CxxSonarQubeMsbuidRunner.exe'
+      workingdir='${root.folder}'>
       <arg value='/m:main\opencover.sln' />
       <arg value='/d:sonar.verbose=true' />
       <arg value='/d:sonar.sourceEncoding=UTF-8' />
