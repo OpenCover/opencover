@@ -82,8 +82,9 @@ namespace OpenCover.Framework.Symbols
                         _sourceAssembly.MainModule.ReadSymbols(symbolReader);
                     }
                 }
-                catch (FileNotFoundException)
+                catch (Exception ex) when (ex is FileNotFoundException || ex is SymbolsNotMatchingException)
                 {
+                    // for mismatched PDB and PDB not found try any search paths
                     _sourceAssembly = null;
                     SearchForSymbolsAndLoad();
                 }
@@ -97,7 +98,8 @@ namespace OpenCover.Framework.Symbols
 
         private void SearchForSymbolsAndLoad()
         {
-            var symbolFile = SymbolFileHelper.FindSymbolFolder(ModulePath, _commandLine);
+            // Skip the original folder since the attempt there already failed and FindSymbolFolder will stop on first failure
+            var symbolFile = SymbolFileHelper.FindSymbolFolder(ModulePath, _commandLine, skipOriginalFolder:true);
             if (symbolFile == null)
                 return;
 
@@ -113,8 +115,9 @@ namespace OpenCover.Framework.Symbols
                 _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
                 if (_sourceAssembly != null)
                 {
-                    var symbolReader = parameters.SymbolReaderProvider
-                        .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
+                    var symbolReader = parameters.SymbolReaderProvider.GetSymbolReader(
+                        _sourceAssembly.MainModule,
+                        Path.ChangeExtension(symbolFile.SymbolFilename, Path.GetExtension(ModulePath))); // Hack the location of the module, otherwise Cecil won't use the PDB found.
                     _sourceAssembly.MainModule.ReadSymbols(symbolReader);
                 }
             }
