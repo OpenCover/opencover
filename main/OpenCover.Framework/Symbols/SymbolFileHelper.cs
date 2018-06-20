@@ -11,17 +11,20 @@ namespace OpenCover.Framework.Symbols
     internal static class SymbolFileHelper
     {
         /// <summary>
-        /// Locate symbol files (pbd/mdb) that are noto in the same folder as the assembly
+        /// Locate symbol files (pbd/mdb) that are not in the same folder as the assembly
         /// NOTE: due to test frameworks copying just assemblies and not the symbol files 
         /// </summary>
-        /// <param name="modulePath"></param>
-        /// <param name="commandLine"></param>
-        /// <returns></returns>
-        public static SymbolFile FindSymbolFolder(string modulePath, ICommandLine commandLine)
+        /// <param name="modulePath">Path to the module to find symbols</param>
+        /// <param name="commandLine">Command line parameters</param>
+        /// <param name="skipOriginalFolder">Optional parameter that can be used to skip the original location of the module</param>
+        /// <returns>The the first SymbolFile with matching name (not validated yet, so it can be a mismatch) or null if none is found</returns>
+        public static SymbolFile FindSymbolFolder(string modulePath, ICommandLine commandLine, bool skipOriginalFolder = false)
         {
-            var origFolder = Path.GetDirectoryName(modulePath);
+            var searchFolders = new List<string>();
+            if (!skipOriginalFolder)
+                searchFolders.Add(Path.GetDirectoryName(modulePath));
 
-            var searchFolders = new List<string> {origFolder, commandLine.TargetDir};
+            searchFolders.Add(commandLine.TargetDir);
             if (commandLine.SearchDirs != null)
                 searchFolders.AddRange(commandLine.SearchDirs);
             searchFolders.Add(Environment.CurrentDirectory);
