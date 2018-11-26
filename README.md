@@ -27,7 +27,7 @@ Please raise issues on GitHub, if you can repeat the issue then please provide a
 
 [Dropbox](http://db.tt/VanqFDn) is very useful for sharing files alternatively you could create a [gist](https://gist.github.com/).
 
-### Licence
+### License
 All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
