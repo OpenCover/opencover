@@ -23,7 +23,7 @@ namespace OpenCover.Framework.Utility
         /// <param name="e"></param>
         public static void InformUser(this Exception e)
         {
-            LogManager.GetLogger(loggerName).InfoFormat ("An {0} occured: {1} ", e.GetType(), e.Message);
+            LogManager.GetLogger(loggerName).InfoFormat ("An {0} occurred: {1} ", e.GetType(), e.Message);
         }
 
         /// <summary>
