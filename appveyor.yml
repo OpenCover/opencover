@@ -137,13 +137,14 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
-    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity")
-    {
-      if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
-        & .\build.bat sonarqube-build
-      } else {
-        & .\build.bat dogfood-release
-      }
-    }
+    #if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity")
+    #{
+    #  if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
+    #    & .\build.bat sonarqube-build
+    #  } else {
+    #    & .\build.bat dogfood-release
+    #  }
+    #}
+    & .\build.bat dogfood-release
 on_finish:
   - ps: #$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

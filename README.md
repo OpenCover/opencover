@@ -1,14 +1,18 @@
 OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO), with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
 
-The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
+The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
-| | |
+| | Active Integrations |
 | --- | --- |
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
-| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)  <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=opencover) | 
-| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) | 
+| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) | 
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
+
+| | Disabled Integrations |
+| --- | --- |
+| **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=opencover) | 
+| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) | 
 
 ### Master 
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
