@@ -618,7 +618,7 @@ namespace Communication
 		}
 		__except (GetExceptionCode() == EXCEPTION_IN_PAGE_ERROR ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
 		{
-			RELTRACE(_T("SEH exception failure occured: %s - %d"),
+			RELTRACE(_T("SEH exception failure occurred: %s - %d"),
 				message.c_str(), GetExceptionCode());
 		}
 	}
@@ -647,7 +647,7 @@ namespace Communication
 		catch (...)
 		{
 			// catch any other errors (that we have no information about)
-			RELTRACE(_T("Unknown failure occured. Possible memory corruption - %s"), message.c_str());
+			RELTRACE(_T("Unknown failure occurred. Possible memory corruption - %s"), message.c_str());
 			throw;
 		}
 	}
