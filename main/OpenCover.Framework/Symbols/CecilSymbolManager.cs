@@ -79,7 +79,15 @@ namespace OpenCover.Framework.Symbols
                     {
                         var symbolReader = new DefaultSymbolReaderProvider(true)
                             .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
-                        _sourceAssembly.MainModule.ReadSymbols(symbolReader);
+
+                        if (symbolReader != null)
+                        {
+                            _sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                        }
+                        else
+                        {
+                            _sourceAssembly = null;
+                        }
                     }
                 }
                 catch (FileNotFoundException)
