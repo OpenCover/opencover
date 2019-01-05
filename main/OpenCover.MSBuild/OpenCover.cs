@@ -214,8 +214,8 @@ namespace OpenCover.MSBuild
 
         /// <summary>
         /// Remove information from output file.
-        /// HideSkipped = <criteria>[;<criteria>]*
-        /// <criteria> = [File|Filter|Attribute|MissingPdb|All
+        /// HideSkipped = &lt;criteria&gt;[;&lt;criteria&gt;]*
+        /// &lt;criteria&gt; = [File|Filter|Attribute|MissingPdb|All
         /// </summary>
         public ITaskItem[] HideSkipped
         {
