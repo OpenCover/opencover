@@ -18,25 +18,36 @@
   <files>
     <file src="main\bin\Release\x64\OpenCover.Profiler.dll" target="tools\x64"/>
     <file src="main\bin\Release\x86\OpenCover.Profiler.dll" target="tools\x86"/>
-    <file src="main\bin\Release\Gendarme.Framework.dll" target="tools"/>
-    <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.Configuration.dll" target="tools"/>
+    <file src="main\bin\Release\Autofac.json" target="tools"/>
+    <file src="main\bin\Release\CrashReporter.NET.dll" target="tools"/>
+    <file src="main\bin\Release\Gendarme.Framework.dll" target="tools"/>
+    <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
+    <file src="main\bin\Release\log4net.config" target="tools"/>
+    <file src="main\bin\Release\log4net.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Configuration.Abstractions.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Configuration.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Configuration.FileExtensions.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Configuration.Json.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.FileProviders.Abstractions.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.FileProviders.Physical.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.FileSystemGlobbing.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Primitives.dll" target="tools"/>
     <file src="main\bin\Release\Mono.Cecil.dll" target="tools"/>
     <file src="main\bin\Release\Mono.Cecil.Pdb.dll" target="tools"/>
     <file src="main\bin\Release\Mono.Cecil.Mdb.dll" target="tools"/>
+    <file src="main\bin\Release\Mono.Cecil.Rocks.dll" target="tools"/>
+    <file src="main\bin\Release\Newtonsoft.Json.dll" target="tools"/>
     <file src="License.rtf"/>
     <file src="main\OpenCover.Packages\nuget\opencover\readme_with_releasenotes.txt"/>
     <file src="main\bin\Release\OpenCover.Console.exe" target="tools"/>
     <file src="main\bin\Release\OpenCover.Console.pdb" target="tools"/>
     <file src="main\bin\Release\OpenCover.Console.exe.config" target="tools"/>
-    <file src="main\bin\Release\OpenCover.Framework.dll" target="tools"/>
-    <file src="main\bin\Release\OpenCover.Framework.pdb" target="tools"/>
     <file src="main\bin\Release\OpenCover.Extensions.dll" target="tools"/>
     <file src="main\bin\Release\OpenCover.Extensions.pdb" target="tools"/>
-    <file src="main\bin\Release\log4net.config" target="tools"/>
-    <file src="main\bin\Release\log4net.dll" target="tools"/>
-    <file src="main\bin\Release\CrashReporter.NET.dll" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Framework.dll" target="tools"/>
+    <file src="main\bin\Release\OpenCover.Framework.pdb" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>

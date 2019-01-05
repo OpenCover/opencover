@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Autofac;
 using Autofac.Configuration;
+using Microsoft.Extensions.Configuration;
 using Mono.Cecil;
 using OpenCover.Framework.Model;
 
@@ -22,8 +23,10 @@ namespace OpenCover.Framework.Strategy
 
             public TrackedMethodStrategyProxy()
             {
+                var config = new ConfigurationBuilder();
+                config.AddJsonFile("autofac.json");
                 var builder = new ContainerBuilder();
-                builder.RegisterModule(new ConfigurationSettingsReader());
+                builder.RegisterModule(new ConfigurationModule(config.Build()));
                 var container = builder.Build();
                 _strategies = container.Resolve<IEnumerable<ITrackedMethodStrategy>>();
             }

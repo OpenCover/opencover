@@ -5,23 +5,34 @@
 
     <zip zipfile="${solution.folder}\bin\zip\opencover.zip">
       <fileset basedir="${solution.folder}\bin\Release">
-        <include name="OpenCover.Console.exe" />
-        <include name="OpenCover.Console.pdb" />
-        <include name="OpenCover.Console.exe.config" />
-        <include name="OpenCover.Framework.dll" />
-        <include name="OpenCover.Framework.pdb" />
-        <include name="OpenCover.Extensions.dll" />
-        <include name="OpenCover.Extensions.pdb" />
         <include name="Autofac.dll" />
         <include name="Autofac.Configuration.dll" />
-        <include name="Mono.Cecil.dll" />
-        <include name="Mono.Cecil.Pdb.dll" />
-        <include name="Mono.Cecil.Mdb.dll" />
+        <include name="autofac.json" />
+        <include name="CrashReporter.NET.dll" />
         <include name="Gendarme.Framework.dll" />
         <include name="Gendarme.Rules.Maintainability.dll" />
         <include name="log4net.dll" />
         <include name="log4net.config" />
-        <include name="CrashReporter.NET.dll" />
+        <include name="Microsoft.Extensions.Configuration.Abstractions.dll" />
+        <include name="Microsoft.Extensions.Configuration.dll" />
+        <include name="Microsoft.Extensions.Configuration.FileExtensions.dll" />
+        <include name="Microsoft.Extensions.Configuration.Json.dll" />
+        <include name="Microsoft.Extensions.FileProviders.Abstractions.dll" />
+        <include name="Microsoft.Extensions.FileProviders.Physical.dll" />
+        <include name="Microsoft.Extensions.FileSystemGlobbing.dll" />
+        <include name="Microsoft.Extensions.Primitives.dll" />
+        <include name="Mono.Cecil.dll" />
+        <include name="Mono.Cecil.Pdb.dll" />
+        <include name="Mono.Cecil.Mdb.dll" />
+        <include name="Mono.Cecil.Rocks.dll" />
+        <include name="Newtonsoft.Json.dll" />
+        <include name="OpenCover.Console.exe" />
+        <include name="OpenCover.Console.pdb" />
+        <include name="OpenCover.Console.exe.config" />
+        <include name="OpenCover.Extensions.dll" />
+        <include name="OpenCover.Extensions.pdb" />
+        <include name="OpenCover.Framework.dll" />
+        <include name="OpenCover.Framework.pdb" />
       </fileset>
       <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
         <include name="OpenCover.Profiler.dll" />
