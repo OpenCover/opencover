@@ -11,7 +11,11 @@ Please provide the following information when submitting an issue.
 - [ ] .NET 4.6
 - [ ] .NET 4.6.1
 - [ ] .NET 4.6.2
+- [ ] .NET 4.7
+- [ ] .NET 4.7.1
+- [ ] .NET 4.7.2
 - [ ] .NET Core 1.0.0
+- [ ] .NET Core 2.0.0
 - [ ] Something else
 
 ### My Environment
