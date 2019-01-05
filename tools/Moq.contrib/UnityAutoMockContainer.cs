@@ -1,4 +1,7 @@
 // 
+
+using Unity.Storage;
+
 namespace Moq
 {
     namespace AutoMocking
