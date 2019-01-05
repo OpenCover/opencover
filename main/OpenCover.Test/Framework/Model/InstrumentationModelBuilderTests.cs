@@ -202,6 +202,7 @@ namespace OpenCover.Test.Framework.Model
         {
             // arrange
             var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            Assert.IsNotNull(assemblyPath);
 
             Container.GetMock<ISymbolManager>()
                 .SetupGet(x => x.ModulePath)

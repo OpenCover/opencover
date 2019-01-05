@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using NUnit.Framework;
 using OpenCover.Framework.Strategy;
 
@@ -22,8 +18,7 @@ namespace OpenCover.Test.Framework.Strategy
         [TearDown]
         public void TearDown()
         {
-            if (_manager != null) 
-                _manager.Dispose();
+            _manager?.Dispose();
         }
 
         [Test]
@@ -58,7 +53,7 @@ namespace OpenCover.Test.Framework.Strategy
 
             // assert
             Assert.AreEqual(1, methods[0].UniqueId);
-            Assert.AreEqual(methods.Count() + 1, methods2[0].UniqueId);
+            Assert.AreEqual(methods.Length + 1, methods2[0].UniqueId);
         }
 
     }

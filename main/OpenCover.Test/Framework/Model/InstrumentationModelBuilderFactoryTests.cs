@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using NUnit.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Test.MoqFramework;
@@ -18,6 +14,7 @@ namespace OpenCover.Test.Framework.Model
         {
             // arrange
             var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            Assert.IsNotNull(assemblyPath);
 
             // act
             var model = Instance.CreateModelBuilder(Path.Combine(assemblyPath, "OpenCover.Test.dll"), "OpenCover.Test");

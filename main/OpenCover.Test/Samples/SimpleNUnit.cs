@@ -1,8 +1,5 @@
 ﻿using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OpenCover.Test.Samples
 {
@@ -27,13 +24,13 @@ namespace OpenCover.Test.Samples
         {
         }
 
-        [TestCaseSource("DivideCases")]
+        [TestCaseSource(nameof(_divideCases))]
         public void DivideTest(int n, int d, int q)
         {
             Assert.AreEqual(q, n / d);
         }
 
-        static object[] DivideCases = {
+        private static object[] _divideCases = {
             new object[] { 12, 3, 4 },
             new object[] { 12, 2, 6 },
             new object[] { 12, 4, 3 }
