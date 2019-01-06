@@ -52,4 +52,5 @@ Fill me in...
 
 ### Steps to reproduce the problem:
 
-Fill me in...
+- [ ] reviewed the [usage guide](https://github.com/opencover/opencover/wiki/usage) and [usage document](https://github.com/opencover/opencover/blob/master/main/OpenCover.Documentation/Usage.pdf) again because we know you probably didn't do it the first time.
+- [ ] sample code or link to repository/gist is available (support is much faster this way) 
