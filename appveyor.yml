@@ -77,7 +77,7 @@ artifacts:
 deploy:
 - provider: NuGet
   api_key:
-    secure: yew/4xjmqdUs1U//LNGQjjMgB3JVantsz09C2LxmKaLXuG1gEsWJl+Nd+VRmB3TM
+    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
   skip_symbols: true
   artifact: Nuget
   on:
@@ -100,7 +100,7 @@ deploy:
     branch: release
 - provider: NuGet
   api_key:
-    secure: yew/4xjmqdUs1U//LNGQjjMgB3JVantsz09C2LxmKaLXuG1gEsWJl+Nd+VRmB3TM
+    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
   skip_symbols: true
   artifact: NugetCandidate
   on:
