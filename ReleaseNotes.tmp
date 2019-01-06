@@ -1,4 +1,11 @@
 Version [[version]]
+#851 support .NET 4.7.2 and ICorProfilerCallback9 (feature)
+#690 support .NET 4.7.1 and ICorProfilerCallback8 (feature)
+#698 update icon images (feaure)
+#731, #771 handle DirectoryNotFound when searching for source files (fix)
+#742 find tests in nested classes (feature)
+#719 fix npath overflow (fix) 
+#722 hide branch that should be excluded (fix)
 #595 added .net core support (feature)
 #550 ensure the host and profiler are matched by version number (feature)
 #579 remove false positive reporting on filter (fix)
@@ -6,6 +13,7 @@ Version [[version]]
 #603 build chocolatey package for alternative distribution (feature)
 #540 -version now also works when mixed with other args (feature) 
 #577 output filepath when handling exceptions with files (fix) 
+#551 report long file paths to user (fix)
 
 Version 4.6.519
 #528 -safemode:on to address incomplete coverage due to thread based buffers (feature)
