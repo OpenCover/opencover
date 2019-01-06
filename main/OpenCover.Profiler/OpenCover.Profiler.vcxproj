@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B2CE418E-A5C8-4C46-9513-771414B3CA4C}</ProjectGuid>
     <Keyword>AtlProj</Keyword>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -85,14 +85,14 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -100,14 +100,14 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <IncludePath>$(DotNetSdkRoot)..\4.7.1\Include\um;$(IncludePath)</IncludePath>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

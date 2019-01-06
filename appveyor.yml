@@ -20,13 +20,13 @@ nuget:
   disable_publish_on_pr: true
 install:
 - ps: >-
-    Write-Host 'Downloading Microsoft .NET Framework 4.7.1 Developer Pack...'
+    Write-Host 'Downloading Microsoft .NET Framework 4.7.2 Developer Pack...'
     
     $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
     
-    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/9/0/1/901B684B-659E-4CBD-BEC8-B3F06967C2E7/NDP471-DevPack-ENU.exe', $exePath)
+    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/3/B/F/3BFB9C35-405D-45DF-BDAF-0EB57D047888/NDP472-DevPack-ENU.exe', $exePath)
     
-    Write-Host 'Installing Microsoft .NET Framework 4.7.1 Developer Pack...'
+    Write-Host 'Installing Microsoft .NET Framework 4.7.2 Developer Pack...'
     
     cmd /c start /wait "$exePath" /q /norestart
     

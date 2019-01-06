@@ -65,7 +65,7 @@ You will need:
 2. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
 3. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowforVisualStudio2017)
 4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
-5. Microsoft .NET Framework 4.7.1 Developer Pack (https://www.microsoft.com/en-us/download/details.aspx?id=56119)
+5. Microsoft .NET Framework 4.7.2 Developer Pack (https://dotnet.microsoft.com/download/visual-studio-sdks)
 
 All other software should be included with this repository. 
 

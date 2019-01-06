@@ -1,5 +1,3 @@
-// ProfilerInfo.h : Declaration of the CProfilerInfo
-
 #pragma once
 #include "resource.h"       // main symbols
 
