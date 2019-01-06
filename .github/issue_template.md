@@ -11,7 +11,11 @@ Please provide the following information when submitting an issue.
 - [ ] .NET 4.6
 - [ ] .NET 4.6.1
 - [ ] .NET 4.6.2
+- [ ] .NET 4.7
+- [ ] .NET 4.7.1
+- [ ] .NET 4.7.2
 - [ ] .NET Core 1.0.0
+- [ ] .NET Core 2.0.0
 - [ ] Something else
 
 ### My Environment
@@ -48,4 +52,5 @@ Fill me in...
 
 ### Steps to reproduce the problem:
 
-Fill me in...
+- [ ] reviewed the [usage guide](https://github.com/opencover/opencover/wiki/usage) and [usage document](https://github.com/opencover/opencover/blob/master/main/OpenCover.Documentation/Usage.pdf) again because we know you probably didn't do it the first time.
+- [ ] sample code or link to repository/gist is available (support is much faster this way) 

@@ -7,12 +7,13 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
 | **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) | 
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
+| **Quality** | [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) | 
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 
 | | Disabled Integrations |
 | --- | --- |
 | **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=opencover) | 
-| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) | 
+| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) | 
 
 ### Master 
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
@@ -64,7 +65,7 @@ You will need:
 2. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
 3. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowforVisualStudio2017)
 4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
-5. Microsoft .NET Framework 4.7.1 Developer Pack (https://www.microsoft.com/en-us/download/details.aspx?id=56119)
+5. Microsoft .NET Framework 4.7.2 Developer Pack (https://dotnet.microsoft.com/download/visual-studio-sdks)
 
 All other software should be included with this repository. 
 
@@ -104,8 +105,8 @@ I would like to thank
 
 * [AppVeyor](https://ci.appveyor.com/project/sawilde/opencover) for allowing free build CI services for Open Source projects,
 * [Coveralls](https://coveralls.io/r/OpenCover/opencover) for allowing free services for Open Source projects,
-* NDepend for my [NDepend licence](http://www.ndepend.com/),
-* the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the VS2013 Community Edition), 
+* NDepend for my [NDepend licence](http://www.ndepend.com/) - I don't use it nearly as much as I know I should do,
+* the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the Community Editions), 
 * the [NextGenUG](http://www.nxtgenug.net/) and their free swag from where I got lots of useful tools,
 
 

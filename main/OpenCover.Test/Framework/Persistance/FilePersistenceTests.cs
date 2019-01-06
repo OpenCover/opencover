@@ -152,7 +152,7 @@ namespace OpenCover.Test.Framework.Persistance
             var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
 
             // act
-            Assert.IsFalse(persistence.HandleFileAccess(() => { throw (Exception) Activator.CreateInstance(exception); }, "file_name"));
+            Assert.IsFalse(persistence.HandleFileAccess(() => throw (Exception) Activator.CreateInstance(exception), "file_name"));
         }
     }
 }

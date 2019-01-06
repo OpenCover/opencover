@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using OpenCover.Framework;
 
@@ -11,7 +8,7 @@ namespace OpenCover.Test.Framework
     public class CommandLineParserBaseTests
     {
         // this allows testing of the abstract class
-        class CommandLineParserStub : CommandLineParserBase
+        private class CommandLineParserStub : CommandLineParserBase
         {
             public CommandLineParserStub(string[] arguments)
                 : base(arguments)
@@ -152,7 +149,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParserStub(new[] { "-arg1" });
 
             // assert
-            Assert.AreEqual(String.Empty, parser.GetArgumentValue("xxxx"));
+            Assert.AreEqual(string.Empty, parser.GetArgumentValue("xxxx"));
         }
 
         [Test]
@@ -164,7 +161,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParserStub(new[]{"-"});
 
             // assert
-            
+            Assert.NotNull(parser);
         }
         
         [Test]

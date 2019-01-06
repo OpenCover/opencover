@@ -167,7 +167,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(0, points[0].Path);
             Assert.AreEqual(1, points[1].Path);
@@ -230,7 +230,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[2].Offset, points[3].Offset);
             Assert.AreEqual(25, points[0].StartLine);
@@ -254,7 +254,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(32, points[0].StartLine);
             Assert.AreEqual(32, points[1].StartLine);
@@ -277,7 +277,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);            
             Assert.AreEqual(3, points[3].Path);
@@ -305,7 +305,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
@@ -333,7 +333,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
@@ -361,7 +361,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count()); 
+            Assert.AreEqual(4, points.Length); 
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(points[0].Offset, points[3].Offset);
@@ -408,7 +408,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
 
         }
 
@@ -536,9 +536,9 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
 #if DEBUG
-            Assert.AreEqual(3, points.Count());
+            Assert.AreEqual(3, points.Length);
 #else
-            Assert.AreEqual(1, points.Count());
+            Assert.AreEqual(1, points.Length);
 #endif
 
         }
@@ -728,7 +728,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetTrackedMethods();
 
             // assert
-            Assert.AreEqual(1, methods.Count());
+            Assert.AreEqual(1, methods.Length);
         }
 
         [Test]
@@ -790,7 +790,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count(), "The branch point in the 'generated' finally block should be ignored");
+            Assert.AreEqual(0, points.Length, "The branch point in the 'generated' finally block should be ignored");
         }
 
         [Test]
@@ -811,7 +811,7 @@ namespace OpenCover.Test.Framework.Symbols
             var points = _reader.GetBranchPointsForToken(method.MetadataToken);
 
             // assert
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
 
         }
 

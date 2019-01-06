@@ -1,10 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-// CodeCoverage.h : Declaration of the CCodeCoverage
-
 #pragma once
 #include "resource.h"       // main symbols
 
@@ -64,6 +57,7 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback6)
 	COM_INTERFACE_ENTRY(ICorProfilerCallback7)
 	COM_INTERFACE_ENTRY(ICorProfilerCallback8)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback9)
 END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()

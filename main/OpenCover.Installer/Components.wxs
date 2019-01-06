@@ -5,13 +5,55 @@
   <Fragment>
 
     <DirectoryRef Id="APPLICATIONFOLDER">
-      <Component Id="RegistryEntries" Guid="7E7875AC-274A-46EC-B704-9327ABC45F1A" >
+      <Component Id="RegistryEntries" Guid="{7E7875AC-274A-46EC-B704-9327ABC45F1A}" >
         <RegistryKey Root="HKMU" Key="Software" >
           <RegistryKey Key="OpenCover" >
             <RegistryValue Name="Path" Type="string" Value="[APPLICATIONFOLDER]" KeyPath="yes" />
             <RegistryValue Name="Version" Type="string" Value="$(var.Version)" />
           </RegistryKey>
         </RegistryKey>
+      </Component>
+      <Component Id="Autofac_3rdParty" Guid="{C0CB1F5D-38BF-4B20-94F4-CD74C349CD79}">
+        <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" KeyPath="yes" />
+        <File Id="AUTOFAC_CONFIGURATION_DLL" Source="..\bin\Release\Autofac.Configuration.dll" />
+      </Component>
+      <Component Id="CrashReporter_Signed_3rdParty" Guid="{D2A05736-4ED9-4BF1-9FC0-D507794A5A68}">
+        <File Id="CRASHREPORTER_NET_DLL" Source="..\bin\Release\CrashReporter.NET.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
+        <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
+        <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
+      </Component>
+      <Component Id="Log4Net_3rdParty" Guid="{12E6BB24-EC81-4831-A1CD-9DF0600901A0}">
+        <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
+        <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
+      </Component>
+      <Component Id="Microsoft_Extensions_3rdParty" Guid="{8DFFFC1B-737F-4304-A6E2-AE18E3C8D647}">
+        <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Configuration.dll" KeyPath="yes" />
+        <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_ABSTRACTIONS_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Configuration.Abstractions.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_FILEEXTENSIONS_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Configuration.FileExtensions.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_JSON_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Configuration.Json.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_FILEPROVIDERS_ABSTRACTIONS_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_FILEPROVIDERS_PHYSICAL_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.FileProviders.Physical.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_FILESYSTEMGLOBBING_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.FileSystemGlobbing.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_PRIMITIVES_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Primitives.dll" />
+      </Component>
+      <Component Id="MonoCecil_3rdParty" Guid="{6DF69995-B4D4-47CD-96EF-FD224A95A4F8}">
+        <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" KeyPath="yes" />
+        <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
+        <File Id="MONO_CECIL_MDB_DLL" Source="..\bin\Release\Mono.Cecil.Mdb.dll" />
+        <File Id="MONO_CECIL_ROCKS_DLL" Source="..\bin\Release\Mono.Cecil.Rocks.dll" />
+      </Component>
+      <Component Id="Newtonsoft_3rdParty" Guid="{98CD4BF5-399D-438F-91D4-5BDF5B20ADB8}">
+        <File Id="NEWTONSOFT_JSON_DLL" Source="..\bin\Release\Newtonsoft.Json.dll" KeyPath="yes" />
       </Component>
       <Component Id="MainProduct" Guid="{D451E3FE-35A6-4946-B0C5-FFE22580891C}">
         <File Id="OPENCOVER_CONSOLE_EXE" Source="..\bin\Release\OpenCover.Console.exe" KeyPath="yes" />
@@ -21,60 +63,41 @@
       <Component Id="MainFramework" Guid="{6AA473E5-13D3-4963-983E-3F5B007A29D9}">
         <File Id="OPENCOVER_FRAMEWORK_DLL" Source="..\bin\Release\OpenCover.Framework.dll" KeyPath="yes" />
         <File Id="OPENCOVER_FRAMEWORK_PDB" Source="..\bin\Release\OpenCover.Framework.pdb" />
+        <File Id="AUTOFAC_JSON" Source="..\bin\Release\autofac.json" />
       </Component>
       <Component Id="Extensions" Guid="{B34740C7-1432-4AD0-A205-A036CBC8EAE4}">
         <File Id="OPENCOVER_EXTENSIONS_DLL" Source="..\bin\Release\OpenCover.Extensions.dll" KeyPath="yes" />
         <File Id="OPENCOVER_EXTENSIONS_PDB" Source="..\bin\Release\OpenCover.Extensions.pdb" />
       </Component>
-      <Component Id="Autofac_3rdParty" Guid="{C0CB1F5D-38BF-4B20-94F4-CD74C349CD79}">
-        <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" KeyPath="yes" />
-        <File Id="AUTOFAC_CONFIGURATION_DLL" Source="..\bin\Release\Autofac.Configuration.dll" />
-      </Component>
-      <Component Id="MonoCecil_3rdParty" Guid="{6DF69995-B4D4-47CD-96EF-FD224A95A4F8}">
-        <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" KeyPath="yes" />
-        <File Id="MONO_CECIL_PDB_DLL" Source="..\bin\Release\Mono.Cecil.Pdb.dll" />
-        <File Id="MONO_CECIL_MDB_DLL" Source="..\bin\Release\Mono.Cecil.Mdb.dll" />
-      </Component>
-      <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
-        <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
-        <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />
-      </Component>
-      <Component Id="CrashReporter_Signed_3rdParty" Guid="{d2a05736-4ed9-4bf1-9fc0-d507794a5a68}">
-        <File Id="CRASHREPORTER_NET_DLL" Source="..\bin\Release\CrashReporter.NET.dll" KeyPath="yes" />
-      </Component>
-      <Component Id="Log4Net_3rdParty" Guid="{12E6BB24-EC81-4831-A1CD-9DF0600901A0}">
-        <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
-        <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
-      </Component>
-      <Component Id="SampleCmds" Guid="4D7F8200-EC80-49A2-92FB-2083E8FC469D">
+      <Component Id="SampleCmds" Guid="{4D7F8200-EC80-49A2-92FB-2083E8FC469D}">
         <File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" KeyPath="yes" />
         <File Id="SAMPLE64_CMD" Source="Assets\Sample64.cmd" Name="Sample64.cmd" />
       </Component>
-      <Component Id="Licence" Guid="60002ECF-123F-47B8-927F-AB912EE145C2">
+      <Component Id="Licence" Guid="{60002ECF-123F-47B8-927F-AB912EE145C2}">
         <File Id="LICENCE_RTF" Source="..\..\License.rtf" Name="License.rtf" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="DOCS">
-      <Component Id="Documentation" Guid="07BF07A1-BCC5-40E9-953E-0C543F29D22A">
+      <Component Id="Documentation" Guid="{07BF07A1-BCC5-40E9-953E-0C543F29D22A}">
         <File Id="USAGE_RTF" Source="..\OpenCover.Documentation\Usage.rtf" KeyPath="yes" />
       </Component>
-      <Component Id="Documentation_RelNotes" Guid="0A7C5485-0458-46E3-AFDC-DACD5CE1ECBF">
+      <Component Id="Documentation_RelNotes" Guid="{0A7C5485-0458-46E3-AFDC-DACD5CE1ECBF}">
         <File Id="RELNOTES_TXT" Source="..\..\ReleaseNotes.txt" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="TRANSFORM_FLDR">
-      <Component Id="TransformScript" Guid="1FEB814D-5FE0-491F-9CB1-6FA6FB17D3C5">
+      <Component Id="TransformScript" Guid="{1FEB814D-5FE0-491F-9CB1-6FA6FB17D3C5}">
         <File Id="TRANSFORM_PS1" Source="..\transform\transform.ps1" KeyPath="yes" />
       </Component>
-      <Component Id="SimpleTransform" Guid="F79B8C73-070F-458B-B9B3-313CE5AEE311">
+      <Component Id="SimpleTransform" Guid="{F79B8C73-070F-458B-B9B3-313CE5AEE311}">
         <File Id="SIMPLE_REPORT_XSLT" Source="..\transform\simple_report.xslt" KeyPath="yes" />
       </Component>
     </DirectoryRef>
 
       <DirectoryRef Id="X86" >
-      <Component Id="X86Profiler" Guid="6E3C0557-C3E6-4D45-9914-905CAFB71CA7" >
+      <Component Id="X86Profiler" Guid="{6E3C0557-C3E6-4D45-9914-905CAFB71CA7}" >
         <File Id="OPENCOVER_PROFILER_DLL_X86" Source="..\bin\Release\x86\OpenCover.Profiler.dll" KeyPath="yes">
           <!--
               <TypeLib Id="{437C5B7B-DA44-4DE8-8629-CC994EA549EC}" Description="OpenCoverProfilerLib"
@@ -90,7 +113,7 @@
     </DirectoryRef>
 
     <DirectoryRef Id="X64" >
-      <Component Id="X64Profiler" Guid="F52FC3F3-FACB-4EFE-8248-210C73BD1C36" >
+      <Component Id="X64Profiler" Guid="{F52FC3F3-FACB-4EFE-8248-210C73BD1C36}" >
         <File Id="OPENCOVER_PROFILER_DLL_X64" Source="..\bin\Release\x64\OpenCover.Profiler.dll" KeyPath="yes" >
           <!--
 				      <TypeLib Id="{9F34E05F-9627-4477-A016-0D56DEF7A38E}" Description="OpenCoverProfilerLib" 
@@ -106,28 +129,28 @@
     </DirectoryRef>
 
     <DirectoryRef Id="SAMPLES_X86" >
-      <Component Id="X86Samples" Guid="A3CD8F55-CC98-4CAC-9839-1C7790151364">
+      <Component Id="X86Samples" Guid="{A3CD8F55-CC98-4CAC-9839-1C7790151364}">
         <File Id="OPENCOVER_SIMPLE_TARGET_EXE_X86" Source="..\bin\Release\x86\OpenCover.Simple.Target.exe" KeyPath="yes" />
         <File Id="OPENCOVER_SIMPLE_TARGET_PDB_X86" Source="..\bin\Release\x86\OpenCover.Simple.Target.pdb"/>
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="SAMPLES_X64" >
-      <Component Id="X64Samples" Guid="08B660A3-0CE9-41CC-BC16-E70C1EE9C1E5">
+      <Component Id="X64Samples" Guid="{08B660A3-0CE9-41CC-BC16-E70C1EE9C1E5}">
         <File Id="OPENCOVER_SIMPLE_TARGET_EXE_X64" Source="..\bin\Release\x64\OpenCover.Simple.Target.exe" KeyPath="yes" />
         <File Id="OPENCOVER_SIMPLE_TARGET_PDB_X64" Source="..\bin\Release\x64\OpenCover.Simple.Target.pdb"/>
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="MSBUILDOPENCOVERDIRECTORY">
-      <Component Id="MSBuildFiles" Guid="F635F447-4F1A-4D2F-AB00-877C5786E50F">
+      <Component Id="MSBuildFiles" Guid="{F635F447-4F1A-4D2F-AB00-877C5786E50F}">
         <File Id="OPENCOVER_MSBUILD_DLL" Source="..\bin\Release\OpenCover.MSBuild.dll" KeyPath="yes" />
         <File Id="OPENCOVER_TARGETS" Source="..\bin\Release\OpenCover.targets" />
       </Component>
     </DirectoryRef>
 
     <DirectoryRef Id="ApplicationProgramsFolder">
-      <Component Id="DocumentationShortcut" Guid="CDC99934-3AEF-4BEE-BA54-4E5850F21A9F">
+      <Component Id="DocumentationShortcut" Guid="{CDC99934-3AEF-4BEE-BA54-4E5850F21A9F}">
         <Shortcut Id="DocumentStartMenuShortcut"
              Name="OpenCover Usage Guide"
            Description="OpenCover Usage Guide"
@@ -135,7 +158,7 @@
                   WorkingDirectory="DOCS"/>
         <RegistryValue Root="HKCU" Key="Software\Microsoft\OpenCover\Installer" Name="documentation" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
-      <Component Id="PromptShortcut" Guid="010D14EA-B89A-4DFF-9DC2-AFFF34783743">
+      <Component Id="PromptShortcut" Guid="{010D14EA-B89A-4DFF-9DC2-AFFF34783743}">
         <Shortcut Id="PromptStartMenuShortcut"
              Name="OpenCover Prompt"
            Description="OpenCover Prompt"

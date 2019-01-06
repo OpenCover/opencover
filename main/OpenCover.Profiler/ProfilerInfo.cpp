@@ -1,5 +1,3 @@
-// ProfilerInfo.cpp : Implementation of CProfilerInfo
-
 #include "stdafx.h"
 #include "ProfilerInfo.h"
 

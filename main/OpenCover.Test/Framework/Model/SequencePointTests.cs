@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using OpenCover.Framework.Model;
 
 namespace OpenCover.Test.Framework.Model
@@ -17,7 +14,7 @@ namespace OpenCover.Test.Framework.Model
             // arrange
 
             // act
-            for (int i = 0; i < 10000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 new SequencePoint();
             }
@@ -36,7 +33,7 @@ namespace OpenCover.Test.Framework.Model
             // arrange
 
             // act
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 new SequencePoint();
             }
@@ -53,7 +50,7 @@ namespace OpenCover.Test.Framework.Model
             InstrumentationPoint.Clear();
 
             // act
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 new SequencePoint();
             }

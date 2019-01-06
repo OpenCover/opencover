@@ -185,10 +185,10 @@ namespace OpenCover.Console
         /// <returns>Returns wether the svchost.exe was restarted by the services.exe process or not</returns>
         private static bool TerminateCurrentW3SvcHost()
         {
-            var processName = "svchost.exe";
-            string wmiQuery = string.Format("select CommandLine, ProcessId from Win32_Process where Name='{0}'", processName);
+            const string processName = "svchost.exe";
+            var wmiQuery = $"select CommandLine, ProcessId from Win32_Process where Name='{processName}'";
             var searcher = new ManagementObjectSearcher(wmiQuery);
-            ManagementObjectCollection retObjectCollection = searcher.Get();
+            var retObjectCollection = searcher.Get();
             foreach (var retObject in retObjectCollection)
             {
                 var cmdLine = (string)retObject["CommandLine"];

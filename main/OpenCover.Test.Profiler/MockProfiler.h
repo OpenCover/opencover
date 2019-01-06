@@ -269,4 +269,8 @@ public:
 		/* [in] */ HRESULT hrStatus,
 		/* [in] */ BOOL fIsSafeToBlock));
 
+	// ICorProfilerCallback9
+public: 
+	MOCK_METHOD1_WITH_CALLTYPE(STDMETHODCALLTYPE, DynamicMethodUnloaded, HRESULT(
+		/* [in] */ FunctionID functionId));
 };

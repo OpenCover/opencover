@@ -163,7 +163,8 @@ namespace OpenCover.Test.Framework
         public void HandlesTheExcludeDirsArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)), RequiredArgs });
+            var parser = new CommandLineParser(new[] {
+                $"-excludedirs:{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)};{Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -178,7 +179,8 @@ namespace OpenCover.Test.Framework
         public void HandlesTheExcludeDirsArgumentWithSuppliedValueRemovesDuplicates()
         {
             // arrange  
-            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)), RequiredArgs });
+            var parser = new CommandLineParser(new[] {
+                $"-excludedirs:{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)};{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -790,7 +792,7 @@ namespace OpenCover.Test.Framework
         public void HandlesCommunicationTimeout(int suppliedMillisconds, int expectedMiliseconds)
         {
             // arrange
-            var parser = new CommandLineParser(new[] { string.Format("-communicationtimeout:{0}", suppliedMillisconds), RequiredArgs });
+            var parser = new CommandLineParser(new[] {$"-communicationtimeout:{suppliedMillisconds}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -892,7 +894,7 @@ namespace OpenCover.Test.Framework
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
         {
             yield return "-target:t";
-            yield return string.Format("-filter:\"{0}\"", filterArg);
+            yield return $"-filter:\"{filterArg}\"";
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
 

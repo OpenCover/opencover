@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenCover.Framework;
-using OpenCover.Test.Framework.Persistance;
+﻿using OpenCover.Framework;
 using Xunit;
 
 namespace OpenCover.Test.Samples
@@ -26,7 +21,7 @@ namespace OpenCover.Test.Samples
         [InlineData(8)]
         public void Test_Data_Is_Even(int i)
         {
-            Assert.Equal(i % 2, 0);
+            Assert.Equal(0, i % 2);
         }
     }
 }

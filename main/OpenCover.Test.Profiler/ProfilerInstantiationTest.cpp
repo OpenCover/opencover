@@ -86,3 +86,8 @@ TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback8) {
 
 	InstantiateProfiler<ICorProfilerCallback8>();
 }
+
+TEST_F(ProfilerInstantiationTest, ProfilerSuppportsICorProfilerCallback9) {
+
+	InstantiateProfiler<ICorProfilerCallback9>();
+}

@@ -16,7 +16,7 @@ namespace OpenCover.Test.ConsoleEx
 
             var pi = new ProcessStartInfo()
             {
-                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.6.1 Tools\corflags.exe"),
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.2 Tools\corflags.exe"),
                 Arguments = Path.Combine(assemblyPath, "OpenCover.Console.exe"),
                 CreateNoWindow = true,
                 UseShellExecute = false,

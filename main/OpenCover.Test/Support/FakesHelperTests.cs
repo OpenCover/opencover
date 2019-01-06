@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using NUnit.Framework;
 using OpenCover.Support.Fakes;
-using OpenCover.Support.UITesting;
 
 namespace OpenCover.Test.Support
 {

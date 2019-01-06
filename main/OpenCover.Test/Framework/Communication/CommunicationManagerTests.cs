@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Communication;
@@ -49,7 +46,7 @@ namespace OpenCover.Test.Framework.Communication
                     
                     // assert
                     Assert.IsTrue(mcb.ResultsHaveBeenReceived.WaitOne(new TimeSpan(0, 0, 0, 4)), "Profiler wasn't signalled");
-                    Assert.AreEqual(100, data.Count());
+                    Assert.AreEqual(100, data.Length);
                 }
             }
         }

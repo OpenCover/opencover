@@ -1,11 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-// OpenCover.Profiler.cpp : Implementation of DLL Exports.
-
-
 #include "stdafx.h"
 #include "resource.h"
 #include "OpenCoverProfiler_i.h"
