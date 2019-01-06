@@ -2,7 +2,7 @@
 
 using namespace ATL;
 
-class CProfilerBase : public ICorProfilerCallback8
+class CProfilerBase : public ICorProfilerCallback9
 {
 public:
     virtual ~CProfilerBase()
@@ -20,6 +20,7 @@ public:
 		if (chainedProfiler6_ != nullptr) chainedProfiler6_.Release();
 		if (chainedProfiler7_ != nullptr) chainedProfiler7_.Release();
 		if (chainedProfiler8_ != nullptr) chainedProfiler8_.Release();
+		if (chainedProfiler9_ != nullptr) chainedProfiler9_.Release();
 	}
 
 private:
@@ -31,6 +32,7 @@ private:
 	CComQIPtr<ICorProfilerCallback6> chainedProfiler6_;
 	CComQIPtr<ICorProfilerCallback7> chainedProfiler7_;
 	CComQIPtr<ICorProfilerCallback8> chainedProfiler8_;
+	CComQIPtr<ICorProfilerCallback9> chainedProfiler9_;
 
 public:
 	void HookChainedProfiler(IUnknown* hookedProfiler)
@@ -43,6 +45,7 @@ public:
 		chainedProfiler6_ = hookedProfiler;
 		chainedProfiler7_ = hookedProfiler;
 		chainedProfiler8_ = hookedProfiler;
+		chainedProfiler9_ = hookedProfiler;
 	}
 
 	bool IsChainedProfilerHooked() const { return chainedProfiler_ != nullptr; }
@@ -862,6 +865,15 @@ public:
 	{
 		return ChainProfiler(chainedProfiler8_,
 			[&](ICorProfilerCallback8 *profiler) { return profiler->DynamicMethodJITCompilationFinished(functionId, hrStatus, fIsSafeToBlock); },
+			[]() { return S_OK; });
+	}
+
+// ICorProfilerCallback9
+public:
+	virtual HRESULT STDMETHODCALLTYPE DynamicMethodUnloaded(
+		/* [in] */ FunctionID functionId) override {
+		return ChainProfiler(chainedProfiler9_,
+			[&](ICorProfilerCallback9 *profiler) { return profiler->DynamicMethodUnloaded(functionId); },
 			[]() { return S_OK; });
 	}
 };

@@ -36,8 +36,8 @@ protected:
 
 TEST_F(ProfilerBaseTest, ChainedProfiler_HasHookedAllAvailableInterfaces)
 {
-	ASSERT_EQ(8, mockProfiler_->Release());
-	ASSERT_EQ(9, mockProfiler_->AddRef());
+	ASSERT_EQ(9, mockProfiler_->Release());
+	ASSERT_EQ(10, mockProfiler_->AddRef());
 }
 
 TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_Initialize_AndReturnSuccess)
@@ -1133,4 +1133,15 @@ TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_DynamicMethodJITComp
 
 	EXPECT_CALL(*mockProfiler_, DynamicMethodJITCompilationFinished(_, _, _)).Times(1);
 	ASSERT_EQ(S_OK, testProfiler_->DynamicMethodJITCompilationFinished(0, 0, 0));
+}
+
+TEST_F(ProfilerBaseTest, ChainedProfiler_WillForwardCallsTo_DynamicMethodUnloaded)
+{
+	ON_CALL(*mockProfiler_, DynamicMethodUnloaded(_))
+		.WillByDefault(Invoke([this](/* [in] */ FunctionID functionId) {
+		return S_OK;
+	}));
+
+	EXPECT_CALL(*mockProfiler_, DynamicMethodUnloaded(_)).Times(1);
+	ASSERT_EQ(S_OK, testProfiler_->DynamicMethodUnloaded(0));
 }
