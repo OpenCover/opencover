@@ -90,7 +90,14 @@ namespace OpenCover.Framework
 
         private static void ExecuteRegsvr32(bool userRegistration, bool register, bool is64)
         {
-            var startInfo = new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe"),
+            var regsvr32Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "regsvr32.exe");
+            if (!File.Exists(regsvr32Path))
+            {
+                Logger.ErrorFormat($"Failed to locate 'regsvr32.exe' in the following location '{Environment.GetFolderPath(Environment.SpecialFolder.System)}'");
+                throw new ExitApplicationWithoutReportingException();
+            }
+
+            var startInfo = new ProcessStartInfo(regsvr32Path,
                                      string.Format("/s {2} {0} \"{1}\"",userRegistration ? UserRegistrationString : String.Empty,
                                      GetProfilerPath(is64), register ? string.Empty : "/u")) { CreateNoWindow = true, UseShellExecute = false };
 
