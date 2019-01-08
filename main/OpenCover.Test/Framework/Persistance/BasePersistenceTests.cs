@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using log4net;
 using Moq;
 using NUnit.Framework;
@@ -41,7 +40,10 @@ namespace OpenCover.Test.Framework.Persistance
         private static readonly SkippedMethod[] _skippedReasonsMethods =
         {
             SkippedMethod.File,
-            SkippedMethod.Attribute
+            SkippedMethod.Attribute,
+            SkippedMethod.AutoImplementedProperty,
+            SkippedMethod.Delegate,
+            SkippedMethod.FSharpInternal
         };
 
         [Test]
@@ -53,7 +55,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(null);
 
             // assert
-            Assert.AreEqual(0, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(0, Instance.CoverageSession.Modules.Length);
         }
 
         [Test]
@@ -70,7 +72,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module2);
 
             // assert
-            Assert.AreEqual(2, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(2, Instance.CoverageSession.Modules.Length);
         }
 
         [Test]
@@ -83,7 +85,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(new Module {TrackedMethods = new TrackedMethod[0]});
 
             // assert
-            Assert.AreEqual(2, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(2, Instance.CoverageSession.Modules.Length);
         }
 
         [Test]
@@ -91,7 +93,6 @@ namespace OpenCover.Test.Framework.Persistance
         {
             // arrange
             var target = new BranchPoint();
-            BranchPoint[] pts;
             var module = new Module
             {
                 ModulePath = "ModulePath",
@@ -116,7 +117,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            Instance.GetBranchPointsForFunction("ModulePath", 1001, out pts);
+            Instance.GetBranchPointsForFunction("ModulePath", 1001, out var pts);
 
             // assert
             Assert.AreEqual(target.UniqueSequencePoint, pts[0].UniqueSequencePoint);
@@ -150,7 +151,6 @@ namespace OpenCover.Test.Framework.Persistance
         {
             // arrange
             var target = new SequencePoint();
-            InstrumentationPoint[] pts;
             var module = new Module
             {
                 ModulePath = "ModulePath",
@@ -176,7 +176,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            Instance.GetSequencePointsForFunction("ModulePath", 1001, out pts);
+            Instance.GetSequencePointsForFunction("ModulePath", 1001, out var pts);
 
             // assert
             Assert.AreEqual(target.UniqueSequencePoint, pts[0].UniqueSequencePoint);
@@ -199,7 +199,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module2);
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(1, Instance.CoverageSession.Modules.Length);
         }
 
         [Test]
@@ -449,12 +449,11 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            BranchPoint[] points;
-            Instance.GetBranchPointsForFunction("ModuleName", 2, out points);
+            Instance.GetBranchPointsForFunction("ModuleName", 2, out var points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
         }
 
         [Test]
@@ -488,12 +487,11 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            InstrumentationPoint[] points;
-            Instance.GetSequencePointsForFunction("ModulePath", 1, out points);
+            Instance.GetSequencePointsForFunction("ModulePath", 1, out var points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2, points.Length);
             Assert.AreEqual(2000, points[0].VisitCount);
             Assert.AreEqual(1000, points[1].VisitCount);
         }
@@ -529,12 +527,11 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            InstrumentationPoint[] points;
-            Instance.GetSequencePointsForFunction("ModulePath", 1, out points);
+            Instance.GetSequencePointsForFunction("ModulePath", 1, out var points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(1, points.Count());
+            Assert.AreEqual(1, points.Length);
             Assert.AreEqual(1000, points[0].VisitCount);
         }
 
@@ -558,12 +555,11 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            InstrumentationPoint[] points;
-            Instance.GetSequencePointsForFunction("ModuleName", 2, out points);
+            Instance.GetSequencePointsForFunction("ModuleName", 2, out var points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
         }
 
         [Test]
@@ -592,12 +588,11 @@ namespace OpenCover.Test.Framework.Persistance
             });
 
             // act
-            InstrumentationPoint[] points;
-            Instance.GetSequencePointsForFunction("ModuleName1", 1, out points);
+            Instance.GetSequencePointsForFunction("ModuleName1", 1, out var points);
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
         }
 
         [Test]
@@ -616,8 +611,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            uint trackedId ;
-            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 1234, out trackedId);
+            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 1234, out var trackedId);
 
             // assert
             Assert.IsTrue(result);
@@ -640,8 +634,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.PersistModule(module);
 
             // act
-            uint trackedId;
-            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 2222, out trackedId);
+            var result = Instance.GetTrackingMethod("ModulePath", "AssemblyName", 2222, out var trackedId);
 
             // assert
             Assert.IsFalse(result);
@@ -695,8 +688,8 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.Commit();
 
             // assert
-            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes.Count());
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[1].Methods.Count());
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Classes.Length);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[1].Methods.Length);
             Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[1].Methods[0].FullName);
         }
 
@@ -730,19 +723,19 @@ namespace OpenCover.Test.Framework.Persistance
                 }
             });
 
-            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Files.Count());
+            Assert.AreEqual(2, Instance.CoverageSession.Modules[0].Files.Length);
 
             // act
             Instance.Commit();
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Files.Count());
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Files.Length);
             Assert.AreEqual("KeepFile", Instance.CoverageSession.Modules[0].Files[0].FullPath);
         }
 
         [Test]
         public void HideSkipped_With_X_Removes_SkippedClasses(
-            [ValueSource("_skippedReasonsClasses")] SkippedMethod reason)
+            [ValueSource(nameof(_skippedReasonsClasses))] SkippedMethod reason)
         {
             // arrange
             Container.GetMock<ICommandLine>()
@@ -765,13 +758,13 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.Commit();
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Count());
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Length);
             Assert.AreEqual("KeepClass", Instance.CoverageSession.Modules[0].Classes[0].FullName);
         }
 
         [Test]
         public void HideSkipped_With_X_Removes_SkippedMethods(
-            [ValueSource("_skippedReasonsMethods")] SkippedMethod reason)
+            [ValueSource(nameof(_skippedReasonsMethods))] SkippedMethod reason)
         {
             // arrange
             Container.GetMock<ICommandLine>()
@@ -807,14 +800,14 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.Commit();
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Count());
-            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods.Count());
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes.Length);
+            Assert.AreEqual(1, Instance.CoverageSession.Modules[0].Classes[0].Methods.Length);
             Assert.AreEqual("KeepMethod", Instance.CoverageSession.Modules[0].Classes[0].Methods[0].FullName);
         }
 
         [Test]
         public void HideSkipped_With_X_Removes_SkippedModules(
-            [ValueSource("_skippedReasonsModules")] SkippedMethod reason)
+            [ValueSource(nameof(_skippedReasonsModules))] SkippedMethod reason)
         {
             // arrange
             Container.GetMock<ICommandLine>()
@@ -830,7 +823,7 @@ namespace OpenCover.Test.Framework.Persistance
             Instance.Commit();
 
             // assert
-            Assert.AreEqual(1, Instance.CoverageSession.Modules.Count());
+            Assert.AreEqual(1, Instance.CoverageSession.Modules.Length);
             Assert.AreEqual("Keep", Instance.CoverageSession.Modules[0].ModulePath);
         }
 
@@ -1011,7 +1004,7 @@ namespace OpenCover.Test.Framework.Persistance
 
             var points = new[]
             {pt1.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint};
-            data.AddRange(BitConverter.GetBytes((UInt32) points.Count()));
+            data.AddRange(BitConverter.GetBytes((UInt32) points.Length));
             foreach (uint point in points)
                 data.AddRange(BitConverter.GetBytes(point));
 
@@ -1033,7 +1026,7 @@ namespace OpenCover.Test.Framework.Persistance
             var data = new List<byte>();
 
             var points = new[] { pt1.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint };
-            data.AddRange(BitConverter.GetBytes((UInt32)points.Count() + 1));
+            data.AddRange(BitConverter.GetBytes((UInt32)points.Length + 1));
             foreach (uint point in points)
                 data.AddRange(BitConverter.GetBytes(point));
 
@@ -1061,7 +1054,7 @@ namespace OpenCover.Test.Framework.Persistance
                 2 | (uint) MSG_IdType.IT_MethodEnter, pt2.UniqueSequencePoint, pt2.UniqueSequencePoint,
                 2 | (uint) MSG_IdType.IT_MethodLeave
             };
-            data.AddRange(BitConverter.GetBytes((UInt32) points.Count()));
+            data.AddRange(BitConverter.GetBytes((UInt32) points.Length));
             foreach (uint point in points)
                 data.AddRange(BitConverter.GetBytes(point));
 
@@ -1071,9 +1064,9 @@ namespace OpenCover.Test.Framework.Persistance
             // assert
             Assert.AreEqual(1, InstrumentationPoint.GetVisitCount(pt1.UniqueSequencePoint));
             Assert.AreEqual(3, InstrumentationPoint.GetVisitCount(pt2.UniqueSequencePoint));
-            Assert.AreEqual(1, pt1.TrackedMethodRefs.Count());
+            Assert.AreEqual(1, pt1.TrackedMethodRefs.Length);
             Assert.AreEqual(1, pt1.TrackedMethodRefs[0].VisitCount);
-            Assert.AreEqual(2, pt2.TrackedMethodRefs.Count());
+            Assert.AreEqual(2, pt2.TrackedMethodRefs.Length);
             Assert.AreEqual(1, pt2.TrackedMethodRefs[0].VisitCount);
             Assert.AreEqual(2, pt2.TrackedMethodRefs[1].VisitCount);
         }

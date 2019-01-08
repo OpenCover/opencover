@@ -193,7 +193,15 @@ namespace OpenCover.Framework.Persistance
                     RemoveEmptyClasses();
                     break;
                 case SkippedMethod.AutoImplementedProperty:
-                    RemoveSkippedMethods(SkippedMethod.Attribute);
+                    RemoveSkippedMethods(SkippedMethod.AutoImplementedProperty);
+                    RemoveEmptyClasses();
+                    break;
+                case SkippedMethod.Delegate:
+                    RemoveSkippedMethods(SkippedMethod.Delegate);
+                    RemoveEmptyClasses();
+                    break;
+                case SkippedMethod.FSharpInternal:
+                    RemoveSkippedMethods(SkippedMethod.FSharpInternal);
                     RemoveEmptyClasses();
                     break;
             }
