@@ -119,12 +119,6 @@ namespace OpenCover.Framework.Symbols
                     SymbolStream = stream
                 };
                 _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-                if (_sourceAssembly != null)
-                {
-                    var symbolReader = parameters.SymbolReaderProvider
-                        .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
-                    _sourceAssembly.MainModule.ReadSymbols(symbolReader);
-                }
             }
         }
 
