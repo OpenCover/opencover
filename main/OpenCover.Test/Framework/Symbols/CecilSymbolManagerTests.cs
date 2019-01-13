@@ -25,7 +25,8 @@ namespace OpenCover.Test.Framework.Symbols
         private Mock<IFilter> _mockFilter;
         private Mock<ILog> _mockLogger;
         private Mock<ITrackedMethodStrategyManager> _mockManager;
-        
+        private Mock<ISymbolFileHelper> _mockSymbolFileHelper;
+
         [SetUp]
         public void Setup()
         {
@@ -33,11 +34,12 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
             _mockManager = new Mock<ITrackedMethodStrategyManager>();
+            _mockSymbolFileHelper = new Mock<ISymbolFileHelper>();
 
             var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
             _location = Path.Combine(assemblyPath, "OpenCover.Test.dll");
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 
@@ -690,7 +692,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_NoStrategies()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -704,7 +706,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_StrategiesFindNothing()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -718,7 +720,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_TrackedMethods_When_StrategiesMatch()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             _mockManager.Setup(x => x.GetTrackedMethods(It.IsAny<string>()))
@@ -735,7 +737,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_NoPDB()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
 
             // act
@@ -749,7 +751,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void SourceAssembly_DisplaysMessage_When_NoPDB()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
             _mockLogger.SetupGet(x => x.IsDebugEnabled).Returns(true);
 

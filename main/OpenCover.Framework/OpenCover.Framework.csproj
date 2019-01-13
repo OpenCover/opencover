@@ -211,6 +211,7 @@
     <Compile Include="Strategy\ITrackedMethodStrategyManager.cs" />
     <Compile Include="Strategy\TrackedMethodStrategyManager.cs" />
     <Compile Include="Symbols\CecilSymbolManager.cs" />
+    <Compile Include="Symbols\ISymbolFileHelper.cs" />
     <Compile Include="Symbols\ISymbolManager.cs" />
     <Compile Include="Symbols\SymbolFile.cs" />
     <Compile Include="Symbols\SymbolFileHelper.cs" />

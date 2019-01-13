@@ -1,9 +1,4 @@
-﻿//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -46,15 +41,18 @@ namespace OpenCover.Framework.Symbols
         private readonly IFilter _filter;
         private readonly ILog _logger;
         private readonly ITrackedMethodStrategyManager _trackedMethodStrategyManager;
+        private readonly ISymbolFileHelper _symbolFileHelper;
         private AssemblyDefinition _sourceAssembly;
         private readonly Dictionary<int, MethodDefinition> _methodMap = new Dictionary<int, MethodDefinition>(); 
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategyManager trackedMethodStrategyManager)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, 
+            ITrackedMethodStrategyManager trackedMethodStrategyManager, ISymbolFileHelper symbolFileHelper)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
             _trackedMethodStrategyManager = trackedMethodStrategyManager;
+            _symbolFileHelper = symbolFileHelper;
         }
 
         public string ModulePath { get; private set; }
@@ -105,7 +103,7 @@ namespace OpenCover.Framework.Symbols
 
         private void SearchForSymbolsAndLoad()
         {
-            var symbolFile = SymbolFileHelper.FindSymbolFolder(ModulePath, _commandLine);
+            var symbolFile = _symbolFileHelper.FindSymbolFolder(ModulePath, _commandLine);
             if (symbolFile == null)
                 return;
 
