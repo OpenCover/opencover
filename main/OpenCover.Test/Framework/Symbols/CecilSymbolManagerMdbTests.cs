@@ -19,6 +19,7 @@ namespace OpenCover.Test.Framework.Symbols
         private Mock<ICommandLine> _mockCommandLine;
         private Mock<IFilter> _mockFilter;
         private Mock<ILog> _mockLogger;
+        private Mock<ISymbolFileHelper> _mockSymbolFileHelper;
 
         [SetUp]
         public void Setup()
@@ -26,11 +27,12 @@ namespace OpenCover.Test.Framework.Symbols
             _mockCommandLine = new Mock<ICommandLine>();
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
+            _mockSymbolFileHelper = new Mock<ISymbolFileHelper>();
 
             var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
             _location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "Unity.ServiceLocation");
         }
 

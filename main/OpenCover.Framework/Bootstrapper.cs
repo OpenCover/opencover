@@ -1,9 +1,4 @@
-﻿//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-using System;
+﻿using System;
 using OpenCover.Framework.Communication;
 using OpenCover.Framework.Manager;
 using OpenCover.Framework.Model;
@@ -13,6 +8,7 @@ using OpenCover.Framework.Strategy;
 using OpenCover.Framework.Utility;
 using log4net;
 using Autofac;
+using OpenCover.Framework.Symbols;
 using IContainer = Autofac.IContainer;
 
 namespace OpenCover.Framework
@@ -71,6 +67,7 @@ namespace OpenCover.Framework
             builder.RegisterType<MarshalWrapper>().As<IMarshalWrapper>();
             builder.RegisterType<MemoryManager>().As<IMemoryManager>().SingleInstance();
             builder.RegisterType<MessageHandler>().As<IMessageHandler>();
+            builder.RegisterType<SymbolFileHelper>().As<ISymbolFileHelper>();
 
             _container = builder.Build();
         }

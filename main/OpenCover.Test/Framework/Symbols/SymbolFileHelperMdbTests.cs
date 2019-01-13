@@ -18,7 +18,7 @@ namespace OpenCover.Test.Framework.Symbols
             var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
             var location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
 
-            var symbolFile = SymbolFileHelper.FindSymbolFolder(location, commandLine.Object);
+            var symbolFile = new SymbolFileHelper().FindSymbolFolder(location, commandLine.Object);
 
             Assert.NotNull(symbolFile);
             Assert.IsInstanceOf<MdbReaderProvider>(symbolFile.SymbolReaderProvider);
