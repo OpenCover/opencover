@@ -16,7 +16,7 @@ namespace OpenCover.Test.Framework.Symbols
             var commandLine = new Mock<ICommandLine>();
             var assemblyPath = typeof(IMocked).Assembly.Location;
 
-            var symbolFile = SymbolFileHelper.FindSymbolFolder(assemblyPath, commandLine.Object);
+            var symbolFile = new SymbolFileHelper().FindSymbolFolder(assemblyPath, commandLine.Object);
 
             Assert.NotNull(symbolFile);
             Assert.IsInstanceOf<PdbReaderProvider>(symbolFile.SymbolReaderProvider);
