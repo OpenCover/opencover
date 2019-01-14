@@ -65,59 +65,31 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-
-        private void LoadSourceAssembly()
+        private AssemblyDefinition SearchForSymbolsAndLoad()
         {
-            try
+            foreach (var symbolFile in _symbolFileHelper.GetSymbolFolders(ModulePath, _commandLine))
             {
                 try
                 {
-                    _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
-                    if (_sourceAssembly != null)
+                    using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        var symbolReader = new DefaultSymbolReaderProvider(true)
-                            .GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FileName);
-
-                        if (symbolReader != null)
+                        var parameters = new ReaderParameters 
                         {
-                            _sourceAssembly.MainModule.ReadSymbols(symbolReader);
-                        }
-                        else
-                        {
-                            _sourceAssembly = null;
-                        }
+                            SymbolReaderProvider = symbolFile.SymbolReaderProvider,
+                            ReadingMode = ReadingMode.Deferred,
+                            ReadSymbols = true,
+                            SymbolStream = stream
+                        };
+                        var sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                        if (sourceAssembly.MainModule.HasSymbols)
+                            return sourceAssembly;
                     }
                 }
-                catch (FileNotFoundException)
+                catch (Exception)
                 {
-                    _sourceAssembly = null;
-                    SearchForSymbolsAndLoad();
                 }
             }
-            catch (Exception)
-            {
-                // failure to here is quite normal for DLL's with no, or incompatible, PDBs => no instrumentation
-                _sourceAssembly = null;
-            }
-        }
-
-        private void SearchForSymbolsAndLoad()
-        {
-            var symbolFile = _symbolFileHelper.FindSymbolFolder(ModulePath, _commandLine);
-            if (symbolFile == null)
-                return;
-
-            using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                var parameters = new ReaderParameters
-                {
-                    SymbolReaderProvider = symbolFile.SymbolReaderProvider,
-                    ReadingMode = ReadingMode.Deferred,
-                    ReadSymbols = true,
-                    SymbolStream = stream
-                };
-                _sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
-            }
+            return null;
         }
 
         public AssemblyDefinition SourceAssembly
@@ -129,7 +101,7 @@ namespace OpenCover.Framework.Symbols
                     var currentPath = Environment.CurrentDirectory;
                     try
                     {
-                        LoadSourceAssembly();
+                        _sourceAssembly = SearchForSymbolsAndLoad();
                     }
                     finally
                     {

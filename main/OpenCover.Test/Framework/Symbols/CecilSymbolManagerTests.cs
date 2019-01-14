@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using OpenCover.Framework.Strategy;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
+using Mono.Cecil.Pdb;
 using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -38,6 +40,10 @@ namespace OpenCover.Test.Framework.Symbols
 
             var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
             _location = Path.Combine(assemblyPath, "OpenCover.Test.dll");
+
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<SymbolFile>{ new SymbolFile(Path.Combine(assemblyPath, "OpenCover.Test.pdb"), new PdbReaderProvider()) });
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
@@ -734,9 +740,12 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void GetTrackedMethods_NoTrackedMethods_When_NoPDB()
+        public void GetTrackedMethods_NoTrackedMethods_When_NoPDBFound()
         {
             // arrange
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<SymbolFile>());
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
 
@@ -748,9 +757,12 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void SourceAssembly_DisplaysMessage_When_NoPDB()
+        public void SourceAssembly_DisplaysMessage_When_NoPDBFound()
         {
             // arrange
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<SymbolFile>());
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
             _mockLogger.SetupGet(x => x.IsDebugEnabled).Returns(true);
