@@ -1,5 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using log4net;
+using Mono.Cecil.Mdb;
+using Mono.Cecil.Pdb;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -31,6 +34,10 @@ namespace OpenCover.Test.Framework.Symbols
 
             var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
             _location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
+
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<SymbolFile> { new SymbolFile($"{_location}.mdb", new MdbReaderProvider())});
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "Unity.ServiceLocation");

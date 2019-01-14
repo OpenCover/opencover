@@ -212,7 +212,6 @@
     <Compile Include="Framework\Symbols\BaseMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
-    <Compile Include="Framework\Symbols\SymbolFileHelperMdbTests.cs" />
     <Compile Include="Framework\Symbols\SymbolFileHelperTests.cs" />
     <Compile Include="Framework\Utility\PerfCountersTests.cs" />
     <Compile Include="Framework\Utility\CodeCoverageStringTextSourceTest.cs" />
