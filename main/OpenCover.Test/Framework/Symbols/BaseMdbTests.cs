@@ -10,7 +10,7 @@ namespace OpenCover.Test.Framework.Symbols
     {
 
         protected Type TargetType = typeof(Moq.IMocked);
-        protected string TargetAssembly = "Moq.dll";
+        protected string TargetAssembly = "OpenCover.Samples.IL.dll";
 
         [OneTimeSetUp]
         public void TestFixtureSetUp()
