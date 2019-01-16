@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
 using log4net;
-using Mono.Cecil.Mdb;
-using Mono.Cecil.Pdb;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -15,7 +12,7 @@ namespace OpenCover.Test.Framework.Symbols
     /// Disable it using Resharper -> Options -> Unit Testing
     /// </summary>
     [TestFixture]
-    public class CecilSymbolManagerMdbTests : BaseMdbTests
+    public class CecilSymbolManagerMdbTests 
     {
         private CecilSymbolManager _reader;
         private string _location;
@@ -32,12 +29,12 @@ namespace OpenCover.Test.Framework.Symbols
             _mockLogger = new Mock<ILog>();
             _mockSymbolFileHelper = new Mock<ISymbolFileHelper>();
 
-            var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
-            _location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location) ?? Directory.GetCurrentDirectory();
+            _location = Path.Combine(assemblyPath, "OpenCover.Mono.dll");
 
             _mockSymbolFileHelper
-                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
-                .Returns(new List<SymbolFile> { new SymbolFile($"{_location}.mdb", new MdbReaderProvider())});
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new [] { $"{_location}.mdb" });
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "Unity.ServiceLocation");
