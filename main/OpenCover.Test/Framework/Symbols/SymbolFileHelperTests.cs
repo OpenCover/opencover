@@ -1,8 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
-using Mono.Cecil.Mdb;
-using Mono.Cecil.Pdb;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -11,7 +8,7 @@ using OpenCover.Framework.Symbols;
 namespace OpenCover.Test.Framework.Symbols
 {
     [TestFixture]
-    public class SymbolFileHelperTests : BaseMdbTests
+    public class SymbolFileHelperTests 
     {
         private readonly ISymbolFileHelper _symbolFileHelper;
 
@@ -26,11 +23,10 @@ namespace OpenCover.Test.Framework.Symbols
             var commandLine = new Mock<ICommandLine>();
             var assemblyPath = typeof(IMocked).Assembly.Location;
 
-            foreach (var symbolFile in _symbolFileHelper.GetSymbolFolders(assemblyPath, commandLine.Object))
+            foreach (var symbolFile in _symbolFileHelper.GetSymbolFileLocations(assemblyPath, commandLine.Object))
             {
                 Assert.NotNull(symbolFile);
-                Assert.IsInstanceOf<PdbReaderProvider>(symbolFile.SymbolReaderProvider);
-                Assert.IsTrue(symbolFile.SymbolFilename.EndsWith(".pdb", StringComparison.InvariantCultureIgnoreCase));
+                Assert.IsTrue(symbolFile.EndsWith(".pdb", StringComparison.InvariantCultureIgnoreCase));
             }
         }
 
@@ -38,14 +34,13 @@ namespace OpenCover.Test.Framework.Symbols
         public void CanFindAndLoadProviderForMdbFile()
         {
             var commandLine = new Mock<ICommandLine>();
-            var assemblyPath = Path.GetDirectoryName(TargetType.Assembly.Location);
-            var location = Path.Combine(assemblyPath, "Mdb", TargetAssembly);
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location) ?? Directory.GetCurrentDirectory();
+            var location = Path.Combine(assemblyPath, "OpenCover.Mono.dll");
 
-            foreach (var symbolFile in _symbolFileHelper.GetSymbolFolders(location, commandLine.Object))
+            foreach (var symbolFile in _symbolFileHelper.GetSymbolFileLocations(location, commandLine.Object))
             {
                 Assert.NotNull(symbolFile);
-                Assert.IsInstanceOf<MdbReaderProvider>(symbolFile.SymbolReaderProvider);
-                Assert.IsTrue(symbolFile.SymbolFilename.EndsWith(".dll.mdb", StringComparison.InvariantCultureIgnoreCase));
+                Assert.IsTrue(symbolFile.EndsWith(".dll.mdb", StringComparison.InvariantCultureIgnoreCase));
             }
         }
     }

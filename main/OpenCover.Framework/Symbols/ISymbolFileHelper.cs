@@ -4,6 +4,6 @@ namespace OpenCover.Framework.Symbols
 {
     internal interface ISymbolFileHelper
     {
-        IEnumerable<SymbolFile> GetSymbolFolders(string modulePath, ICommandLine commandLine);
+        IEnumerable<string> GetSymbolFileLocations(string modulePath, ICommandLine commandLine);
     }
 }
