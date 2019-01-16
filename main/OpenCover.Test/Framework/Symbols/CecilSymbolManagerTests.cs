@@ -42,8 +42,8 @@ namespace OpenCover.Test.Framework.Symbols
             _location = Path.Combine(assemblyPath, "OpenCover.Test.dll");
 
             _mockSymbolFileHelper
-                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
-                .Returns(new List<SymbolFile>{ new SymbolFile(Path.Combine(assemblyPath, "OpenCover.Test.pdb"), new PdbReaderProvider()) });
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new [] { Path.Combine(assemblyPath, "OpenCover.Test.pdb") });
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
@@ -744,8 +744,8 @@ namespace OpenCover.Test.Framework.Symbols
         {
             // arrange
             _mockSymbolFileHelper
-                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
-                .Returns(new List<SymbolFile>());
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<string>());
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
 
@@ -761,8 +761,8 @@ namespace OpenCover.Test.Framework.Symbols
         {
             // arrange
             _mockSymbolFileHelper
-                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), _mockCommandLine.Object))
-                .Returns(new List<SymbolFile>());
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<string>());
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
             _mockLogger.SetupGet(x => x.IsDebugEnabled).Returns(true);

@@ -209,7 +209,6 @@
     <Compile Include="Extensions\Strategy\TrackNUnitTestMethodsTests.cs" />
     <Compile Include="Extensions\Strategy\TrackXUnitTestMethodsTests.cs" />
     <Compile Include="Framework\Strategy\TrackedMethodStrategyManagerTests.cs" />
-    <Compile Include="Framework\Symbols\BaseMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerMdbTests.cs" />
     <Compile Include="Framework\Symbols\CecilSymbolManagerTests.cs" />
     <Compile Include="Framework\Symbols\SymbolFileHelperTests.cs" />
@@ -264,6 +263,14 @@
     <None Include="Samples\Library2.fs" />
     <None Include="Samples\Library2.pdb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\samples\bin\OpenCover.Mono.dll">
+      <Link>OpenCover.Mono.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\samples\bin\OpenCover.Mono.dll.mdb">
+      <Link>OpenCover.Mono.dll.mdb</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <Content Include="Samples\ReadMe.txt" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Mono.Cecil;
 using Mono.Cecil.Pdb;
 using Moq;
 using NUnit.Framework;
@@ -20,9 +21,8 @@ namespace OpenCover.Test.Framework.Model
             var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
             Assert.IsNotNull(assemblyPath);
             Container.GetMock<ISymbolFileHelper>()
-                .Setup(x => x.GetSymbolFolders(It.IsAny<string>(), It.IsAny<ICommandLine>()))
-                .Returns(new[]
-                    {new SymbolFile($"{Path.Combine(assemblyPath, "OpenCover.Test.pdb")}", new PdbReaderProvider())});
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), It.IsAny<ICommandLine>()))
+                .Returns(new[] { $"{Path.Combine(assemblyPath, "OpenCover.Test.pdb")}" });
 
             // act
             var model = Instance.CreateModelBuilder(Path.Combine(assemblyPath, "OpenCover.Test.dll"), "OpenCover.Test");

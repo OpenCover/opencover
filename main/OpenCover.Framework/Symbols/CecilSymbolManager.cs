@@ -67,20 +67,44 @@ namespace OpenCover.Framework.Symbols
 
         private AssemblyDefinition SearchForSymbolsAndLoad()
         {
-            foreach (var symbolFile in _symbolFileHelper.GetSymbolFolders(ModulePath, _commandLine))
+            AssemblyDefinition sourceAssembly = null;
+            var provider = new DefaultSymbolReaderProvider(true);
+
+            try
+            {
+                sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
+                if (sourceAssembly != null)
+                {
+                    var symbolReader = provider
+                        .GetSymbolReader(sourceAssembly.MainModule, sourceAssembly.MainModule.FileName);
+                    if (symbolReader != null)
+                    {
+                        sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                        if (sourceAssembly.MainModule.HasSymbols)
+                            return sourceAssembly;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            foreach (var symbolFile in _symbolFileHelper.GetSymbolFileLocations(ModulePath, _commandLine))
             {
                 try
                 {
-                    using (var stream = System.IO.File.Open(symbolFile.SymbolFilename, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (var stream = System.IO.File.Open(symbolFile, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
                         var parameters = new ReaderParameters 
                         {
-                            SymbolReaderProvider = symbolFile.SymbolReaderProvider,
-                            ReadingMode = ReadingMode.Deferred,
+                            SymbolReaderProvider = provider,
+                            ReadingMode = ReadingMode.Immediate,
                             ReadSymbols = true,
-                            SymbolStream = stream
+                            SymbolStream = stream,
+                            ThrowIfSymbolsAreNotMatching = true
+
                         };
-                        var sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                        sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
                         if (sourceAssembly.MainModule.HasSymbols)
                             return sourceAssembly;
                     }
@@ -89,6 +113,7 @@ namespace OpenCover.Framework.Symbols
                 {
                 }
             }
+
             return null;
         }
 
