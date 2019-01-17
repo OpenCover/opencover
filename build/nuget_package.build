@@ -5,10 +5,11 @@
   <property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
   <property name="out.folder" value="${solution.folder}\bin\packages\nuget\opencover" />
 
-  <property name="choco.folder" value="${solution.folder}/packages/chocolatey.0.9.10.3/tools/chocolateyInstall" />
+  <property name="choco.folder" value="${solution.folder}/packages/chocolatey.0.10.11/tools/chocolateyInstall" />
   <property name="choco.exe" value="${choco.folder}/choco.exe" />
   <property name="chocolatey.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover" />
   <property name="chocolatey.portable.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover.portable" />
+  <property name="checksum.exe" value="${choco.folder}/tools/checksum.exe" />
 
    <target name="generate-release-notes" depends="get-version-number" >
     <delete file="ReleaseNotes.txt" />
@@ -75,13 +76,28 @@
     <exec program="${nuget.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\nuget\opencover\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
   </target>
-  
-  <target name="chocolatey-package" depends="get-version-number" >
+    
+  <target name="get-installer-checksum">
+    <property
+      name="checksum.output.file"
+      value="${solution.folder}\OpenCover.Packages\chocolatey\opencover\checksum.txt" />
+    <exec program="${checksum.exe}" output="${checksum.output.file}">
+      <arg value='-t:sha256' />
+      <arg value='-f="${solution.folder}\bin\installer\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi"' />
+    </exec>
+    <loadfile
+      file="${checksum.output.file}"
+      property="checksum" />
+    <delete file="${checksum.output.file}" />
+  </target>
+
+  <target name="chocolatey-package" depends="get-version-number, get-installer-checksum" >
     
     <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" />
     <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" >
       <filterchain>
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
       </filterchain>
     </copy>
     
@@ -102,12 +118,27 @@
     
   </target>
 
-  <target name="chocolatey-package-portable" depends="get-version-number" >
+  <target name="get-zip-checksum">
+    <property
+      name="checksum.output.file"
+      value="${solution.folder}\OpenCover.Packages\chocolatey\opencover\checksum.txt" />
+    <exec program="${checksum.exe}" output="${checksum.output.file}">
+      <arg value='-t:sha256' />
+      <arg value='-f="${solution.folder}\bin\zip\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip"' />
+    </exec>
+    <loadfile
+      file="${checksum.output.file}"
+      property="checksum" />
+    <delete file="${checksum.output.file}" />
+  </target>
+
+  <target name="chocolatey-package-portable" depends="get-version-number, get-zip-checksum" >
     
     <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1" />
     <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1" >
       <filterchain>
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
       </filterchain>
     </copy>
     
