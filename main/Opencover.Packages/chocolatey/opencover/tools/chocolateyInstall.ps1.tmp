@@ -2,4 +2,5 @@ $packageName = 'opencover'
 $installerType = 'msi'
 $silentArgs= '/quiet'
 $url = 'https://github.com/OpenCover/opencover/releases/download/[[version]]/opencover.[[version]].msi'
-Install-ChocolateyPackage "$packageName" "$installerType" "$silentArgs" "$url" -validExitCodes @(0)
+$checkSum = "[[checksum]]"
+Install-ChocolateyPackage "$packageName" "$installerType" "$silentArgs" "$url" -validExitCodes @(0) -ChecksumType "sha256" -Checksum $checkSum
