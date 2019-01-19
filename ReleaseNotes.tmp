@@ -1,4 +1,9 @@
 Version [[version]]
+#735 apply checksums to chocolatey packages (feature/prj-mgmt)
+#825 handle pdb mismatch and continue (fix)
+#833 find pdbs in alternative folder (fix)
+#794 correctly handle skip for AutoImplementedProperty (fix)
+#853 check that rgsvr32 exists (fix)
 #852 don't delete a registry key if it doesn't exist (fix)
 #851 support .NET 4.7.2 and ICorProfilerCallback9 (feature)
 #690 support .NET 4.7.1 and ICorProfilerCallback8 (feature)
