@@ -47,6 +47,10 @@
     <file src="main\bin\Release\OpenCover.Extensions.pdb" target="tools"/>
     <file src="main\bin\Release\OpenCover.Framework.dll" target="tools"/>
     <file src="main\bin\Release\OpenCover.Framework.pdb" target="tools"/>
+    <file src="main\bin\Release\Sentry.dll" target="tools"/>
+    <file src="main\bin\Release\Sentry.PlatformAbstractions.dll" target="tools"/>
+    <file src="main\bin\Release\Sentry.Protocol.dll" target="tools"/>
+    <file src="main\bin\Release\System.Collections.Immutable.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
