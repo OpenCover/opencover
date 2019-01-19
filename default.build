@@ -18,6 +18,8 @@
   <property name="ci.buildNumber" value="0" unless="${property::exists('ci.buildNumber')}" />
   <property name="ci.fullBuildNumber" value="${environment::get-variable('APPVEYOR_BUILD_VERSION')}" if="${environment::variable-exists('APPVEYOR_BUILD_VERSION')}"/>
   <property name="ci.fullBuildNumber" value="0" unless="${property::exists('ci.fullBuildNumber')}" />
+  <property name="ci.gitSha" value="${environment::get-variable('APPVEYOR_REPO_COMMIT')}" if="${environment::variable-exists('APPVEYOR_REPO_COMMIT')}"/>
+  <property name="ci.gitSha" value="0000000" unless="${property::exists('ci.gitSha')}" />
   <property name="coverity.folder" value="C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin" if="${directory::exists('C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin')}" />
   
   <property name="coverity.exe" value="${coverity.folder}/cov-build.exe" if="${property::exists('coverity.folder')}" />

@@ -1,40 +1,41 @@
 <?xml version="1.0"?>
 <project name="OpenCover" >
 
-	<target name="netfx.tools" >
-		<fail message="Please install 'Microsoft Windows SDK for Windows 8 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
-	</target>
+  <target name="netfx.tools" >
+	<fail message="Please install 'Microsoft Windows SDK for Windows 8 and .NET Framework'" unless="${directory::exists(netfx.tools.folder)}" />
+  </target>
 		
-	<target name="create-snk" depends="netfx.tools">
-		<property name="source.opencover.snk.file" value="${build.folder}\..\..\..\keys\opencover.snk" />
-		<property name="opencover.snk.file" value="${build.folder}\Version\opencover.snk" />
-		<property name="opencover.public.snk.file" value="${build.folder}\Version\opencover.public.snk" />
+  <target name="create-snk" depends="netfx.tools">
+	<property name="source.opencover.snk.file" value="${build.folder}\..\..\..\keys\opencover.snk" />
+	<property name="opencover.snk.file" value="${build.folder}\Version\opencover.snk" />
+	<property name="opencover.public.snk.file" value="${build.folder}\Version\opencover.public.snk" />
 
-		<copy file="${source.opencover.snk.file}" todir="${build.folder}\Version" 
-			if="${file::exists(source.opencover.snk.file) and not file::exists(opencover.snk.file)}" />
+	<copy file="${source.opencover.snk.file}" todir="${build.folder}\Version" 
+		if="${file::exists(source.opencover.snk.file) and not file::exists(opencover.snk.file)}" />
 
-		<exec program="${netfx.tools.folder}\sn.exe" commandline='-k "${opencover.snk.file}"' unless="${file::exists(opencover.snk.file)}"/>
-		<exec program="${netfx.tools.folder}\sn.exe" commandline='-p "${opencover.snk.file}" "${opencover.public.snk.file}"' unless="${file::exists(opencover.public.snk.file)}"/>
-	</target>
+	<exec program="${netfx.tools.folder}\sn.exe" commandline='-k "${opencover.snk.file}"' unless="${file::exists(opencover.snk.file)}"/>
+	<exec program="${netfx.tools.folder}\sn.exe" commandline='-p "${opencover.snk.file}" "${opencover.public.snk.file}"' unless="${file::exists(opencover.public.snk.file)}"/>
+  </target>
 
 	<target name="get-version-number" >
-		<echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.cs">using System.Reflection;&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyVersion("${buildnumber.version}")]&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyFileVersion("${buildnumber.version}")]&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.cs" append="true">[assembly: AssemblyInformationalVersion("${buildnumber.version}-${ci.gitSha}")]&#xa;</echo>
 	
-		<echo file="${build.folder}\Version\Version.h">#define FILEVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.h" append="true">#define PRODUCTVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.h" append="true">#define STRFILEVER        "${buildnumber.version}"&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.h" append="true">#define STRPRODUCTVER        "${buildnumber.version}"&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.h">#define FILEVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.h" append="true">#define PRODUCTVER        ${buildnumber.major},${buildnumber.minor},${buildnumber.build},${buildnumber.revision}&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.h" append="true">#define STRFILEVER        "${buildnumber.version}"&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.h" append="true">#define STRPRODUCTVER        "${buildnumber.version}"&#xa;</echo>
 
-		<echo file="${build.folder}\Version\Version.wxi">&lt;?define Version = "${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.${buildnumber.revision}" ?&gt;&#xa;</echo>
-		<echo file="${build.folder}\Version\Version.wxi" append="true">&lt;Include /&gt;&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.wxi">&lt;?define Version = "${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.${buildnumber.revision}" ?&gt;&#xa;</echo>
+	  <echo file="${build.folder}\Version\Version.wxi" append="true">&lt;Include /&gt;&#xa;</echo>
 	</target>
 
 	<target name="get-os-version" >
-		<property name="machine.os" value="${environment::get-operating-system()}" />
-		<property name="machine.version" value="${operating-system::get-version(environment::get-operating-system())}" />
-		<echo message="${machine.os} => ${machine.version}" />
+	  <property name="machine.os" value="${environment::get-operating-system()}" />
+	  <property name="machine.version" value="${operating-system::get-version(environment::get-operating-system())}" />
+	  <echo message="${machine.os} => ${machine.version}" />
 	</target>
 	
 </project>
