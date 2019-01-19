@@ -32,6 +32,10 @@
         <include name="OpenCover.Extensions.pdb" />
         <include name="OpenCover.Framework.dll" />
         <include name="OpenCover.Framework.pdb" />
+        <include name="Sentry.dll" />
+        <include name="Sentry.PlatformAbstractions.dll" />
+        <include name="Sentry.Protocol.dll" />
+        <include name="System.Collections.Immutable.dll" />
       </fileset>
       <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
         <include name="OpenCover.Profiler.dll" />

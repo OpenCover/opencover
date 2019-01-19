@@ -25,7 +25,7 @@
         <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
         <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
       </Component>
-      <Component Id="Microsoft_Extensions_3rdParty" Guid="{8DFFFC1B-737F-4304-A6E2-AE18E3C8D647}">
+      <Component Id="Microsoft_Extensions_Configuration_3rdParty" Guid="{DE9A95C9-B6B7-4B49-92E8-33D085979714}">
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.Configuration.dll" KeyPath="yes" />
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_ABSTRACTIONS_DLL" 
@@ -34,14 +34,20 @@
               Source="..\bin\Release\Microsoft.Extensions.Configuration.FileExtensions.dll" />
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_JSON_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.Configuration.Json.dll" />
+      </Component>
+      <Component Id="Microsoft_Extensions_FileProviders_3rdParty" Guid="{73D8D755-1ACB-4E22-818E-70EDFFCAF946}">
         <File Id="MICROSOFT_EXTENSIONS_FILEPROVIDERS_ABSTRACTIONS_DLL" 
-              Source="..\bin\Release\Microsoft.Extensions.FileProviders.Abstractions.dll" />
+              Source="..\bin\Release\Microsoft.Extensions.FileProviders.Abstractions.dll" KeyPath="yes" />
         <File Id="MICROSOFT_EXTENSIONS_FILEPROVIDERS_PHYSICAL_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.FileProviders.Physical.dll" />
+      </Component>
+      <Component Id="Microsoft_Extensions_FileSystemGlobbing_3rdParty" Guid="{52D4ABB1-AF44-4944-A065-F053C03FE706}">
         <File Id="MICROSOFT_EXTENSIONS_FILESYSTEMGLOBBING_DLL" 
-              Source="..\bin\Release\Microsoft.Extensions.FileSystemGlobbing.dll" />
+              Source="..\bin\Release\Microsoft.Extensions.FileSystemGlobbing.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="Microsoft_Extensions_Primatives_3rdParty" Guid="{C68F62BA-EE99-4D05-9BDC-CDD03D64AC06}">
         <File Id="MICROSOFT_EXTENSIONS_PRIMITIVES_DLL" 
-              Source="..\bin\Release\Microsoft.Extensions.Primitives.dll" />
+              Source="..\bin\Release\Microsoft.Extensions.Primitives.dll" KeyPath="yes" />
       </Component>
       <Component Id="MonoCecil_3rdParty" Guid="{6DF69995-B4D4-47CD-96EF-FD224A95A4F8}">
         <File Id="MONO_CECIL_DLL" Source="..\bin\Release\Mono.Cecil.dll" KeyPath="yes" />
@@ -65,6 +71,15 @@
       <Component Id="Extensions" Guid="{B34740C7-1432-4AD0-A205-A036CBC8EAE4}">
         <File Id="OPENCOVER_EXTENSIONS_DLL" Source="..\bin\Release\OpenCover.Extensions.dll" KeyPath="yes" />
         <File Id="OPENCOVER_EXTENSIONS_PDB" Source="..\bin\Release\OpenCover.Extensions.pdb" />
+      </Component>
+      <Component Id="Sentry_3rdParty" Guid="{EFE11E23-1C22-4E76-A162-393AFAA1717B}">
+        <File Id="SENTRY_DLL" Source="..\bin\Release\Sentry.dll" KeyPath="yes" />
+        <File Id="SENTRY_PLATFORMABSTRACTIONS_DLL" Source="..\bin\Release\Sentry.PlatformAbstractions.dll" />
+        <File Id="SENTRY_PROTOCOL_DLL" Source="..\bin\Release\Sentry.Protocol.dll" />
+      </Component>
+      <Component Id="System_Collections_Immutable_3rdParty" Guid="{BDAE1270-7079-403F-A6B2-22A358FF8C70}">
+        <File Id="SYSTEM_COLLECTIONS_IMMUTABLE_DLL" 
+              Source="..\bin\Release\System.Collections.Immutable.dll" KeyPath="yes" />
       </Component>
       <Component Id="SampleCmds" Guid="{4D7F8200-EC80-49A2-92FB-2083E8FC469D}">
         <File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" KeyPath="yes" />

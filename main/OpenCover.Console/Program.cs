@@ -1,9 +1,4 @@
-﻿//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -19,6 +14,7 @@ using log4net;
 using System.Management;
 using OpenCover.Framework.Model;
 using File = System.IO.File;
+using Sentry;
 
 namespace OpenCover.Console
 {
@@ -35,49 +31,56 @@ namespace OpenCover.Console
         {
             int returnCode;
             var returnCodeOffset = 0;
-           
-            try
+
+            using (SentrySdk.Init("https://6a7f2885b8544c7d8615df6c8064df4a@sentry.io/1369963"))
             {
-                if (!ParseCommandLine(args, out CommandLineParser parser)) 
-                    return parser.ReturnCodeOffset + 1;
-
-                LogManager.GetRepository().Threshold = parser.LogLevel;
-
-                returnCodeOffset = parser.ReturnCodeOffset;
-                var filter = BuildFilter(parser);
-                var perfCounter = CreatePerformanceCounter(parser);
-
-                if (!GetFullOutputFile(parser, out string outputFile)) 
-                    return returnCodeOffset + 1;
-
-                using (var container = new Bootstrapper(Logger))
+                try
                 {
-                    var persistance = new FilePersistance(parser, Logger);
-                    container.Initialise(filter, parser, persistance, perfCounter);
-                    if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
+                    if (!ParseCommandLine(args, out CommandLineParser parser))
+                        return parser.ReturnCodeOffset + 1;
+
+                    LogManager.GetRepository().Threshold = parser.LogLevel;
+
+                    returnCodeOffset = parser.ReturnCodeOffset;
+                    var filter = BuildFilter(parser);
+                    var perfCounter = CreatePerformanceCounter(parser);
+
+                    if (!GetFullOutputFile(parser, out string outputFile))
                         return returnCodeOffset + 1;
 
-                    returnCode = RunWithContainer(parser, container, persistance);
+                    using (var container = new Bootstrapper(Logger))
+                    {
+                        var persistance = new FilePersistance(parser, Logger);
+                        container.Initialise(filter, parser, persistance, perfCounter);
+                        if (!persistance.Initialise(outputFile, parser.MergeExistingOutputFile))
+                            return returnCodeOffset + 1;
+
+                        returnCode = RunWithContainer(parser, container, persistance);
+                    }
+
+                    perfCounter.ResetCounters();
                 }
+                catch (ExitApplicationWithoutReportingException)
+                {
+                    Logger.ErrorFormat(
+                        "If you are unable to resolve the issue please contact the OpenCover development team");
+                    Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
+                    returnCode = returnCodeOffset + 1;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Fatal("At: Program.Main");
+                    Logger.FatalFormat("An {0} occurred: {1}", ex.GetType(), ex.Message);
+                    Logger.FatalFormat("stack: {0}", ex.StackTrace);
+                    Logger.FatalFormat("A report has been sent to the OpenCover development team.");
+                    Logger.ErrorFormat(
+                        "If you are unable to resolve the issue please contact the OpenCover development team");
+                    Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
 
-                perfCounter.ResetCounters();
-            }
-            catch (ExitApplicationWithoutReportingException)
-            {
-                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
-                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
-                returnCode = returnCodeOffset + 1;
-            }
-            catch (Exception ex)
-            {
-                Logger.Fatal("At: Program.Main");
-                Logger.FatalFormat("An {0} occurred: {1}", ex.GetType(), ex.Message);
-                Logger.FatalFormat("stack: {0}", ex.StackTrace);
-                Logger.FatalFormat("A report has been sent to the OpenCover development team.");
-                Logger.ErrorFormat("If you are unable to resolve the issue please contact the OpenCover development team");
-                Logger.ErrorFormat("see https://www.github.com/opencover/opencover/issues");
+                    returnCode = returnCodeOffset + 1;
 
-                returnCode = returnCodeOffset + 1;
+                    SentrySdk.CaptureException(ex);
+                }
             }
 
             return returnCode;
@@ -120,7 +123,7 @@ namespace OpenCover.Console
             }
             catch (Exception ex)
             {
-                Trace.WriteLine(string.Format("Exception: {0}\n{1}", ex.Message, ex.InnerException));
+                Trace.WriteLine($"Exception: {ex.Message}\n{ex.InnerException}");
 				throw;
             }
             finally
@@ -227,7 +230,7 @@ namespace OpenCover.Console
                         parser.Target,
                             parser.ServiceEnvironment,
                         (from string key in profilerEnvironment.Keys
-                         select string.Format("{0}={1}", key, profilerEnvironment[key])).ToArray());
+                         select $"{key}={profilerEnvironment[key]}").ToArray());
 
                     // now start the service
                     var old = service;
@@ -385,7 +388,7 @@ namespace OpenCover.Console
                 foreach (var method in @class.Methods.Where(x => !x.ShouldSerializeSkippedDueTo()))
                 {
                     if (method.FileRef != null && !method.SequencePoints.Any(x => x.VisitCount > 0))
-                        results.unvisitedMethods.Add(string.Format("{0}", method.FullName));
+                        results.unvisitedMethods.Add($"{method.FullName}");
 
                     results.altTotalMethods += 1;
                     if (method.Visited)
