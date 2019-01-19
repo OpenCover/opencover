@@ -21,7 +21,6 @@
     <file src="main\bin\Release\Autofac.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.Configuration.dll" target="tools"/>
     <file src="main\bin\Release\Autofac.json" target="tools"/>
-    <file src="main\bin\Release\CrashReporter.NET.dll" target="tools"/>
     <file src="main\bin\Release\Gendarme.Framework.dll" target="tools"/>
     <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
     <file src="main\bin\Release\log4net.config" target="tools"/>
