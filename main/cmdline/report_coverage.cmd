@@ -1,1 +1,7 @@
-..\..\..\main\packages\ReportGenerator.2.5.1\tools\ReportGenerator.exe -reports:opencovertests.xml -targetdir:report
+@echo off
+pushd %cd%
+setlocal
+cd %~dp0
+..\..\..\main\packages\ReportGenerator.4.0.7\tools\net47\ReportGenerator.exe -reports:opencovertests.xml -targetdir:report
+endlocal
+popd
