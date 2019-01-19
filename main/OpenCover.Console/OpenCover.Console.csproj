@@ -80,9 +80,6 @@
     <ApplicationIcon>..\Icons\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrashReporter.NET">
-      <HintPath>..\..\tools\CrashReporterSigned\CrashReporter.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Gendarme.Framework, Version=2.11.0.0, Culture=neutral, PublicKeyToken=b07ccf3a9f1ab3c9, processorArchitecture=MSIL">
       <HintPath>..\..\tools\GendarmeSigned\Gendarme.Framework.dll</HintPath>
     </Reference>
@@ -108,8 +105,6 @@
     <Compile Include="..\..\build\Version\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
-    <Compile Include="CrashReporter\AnonymousData.cs" />
-    <Compile Include="CrashReporter\SendRequestState.cs" />
     <Compile Include="ServiceEnvironmentManagement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

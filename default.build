@@ -63,7 +63,7 @@
   
   <target name="generate-coverage-files" depends="dogfood-release, transformcppcoverage" />
   
-  <target name="create-release" depends="clean-all, build-environment, replace-drdump-token, build-release-platforms, test, test-cpp, create-zip-package">
+  <target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
     <call target="copy-artefacts" />
     <call target="chocolatey-package" />
     <call target="chocolatey-package-portable" />
@@ -144,18 +144,6 @@
   
   <target name="set-rc-property" >
     <property name="buildnumber.ci" value="-rc" />
-  </target>
-
-  <target name="replace-drdump-token" if="${environment::variable-exists('DRDUMP_TOKEN')}" >
-    <property name="drdump.token" value="${environment::get-variable('DRDUMP_TOKEN')}" />
-    
-    <copy file="main\OpenCover.Console\Program.cs" tofile="main\OpenCover.Console\Program.cx" overwrite="true" >
-      <filterchain>
-        <replacestring from="dbbb1d35-be49-45e2-b81d-84f1042c455d" to="${drdump.token}" />
-      </filterchain>
-    </copy>
-    <copy file="main\OpenCover.Console\Program.cx" tofile="main\OpenCover.Console\Program.cs" overwrite="true" />
-    <delete file="main\OpenCover.Console\Program.cx" />
   </target>
     
   <target name="cover-cpp" depends="clean-all, build-environment, build-debug-platforms" >

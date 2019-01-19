@@ -11,8 +11,6 @@ environment:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
   SONARQUBE_TOKEN:
     secure: WRLqxS8frIuLNHeSMOj6SXvR3S0gx3RM0bgGkWeglXMIPSVS/VNmfUEqdHYZ2QOB
-  DRDUMP_TOKEN:
-    secure: 16PEs46poxfT7drt6BdHSHPPzAymXBYrIaqoAsHvY49os5Azz4rNTp3QaUhtITZ+
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
