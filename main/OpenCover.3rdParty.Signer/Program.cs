@@ -14,7 +14,6 @@ namespace OpenCover.ThirdParty.Signer
             var baseFolder = Path.Combine(assemblyFolder, "..", "..", "..");
 
             SignGendarme(baseFolder);
-            SignCrashReporter(baseFolder);
         }
 
         private static void SignGendarme(string baseFolder)
@@ -34,23 +33,6 @@ namespace OpenCover.ThirdParty.Signer
 
             Console.WriteLine("Signing Gendarme Rules Maintainability");
             GendarmeSigner.SignGendarmeRulesMaintainability(baseFolder);
-        }
-
-        private static void SignCrashReporter(string baseFolder)
-        {
-            var targetDirectory = Path.Combine(baseFolder, CrashReporterSigner.TargetFolder);
-            if (!Directory.Exists(targetDirectory))
-                Directory.CreateDirectory(targetDirectory);
-
-            if (CrashReporterSigner.AlreadySigned(baseFolder))
-            {
-                Console.WriteLine("CrashReporter is already Signed");
-                return;
-            }
-
-            Console.WriteLine("Signing CrashReporter");
-            CrashReporterSigner.SignAssembly(baseFolder);
-
         }
     }
 }

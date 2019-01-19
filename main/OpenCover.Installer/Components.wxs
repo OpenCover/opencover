@@ -17,9 +17,6 @@
         <File Id="AUTOFAC_DLL" Source="..\bin\Release\Autofac.dll" KeyPath="yes" />
         <File Id="AUTOFAC_CONFIGURATION_DLL" Source="..\bin\Release\Autofac.Configuration.dll" />
       </Component>
-      <Component Id="CrashReporter_Signed_3rdParty" Guid="{D2A05736-4ED9-4BF1-9FC0-D507794A5A68}">
-        <File Id="CRASHREPORTER_NET_DLL" Source="..\bin\Release\CrashReporter.NET.dll" KeyPath="yes" />
-      </Component>
       <Component Id="Gendarme_Signed_3rdParty" Guid="{32EE1279-E929-4542-8095-9FE60797D16B}">
         <File Id="GENDARME_FRAMEWORK_DLL" Source="..\bin\Release\Gendarme.Framework.dll" KeyPath="yes" />
         <File Id="GENDARME_RULES_MAINTAINABILITY_DLL" Source="..\bin\Release\Gendarme.Rules.Maintainability.dll" />

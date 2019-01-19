@@ -8,7 +8,6 @@
         <include name="Autofac.dll" />
         <include name="Autofac.Configuration.dll" />
         <include name="autofac.json" />
-        <include name="CrashReporter.NET.dll" />
         <include name="Gendarme.Framework.dll" />
         <include name="Gendarme.Rules.Maintainability.dll" />
         <include name="log4net.dll" />
