@@ -5,6 +5,8 @@
 
 #pragma once
 
+#define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING  1
+
 #include "targetver.h"
 
 #define _CRT_SECURE_NO_WARNINGS
