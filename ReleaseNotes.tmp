@@ -1,4 +1,5 @@
 Version [[version]]
+#855 change crash reporting framework to Sentry (feature/prj-mgmt)
 #735 apply checksums to chocolatey packages (feature/prj-mgmt)
 #825 handle pdb mismatch and continue (fix)
 #833 find pdbs in alternative folder (fix)
