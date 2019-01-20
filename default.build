@@ -63,7 +63,7 @@
         tofile="${solution.folder}/bin/zip/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip" />
   </target>
   
-  <target name="generate-coverage-files" depends="dogfood-release, transformcppcoverage" />
+  <target name="generate-coverage-files" depends="dogfood-release, transformcppcoverage, update-coveralls" />
   
   <target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
     <call target="copy-artefacts" />
