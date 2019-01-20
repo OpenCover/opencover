@@ -4,10 +4,10 @@
     <id>OpenCover</id>
     <version>1.0.0.0</version>
     <title>OpenCover - an open source code coverage tool for .NET</title>
-    <authors>sawilde</authors>
-    <owners />
-    <licenseUrl>https://github.com/opencover/opencover/blob/master/License.md</licenseUrl>
-    <iconUrl>https://github.com/opencover/opencover/blob/master/main/Icons/128.png?raw=true</iconUrl>
+    <authors>shaun wilde</authors>
+    <owners>shaun wilde</owners>
+    <license type="expression">MIT</license>
+    <iconUrl>https://github.com/opencover/opencover/raw/master/main/Icons/128.png</iconUrl>
     <projectUrl>https://github.com/opencover/opencover</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above (including Silverlight). Also capable of handling 32 and 64 bit processes. Use ReportGenerator for best viewing results (also available via Nuget).</description>
