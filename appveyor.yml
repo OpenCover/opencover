@@ -11,6 +11,8 @@ environment:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
   SONARQUBE_TOKEN:
     secure: WRLqxS8frIuLNHeSMOj6SXvR3S0gx3RM0bgGkWeglXMIPSVS/VNmfUEqdHYZ2QOB
+  SENTRY_AUTH_TOKEN:
+    secure: W0fnI9J0+0b6H0PG3qHxVNNqSveCKifDPGk3q2rWIqH2v9WGCoASqOO00wa1YD6sU9JS8iDM5on5FD3t2awm/BImRJ5ZHJV7e3pqisdb1jM=
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
