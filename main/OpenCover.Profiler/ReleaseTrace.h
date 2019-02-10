@@ -1,9 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This code was unashamedly cobbled from atltrace.h to provide release build available tracing
-//
-
 #pragma once
 
 class CReleaseTrace

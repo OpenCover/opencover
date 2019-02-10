@@ -12,10 +12,12 @@ namespace OpenCover.Test.ConsoleEx
         [Test]
         public void OutputHasPreferred32BitDisabled()
         {
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+
             var pi = new ProcessStartInfo()
             {
-                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v8.0A\bin\NETFX 4.0 Tools\corflags.exe"),
-                Arguments = "OpenCover.Console.exe",
+                FileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.7.2 Tools\corflags.exe"),
+                Arguments = Path.Combine(assemblyPath, "OpenCover.Console.exe"),
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 RedirectStandardOutput = true

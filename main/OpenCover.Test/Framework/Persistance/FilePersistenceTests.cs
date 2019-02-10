@@ -137,31 +137,22 @@ namespace OpenCover.Test.Framework.Persistance
             Assert.IsTrue(persistence.HandleFileAccess(() => { }, "file_name"));
         }
 
-        [Test]
-        public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsException()
-        {
-            // arrange
-            var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
-
-            // act
-            var expected = new Exception();
-            var actual = Assert.Throws<Exception>(() => persistence.HandleFileAccess(() => { throw expected; }, "file_name"));
-
-            // assert
-            Assert.AreSame(expected, actual);
-        }
+        class TestException : Exception { } 
 
         [Test]
         [TestCase(typeof(DirectoryNotFoundException))]
         [TestCase(typeof(IOException))]
         [TestCase(typeof(UnauthorizedAccessException))]
+        [TestCase(typeof(NotSupportedException))]
+        [TestCase(typeof(ArgumentException))]
+        [TestCase(typeof(TestException))]
         public void HandleFileAccess_SuppliedActionThrows_Exception_ReturnsFalse(Type exception)
         {
             // arrange
             var persistence = new FilePersistance(_mockCommandLine.Object, _mockLogger.Object);
 
             // act
-            Assert.IsFalse(persistence.HandleFileAccess(() => { throw (Exception) Activator.CreateInstance(exception); }, "file_name"));
+            Assert.IsFalse(persistence.HandleFileAccess(() => throw (Exception) Activator.CreateInstance(exception), "file_name"));
         }
     }
 }

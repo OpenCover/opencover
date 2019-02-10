@@ -1,8 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
 // stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently,
 // but are changed infrequently
@@ -33,14 +28,14 @@
 
 #include <cor.h>
 #include <corsym.h>
-#include <corprof.h>
+#include <corprof.h> 
 #include <corhlpr.h>
 
 #pragma pack(pop)
 
 #include <string>
 #include <vector>
-#include <hash_map>
+#include <unordered_map>
 
 #ifdef UNICODE
 #define tstring std::wstring

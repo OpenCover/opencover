@@ -2,7 +2,7 @@
 
 namespace OpenCover.Framework
 {
-    static class HelperExtensions
+    internal static class HelperExtensions
     {
         public static TRet Maybe<T, TRet>(this T value, Func<T, TRet> action, TRet defValue = default(TRet))
             where T : class
@@ -15,6 +15,21 @@ namespace OpenCover.Framework
         {
             if (value != null) 
                 action(value);
+            return value;
+        }
+
+        public static T Try<T>(this T value, Action<T> action)
+            where T : class
+        {
+            try
+            {
+                if (value != null)
+                    action(value);
+            }
+            catch (Exception)
+            {
+                // ignore error
+            }
             return value;
         }
     }

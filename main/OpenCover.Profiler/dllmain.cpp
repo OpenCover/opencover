@@ -1,5 +1,3 @@
-// dllmain.cpp : Implementation of DllMain.
-
 #include "stdafx.h"
 #include "resource.h"
 #include "OpenCoverProfiler_i.h"

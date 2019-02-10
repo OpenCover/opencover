@@ -5,7 +5,7 @@
  * Time: 7:52
  * 
  */
-using System;
+
 using NUnit.Framework;
 using OpenCover.Framework.Model;
 

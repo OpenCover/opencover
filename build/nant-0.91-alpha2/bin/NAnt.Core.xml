@@ -12363,7 +12363,7 @@
             caused the exception.
             </summary>
             <param name="message">A descriptive message to include with the exception.</param>
-            <param name="location">The location in the build file where the exception occured.</param>
+            <param name="location">The location in the build file where the exception occurred.</param>
         </member>
         <member name="M:NAnt.Core.BuildException.#ctor(System.String,NAnt.Core.Location,System.Exception)">
             <summary>
@@ -12372,7 +12372,7 @@
             instance of the exception that is the cause of the current exception.
             </summary>
             <param name="message">A descriptive message to include with the exception.</param>
-            <param name="location">The location in the build file where the exception occured.</param>
+            <param name="location">The location in the build file where the exception occurred.</param>
             <param name="innerException">A nested exception that is the cause of the current exception.</param>
         </member>
         <member name="M:NAnt.Core.BuildException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
@@ -16002,7 +16002,7 @@
             that caused the exception.
             </summary>
             <param name="message">A descriptive message to include with the exception.</param>
-            <param name="location">The location in the build file where the exception occured.</param>
+            <param name="location">The location in the build file where the exception occurred.</param>
         </member>
         <member name="M:NAnt.Core.ValidationException.#ctor(System.String,NAnt.Core.Location,System.Exception)">
             <summary>
@@ -16012,7 +16012,7 @@
             exception.
             </summary>
             <param name="message">A descriptive message to include with the exception.</param>
-            <param name="location">The location in the build file where the exception occured.</param>
+            <param name="location">The location in the build file where the exception occurred.</param>
             <param name="innerException">A nested exception that is the cause of the current exception.</param>
         </member>
         <member name="M:NAnt.Core.ValidationException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">

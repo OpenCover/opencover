@@ -173,6 +173,7 @@ namespace OpenCover.Framework.Manager
                 dictionary["Cor_Profiler_Path"] = profilerPath;
                 dictionary["CorClr_Profiler_Path"] = profilerPath;
             }
+            dictionary["OpenCover_SendVisitPointsTimerInterval"] = _commandLine.SendVisitPointsTimerInterval.ToString();
         }
 
         private WaitCallback SaveVisitData(EventWaitHandle queueMgmt)
@@ -309,31 +310,7 @@ namespace OpenCover.Framework.Manager
 
                     try
                     {
-                        while (block.Active)
-                        {
-                            switch (WaitHandle.WaitAny(processEvents))
-                            {
-                                case 0:
-                                    _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
-                                    break;
-                                case 1:
-                                    var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
-                                    // don't let the queue get too big as using too much memory causes 
-                                    // problems i.e. the target process closes down but the host takes 
-                                    // ages to shutdown; this is a compromise. 
-                                    _messageQueue.Enqueue(data);
-                                    if (_messageQueue.Count > 400)
-                                    {
-                                        do
-                                        {
-                                            ThreadHelper.YieldOrSleep(100);
-                                        } while (_messageQueue.Count > 200);
-                                    }
-                                    break;
-                                default: // 2
-                                    return;
-                            }
-                        }
+                        if (ProcessActiveBlock(block, processEvents)) return;
                         _memoryManager.RemoveDeactivatedBlock(block);
                     }
                     finally
@@ -346,6 +323,36 @@ namespace OpenCover.Framework.Manager
                     /* an attempt to close thread has probably happened and the events disposed */
                 }
             };
+        }
+
+        private bool ProcessActiveBlock(ManagedBufferBlock block, WaitHandle[] processEvents)
+        {
+            while (block.Active)
+            {
+                switch (WaitHandle.WaitAny(processEvents))
+                {
+                    case 0:
+                        _communicationManager.HandleCommunicationBlock(block.CommunicationBlock, b => { });
+                        break;
+                    case 1:
+                        var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
+                        // don't let the queue get too big as using too much memory causes 
+                        // problems i.e. the target process closes down but the host takes 
+                        // ages to shutdown; this is a compromise. 
+                        _messageQueue.Enqueue(data);
+                        if (_messageQueue.Count > 400)
+                        {
+                            do
+                            {
+                                ThreadHelper.YieldOrSleep(100);
+                            } while (_messageQueue.Count > 200);
+                        }
+                        break;
+                    default: // 2
+                        return true;
+                }
+            }
+            return false;
         }
     }
 }

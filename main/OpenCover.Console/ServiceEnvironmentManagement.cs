@@ -133,9 +133,8 @@ namespace OpenCover.Console
 
         private void SetEnvironmentVariables(string serviceName, string[] environment)
         {
-            Microsoft.Win32.RegistryKey key = GetServiceKey(serviceName);
-            if (key != null)
-                key.SetValue("Environment", environment);
+            var key = GetServiceKey(serviceName);
+            key?.SetValue("Environment", environment);
         }
 
         private static string[] CombineEnvironmentVariables(string[] a, string[] b)
@@ -166,9 +165,8 @@ namespace OpenCover.Console
             IntPtr tokenHandle = IntPtr.Zero;
             if (!OpenProcessToken(processHandle, 0x20008, ref tokenHandle))
                 return new string[0];
-            IntPtr environmentPtr = IntPtr.Zero;
-            if (!CreateEnvironmentBlock(out environmentPtr, tokenHandle, false))
-                return new String[0];
+            if (!CreateEnvironmentBlock(out var environmentPtr, tokenHandle, false))
+                return new string[0];
             unsafe
             {
                 string[] envStrings = null;
@@ -196,6 +194,7 @@ namespace OpenCover.Console
             }
         }
 
+        // ReSharper disable once InconsistentNaming
         private static unsafe int wcslen(char* s)
         {
             char* e;
@@ -205,10 +204,10 @@ namespace OpenCover.Console
 
         private void SetAccountEnvironment(string serviceAccountSid, string[] profilerEnvironment)
         {
-            Microsoft.Win32.RegistryKey key = GetAccountEnvironmentKey(serviceAccountSid);
+            var key = GetAccountEnvironmentKey(serviceAccountSid);
             if (key != null)
             {
-                foreach (string envVariable in profilerEnvironment)
+                foreach (var envVariable in profilerEnvironment)
                 {
                     key.SetValue(EnvKey(envVariable), EnvValue(envVariable));
                 }
@@ -217,13 +216,13 @@ namespace OpenCover.Console
 
         private static string GetServiceAccountName(string serviceName)
         {
-            Microsoft.Win32.RegistryKey key = GetServiceKey(serviceName);
-            if (key != null)
+            var key = GetServiceKey(serviceName);
+            if (key?.GetValue("ObjectName") != null)
                 return key.GetValue("ObjectName") as string;
             return null;
         }
 
-        private string LookupAccountSid(string accountName)
+        private static string LookupAccountSid(string accountName)
         {
             int sidLen = 0;
             byte[] sid = new byte[sidLen];
@@ -237,8 +236,7 @@ namespace OpenCover.Console
             string stringSid = null;
             if (LookupAccountName(Environment.MachineName, accountName, sid, ref sidLen, domainName, ref domainNameLen, out peUse))
             {
-                IntPtr stringSidPtr;
-                if (ConvertSidToStringSidW(sid, out stringSidPtr))
+                if (ConvertSidToStringSidW(sid, out var stringSidPtr))
                 {
                     try
                     {
@@ -268,28 +266,28 @@ namespace OpenCover.Console
 
         private Microsoft.Win32.RegistryKey GetAccountEnvironmentKey(string serviceAccountSid)
         {
-            Microsoft.Win32.RegistryKey users = Microsoft.Win32.Registry.Users;
+            var users = Microsoft.Win32.Registry.Users;
             return users.OpenSubKey(serviceAccountSid + @"\Environment", true);
         }
 
-        private string EnvValue(string envVariable)
+        private static string EnvValue(string envVariable)
         {
             int index = envVariable.IndexOf('=');
             Debug.Assert(index >= 0);
             return envVariable.Substring(index + 1);
         }
 
-        private string EnvKey(string envVariable)
+        private static string EnvKey(string envVariable)
         {
             int index = envVariable.IndexOf('=');
             Debug.Assert(index >= 0);
             return envVariable.Substring(0, index);
         }
 
-        private void DeleteEnvironmentVariables(string serviceName)
+        private static void DeleteEnvironmentVariables(string serviceName)
         {
-            Microsoft.Win32.RegistryKey key = GetServiceKey(serviceName);
-            if (key != null)
+            var key = GetServiceKey(serviceName);
+            if (key?.GetValue("Environment") != null)
                 key.DeleteValue("Environment");
         }
 

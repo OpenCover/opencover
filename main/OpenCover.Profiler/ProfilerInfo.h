@@ -1,5 +1,3 @@
-// ProfilerInfo.h : Declaration of the CProfilerInfo
-
 #pragma once
 #include "resource.h"       // main symbols
 
@@ -13,16 +11,24 @@ class CCodeCoverage;
 
 using namespace ATL;
 
-// CProfilerInfoBase
+class CProfilerHook{
+public:
+	virtual ~CProfilerHook(){}
+	virtual DWORD AppendProfilerEventMask(DWORD dwEvents) = 0;
+};
 
 class ATL_NO_VTABLE CProfilerInfo :
 	public CComObjectRootEx<CComMultiThreadModel>,
 	public CProfilerInfoBase
 {
 public:
-	CProfilerInfo()
+	CProfilerInfo() : profilerHook_(nullptr)
 	{
-        m_pProfilerHook = nullptr;
+	}
+
+	void SetProfilerHook(CProfilerHook *profilerHook)
+	{
+		profilerHook_ = profilerHook;
 	}
 
 	BEGIN_COM_MAP(CProfilerInfo)
@@ -30,6 +36,10 @@ public:
 		COM_INTERFACE_ENTRY(ICorProfilerInfo2)
 		COM_INTERFACE_ENTRY(ICorProfilerInfo3)
 		COM_INTERFACE_ENTRY(ICorProfilerInfo4)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo5)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo6)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo7)
+		COM_INTERFACE_ENTRY(ICorProfilerInfo8)
 	END_COM_MAP()
 
 
@@ -45,11 +55,9 @@ public:
 	}
 
 private:
-	CCodeCoverage *m_pProfilerHook;
+	CProfilerHook *profilerHook_;
 
 public:
 	virtual HRESULT STDMETHODCALLTYPE SetEventMask(
-		/* [in] */ DWORD dwEvents);
-
-	friend CCodeCoverage;
+		/* [in] */ DWORD dwEvents) override;
 };

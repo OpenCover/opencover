@@ -1,0 +1,6 @@
+<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+using System.Reflection;
+
+[assembly: AssemblyCopyright("Copyright © OpenCover <#= string.Join(", ", Enumerable.Range(2011, (DateTime.UtcNow.Year - 2011) + 1).Select(y => y.ToString())) #>")]

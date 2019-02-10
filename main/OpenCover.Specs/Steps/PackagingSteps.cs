@@ -13,6 +13,13 @@ namespace OpenCover.Specs.Steps
     [Binding]
     public class PackagingSteps
     {
+        [BeforeScenario]
+        public void BeforeScenario()
+        {
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            ScenarioContext.Current["assemblyPath"] = assemblyPath;
+        }
+
         [AfterScenario("ziptag", "nugettag")]
         public void DeleteZipFolder()
         {
@@ -31,7 +38,7 @@ namespace OpenCover.Specs.Steps
 
         private static dynamic GetTargetPackage(string folder, string ext)
         {
-            var files = Directory.EnumerateFiles(Path.Combine(Environment.CurrentDirectory, "..", "..", "..", "bin", folder), string.Format("*.{0}", ext));
+            var files = Directory.EnumerateFiles(Path.Combine((string)ScenarioContext.Current["assemblyPath"], "..", "..", "..", "bin", folder), string.Format("*.{0}", ext));
 
             var target = files.Select(f => Regex.Match(f, string.Format(@".*\.(?<version>\d+\.\d+\.\d+)(-rc(?<revision>\d+))?\.{0}", ext)))
                  .Select(m => new { File = m.Value, Version = m.Groups["version"].Value, Revision = m.Groups["revision"].Value })
@@ -61,8 +68,8 @@ namespace OpenCover.Specs.Steps
             Assert.NotNull(target, "Could not find a valid file.");
 
             var targetFile = Path.GetFullPath(target.File);
-            targetFolder = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, dir));
-            targetOutput = Path.GetFullPath(Path.Combine(Environment.CurrentDirectory, xml));
+            targetFolder = Path.GetFullPath(Path.Combine((string)ScenarioContext.Current["assemblyPath"], dir));
+            targetOutput = Path.GetFullPath(Path.Combine((string)ScenarioContext.Current["assemblyPath"], xml));
 
             if (File.Exists(targetOutput))
                 File.Delete(targetOutput);
@@ -85,7 +92,7 @@ namespace OpenCover.Specs.Steps
         {
             string targetFolder;
             string targetOutput;
-            var targetFile = BuildTargets("nugetpackage", "nupkg", "nuFolder", "nuoutput.xml", out targetFolder, out targetOutput);
+            var targetFile = BuildTargets(@"packages\nuget\opencover", "nupkg", "nuFolder", "nuoutput.xml", out targetFolder, out targetOutput);
 
             ScenarioContext.Current["targetZip"] = targetFile;
             ScenarioContext.Current["targetFolder"] = targetFolder;
@@ -148,10 +155,12 @@ namespace OpenCover.Specs.Steps
             var startInfo = new ProcessStartInfo(openCover)
             {
                 Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml),
-                UseShellExecute = false
+                UseShellExecute = false,
+                RedirectStandardOutput = true
             };
             var process = Process.Start(startInfo);
             Assert.NotNull(process);
+            var console = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
         }
 
@@ -178,25 +187,16 @@ namespace OpenCover.Specs.Steps
             var data64 = File.ReadAllText(outputXml64);
 
             // do both files have the same coverage
-            var coverage86 = GetTotalCoverage(data86);
-            var coverage64 = GetTotalCoverage(data64);
-            Assert.AreEqual(int.Parse(coverage64), int.Parse(coverage86));
-            Assert.Greater(int.Parse(coverage64), 0);
+            var coverage86 = Utils.GetTotalCoverage(data86);
+            var coverage64 = Utils.GetTotalCoverage(data64);
+            Assert.AreEqual(decimal.Parse(coverage64), decimal.Parse(coverage86));
+            Assert.Greater(decimal.Parse(coverage64), 0);
 
             // do both files have the same number of elements Summary and Sequence points and are their attributes the same
             CompareMatches(Regex.Matches(data64, summaryRegEx, RegexOptions.Multiline), Regex.Matches(data86, summaryRegEx, RegexOptions.Multiline));
             CompareMatches(Regex.Matches(data64, seqPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, seqPointRegEx, RegexOptions.Multiline));
             CompareMatches(Regex.Matches(data64, branchPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, branchPointRegEx, RegexOptions.Multiline));
             CompareMatches(Regex.Matches(data64, methodPointRegEx, RegexOptions.Multiline), Regex.Matches(data86, methodPointRegEx, RegexOptions.Multiline));
-        }
-
-        private static string GetTotalCoverage(string xml)
-        {
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
-            var coverage = xmlDoc.SelectSingleNode("/CoverageSession/Summary/@sequenceCoverage");
-            Assert.NotNull(coverage);
-            return coverage.Value;
         }
 
         private static void CompareMatches(MatchCollection matches1, MatchCollection matches2)

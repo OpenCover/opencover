@@ -5,7 +5,7 @@
  * Time: 17:52
  * 
  */
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
@@ -152,8 +152,7 @@ namespace OpenCover.Test.Framework.Utility
             const string sourceString = "abc { def }";
             var source = new CodeCoverageStringTextSource(sourceString, "");
 
-            var sRepo = new SourceRepository();
-            sRepo[fileId1] = source;
+            var sRepo = new SourceRepository {[fileId1] = source};
 
             var spLeft = new SequencePoint() {
                 FileId = 1,

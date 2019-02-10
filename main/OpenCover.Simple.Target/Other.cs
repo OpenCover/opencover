@@ -13,6 +13,7 @@ namespace Namespace
 
         public int Data { get; set; }
 
+#pragma warning disable 649 // deliberately not used
         private int _x;
 
         public int X { get { return _x; } }

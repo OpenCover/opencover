@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -12,6 +13,7 @@ using OpenCover.Framework.Strategy;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.Samples;
 using log4net;
+using Mono.Cecil.Pdb;
 using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Symbols
@@ -25,7 +27,8 @@ namespace OpenCover.Test.Framework.Symbols
         private Mock<IFilter> _mockFilter;
         private Mock<ILog> _mockLogger;
         private Mock<ITrackedMethodStrategyManager> _mockManager;
-        
+        private Mock<ISymbolFileHelper> _mockSymbolFileHelper;
+
         [SetUp]
         public void Setup()
         {
@@ -33,10 +36,16 @@ namespace OpenCover.Test.Framework.Symbols
             _mockFilter = new Mock<IFilter>();
             _mockLogger = new Mock<ILog>();
             _mockManager = new Mock<ITrackedMethodStrategyManager>();
-            
-            _location = Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll");
+            _mockSymbolFileHelper = new Mock<ISymbolFileHelper>();
 
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            _location = Path.Combine(assemblyPath, "OpenCover.Test.dll");
+
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new [] { Path.Combine(assemblyPath, "OpenCover.Test.pdb") });
+
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
         }
 
@@ -91,6 +100,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.NotNull(types);
+            var t = typeof(NotCoveredStruct);
             Assert.IsNull(types.FirstOrDefault(x => x.FullName == typeof(NotCoveredStruct).FullName));
         }
 
@@ -165,7 +175,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(0, points[0].Path);
             Assert.AreEqual(1, points[1].Path);
@@ -228,7 +238,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[2].Offset, points[3].Offset);
             Assert.AreEqual(25, points[0].StartLine);
@@ -252,7 +262,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(2, points.Count());
+            Assert.AreEqual(2, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(32, points[0].StartLine);
             Assert.AreEqual(32, points[1].StartLine);
@@ -275,7 +285,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);            
             Assert.AreEqual(3, points[3].Path);
@@ -303,7 +313,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
@@ -331,7 +341,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count());
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
@@ -359,7 +369,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Count()); // there's one branch generated for missing case = 2
+            Assert.AreEqual(4, points.Length); 
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(points[0].Offset, points[3].Offset);
@@ -406,7 +416,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
 
         }
 
@@ -534,9 +544,9 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
 #if DEBUG
-            Assert.AreEqual(3, points.Count());
+            Assert.AreEqual(3, points.Length);
 #else
-            Assert.AreEqual(1, points.Count());
+            Assert.AreEqual(1, points.Length);
 #endif
 
         }
@@ -688,7 +698,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_NoStrategies()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -702,7 +712,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_NoTrackedMethods_When_StrategiesFindNothing()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             // act
@@ -716,7 +726,7 @@ namespace OpenCover.Test.Framework.Symbols
         public void GetTrackedMethods_TrackedMethods_When_StrategiesMatch()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
 
             _mockManager.Setup(x => x.GetTrackedMethods(It.IsAny<string>()))
@@ -726,14 +736,17 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetTrackedMethods();
 
             // assert
-            Assert.AreEqual(1, methods.Count());
+            Assert.AreEqual(1, methods.Length);
         }
 
         [Test]
-        public void GetTrackedMethods_NoTrackedMethods_When_NoPDB()
+        public void GetTrackedMethods_NoTrackedMethods_When_NoPDBFound()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<string>());
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
 
             // act
@@ -743,30 +756,14 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.IsNull(methods);
         }
 
-        /// <summary>
-        /// Issue #156
-        /// </summary>
         [Test]
-        public void GetTrackedMethods_Prepends_TargetDir_When_Assembly_NotFound()
+        public void SourceAssembly_DisplaysMessage_When_NoPDBFound()
         {
             // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, _mockManager.Object);
-            _reader.Initialise(@"c:\OpenCover.Test.dll", "OpenCover.Test");
-            _mockCommandLine.SetupGet(x => x.TargetDir).Returns(@"c:\temp");
-            
-            // act
-            var methods = _reader.GetTrackedMethods();
-
-            // assert
-            Assert.IsNotNull(methods);
-            _mockManager.Verify(x => x.GetTrackedMethods(@"c:\temp\OpenCover.Test.dll"));
-        }
-
-        [Test]
-        public void SourceAssembly_DisplaysMessage_When_NoPDB()
-        {
-            // arrange
-            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null);
+            _mockSymbolFileHelper
+                .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
+                .Returns(new List<string>());
+            _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(string.Empty, "OpenCover.Test");
             _mockLogger.SetupGet(x => x.IsDebugEnabled).Returns(true);
 
@@ -775,7 +772,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNull(source);
-            _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+            _mockLogger.Verify(x => x.DebugFormat(It.IsAny<string>()), Times.Once());
         }
 
         [Test]
@@ -807,7 +804,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(0, points.Count(), "The branch point in the 'generated' finally block should be ignored");
+            Assert.AreEqual(0, points.Length, "The branch point in the 'generated' finally block should be ignored");
         }
 
         [Test]
@@ -828,8 +825,27 @@ namespace OpenCover.Test.Framework.Symbols
             var points = _reader.GetBranchPointsForToken(method.MetadataToken);
 
             // assert
-            Assert.AreEqual(0, points.Count());
+            Assert.AreEqual(0, points.Length);
 
+        }
+
+        [Test]
+        [TestCase("/HandleMeDelegate")]
+        [TestCase(".DontHandleMeDelegate")]
+        public void DelegatesAreSkippedAndDoNotExposeMethods(string delegateName)
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+
+            var type = types.First(x => x.FullName.EndsWith(delegateName));
+            Assert.NotNull(type);
+            Assert.AreEqual(SkippedMethod.Delegate, type.SkippedDueTo);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+            Assert.AreEqual(0, methods.Length);
         }
     }
 }

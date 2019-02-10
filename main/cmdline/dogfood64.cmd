@@ -1,1 +1,1 @@
-OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe -targetargs:"OpenCover.Test.dll /noshadow /exclude:AdminOnly" -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml
+OpenCover.Console.exe -register:user -target:..\..\..\main\packages\NUnit.ConsoleRunner.3.9.0\tools\nunit3-console.exe -targetargs:"OpenCover.Test.dll --where:cat!=AdminOnly --x86" -filter:"+[Open*]* -[OpenCover.T*]*" -output:opencovertests.xml

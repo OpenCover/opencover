@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using Mono.Cecil;
 using Moq;
@@ -7,6 +8,7 @@ using OpenCover.Framework;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Symbols;
 using OpenCover.Test.MoqFramework;
+using File = OpenCover.Framework.Model.File;
 
 namespace OpenCover.Test.Framework.Model
 {
@@ -199,9 +201,12 @@ namespace OpenCover.Test.Framework.Model
         public void CanBuildModelOf_RealAssembly()
         {
             // arrange
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            Assert.IsNotNull(assemblyPath);
+
             Container.GetMock<ISymbolManager>()
                 .SetupGet(x => x.ModulePath)
-                .Returns(System.IO.Path.Combine(Environment.CurrentDirectory, "OpenCover.Test.dll"));
+                .Returns(Path.Combine(assemblyPath, "OpenCover.Test.dll"));
             
             Container.GetMock<IFilter>()
                .Setup(x => x.UseAssembly(It.IsAny<string>(), It.IsAny<string>()))
@@ -211,7 +216,7 @@ namespace OpenCover.Test.Framework.Model
             var module = Instance.BuildModuleModel(true);
 
             // assert
-            Assert.IsNotNullOrEmpty(module.ModuleHash);
+            Assert.IsFalse(string.IsNullOrEmpty(module.ModuleHash));
 
         }
 

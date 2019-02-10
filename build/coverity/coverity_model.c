@@ -16,4 +16,9 @@
 * http://scan.coverity.com/projects/3921
 */
 
-/* empty modeling file for now */
+#define NULL ((void *)0)
+
+typedef unsigned short char16_t;
+typedef unsigned int char32_t;
+
+//#define constexpr 

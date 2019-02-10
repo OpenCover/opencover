@@ -1,1 +1,1 @@
-..\..\..\main\packages\NUnit.Runners.2.6.4\tools\nunit-console.exe OpenCover.Test.dll /noshadow /exclude:AdminOnly
+..\..\..\main\packages\NUnit.ConsoleRunner.3.9.0\tools\nunit3-console.exe OpenCover.Test.dll --where:cat!=AdminOnly

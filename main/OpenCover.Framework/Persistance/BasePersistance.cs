@@ -110,7 +110,7 @@ namespace OpenCover.Framework.Persistance
                     foreach (var method in @class.Methods)
                     {
                         method.Summary = new Summary();
-                        if (method.SequencePoints != null && method.SequencePoints.Any() && method.SequencePoints[0].Offset == method.MethodPoint.Offset)
+                        if (method.SequencePoints.Any() && method.SequencePoints[0].Offset == method.MethodPoint.Offset)
                         {
                             var point = new[] { method.SequencePoints[0], (SequencePoint)method.MethodPoint }
                                 .OrderBy(x => x.OrigSequencePoint)
@@ -193,7 +193,15 @@ namespace OpenCover.Framework.Persistance
                     RemoveEmptyClasses();
                     break;
                 case SkippedMethod.AutoImplementedProperty:
-                    RemoveSkippedMethods(SkippedMethod.Attribute);
+                    RemoveSkippedMethods(SkippedMethod.AutoImplementedProperty);
+                    RemoveEmptyClasses();
+                    break;
+                case SkippedMethod.Delegate:
+                    RemoveSkippedMethods(SkippedMethod.Delegate);
+                    RemoveEmptyClasses();
+                    break;
+                case SkippedMethod.FSharpInternal:
+                    RemoveSkippedMethods(SkippedMethod.FSharpInternal);
                     RemoveEmptyClasses();
                     break;
             }
@@ -300,6 +308,13 @@ namespace OpenCover.Framework.Persistance
             AddPoints(CoverageSession.Summary, module.Summary);
             CalculateCoverage(module.Summary);
 
+            if (CoverageSession.Summary.MinCrapScore == 0)
+            {
+                CoverageSession.Summary.MinCrapScore = module.Summary.MinCrapScore;
+            }
+            CoverageSession.Summary.MinCrapScore = Math.Min(CoverageSession.Summary.MinCrapScore, module.Summary.MinCrapScore);
+            CoverageSession.Summary.MaxCrapScore = Math.Max(CoverageSession.Summary.MaxCrapScore, module.Summary.MaxCrapScore);
+
             if (CoverageSession.Summary.MinCyclomaticComplexity == 0)
                 CoverageSession.Summary.MinCyclomaticComplexity = module.Summary.MinCyclomaticComplexity;
 
@@ -317,6 +332,13 @@ namespace OpenCover.Framework.Persistance
             AddPoints(module.Summary, @class.Summary);
             CalculateCoverage(@class.Summary);
 
+            if (module.Summary.MinCrapScore == 0)
+            {
+                module.Summary.MinCrapScore = @class.Summary.MinCrapScore;
+            }
+            module.Summary.MinCrapScore = Math.Min(module.Summary.MinCrapScore, @class.Summary.MinCrapScore);
+            module.Summary.MaxCrapScore = Math.Max(module.Summary.MaxCrapScore, @class.Summary.MaxCrapScore);
+
             if (module.Summary.MinCyclomaticComplexity == 0)
                 module.Summary.MinCyclomaticComplexity = @class.Summary.MinCyclomaticComplexity;
 
@@ -333,14 +355,10 @@ namespace OpenCover.Framework.Persistance
                 method.Visited = (method.MethodPoint.VisitCount > 0);
             }
 
-            method.Summary.NumBranchPoints = method.BranchPoints == null ? 0 : method.BranchPoints.Count();
-            method.Summary.VisitedBranchPoints = method.BranchPoints == null
-                ? 0
-                : method.BranchPoints.Count(pt => pt.VisitCount != 0);
-            method.Summary.NumSequencePoints = method.SequencePoints == null ? 0 : method.SequencePoints.Count();
-            method.Summary.VisitedSequencePoints = method.SequencePoints == null
-                ? 0
-                : method.SequencePoints.Count(pt => pt.VisitCount != 0);
+            method.Summary.NumBranchPoints = method.BranchPoints.Length;
+            method.Summary.VisitedBranchPoints = method.BranchPoints.Count(pt => pt.VisitCount != 0);
+            method.Summary.NumSequencePoints = method.SequencePoints.Length;
+            method.Summary.VisitedSequencePoints = method.SequencePoints.Count(pt => pt.VisitCount != 0);
 
             if (method.Summary.NumSequencePoints > 0)
                 method.Summary.NumBranchPoints += 1;
@@ -360,9 +378,31 @@ namespace OpenCover.Framework.Persistance
             method.SequenceCoverage = method.Summary.SequenceCoverage;
             method.BranchCoverage = method.Summary.BranchCoverage;
 
+            CalculateCrapScore(method, @class);
+
             CalculateNPathComplexity(method);
 
             CalculateCyclomaticComplexity(method, @class);
+        }
+
+        private static void CalculateCrapScore(Method method, Class @class)
+        {
+            method.CrapScore = Math.Round((decimal) Math.Pow(method.CyclomaticComplexity, 2) *
+                                          (decimal) Math.Pow(1.0 - (double) (method.SequenceCoverage / (decimal) 100.0), 3.0) +
+                                          method.CyclomaticComplexity, 
+                                          2);
+
+            // TODO: is 0 a possible crap score?
+            method.Summary.MinCrapScore = Math.Max(0, method.CrapScore);
+            method.Summary.MaxCrapScore = method.Summary.MinCrapScore;
+
+            if (@class.Summary.MinCrapScore == 0)
+            {
+                @class.Summary.MinCrapScore = method.Summary.MinCrapScore;
+            }
+
+            @class.Summary.MinCrapScore = Math.Min(@class.Summary.MinCrapScore, method.CrapScore);
+            @class.Summary.MaxCrapScore = Math.Max(@class.Summary.MaxCrapScore, method.CrapScore);
         }
 
         private static void CalculateCyclomaticComplexity(Method method, Class @class)
@@ -383,7 +423,7 @@ namespace OpenCover.Framework.Persistance
         {
             method.NPathComplexity = 0;
             var nPaths = new Dictionary<int, int>();
-            if (method.BranchPoints != null && method.BranchPoints.Length != 0)
+            if (method.BranchPoints.Any())
             {
                 foreach (var bp in method.BranchPoints.Where(b => b != null))
                 {
@@ -405,7 +445,15 @@ namespace OpenCover.Framework.Persistance
                 }
                 else
                 {
-                    method.NPathComplexity *= branches;
+                    try
+                    {
+                        method.NPathComplexity = checked(method.NPathComplexity * branches);
+                    }
+                    catch (OverflowException)
+                    {
+                        method.NPathComplexity = int.MaxValue;
+                        break;
+                    }
                 }
             }
         }
@@ -414,8 +462,7 @@ namespace OpenCover.Framework.Persistance
         {
             foreach (var pt in points.Where(p => p.FileId == 0))
             {
-                uint fileid;
-                filesDictionary.TryGetValue(pt.Document ?? "", out fileid);
+                filesDictionary.TryGetValue(pt.Document ?? "", out uint fileid);
                 pt.FileId = fileid;
                 // clear document if FileId is found
                 pt.Document = pt.FileId != 0 ? null : pt.Document;
@@ -454,9 +501,8 @@ namespace OpenCover.Framework.Persistance
         public bool GetSequencePointsForFunction(string modulePath, int functionToken, out InstrumentationPoint[] sequencePoints)
         {
             sequencePoints = new InstrumentationPoint[0];
-            Class @class;
-            var method = GetMethod(modulePath, functionToken, out @class);
-            if (method !=null && method.SequencePoints != null)
+            var method = GetMethod(modulePath, functionToken, out Class @class);
+            if (method != null && method.SequencePoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Sequence points for {0}({1})", method.FullName, method.MetadataToken);
                 var points = new List<InstrumentationPoint>();
@@ -479,9 +525,8 @@ namespace OpenCover.Framework.Persistance
         public bool GetBranchPointsForFunction(string modulePath, int functionToken, out BranchPoint[] branchPoints)
         {
             branchPoints = new BranchPoint[0];
-            Class @class;
-            var method = GetMethod(modulePath, functionToken, out @class);
-            if (method != null && method.BranchPoints != null)
+            var method = GetMethod(modulePath, functionToken, out Class @class);
+            if (method != null && method.BranchPoints.Any())
             {
                 System.Diagnostics.Debug.WriteLine("Getting Branch points for {0}({1})", method.FullName, method.MetadataToken);
                 branchPoints = method.BranchPoints.ToArray();
@@ -522,9 +567,8 @@ namespace OpenCover.Framework.Persistance
         /// <returns></returns>
         public string GetClassFullName(string modulePath, int functionToken)
         {
-            Class @class;
-            GetMethod(modulePath, functionToken, out @class);
-            return @class != null ? @class.FullName : null;
+            GetMethod(modulePath, functionToken, out Class @class);
+            return @class?.FullName;
         }
 
         /// <summary>

@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OpenCover.Console</RootNamespace>
     <AssemblyName>OpenCover.Console</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -80,36 +80,56 @@
     <ApplicationIcon>..\Icons\Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CrashReporter.NET">
-      <HintPath>..\..\tools\CrashReporterSigned\CrashReporter.NET.dll</HintPath>
-    </Reference>
-    <Reference Include="Gendarme.Framework">
+    <Reference Include="Gendarme.Framework, Version=2.11.0.0, Culture=neutral, PublicKeyToken=b07ccf3a9f1ab3c9, processorArchitecture=MSIL">
       <HintPath>..\..\tools\GendarmeSigned\Gendarme.Framework.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Sentry, Version=1.1.2.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.1.1.2\lib\net461\Sentry.dll</HintPath>
+    </Reference>
+    <Reference Include="Sentry.PlatformAbstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.PlatformAbstractions.1.0.0\lib\net471\Sentry.PlatformAbstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Sentry.Protocol, Version=1.0.3.0, Culture=neutral, PublicKeyToken=fba2ec45388e2af0, processorArchitecture=MSIL">
+      <HintPath>..\packages\Sentry.Protocol.1.0.3\lib\net46\Sentry.Protocol.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.3.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.5.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
+    </Reference>
     <Reference Include="System.Management" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\build\Version\AssemblyCopyright.cs">
+      <Link>Properties\AssemblyCopyright.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AssemblyCopyright.tt</DependentUpon>
+    </Compile>
     <Compile Include="..\..\build\Version\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="..\..\build\Version\Version.cs">
       <Link>Properties\Version.cs</Link>
     </Compile>
-    <Compile Include="CrashReporter\AnonymousData.cs" />
-    <Compile Include="CrashReporter\SendRequestState.cs" />
     <Compile Include="ServiceEnvironmentManagement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\build\Version\AssemblyCopyright.tt">
+      <Link>Properties\AssemblyCopyright.tt</Link>
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AssemblyCopyright.cs</LastGenOutput>
+    </Content>
     <Content Include="..\OpenCover.Framework\log4net.config">
       <Link>log4net.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -150,7 +170,9 @@
       <Link>Icon.ico</Link>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

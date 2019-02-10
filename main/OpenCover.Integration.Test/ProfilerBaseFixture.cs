@@ -26,7 +26,6 @@ namespace OpenCover.Integration.Test
         }
     }
 
-    [TestFixture]
     public abstract class ProfilerBaseFixture
     {
         protected IFilter _filter;
@@ -35,7 +34,12 @@ namespace OpenCover.Integration.Test
         private IPersistance _persistance;
 
         protected string TestTarget { get; set; }
- 
+
+        protected string TestRunner
+        {
+            get { return @"..\..\..\main\packages\NUnit.ConsoleRunner.3.9.0\tools\nunit3-console.exe"; }
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -63,19 +67,21 @@ namespace OpenCover.Integration.Test
 
         private void ExecuteProfiler(Action<ProcessStartInfo> testProcess)
         {
-            var bootstrapper = new Bootstrapper(_logger.Object);
-            bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, new NullPerfCounter());
-            var harness = bootstrapper.Resolve<IProfilerManager>();
-
-            harness.RunProcess((environment) =>
+            using (var bootstrapper = new Bootstrapper(_logger.Object))
             {
-                var startInfo = new ProcessStartInfo();
-                environment(startInfo.EnvironmentVariables);
-                testProcess(startInfo);
-                startInfo.UseShellExecute = false;
-                var process = Process.Start(startInfo);
-                process.WaitForExit();
-            }, Enumerable.Empty<string>().ToArray());
+                bootstrapper.Initialise(_filter, _commandLine.Object, _persistance, new NullPerfCounter());
+                var harness = bootstrapper.Resolve<IProfilerManager>();
+
+                harness.RunProcess((environment) =>
+                {
+                    var startInfo = new ProcessStartInfo();
+                    environment(startInfo.EnvironmentVariables);
+                    testProcess(startInfo);
+                    startInfo.UseShellExecute = false;
+                    var process = Process.Start(startInfo);
+                    process.WaitForExit();
+                }, Enumerable.Empty<string>().ToArray());
+            }
         }
 
     }

@@ -28,14 +28,14 @@ namespace OpenCover.Test.Framework
             public FilterType FilterTypeResult { get; set; }
         }
 
-        private readonly string[] _invalidFilterExpressions =
+        private static readonly string[] InvalidFilterExpressions =
         {
             "Garbage", "+[]", "-[ ]", "[ ", " ]", "+[]]", "-[][",
             @"-[\]", @"+[X]\", "-[X]]", "+[X][", "-<[*]*", "+>[*]*",
             "+<>[*]*", "-[*]", "-[]*", "-<*>[*]", "-<*>[]*", "-[\u00a0]*"
         };
 
-        private readonly FilterData[] _filterExpressions =
+        private static readonly FilterData[] FilterExpressions =
         {
             new FilterData
             {
@@ -102,7 +102,7 @@ namespace OpenCover.Test.Framework
 
         [Test]
         public void AddFilter_ThrowsException_WhenInvalid_AssemblyClassPair(
-            [ValueSource("_invalidFilterExpressions")]string assemblyClassPair)
+            [ValueSource(nameof(InvalidFilterExpressions))]string assemblyClassPair)
         {
             // arrange
             var filter = new Filter(false);
@@ -114,7 +114,7 @@ namespace OpenCover.Test.Framework
 
         [Test]
         public void AddFilter_Adds_ValidAssemblyClassPair(
-            [ValueSource("_filterExpressions")]FilterData assemblyClassPair)
+            [ValueSource(nameof(FilterExpressions))]FilterData assemblyClassPair)
         {
             // arrange
             var filter = new Filter(false);
@@ -151,7 +151,7 @@ namespace OpenCover.Test.Framework
             public bool ExpectedResult { get; set; }
         }
 
-        private readonly UseAssemblyData[] _useAssemblyData = 
+        private static readonly UseAssemblyData[] UseAssemblyDatas = 
                                                          {
                                                              new UseAssemblyData
                                                                  {
@@ -200,7 +200,7 @@ namespace OpenCover.Test.Framework
 
         [Test]
         public void UseAssembly_Tests(
-            [ValueSource("_useAssemblyData")]UseAssemblyData data)
+            [ValueSource(nameof(UseAssemblyDatas))]UseAssemblyData data)
         {
             // arrange
             var filter = new Filter(false);
@@ -225,7 +225,7 @@ namespace OpenCover.Test.Framework
             public bool ExpectedResult { get; set; }
         }
 
-        private readonly InstrumentClassData[] _instrumentClassData =
+        private static readonly InstrumentClassData[] InstrumentClassDatas =
                                                                  {
                                                                      new InstrumentClassData
                                                                          {
@@ -338,7 +338,7 @@ namespace OpenCover.Test.Framework
 
         [Test]
         public void InstrumentClass_Tests(
-            [ValueSource("_instrumentClassData")]InstrumentClassData data)
+            [ValueSource(nameof(InstrumentClassDatas))]InstrumentClassData data)
         {
             // arrange
             var filter = new Filter(false);
@@ -567,6 +567,50 @@ namespace OpenCover.Test.Framework
             {
                 Assert.True(filter.ExcludeByAttribute(propertyDefinition));
             }
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_FSharp_Methods()
+        {
+            var assemblyPath = System.IO.Path.GetDirectoryName(GetType().Assembly.Location);
+            Assert.NotNull(assemblyPath);
+            var location = System.IO.Path.Combine(assemblyPath, @"Samples\Library1.dll");
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing", "testMakeUnion" };
+
+            Identify_FSharp_Methods(sourceAssembly, expected);
+        }
+
+        [Test]
+        public void Can_Identify_Excluded_FSharp_NonPublic_Methods()
+        {
+            var assemblyPath = System.IO.Path.GetDirectoryName(GetType().Assembly.Location);
+            Assert.NotNull(assemblyPath);
+            var location = System.IO.Path.Combine(assemblyPath, @"Samples\Library2.dll");
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+            var expected = new[] { "as_bar", "bytes", "makeThing", "returnBar", "returnFoo", "testMakeThing2", "testMakeUnion2" };
+
+            Identify_FSharp_Methods(sourceAssembly, expected);
+        }
+
+        private static void Identify_FSharp_Methods(AssemblyDefinition sourceAssembly, string[] expected)
+        {
+            var direct = sourceAssembly.MainModule.Types.ToList();
+            var indirect = direct
+                .Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(); // MyUnion, MyThing
+            var indirect2 = indirect.Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(); // Foo, Bar, ...
+            Assert.That(
+                indirect2.Where(t => t.HasNestedTypes).SelectMany(t => t.NestedTypes).ToList(),
+                Is.Empty);
+
+            var filter = new Filter(false);
+            var pass = direct.Concat(indirect).Concat(indirect2).SelectMany(x => x.Methods)
+                .Where(x => !filter.IsFSharpInternal(x))
+                .Select(x => x.Name)
+                .OrderBy(x => x)
+                .ToList();
+
+            Assert.That(pass, Is.EquivalentTo(expected));
         }
 
         [Test]
@@ -904,7 +948,7 @@ namespace OpenCover.Test.Framework
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
         {
             yield return "-target:t";
-            yield return string.Format("-filter:\"{0}\"", filterArg);
+            yield return $"-filter:\"{filterArg}\"";
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
     }

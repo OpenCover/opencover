@@ -1,6 +1,6 @@
-version: 4.6.{build}
+version: 4.7.{build}
 skip_tags: true
-os: Visual Studio 2015
+image: Visual Studio 2017
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
@@ -9,15 +9,38 @@ environment:
     secure: q4yqC+X51LwoyuBcg0qvks1117rt1HwqsDErKsbLpsQ=
   COVERITY_EMAIL:
     secure: lgy4M/uQ9jMlxmPzTIYWVE2GggvPntq6kfpO6Z0pjAs=
-  SONARQUBE_USER:
-    secure: +9YfPnwJzGsvdyto85pHwg==
-  SONARQUBE_PASSWORD:
-    secure: Ptvd9aDNKfVhXvPpq6o1Fw==
+  SONARQUBE_TOKEN:
+    secure: WRLqxS8frIuLNHeSMOj6SXvR3S0gx3RM0bgGkWeglXMIPSVS/VNmfUEqdHYZ2QOB
 cache:
 - build/Version/opencover.snk
 - build/Version/opencover.public.snk
 nuget:
   disable_publish_on_pr: true
+install:
+- ps: >-
+    Write-Host 'Downloading Microsoft .NET Framework 4.7.2 Developer Pack...'
+    
+    $exePath = "$($env:USERPROFILE)\VSIsoShell.exe"
+    
+    (New-Object Net.WebClient).DownloadFile('https://download.microsoft.com/download/3/B/F/3BFB9C35-405D-45DF-BDAF-0EB57D047888/NDP472-DevPack-ENU.exe', $exePath)
+    
+    Write-Host 'Installing Microsoft .NET Framework 4.7.2 Developer Pack...'
+    
+    cmd /c start /wait "$exePath" /q /norestart
+    
+    Write-Host 'Downloading Installing vera++1.3.0-win32...'
+    
+    $exePath = "$($env:USERPROFILE)\vera++-1.3.0-win32.exe"
+    
+    (New-Object Net.WebClient).DownloadFile('https://bitbucket.org/verateam/vera/downloads/vera++-1.3.0-win32.exe', $exePath)
+    
+    Write-Host 'Installing vera++1.3.0-win32...'
+    
+    cmd /c start /wait "$exePath" /S
+    
+before_build:
+- ps: >-
+    #do nothing
 build_script:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -eq "True" -or $env:APPVEYOR_REPO_BRANCH -eq "coverity") {
@@ -25,28 +48,57 @@ build_script:
     } else {
       & .\build.bat create-release
     }
-    
+        
+    if ($LastExitCode -ne 0) {
+        throw "build.bat failed with exit code $LastExitCode."
+    }    
 test: off
 artifacts:
 - path: main/bin/installer/*.msi
   name: Installer
-- path: main/bin/nugetpackage/*.nupkg
-  name: Nuget
 - path: main/bin/zip/*.zip
   name: ZipArchive
-- path: main/bin/nugetpackage-rc/*.nupkg
+- path: main/bin/packages/nuget/opencover/*.nupkg
+  name: Nuget
+- path: main/bin/packages/nuget/opencover-rc/*.nupkg
   name: NugetCandidate
+- path: main/bin/packages/chocolatey/opencover/*.nupkg
+  name: Chocolatey
+- path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
+  name: ChocolateyPortable
+- path: cov-int/build-log.txt
+  name: Coverity
+- path: GenericCoverage.xml
+  name: cpp-coverage
+- path: main/bin/release/opencovertests.xml
+  name: cs-coverage
 deploy:
 - provider: NuGet
   api_key:
-    secure: yew/4xjmqdUs1U//LNGQjjMgB3JVantsz09C2LxmKaLXuG1gEsWJl+Nd+VRmB3TM
+    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
   skip_symbols: true
   artifact: Nuget
   on:
     branch: release
 - provider: NuGet
+  server: https://chocolatey.org/
   api_key:
-    secure: yew/4xjmqdUs1U//LNGQjjMgB3JVantsz09C2LxmKaLXuG1gEsWJl+Nd+VRmB3TM
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: Chocolatey
+  on:
+    branch: release
+- provider: NuGet
+  server: https://chocolatey.org/
+  api_key:
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: ChocolateyPortable
+  on:
+    branch: release
+- provider: NuGet
+  api_key:
+    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
   skip_symbols: true
   artifact: NugetCandidate
   on:
@@ -55,7 +107,7 @@ deploy:
   tag: $(appveyor_build_version)-rc
   release: OpenCover (Release Candidiate) $(appveyor_build_version)
   auth_token:
-    secure: bMPwiJusZ78qab84M/zNAxmpMSCW11eaJI3czwnDzl8tK/9u3y4w38+2WOVkNeOg
+    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
   artifact: Installer, ZipArchive
   prerelease: true
   on:
@@ -64,10 +116,17 @@ deploy:
   tag: $(appveyor_build_version)
   release: OpenCover (Release) $(appveyor_build_version)
   auth_token:
-    secure: bMPwiJusZ78qab84M/zNAxmpMSCW11eaJI3czwnDzl8tK/9u3y4w38+2WOVkNeOg
+    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
   artifact: Installer, ZipArchive
   on:
     branch: release
+- provider: NuGet
+  server: https://www.myget.org/F/opencover/api/v2/package
+  api_key:
+    secure: UOHB7ZJL44zMDE+fM0+IWJwpQSlHg27zbFG79/HshiVdoAXnpW53KMayETaO9E5K
+  artifact: NugetCandidate
+  on:
+    branch: master
 notifications:
 - provider: Webhook
   url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
@@ -76,8 +135,14 @@ notifications:
   on_build_status_changed: true
 on_success:
 - ps: >-
-    if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER -and $env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity") {
-      & .\build.bat sonarqube-build
-    } else {
-      & .\build.bat dogfood-release
+    if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity")
+    {
+    #  if (-Not $env:APPVEYOR_PULL_REQUEST_NUMBER) {
+    #    & .\build.bat sonarqube-build
+    #  } else {
+    #    & .\build.bat dogfood-release
+    #  }
+       & .\build.bat dogfood-release
     }
+on_finish:
+  - ps: #$blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))

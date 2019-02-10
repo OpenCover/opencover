@@ -1,17 +1,9 @@
 ﻿//
 // This source code is released under the MIT License; see the accompanying license file.
 //
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Reflection;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.Win32;
@@ -51,39 +43,42 @@ namespace OpenCover.MSBuild
         /// <returns>The full path to the OpenCover tool.</returns>
         protected override string GenerateFullPathToTool()
         {
-            string path=ToolPath;
             string exe=Path.GetFileName(ToolExe);
 
-            if (string.IsNullOrEmpty(path)) {
-                if (File.Exists(exe))
-                    return Path.GetFullPath(exe);
+            if (!string.IsNullOrEmpty(ToolPath))
+                return Path.GetFullPath(Path.Combine(ToolPath, exe));
 
-                RegistryKey key=null;
+            // NuGet deployment
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(OpenCover)).Location), "..\\tools", exe);
+            if (File.Exists(path))
+                return Path.GetFullPath(path);
 
-                string[] keyNames=new string[] { _OpenCoverRegKey, _OpenCoverRegKeyWow6432 };
-                foreach (string kn in keyNames)
-                {
-                    key=Registry.CurrentUser.OpenSubKey(kn);
-                    if (key!=null)
-                        break;
+            // OpenCover has been installed
+            RegistryKey key=null;
 
-                    key=Registry.LocalMachine.OpenSubKey(kn);
-                    if (key!=null)
-                        break;
-                }
+            string[] keyNames=new string[] { _OpenCoverRegKey, _OpenCoverRegKeyWow6432 };
+            foreach (string kn in keyNames)
+            {
+                key=Registry.CurrentUser.OpenSubKey(kn);
+                if (key!=null)
+                    break;
 
-                if (key==null)
-                {
-                    Log.LogError("Could not find OpenCover installation registry key. Please install OpenCover or repair installation.");
-                    return null;
-                }
+                key=Registry.LocalMachine.OpenSubKey(kn);
+                if (key!=null)
+                    break;
+            }
 
-                path=(string)key.GetValue(_OpenCoverRegValue);
-                if (string.IsNullOrEmpty(path))
-                {
-                    Log.LogError("Could not find OpenCover installation path. Please repair OpenCover installation.");
-                    return null;
-                }
+            if (key==null)
+            {
+                Log.LogError("Could not find OpenCover installation registry key. Please install OpenCover or repair installation.");
+                return null;
+            }
+
+            path=(string)key.GetValue(_OpenCoverRegValue);
+            if (string.IsNullOrEmpty(path))
+            {
+                Log.LogError("Could not find OpenCover installation path. Please repair OpenCover installation.");
+                return null;
             }
 
             return Path.GetFullPath(Path.Combine(path, exe));
@@ -105,12 +100,12 @@ namespace OpenCover.MSBuild
                 builder.AppendSwitch("-nodefaultfilters");
             if (MergeByHash)
                 builder.AppendSwitch("-mergebyhash");
+            if (SkipAutoProps)
+                builder.AppendSwitch("-skipautoprops");
             if (ShowUnvisited)
                 builder.AppendSwitch("-showunvisited");
             if (ReturnTargetCode)
-            {
-                builder.AppendSwitch("-returntargetcode" + (TargetCodeOffset != 0 ? string.Format(":{0}", TargetCodeOffset) : null));
-            }
+                builder.AppendSwitch("-returntargetcode" + (TargetCodeOffset != 0 ? string.Format(CultureInfo.InvariantCulture, ":{0}", TargetCodeOffset) : null));
 
             builder.AppendSwitchIfNotNull("-target:", Target);
             builder.AppendSwitchIfNotNull("-targetdir:", TargetWorkingDir);
@@ -127,6 +122,9 @@ namespace OpenCover.MSBuild
 
             if ((CoverByTest!=null) && (CoverByTest.Length>0))
                 builder.AppendSwitchIfNotNull("-coverbytest:", string.Join<ITaskItem>(";", CoverByTest));
+
+            if ((HideSkipped != null) && (HideSkipped.Length > 0))
+                builder.AppendSwitchIfNotNull("-hideskipped:", string.Join<ITaskItem>(";", HideSkipped));
 
             builder.AppendSwitchIfNotNull("-output:", Output);
 
@@ -209,6 +207,28 @@ namespace OpenCover.MSBuild
         /// Merge the result by assembly file-hash.
         /// </summary>
         public bool MergeByHash
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Remove information from output file.
+        /// HideSkipped = &lt;criteria&gt;[;&lt;criteria&gt;]*
+        /// &lt;criteria&gt; = [File|Filter|Attribute|MissingPdb|All
+        /// </summary>
+        public ITaskItem[] HideSkipped
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Neither track nor record auto-implemented properties.
+        /// That is, skip getters and setters like these:
+        /// public bool Service { get; set; }
+        /// </summary>
+        public bool SkipAutoProps
         {
             get;
             set;

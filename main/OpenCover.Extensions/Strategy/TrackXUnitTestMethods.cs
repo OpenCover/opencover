@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace OpenCover.Extensions.Strategy
 {
     /// <summary>
@@ -5,7 +7,15 @@ namespace OpenCover.Extensions.Strategy
     /// </summary>
     public class TrackXUnitTestMethods : TrackedMethodStrategyBase
     {
-        public TrackXUnitTestMethods() : base("xUnitTest", "Xunit.FactAttribute")
+        private const string XUnitStrategyName = "xUnitTest";
+
+        private static readonly IList<string> TrackedAttributeTypeNames = new List<string>
+        {
+            "Xunit.FactAttribute",
+            "Xunit.TheoryAttribute",
+        };
+
+        public TrackXUnitTestMethods() : base(XUnitStrategyName, TrackedAttributeTypeNames)
         {                
         }
     }

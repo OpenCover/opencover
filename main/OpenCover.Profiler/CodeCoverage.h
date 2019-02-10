@@ -1,10 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-// CodeCoverage.h : Declaration of the CCodeCoverage
-
 #pragma once
 #include "resource.h"       // main symbols
 
@@ -18,15 +11,12 @@
 
 #include <memory>
 
-using namespace ATL;
-
 #define COM_FAIL_MSG_RETURN_ERROR(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (hr); }
-
-//#define COM_FAILMSG(hr, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return; }
 
 #define COM_FAIL_MSG_RETURN_OTHER(hr, ret, msg) if (!SUCCEEDED(hr)) { RELTRACE(msg, hr); return (ret); }
 
 #define MSCORLIB_NAME L"mscorlib"
+#define DNCORLIB_NAME L"System.Private.CoreLib"
 
 #include "CoverageInstrumentation.h"
 
@@ -40,7 +30,7 @@ typedef void(__fastcall *ipv)(ULONG);
 class ATL_NO_VTABLE CCodeCoverage :
     public CComObjectRootEx<CComMultiThreadModel>,
     public CComCoClass<CCodeCoverage, &CLSID_CodeCoverage>,
-    public CProfilerBase
+    public CProfilerBase, CProfilerHook
 {
 public:
     CCodeCoverage() 
@@ -62,10 +52,12 @@ BEGIN_COM_MAP(CCodeCoverage)
     COM_INTERFACE_ENTRY(ICorProfilerCallback)
     COM_INTERFACE_ENTRY(ICorProfilerCallback2)
     COM_INTERFACE_ENTRY(ICorProfilerCallback3)
-#ifndef _TOOLSETV71
     COM_INTERFACE_ENTRY(ICorProfilerCallback4)
     COM_INTERFACE_ENTRY(ICorProfilerCallback5)
-#endif
+    COM_INTERFACE_ENTRY(ICorProfilerCallback6)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback7)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback8)
+	COM_INTERFACE_ENTRY(ICorProfilerCallback9)
 END_COM_MAP()
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
@@ -80,18 +72,14 @@ END_COM_MAP()
         if (m_profilerInfo != nullptr) m_profilerInfo.Release();
         if (m_profilerInfo2 != nullptr) m_profilerInfo2.Release();
         if (m_profilerInfo3 != nullptr) m_profilerInfo3.Release();
-#ifndef _TOOLSETV71
         if (m_profilerInfo4 != nullptr) m_profilerInfo4.Release();
-#endif
 	}
 
 public:
     CComQIPtr<ICorProfilerInfo> m_profilerInfo;
     CComQIPtr<ICorProfilerInfo2> m_profilerInfo2;
     CComQIPtr<ICorProfilerInfo3> m_profilerInfo3;
-#ifndef _TOOLSETV71
     CComQIPtr<ICorProfilerInfo4> m_profilerInfo4;
-#endif
 
     std::wstring GetModulePath(ModuleID moduleId);
     std::wstring GetModulePath(ModuleID moduleId, AssemblyID *pAssemblyId);
@@ -101,10 +89,12 @@ public:
     void __fastcall AddVisitPoint(ULONG uniqueId);
 
 private:
-    std::shared_ptr<ProfilerCommunication> _host;
+	DWORD AppendProfilerEventMask(DWORD currentEventMask) override;
+
+private:
+    std::shared_ptr<Communication::ProfilerCommunication> _host;
     ULONG _shortwait;
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
-	DWORD AppendProfilerEventMask(DWORD currentEventMask);
 
 	ipv static GetInstrumentPointVisit();
 
@@ -141,6 +131,7 @@ private:
 	ULONG m_threshold;
     bool m_tracingEnabled;
     bool safe_mode_;
+	bool enableDiagnostics_;
 
 private:
     std::vector<ULONG> m_thresholds;
@@ -150,11 +141,11 @@ private:
 
 private:
     mdSignature GetMethodSignatureToken_I4(ModuleID moduleID); 
-    HRESULT GetModuleRef(ModuleID moduleId, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef(ModuleID moduleId, const WCHAR*moduleName, mdModuleRef &mscorlibRef);
 
-    HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
-    HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
-    HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, WCHAR*moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef4000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2000(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
+    HRESULT GetModuleRef2050(IMetaDataAssemblyEmit *metaDataAssemblyEmit, const WCHAR* moduleName, mdModuleRef &mscorlibRef);
 
 private:
 	HRESULT CCodeCoverage::RegisterCuckoos(ModuleID moduleId);
@@ -162,16 +153,16 @@ private:
     mdMethodDef m_cuckooCriticalToken;
     HRESULT AddCriticalCuckooBody(ModuleID moduleId);
     HRESULT AddSafeCuckooBody(ModuleID moduleId);
-    mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId);
-    void InstrumentMethod(ModuleID moduleId, Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
+    mdMemberRef RegisterSafeCuckooMethod(ModuleID moduleId, const WCHAR* moduleName);
+    void InstrumentMethod(ModuleID moduleId, Instrumentation::Method& method,  std::vector<SequencePoint> seqPoints, std::vector<BranchPoint> brPoints);
 	HRESULT CuckooSupportCompilation(
 		AssemblyID assemblyId,
 		mdToken functionToken,
 		ModuleID moduleId);
+	std::wstring cuckoo_module_;
 
 private:
-    CComPtr<ICorProfilerCallback4> m_chainedProfiler;
-    HMODULE chained_module_;
+	HMODULE chained_module_;
 
     CComObject<CProfilerInfo> *m_infoHook;
 
@@ -180,7 +171,7 @@ private:
     mdMethodDef CreatePInvokeHook(ModuleID moduleId);
     HRESULT OpenCoverSupportCompilation(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId, std::wstring &modulePath);
 	mdMethodDef Get_CurrentDomainMethod(ModuleID moduleID);
-	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, InstructionList &instructions);
+	HRESULT InstrumentMethodWith(ModuleID moduleId, mdToken functionToken, Instrumentation::InstructionList &instructions);
 
     bool OpenCoverSupportRequired(AssemblyID assemblyId, FunctionID functionId);
 
@@ -190,6 +181,8 @@ private:
 
     mdMethodDef GetUITestingHelperMethodRef(TCHAR* methodName, ModuleID moduleId);
     void InstrumentTestToolsUITesting(FunctionID functionId, mdToken functionToken, ModuleID moduleId, AssemblyID assemblyId);
+
+	int getSendVisitPointsTimerInterval();
 
 	friend class CProfilerInfo;
 
@@ -214,171 +207,12 @@ public:
         /* [in] */ FunctionID functionId,
         /* [in] */ BOOL fIsSafeToBlock) override;
 
-public:
-	// COR_PRF_MONITOR_APPDOMAIN_LOADS
-	virtual HRESULT STDMETHODCALLTYPE AppDomainCreationStarted(
-		/* [in] */ AppDomainID appDomainId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainCreationStarted(appDomainId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AppDomainCreationFinished(
-		/* [in] */ AppDomainID appDomainId,
-		/* [in] */ HRESULT hrStatus) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainCreationFinished(appDomainId, hrStatus);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownStarted(
-		/* [in] */ AppDomainID appDomainId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainShutdownStarted(appDomainId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AppDomainShutdownFinished(
-		/* [in] */ AppDomainID appDomainId,
-		/* [in] */ HRESULT hrStatus) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AppDomainShutdownFinished(appDomainId, hrStatus);
-		return S_OK;
-	}
-
-	// COR_PRF_MONITOR_ASSEMBLY_LOADS
-	virtual HRESULT STDMETHODCALLTYPE AssemblyLoadStarted(
-		/* [in] */ AssemblyID assemblyId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyLoadStarted(assemblyId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AssemblyLoadFinished(
-		/* [in] */ AssemblyID assemblyId,
-		/* [in] */ HRESULT hrStatus) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyLoadFinished(assemblyId, hrStatus);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadStarted(
-		/* [in] */ AssemblyID assemblyId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyUnloadStarted(assemblyId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE AssemblyUnloadFinished(
-		/* [in] */ AssemblyID assemblyId,
-		/* [in] */ HRESULT hrStatus) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->AssemblyUnloadFinished(assemblyId, hrStatus);
-		return S_OK;
-	}
-
-	// COR_PRF_MONITOR_MODULE_LOADS
-	virtual HRESULT STDMETHODCALLTYPE ModuleLoadStarted(
-		/* [in] */ ModuleID moduleId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleLoadStarted(moduleId);
-		return S_OK;
-	}
-
-	//virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished(
-	//	/* [in] */ ModuleID moduleId,
-	//	/* [in] */ HRESULT hrStatus)
-	//{
-	//	if (m_chainedProfiler != NULL)
-	//		return m_chainedProfiler->ModuleLoadFinished(moduleId, hrStatus);
-	//	return S_OK;
-	//}
-
-	virtual HRESULT STDMETHODCALLTYPE ModuleUnloadStarted(
-		/* [in] */ ModuleID moduleId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleUnloadStarted(moduleId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE ModuleUnloadFinished(
-		/* [in] */ ModuleID moduleId,
-		/* [in] */ HRESULT hrStatus) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->ModuleUnloadFinished(moduleId, hrStatus);
-		return S_OK;
-	}
-
-	//virtual HRESULT STDMETHODCALLTYPE ModuleAttachedToAssembly(
-	//	/* [in] */ ModuleID moduleId,
-	//	/* [in] */ AssemblyID assemblyId)
-	//{
-	//	return S_OK;
-	//}
-
-	//COR_PRF_MONITOR_JIT_COMPILATION
-	//virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted(
-	//	/* [in] */ FunctionID functionId,
-	//	/* [in] */ BOOL fIsSafeToBlock)
-	//{
-	//	return S_OK;
-	//}
-
-	virtual HRESULT STDMETHODCALLTYPE JITCompilationFinished(
-		/* [in] */ FunctionID functionId,
-		/* [in] */ HRESULT hrStatus,
-		/* [in] */ BOOL fIsSafeToBlock) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITCompilationFinished(functionId, hrStatus, fIsSafeToBlock);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE JITFunctionPitched(
-		/* [in] */ FunctionID functionId) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITFunctionPitched(functionId);
-		return S_OK;
-	}
-
-	virtual HRESULT STDMETHODCALLTYPE JITInlining(
-		/* [in] */ FunctionID callerId,
-		/* [in] */ FunctionID calleeId,
-		/* [out] */ BOOL *pfShouldInline) override
-	{
-		if (m_chainedProfiler != nullptr)
-			return m_chainedProfiler->JITInlining(callerId, calleeId, pfShouldInline);
-		return S_OK;
-	}
-
-	// COR_PRF_MONITOR_THREADS
-    virtual HRESULT STDMETHODCALLTYPE ThreadCreated(
-        /* [in] */ ThreadID threadId) override;
-
     virtual HRESULT STDMETHODCALLTYPE ThreadDestroyed(
         /* [in] */ ThreadID threadId) override;
 
     virtual HRESULT STDMETHODCALLTYPE ThreadAssignedToOSThread(
         /* [in] */ ThreadID managedThreadId,
         /* [in] */ DWORD osThreadId) override;
-
-    virtual HRESULT STDMETHODCALLTYPE ThreadNameChanged(
-        /* [in] */ ThreadID threadId,
-        /* [in] */ ULONG cchName,
-        /* [in] */
-        __in_ecount_opt(cchName)  WCHAR name[]) override;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(CodeCoverage), CCodeCoverage)

@@ -1,10 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-// dllmain.h : Declaration of module class.
-
 class COpenCoverProfilerModule : public ATL::CAtlDllModuleT< COpenCoverProfilerModule >
 {
 public :

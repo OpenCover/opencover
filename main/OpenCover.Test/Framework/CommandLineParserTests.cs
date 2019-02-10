@@ -163,7 +163,8 @@ namespace OpenCover.Test.Framework
         public void HandlesTheExcludeDirsArgumentWithSuppliedValue()
         {
             // arrange  
-            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)), RequiredArgs });
+            var parser = new CommandLineParser(new[] {
+                $"-excludedirs:{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)};{Environment.GetFolderPath(Environment.SpecialFolder.CommonProgramFiles)}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -178,7 +179,8 @@ namespace OpenCover.Test.Framework
         public void HandlesTheExcludeDirsArgumentWithSuppliedValueRemovesDuplicates()
         {
             // arrange  
-            var parser = new CommandLineParser(new[] { string.Format("-excludedirs:{0};{1}", Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)), RequiredArgs });
+            var parser = new CommandLineParser(new[] {
+                $"-excludedirs:{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)};{Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86)}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -588,7 +590,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -600,7 +602,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -624,7 +626,7 @@ namespace OpenCover.Test.Framework
             parser.ExtractAndValidateArguments();
 
             // assert
-            Assert.AreEqual(5, parser.HideSkipped.Distinct().Count());
+            Assert.AreEqual(Enum.GetNames(typeof(SkippedMethod)).Length - 1, parser.HideSkipped.Distinct().Count());
         }
 
         [Test]
@@ -774,7 +776,7 @@ namespace OpenCover.Test.Framework
             var parser = new CommandLineParser(new[] { "-servicestarttimeout:" + invalidTimeout, RequiredArgs });
 
             // act
-            var thrownException = Assert.Throws<Exception>(parser.ExtractAndValidateArguments);
+            var thrownException = Assert.Throws<InvalidOperationException>(parser.ExtractAndValidateArguments);
 
             // assert
             Assert.That(thrownException.Message, Contains.Substring("servicestarttimeout"));
@@ -790,7 +792,7 @@ namespace OpenCover.Test.Framework
         public void HandlesCommunicationTimeout(int suppliedMillisconds, int expectedMiliseconds)
         {
             // arrange
-            var parser = new CommandLineParser(new[] { string.Format("-communicationtimeout:{0}", suppliedMillisconds), RequiredArgs });
+            var parser = new CommandLineParser(new[] {$"-communicationtimeout:{suppliedMillisconds}", RequiredArgs });
 
             // act
             parser.ExtractAndValidateArguments();
@@ -892,7 +894,7 @@ namespace OpenCover.Test.Framework
         static IEnumerable<string> GetFilter(string filterArg, bool defaultFilters)
         {
             yield return "-target:t";
-            yield return string.Format("-filter:\"{0}\"", filterArg);
+            yield return $"-filter:\"{filterArg}\"";
             if (!defaultFilters) yield return "-nodefaultfilters";
         }
 
@@ -926,6 +928,32 @@ namespace OpenCover.Test.Framework
 
             // assert
             Assert.AreEqual(expectedValue, parser.SafeMode);
+        }
+
+        [Test]
+        public void DetectsDiagmodeArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-diagmode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.DiagMode);
+        }
+
+        [Test]
+        public void DetectsDiagmodeCasedArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-diagMode", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.DiagMode);
         }
     }
 }

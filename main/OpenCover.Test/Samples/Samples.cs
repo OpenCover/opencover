@@ -87,15 +87,18 @@ namespace OpenCover.Test.Samples
             return ret;
         }
 
-        public bool HasSwitchWithMultipleCases(int input)
+        public int HasSwitchWithMultipleCases(int input)
         {
             switch (input)
             {
                 case 1:
+                    return -1;
+                case 2:
+                    return 2001;
                 case 3:
-                    return true;
+                    return -5001;
                 default:
-                    return false;
+                    return 7;
             }
         }
 
@@ -270,14 +273,14 @@ namespace OpenCover.Test.Samples
 
     public struct NotCoveredStruct
     {
-        public int Number { get; set; }
+        public int Number; // { get; set; }
     }
 
     public struct CoveredStruct
     {
-        private int number;
+        private int _number;
 // ReSharper disable ConvertToAutoProperty
-        public int Number { get { return number; } set { number = value; } }
+        public int Number { get { return _number; } set { _number = value; } }
 // ReSharper restore ConvertToAutoProperty
     }
 
@@ -308,4 +311,17 @@ namespace OpenCover.Test.Samples
             yield return "two";
         } 
     }
+
+
+    public class ClassWithDelegate
+    {
+        public delegate bool HandleMeDelegate();
+
+        public void CallMe(HandleMeDelegate handle)
+        {
+            
+        }
+    }
+
+    internal delegate bool DontHandleMeDelegate();
 }

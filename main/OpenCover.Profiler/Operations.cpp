@@ -1,13 +1,5 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
 #include "StdAfx.h"
 #include "Operations.h"
-
-MapCanonicalNameOperationDetails Operations::m_mapNameOperationDetails;
-MapOpsOperationDetails Operations::m_mapOpsOperationDetails;
 
 // these defines are used when we pull in "opcode.def" and use the macro 
 // operator n##args to munge them together
@@ -29,12 +21,16 @@ MapOpsOperationDetails Operations::m_mapOpsOperationDetails;
 #define nInlineSwitch         Dword
 #define nInlineString         Dword
 
-Operations Operations::m_operations;
-
-/// <summary>Build the static instance</summary>
-Operations::Operations()
+namespace Instrumentation
 {
-    if (m_mapNameOperationDetails.size() != 0) return;
+	MapCanonicalNameOperationDetails Operations::m_mapNameOperationDetails;
+	MapOpsOperationDetails Operations::m_mapOpsOperationDetails;
+
+	Operations Operations::m_operations;
+
+	/// <summary>Build the static instance</summary>
+	Operations::Operations()
+	{
 #define OPDEF(name, str, decs, incs, args, optp, stdlen, stdop1, stdop2, flow) \
     { \
     OperationDetails operation = {name, args, n##args, flow, stdlen, stdop1, stdop2, optp, _T(str)}; \
@@ -43,5 +39,5 @@ Operations::Operations()
     }
 #include "opcode.def"
 #undef OPDEF
+	}
 }
-

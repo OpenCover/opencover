@@ -5,7 +5,6 @@
 //
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -57,8 +56,7 @@ namespace OpenCover.Framework
         /// as it is the class that is being filtered within these unless the class filter is *</remarks>
         public bool UseAssembly(string processName, string assemblyName)
         {
-            IList<AssemblyAndClassFilter> matchingExclusionFilters;
-            if (ExcludeProcessOrAssembly(processName, assemblyName, out matchingExclusionFilters)) 
+            if (ExcludeProcessOrAssembly(processName, assemblyName, out IList<AssemblyAndClassFilter> matchingExclusionFilters))
                 return false;
 
             if (matchingExclusionFilters.Any(exclusionFilter => exclusionFilter.ClassName != ".*"))
@@ -83,8 +81,7 @@ namespace OpenCover.Framework
                 return false;
             }
 
-            IList<AssemblyAndClassFilter> matchingExclusionFilters;
-            if (ExcludeProcessOrAssembly(processName, assemblyName, out matchingExclusionFilters)) 
+            if (ExcludeProcessOrAssembly(processName, assemblyName, out IList<AssemblyAndClassFilter> matchingExclusionFilters))
                 return false;
 
             if (matchingExclusionFilters
@@ -127,19 +124,16 @@ namespace OpenCover.Framework
         /// </param>
         public void AddFilter(string processAssemblyClassFilter)
         {
-            string assemblyFilter;
-            string classFilter;
-            string processFilter;
-            FilterType filterType;
-            GetAssemblyClassName(processAssemblyClassFilter, RegExFilters, out filterType, out assemblyFilter, out classFilter, out processFilter);
+            GetAssemblyClassName(processAssemblyClassFilter, RegExFilters, out FilterType filterType,
+                out string assemblyFilter, out string classFilter, out string processFilter);
 
             try
             {
                 if (!RegExFilters)
                 {
-                    processFilter = (string.IsNullOrEmpty(processFilter) ? "*" : processFilter).ValidateAndEscape("<>|\""); // Path.GetInvalidPathChars except *?
-                    assemblyFilter = assemblyFilter.ValidateAndEscape();
-                    classFilter = classFilter.ValidateAndEscape();
+                    processFilter = ValidateAndEscape((string.IsNullOrEmpty(processFilter) ? "*" : processFilter), "<>|\"", "process"); // Path.GetInvalidPathChars except *?
+                    assemblyFilter = ValidateAndEscape(assemblyFilter, @"\[]", "assembly");
+                    classFilter = ValidateAndEscape(classFilter, @"\[]", "class/type");
                 }
 
                 var filter = new AssemblyAndClassFilter(processFilter, assemblyFilter, classFilter);
@@ -182,9 +176,9 @@ namespace OpenCover.Framework
             }
         }
 
-        private static void HandleInvalidFilterFormat(string assemblyClassName)
+        private static void HandleInvalidFilterFormat(string filter)
         {
-            Logger.ErrorFormat("Unable to process the filter '{0}'. Please check your syntax against the usage guide and try again.", assemblyClassName);
+            Logger.ErrorFormat("Unable to process the filter '{0}'. Please check your syntax against the usage guide and try again.", filter);
             Logger.ErrorFormat("The usage guide can also be found at https://github.com/OpenCover/opencover/wiki/Usage.");
             throw new ExitApplicationWithoutReportingException();
         }
@@ -195,7 +189,7 @@ namespace OpenCover.Framework
         /// <param name="exclusionFilters">An array of filters that are used to wildcard match an attribute</param>
         public void AddAttributeExclusionFilters(string[] exclusionFilters)
         {
-            ExcludedAttributes.AddFilters(exclusionFilters, RegExFilters);
+            AddFilters(ExcludedAttributes, exclusionFilters, RegExFilters, "attribute");
         }
 
         /// <summary>
@@ -211,8 +205,7 @@ namespace OpenCover.Framework
             var entity = originalEntity;
             while (entity != null)
             {
-                bool excludeByAttribute;
-                if (IsExcludedByAttributeSimple(entity, out excludeByAttribute))
+                if (IsExcludedByAttributeSimple(entity, out bool excludeByAttribute))
                     return excludeByAttribute;
 
                 entity = GetDeclaringMethod(entity);
@@ -227,8 +220,7 @@ namespace OpenCover.Framework
         /// <returns></returns>
         private static IMemberDefinition GetDeclaringMethod(IMemberDefinition entity)
         {
-            MethodDefinition target;
-            if (!MatchDeclaringMethod(entity, out target))
+            if (!MatchDeclaringMethod(entity, out MethodDefinition target))
                 return null;
 
             if (target.IsGetter || target.IsSetter)
@@ -305,7 +297,7 @@ namespace OpenCover.Framework
         /// <param name="exclusionFilters"></param>
         public void AddFileExclusionFilters(string[] exclusionFilters)
         {
-            ExcludedFiles.AddFilters(exclusionFilters, RegExFilters);
+            AddFilters(ExcludedFiles, exclusionFilters, RegExFilters, "file exclusion");
         }
 
         /// <summary>
@@ -327,7 +319,7 @@ namespace OpenCover.Framework
         /// <param name="testFilters"></param>
         public void AddTestFileFilters(string[] testFilters)
         {
-            TestFiles.AddFilters(testFilters, RegExFilters);
+            AddFilters(TestFiles, testFilters, RegExFilters, "test assembly");
         }
 
         /// <summary>
@@ -342,6 +334,84 @@ namespace OpenCover.Framework
                 return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
             }
             return false;
+        }
+
+        /// <summary>
+        /// Is the method an F# implementation detail
+        /// </summary>
+        /// <param name="method"></param>
+        /// <returns></returns>
+        /// <remarks>This may need to be extended for other F# versions than 4.1</remarks>
+        public bool IsFSharpInternal(MethodDefinition method)
+        {
+            // Discriminated Union/Sum/Algebraic data types are implemented as
+            // subtypes nested in the base type
+            var baseType = Enumerable.Empty<CustomAttribute>();
+            if (method.DeclaringType.DeclaringType != null
+                && method.DeclaringType.DeclaringType.HasCustomAttributes)
+            {
+                baseType = method.DeclaringType.DeclaringType.CustomAttributes;
+            }
+
+            // Algebraic types have debug proxies nested in the base type which are not attributed at the type level
+            if (!method.HasCustomAttributes && !(method.DeclaringType.HasCustomAttributes || baseType.Any()))
+            {
+                return false;
+            }
+
+            // Use string literals rather than adding F# as a dependency
+            // as it's not a part of the default VS2017 desktop install,
+            // and to avoid having to install it ourselves with the
+            // opencover binaries
+            var mappings = method.DeclaringType.CustomAttributes.Concat(baseType)
+                                 .Where(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                                 .ToList();
+
+            if (!mappings.Any())
+            {
+                return false;
+            }
+
+            // Getting attribute constructor arguments for the F# types needs 
+            // the F# core assembly to resolve them; look to the raw binary instead
+            mappings = mappings
+                .Where(x =>
+                {
+                    // expect 01, 00, 01, 00, 00, 00, 00, 00 or 01, 00, 02, 00, 00, 00, 00, 00
+                    var y = x.GetBlob();
+                    if (y.Length != 8 || y[0] != 1 || y[1] != 0 || y.Skip(3).Any(z => z != 0))
+                    {
+                        return false;
+                    }
+
+                    // Mask out the class kind from its public/non-public state
+                    // SourceConstructFlags.NonPublicRepresentation = 32
+                    // SourceConstructFlags.KindMask = 31
+                    return (y[2] & 31).Equals(1)  // SourceConstructFlags.SumType = 1
+                        || (y[2] & 31).Equals(2); // SourceConstructFlags.RecordType = 2
+                }).ToList();
+
+            var fieldGetter = false;
+            if (method.IsGetter)
+            {
+                // record type has getters marked as field
+                var owner = method.DeclaringType.Properties
+                    .Where(x => x.GetMethod == method)
+                    .First();
+                if (owner.HasCustomAttributes)
+                {
+                    fieldGetter = owner.CustomAttributes.Where(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                        .Any(x => (x.GetBlob()[2] & 31) == 4); // SourceConstructFlags.Field = 4
+                }
+            }
+
+            // The exclusions list may be overkill
+            return mappings.Any() &&
+                (method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName)
+                || method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(System.Diagnostics.DebuggerNonUserCodeAttribute).FullName)
+                || method.CustomAttributes.Any(x => x.AttributeType.FullName == "Microsoft.FSharp.Core.CompilationMappingAttribute")
+                || method.IsConstructor
+                || fieldGetter);
         }
 
         /// <summary>
@@ -445,6 +515,28 @@ namespace OpenCover.Framework
             
 
             return filter;
+        }
+
+        static void AddFilters(ICollection<RegexFilter> target, IEnumerable<string> filters, bool isRegexFilter, string filterType)
+        {
+            if (filters == null)
+                return;
+
+            foreach (var regexFilter in filters.Where(x => x != null).Select(filter => isRegexFilter ? new RegexFilter(filter, false) : new RegexFilter(ValidateAndEscape(filter, @"[]", filterType))))
+            {
+                target.Add(regexFilter);
+            }
+        }
+
+        static string ValidateAndEscape(string match, string notAllowed, string filterType)
+        {
+            if (match.IndexOfAny(notAllowed.ToCharArray()) >= 0)
+            {
+                Logger.ErrorFormat("The string '{0}' is invalid for a{2} '{1}' filter name", 
+                    match, filterType, "aeiou".Contains(filterType[0]) ? "n" : "");
+                HandleInvalidFilterFormat(match);
+            }
+            return match.Replace(@"\", @"\\").Replace(@".", @"\.").Replace(@"*", @".*");
         }
     }
 }

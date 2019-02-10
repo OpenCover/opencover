@@ -1,6 +1,3 @@
-// OpenCoverProfiler.idl : IDL source for OpenCover.Profiler
-//
-
 // This file will be processed by the MIDL tool to
 // produce the type library (OpenCoverProfiler.tlb) and marshalling code.
 
@@ -23,9 +20,11 @@ library OpenCoverProfilerLib
 		[default] interface ICorProfilerCallback;
 		interface ICorProfilerCallback2;
 		interface ICorProfilerCallback3;
-#ifndef _TOOLSETV71
 		interface ICorProfilerCallback4;
 		interface ICorProfilerCallback5;
-#endif
+        interface ICorProfilerCallback6;
+		interface ICorProfilerCallback7;
+		interface ICorProfilerCallback8;
+		interface ICorProfilerCallback9;
 	};
 };

@@ -1,1 +1,1 @@
-OpenCover.Console.exe -register:user -targetdir:"P:\projects\throwaway\SampleSilverlight\SampleSilverlight\Bin\Debug" -target:"C:\Program Files (x86)\Internet Explorer\iexplore.exe" -targetargs:"http://localhost:4128/SampleSilverlightTestPage.aspx"
+OpenCover.Console.exe -register:user -targetdir:"P:\projects\throwaway\SampleSilverlight\SampleSilverlight\Bin\Debug" -target:"%programfiles(x86)%\Internet Explorer\iexplore.exe" -targetargs:"http://localhost:4128/SampleSilverlightTestPage.aspx"

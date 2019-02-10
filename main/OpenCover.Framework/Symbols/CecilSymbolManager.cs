@@ -1,17 +1,10 @@
-﻿//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Mdb;
-using Mono.Cecil.Pdb;
 using OpenCover.Framework.Model;
 using OpenCover.Framework.Strategy;
 using log4net;
@@ -48,15 +41,18 @@ namespace OpenCover.Framework.Symbols
         private readonly IFilter _filter;
         private readonly ILog _logger;
         private readonly ITrackedMethodStrategyManager _trackedMethodStrategyManager;
+        private readonly ISymbolFileHelper _symbolFileHelper;
         private AssemblyDefinition _sourceAssembly;
         private readonly Dictionary<int, MethodDefinition> _methodMap = new Dictionary<int, MethodDefinition>(); 
 
-        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, ITrackedMethodStrategyManager trackedMethodStrategyManager)
+        public CecilSymbolManager(ICommandLine commandLine, IFilter filter, ILog logger, 
+            ITrackedMethodStrategyManager trackedMethodStrategyManager, ISymbolFileHelper symbolFileHelper)
         {
             _commandLine = commandLine;
             _filter = filter;
             _logger = logger;
             _trackedMethodStrategyManager = trackedMethodStrategyManager;
+            _symbolFileHelper = symbolFileHelper;
         }
 
         public string ModulePath { get; private set; }
@@ -69,70 +65,56 @@ namespace OpenCover.Framework.Symbols
             ModuleName = moduleName;
         }
 
-        private SymbolFolder FindSymbolFolder()
+        private AssemblyDefinition SearchForSymbolsAndLoad()
         {
-            var origFolder = Path.GetDirectoryName(ModulePath);
+            AssemblyDefinition sourceAssembly = null;
+            var provider = new DefaultSymbolReaderProvider(true);
 
-            var searchFolders = new List<string> { origFolder, _commandLine.TargetDir };
-            if (_commandLine.SearchDirs != null)
-                searchFolders.AddRange(_commandLine.SearchDirs);
-            searchFolders.Add(Environment.CurrentDirectory);
-
-            foreach (var searchFolder in searchFolders)
-            {
-                var symbolFolder = FindSymbolsFolder(ModulePath, searchFolder);
-                if (symbolFolder != null) 
-                    return symbolFolder;
-            }
-
-            return null;
-        }
-
-        private static SymbolFolder FindSymbolsFolder(string fileName, string targetfolder)
-        {
-            if (!string.IsNullOrEmpty(targetfolder) && Directory.Exists(targetfolder))
-            {
-                var name = Path.GetFileName(fileName);
-                if (name != null)
-                {
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, Path.GetFileNameWithoutExtension(fileName) + ".pdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new PdbReaderProvider());   
-                   
-                    if (System.IO.File.Exists(Path.Combine(targetfolder, fileName + ".mdb")) &&
-                        System.IO.File.Exists(Path.Combine(targetfolder, name)))
-                            return new SymbolFolder(targetfolder, new MdbReaderProvider());
-                }
-            }
-            return null;
-        }
-
-        private void LoadSourceAssembly()
-        {
             try
             {
-                var symbolFolder = FindSymbolFolder();
-                if (symbolFolder == null) 
-                    return;
-                var folder = symbolFolder.TargetFolder ?? Environment.CurrentDirectory;
-
-                var parameters = new ReaderParameters
+                sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath);
+                if (sourceAssembly != null)
                 {
-                    SymbolReaderProvider = symbolFolder.SymbolReaderProvider ?? new PdbReaderProvider(),
-                    ReadingMode = ReadingMode.Deferred,
-                    ReadSymbols = true
-                };
-                var fileName = Path.GetFileName(ModulePath) ?? string.Empty;
-                _sourceAssembly = AssemblyDefinition.ReadAssembly(Path.Combine(folder, fileName), parameters);
-
-                if (_sourceAssembly != null)
-                    _sourceAssembly.MainModule.ReadSymbols(parameters.SymbolReaderProvider.GetSymbolReader(_sourceAssembly.MainModule, _sourceAssembly.MainModule.FullyQualifiedName));
+                    var symbolReader = provider
+                        .GetSymbolReader(sourceAssembly.MainModule, sourceAssembly.MainModule.FileName);
+                    if (symbolReader != null)
+                    {
+                        sourceAssembly.MainModule.ReadSymbols(symbolReader);
+                        if (sourceAssembly.MainModule.HasSymbols)
+                            return sourceAssembly;
+                    }
+                }
             }
             catch (Exception)
             {
-                // failure to here is quite normal for DLL's with no PDBs => no instrumentation
-                _sourceAssembly = null;
             }
+
+            foreach (var symbolFile in _symbolFileHelper.GetSymbolFileLocations(ModulePath, _commandLine))
+            {
+                try
+                {
+                    using (var stream = System.IO.File.Open(symbolFile, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var parameters = new ReaderParameters 
+                        {
+                            SymbolReaderProvider = provider,
+                            ReadingMode = ReadingMode.Immediate,
+                            ReadSymbols = true,
+                            SymbolStream = stream,
+                            ThrowIfSymbolsAreNotMatching = true
+
+                        };
+                        sourceAssembly = AssemblyDefinition.ReadAssembly(ModulePath, parameters);
+                        if (sourceAssembly.MainModule.HasSymbols)
+                            return sourceAssembly;
+                    }
+                }
+                catch (Exception)
+                {
+                }
+            }
+
+            return null;
         }
 
         public AssemblyDefinition SourceAssembly
@@ -144,7 +126,7 @@ namespace OpenCover.Framework.Symbols
                     var currentPath = Environment.CurrentDirectory;
                     try
                     {
-                        LoadSourceAssembly();
+                        _sourceAssembly = SearchForSymbolsAndLoad();
                     }
                     finally
                     {
@@ -152,7 +134,7 @@ namespace OpenCover.Framework.Symbols
                     }
                     if (_sourceAssembly == null && _logger.IsDebugEnabled)
                     {
-                        _logger.DebugFormat("Cannot instrument {0} as no PDB/MDB could be loaded", ModulePath);
+                        _logger.DebugFormat($"Cannot instrument {ModulePath} as no PDB/MDB could be loaded");
                     }
                 }
                 return _sourceAssembly;
@@ -200,6 +182,26 @@ namespace OpenCover.Framework.Symbols
             }                                                                                        
         }
 
+        private static IEnumerable<Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>> GetInstructionsWithSequencePoints(
+            MethodDefinition methodDefinition)
+        {
+            if (!methodDefinition.HasBody || !methodDefinition.DebugInformation.HasSequencePoints) yield break;
+            if (methodDefinition.SafeGetMethodBody() == null) yield break;
+
+            using (var iter = methodDefinition.Body.Instructions.OrderBy(x => x.Offset).GetEnumerator())
+            foreach (var sequencePoint in methodDefinition.DebugInformation.SequencePoints.OrderBy(x => x.Offset))
+            {
+                while (iter.MoveNext())
+                {
+                    if (iter.Current.Offset == sequencePoint.Offset)
+                    {
+                        yield return new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint);
+                        break;
+                    }
+                }
+            }
+        }
+
         private static Class BuildClass(IFilter filter, string assemblyName, TypeDefinition typeDefinition)
         {
             var @class = new Class {FullName = typeDefinition.FullName};
@@ -212,14 +214,18 @@ namespace OpenCover.Framework.Symbols
                 @class.MarkAsSkipped(SkippedMethod.Attribute);
             }
 
+            if (new[] {"System.MulticastDelegate", "System.Delegate"}.Contains(typeDefinition.BaseType?.FullName))
+            {
+                @class.MarkAsSkipped(SkippedMethod.Delegate);
+            }
+
             var list = new List<string>();
             if (!@class.ShouldSerializeSkippedDueTo())
             {
                 var files = from methodDefinition in typeDefinition.Methods
                     where methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null
-                    from instruction in methodDefinition.Body.Instructions
-                    where instruction.SequencePoint != null
-                    select instruction.SequencePoint.Document.Url;
+                    from pts in GetInstructionsWithSequencePoints(methodDefinition)
+                    select pts.Item2.Document.Url;
 
                 list.AddRange(files.Distinct());
             }
@@ -232,18 +238,21 @@ namespace OpenCover.Framework.Symbols
         public Method[] GetMethodsForType(Class type, File[] files)
         {
             var methods = new List<Method>();
-            IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
-            GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            if (!type.ShouldSerializeSkippedDueTo())
+            {
+                IEnumerable<TypeDefinition> typeDefinitions = SourceAssembly.MainModule.Types;
+                GetMethodsForType(typeDefinitions, type.FullName, methods, files, _filter, _commandLine);
+            }
             return methods.ToArray();
         }
 
-        private static string GetFirstFile(MethodDefinition definition)
+        private static string GetFirstFile(MethodDefinition methodDefinition)
         {
-            if (definition.SafeGetMethodBody() != null && definition.Body.Instructions != null)
+            if (methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null)
             {
-                var filePath = definition.Body.Instructions
-                    .FirstOrDefault(x => x.SequencePoint != null && x.SequencePoint.Document != null && x.SequencePoint.StartLine != StepOverLineCode)
-                    .Maybe(x => x.SequencePoint.Document.Url);
+                var filePath = GetInstructionsWithSequencePoints(methodDefinition)
+                    .FirstOrDefault(x => x.Item2.Document != null && x.Item2.StartLine != StepOverLineCode)
+                    .Maybe(x => x.Item2.Document.Url);
                 return filePath;
             }
             return null;
@@ -309,10 +318,7 @@ namespace OpenCover.Framework.Symbols
 
             if (methodDefinition.SafeGetMethodBody() == null)
             {
-                if (methodDefinition.IsNative)
-                    method.MarkAsSkipped(SkippedMethod.NativeCode);
-                else
-                    method.MarkAsSkipped(SkippedMethod.Unknown);
+                method.MarkAsSkipped(methodDefinition.IsNative ? SkippedMethod.NativeCode : SkippedMethod.Unknown);
                 return method;
             }
 
@@ -321,7 +327,9 @@ namespace OpenCover.Framework.Symbols
             else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
                 method.MarkAsSkipped(SkippedMethod.File);
             else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
-                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);                
+                method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);
+            else if (filter.IsFSharpInternal(methodDefinition))
+                method.MarkAsSkipped(SkippedMethod.FSharpInternal);
 
             var definition = methodDefinition;
             method.FileRef = files.Where(x => x.FullPath == GetFirstFile(definition))
@@ -385,14 +393,14 @@ namespace OpenCover.Framework.Symbols
             try
             {
                 UInt32 ordinal = 0;
-                list.AddRange(from instruction in methodDefinition.Body.Instructions
-                    where instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode
-                    let sp = instruction.SequencePoint
+                list.AddRange(from x in GetInstructionsWithSequencePoints(methodDefinition)
+                    where x.Item2.StartLine != StepOverLineCode
+                    let sp = x.Item2
                     select new SequencePoint
                     {
                         EndColumn = sp.EndColumn,
                         EndLine = sp.EndLine,
-                        Offset = instruction.Offset,
+                        Offset = sp.Offset,
                         Ordinal = ordinal++,
                         StartColumn = sp.StartColumn,
                         StartLine = sp.StartLine,
@@ -402,8 +410,7 @@ namespace OpenCover.Framework.Symbols
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    string.Format("An error occurred with 'GetSequencePointsForToken' for method '{0}'",
-                        methodDefinition.FullName), ex);
+                    $"An error occurred with 'GetSequencePointsForToken' for method '{methodDefinition.FullName}'", ex);
             }
         }
 
@@ -439,28 +446,27 @@ namespace OpenCover.Framework.Symbols
 
                     // store branch origin offset
                     var branchOffset = instruction.Offset;
-                    var closestSeqPt = FindClosestSequencePoints(methodDefinition.Body, instruction);
-                    var branchingInstructionLine = closestSeqPt.Maybe(sp => sp.SequencePoint.StartLine, -1);
-                    var document = closestSeqPt.Maybe(sp => sp.SequencePoint.Document.Url);
+                    var closestSeqPt = FindClosestInstructionWithSequencePoint(methodDefinition.Body, instruction).Maybe(i => methodDefinition.DebugInformation.GetSequencePoint(i));
+                    var branchingInstructionLine = closestSeqPt.Maybe(x => x.StartLine, -1);
+                    var document = closestSeqPt.Maybe(x => x.Document.Url);
 
                     if (null == instruction.Next)
                         return;
 
-                    if (!BuildPointsForConditionalBranch(list, instruction, branchingInstructionLine, document, branchOffset, pathCounter, instructions, ref ordinal)) 
+                    if (!BuildPointsForConditionalBranch(list, instruction, branchingInstructionLine, document, branchOffset, pathCounter, instructions, ref ordinal, methodDefinition)) 
                         return;
                 }
             }
             catch (Exception ex)
             {
                 throw new InvalidOperationException(
-                    string.Format("An error occurred with 'GetBranchPointsForToken' for method '{0}'",
-                        methodDefinition.FullName), ex);
+                    $"An error occurred with 'GetBranchPointsForToken' for method '{methodDefinition.FullName}'", ex);
             }
         }
 
         private bool BuildPointsForConditionalBranch(List<BranchPoint> list, Instruction instruction,
             int branchingInstructionLine, string document, int branchOffset, int pathCounter, 
-            Collection<Instruction> instructions, ref uint ordinal)
+            Collection<Instruction> instructions, ref uint ordinal, MethodDefinition methodDefinition)
         {
             // Add Default branch (Path=0)
 
@@ -493,7 +499,7 @@ namespace OpenCover.Framework.Symbols
                     return false;
 
                 ordinal = BuildPointsForBranch(list, then, branchingInstructionLine, document, branchOffset,
-                    ordinal, pathCounter, path0, instructions);
+                    ordinal, pathCounter, path0, instructions, methodDefinition);
             }
             else // instruction.OpCode.Code == Code.Switch
             {
@@ -508,7 +514,7 @@ namespace OpenCover.Framework.Symbols
         }
 
         private uint BuildPointsForBranch(List<BranchPoint> list, Instruction then, int branchingInstructionLine, string document,
-            int branchOffset, uint ordinal, int pathCounter, BranchPoint path0, Collection<Instruction> instructions)
+            int branchOffset, uint ordinal, int pathCounter, BranchPoint path0, Collection<Instruction> instructions, MethodDefinition methodDefinition)
         {
             var pathOffsetList1 = GetBranchPath(@then);
 
@@ -540,11 +546,8 @@ namespace OpenCover.Framework.Symbols
 
             var ignoreSequences = new[]
             {
-                new[]
-                {Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Br_S, Code.Ldsfld},
-                // CachedAnonymousMethodDelegate field allocation - debug
-                new[] {Code.Brtrue_S, Code.Ldnull, Code.Ldftn, Code.Newobj, Code.Stsfld, Code.Ldsfld}
-                // CachedAnonymousMethodDelegate field allocation
+                // we may need other samples
+                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld, Code.Newobj}, // CachedAnonymousMethodDelegate field allocation 
             };
 
             var bs = offsets.Min();
@@ -553,15 +556,11 @@ namespace OpenCover.Framework.Symbols
             var range = instructions.Where(i => (i.Offset >= bs) && (i.Offset <= be)).ToList();
 
             var match = ignoreSequences
-                .Where(ignoreSequence => range.Count() >= ignoreSequence.Count())
-                .Select(
-                    x =>
-                        x.Zip(range, (code, i1) => new {Code1 = code, Code2 = i1.OpCode.Code})
-                            .All(y => y.Code1 == y.Code2))
-                .Any();
+                .Where(ignoreSequence => range.Count >= ignoreSequence.Length)
+                .Any(ignoreSequence => range.Zip(ignoreSequence, (instruction, code) => instruction.OpCode.Code == code).All(x => x));
 
             var count = range
-                .Count(i => i.SequencePoint != null);
+                .Count(i => methodDefinition.DebugInformation.GetSequencePoint(i) != null);
 
             if (!match || count > 0)
             {
@@ -609,9 +608,9 @@ namespace OpenCover.Framework.Symbols
                 .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset)
                 .Where( e =>branchInstruction.Offset < e.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, e.HandlerStart.Offset)))
                 .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
-                .Any(eh => !methodDefinition.Body.Instructions
-                    .Where(i => i.SequencePoint != null && i.SequencePoint.StartLine != StepOverLineCode)
-                    .Any(i => i.Offset >= eh.HandlerStart.Offset && i.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset))));
+                .Any(eh => !(GetInstructionsWithSequencePoints(methodDefinition)
+                    .Where(i => i.Item2.StartLine != StepOverLineCode)
+                    .Any(i => i.Item2.Offset >= eh.HandlerStart.Offset && i.Item2.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset)))));
         }
 
         private static int GetOffsetOfNextEndfinally(MethodBody body, int startOffset)
@@ -646,9 +645,9 @@ namespace OpenCover.Framework.Symbols
             return offsetList;
         }
 
-        private Instruction FindClosestSequencePoints(MethodBody methodBody, Instruction instruction)
+        private static Instruction FindClosestInstructionWithSequencePoint(MethodBody methodBody, Instruction instruction)
         {
-            var sequencePointsInMethod = methodBody.Instructions.Where(HasValidSequencePoint).ToList();
+            var sequencePointsInMethod = methodBody.Instructions.Where(i => HasValidSequencePoint(i, methodBody.Method)).ToList();
             if (!sequencePointsInMethod.Any()) 
                 return null;
             var idx = sequencePointsInMethod.BinarySearch(instruction, new InstructionByOffsetComparer());
@@ -668,9 +667,10 @@ namespace OpenCover.Framework.Symbols
             return prev;
         }
 
-        private bool HasValidSequencePoint(Instruction instruction)
+        private static bool HasValidSequencePoint(Instruction instruction, MethodDefinition methodDefinition)
         {
-            return instruction.SequencePoint != null && instruction.SequencePoint.StartLine != StepOverLineCode;
+            var sp = methodDefinition.DebugInformation.GetSequencePoint(instruction);
+            return sp != null && sp.StartLine != StepOverLineCode;
         }
 
         private class InstructionByOffsetComparer : IComparer<Instruction>

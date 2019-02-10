@@ -18,7 +18,7 @@
 #define APPLICATIONUNDERTEST_START L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::Start"
 #define APPLICATIONUNDERTEST_CCTOR L"Microsoft.VisualStudio.TestTools.UITesting.ApplicationUnderTest::.cctor"
 
-#import <mscorlib.tlb> raw_interfaces_only
+#import <mscorlib.tlb> raw_interfaces_only, rename("ReportEvent","ReportEvent_")
 using namespace mscorlib;
 
 extern COpenCoverProfilerModule _AtlModule;
@@ -31,17 +31,22 @@ namespace {
 	};
 }
 
+using namespace Instrumentation;
+
 LPSAFEARRAY GetInjectedDllAsSafeArray()
 {
 	HINSTANCE hInst = _AtlModule.m_hModule;
 	HRSRC hClrHookDllRes = FindResource(hInst, MAKEINTRESOURCE(IDR_SUPPORT), L"ASSEMBLY");
 	ATLASSERT(hClrHookDllRes != NULL);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	HGLOBAL hClrHookDllHGlb = LoadResource(hInst, hClrHookDllRes);
 	ATLASSERT(hClrHookDllHGlb != NULL);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	DWORD dllMemorySize = SizeofResource(hInst, hClrHookDllRes);
 
+#pragma warning (suppress : 6387) // that's what the Assert() is all about
 	LPBYTE lpDllData = (LPBYTE)LockResource(hClrHookDllHGlb);
 	ATLASSERT(lpDllData != NULL);
 
@@ -120,17 +125,20 @@ HRESULT CCodeCoverage::OpenCoverSupportInitialize(
             hr = DllGetClassObject(clsid, IID_IClassFactory, &pClassFactory);
             ATLASSERT(hr == S_OK);
 
-            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback4), (void**)&m_chainedProfiler);
+			CComPtr<ICorProfilerCallback> chainedProfiler;
+            hr = pClassFactory->CreateInstance(nullptr, __uuidof(ICorProfilerCallback), (void**)&chainedProfiler);
             ATLASSERT(hr == S_OK);
 
             HRESULT hr2 = CComObject<CProfilerInfo>::CreateInstance(&m_infoHook);
             ULONG count = m_infoHook->AddRef();
 
-            m_infoHook->m_pProfilerHook = this;
+            m_infoHook->SetProfilerHook(this);
 
-            m_infoHook->SetProfilerInfo(pICorProfilerInfoUnk);
+            m_infoHook->ChainProfilerInfo(pICorProfilerInfoUnk);
 
-            hr = m_chainedProfiler->Initialize(m_infoHook);
+            hr = chainedProfiler->Initialize(m_infoHook);
+
+			HookChainedProfiler(chainedProfiler);
 
             ATLTRACE(_T("    ::OpenCoverSupportInitialize => fakes = 0x%X"), hr);
         }

@@ -5,18 +5,22 @@
 
 using namespace ATL;
 
-class CProfilerInfoBase : public ICorProfilerInfo4
+class CProfilerInfoBase : public ICorProfilerInfo8
 {
 public:
     virtual ~CProfilerInfoBase()
     {
     }
 
-    void SetProfilerInfo(IUnknown *pICorProfilerInfoUnk){
+    void ChainProfilerInfo(IUnknown *pICorProfilerInfoUnk){
 		m_pProfilerInfo = pICorProfilerInfoUnk;
 		m_pProfilerInfo2 = pICorProfilerInfoUnk;
 		m_pProfilerInfo3 = pICorProfilerInfoUnk;
 		m_pProfilerInfo4 = pICorProfilerInfoUnk;
+        m_pProfilerInfo5 = pICorProfilerInfoUnk;
+        m_pProfilerInfo6 = pICorProfilerInfoUnk;
+		m_pProfilerInfo7 = pICorProfilerInfoUnk;
+		m_pProfilerInfo8 = pICorProfilerInfoUnk;
 	}
 
 private:
@@ -24,6 +28,10 @@ private:
 	CComQIPtr<ICorProfilerInfo2> m_pProfilerInfo2;
 	CComQIPtr<ICorProfilerInfo3> m_pProfilerInfo3;
 	CComQIPtr<ICorProfilerInfo4> m_pProfilerInfo4;
+    CComQIPtr<ICorProfilerInfo5> m_pProfilerInfo5;
+    CComQIPtr<ICorProfilerInfo6> m_pProfilerInfo6;
+	CComQIPtr<ICorProfilerInfo7> m_pProfilerInfo7;
+	CComQIPtr<ICorProfilerInfo8> m_pProfilerInfo8;
 
 public: // ICorProfilerInfo
 	virtual HRESULT STDMETHODCALLTYPE GetClassFromObject(
@@ -753,4 +761,94 @@ public: // ICorProfilerInfo4
 		return m_pProfilerInfo4->GetObjectSize2(objectId, pcSize);
 	}
 
+// ICorProfilerInfo5
+public:
+    virtual HRESULT STDMETHODCALLTYPE GetEventMask2(
+        /* [out] */ DWORD *pdwEventsLow,
+        /* [out] */ DWORD *pdwEventsHigh) override
+    {
+        //ATLTRACE(_T("GetEventMask2"));
+        return m_pProfilerInfo5->GetEventMask2(pdwEventsLow, pdwEventsHigh);
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE SetEventMask2(
+        /* [in] */ DWORD dwEventsLow,
+        /* [in] */ DWORD dwEventsHigh) override
+    {
+        //ATLTRACE(_T("SetEventMask2"));
+        return m_pProfilerInfo5->SetEventMask2(dwEventsLow, dwEventsHigh);
+    }
+
+// ICorProfilerInfo6
+public:
+    virtual HRESULT STDMETHODCALLTYPE EnumNgenModuleMethodsInliningThisMethod(
+        /* [in] */ ModuleID inlinersModuleId,
+        /* [in] */ ModuleID inlineeModuleId,
+        /* [in] */ mdMethodDef inlineeMethodId,
+        /* [out] */ BOOL *incompleteData,
+        /* [out] */ ICorProfilerMethodEnum **ppEnum) override
+    {
+        //ATLTRACE(_T("EnumNgenModuleMethodsInliningThisMethod"));
+        return m_pProfilerInfo6->EnumNgenModuleMethodsInliningThisMethod(inlinersModuleId, inlineeModuleId, inlineeMethodId, incompleteData, ppEnum);
+    }
+
+// ICorProfilerInfo7
+public:
+    virtual HRESULT STDMETHODCALLTYPE ApplyMetaData(
+        /* [in] */ ModuleID moduleId) override
+    {
+        //ATLTRACE(_T("ApplyMetaData"));
+        return m_pProfilerInfo7->ApplyMetaData(moduleId);
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE GetInMemorySymbolsLength(
+        /* [in] */ ModuleID moduleId,
+        /* [out] */ DWORD *pCountSymbolBytes) override
+    {
+        //ATLTRACE(_T("GetInMemorySymbolsLength"));
+        return m_pProfilerInfo7->GetInMemorySymbolsLength(moduleId, pCountSymbolBytes);
+    }
+
+    virtual HRESULT STDMETHODCALLTYPE ReadInMemorySymbols(
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ DWORD symbolsReadOffset,
+        /* [out] */ BYTE *pSymbolBytes,
+        /* [in] */ DWORD countSymbolBytes,
+        /* [out] */ DWORD *pCountSymbolBytesRead) override
+    {
+        //ATLTRACE(_T("ReadInMemorySymbols"));
+        return m_pProfilerInfo7->ReadInMemorySymbols(moduleId, symbolsReadOffset, pSymbolBytes, countSymbolBytes, pCountSymbolBytesRead);
+    }
+
+// ICorProfilerInfo8
+public:
+	virtual HRESULT STDMETHODCALLTYPE IsFunctionDynamic(
+		/* [in] */ FunctionID functionId,
+		/* [out] */ BOOL *isDynamic) override
+	{
+		//ATLTRACE(_T("IsFunctionDynamic"));
+		return m_pProfilerInfo8->IsFunctionDynamic(functionId, isDynamic);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE GetFunctionFromIP3(
+		/* [in] */ LPCBYTE ip,
+		/* [out] */ FunctionID *functionId,
+		/* [out] */ ReJITID *pReJitId) override
+	{
+		//ATLTRACE(_T("GetFunctionFromIP3"));
+		return m_pProfilerInfo8->GetFunctionFromIP3(ip, functionId, pReJitId);
+	}
+
+	virtual HRESULT STDMETHODCALLTYPE GetDynamicFunctionInfo(
+		/* [in] */ FunctionID functionId,
+		/* [out] */ ModuleID *moduleId,
+		/* [out] */ PCCOR_SIGNATURE *ppvSig,
+		/* [out] */ ULONG *pbSig,
+		/* [in] */ ULONG cchName,
+		/* [out] */ ULONG *pcchName,
+		/* [out] */ WCHAR wszName[]) override
+	{
+		//ATLTRACE(_T("GetDynamicFunctionInfo"));
+		return m_pProfilerInfo8->GetDynamicFunctionInfo(functionId, moduleId, ppvSig, pbSig, cchName, pcchName, wszName);
+	}
 };

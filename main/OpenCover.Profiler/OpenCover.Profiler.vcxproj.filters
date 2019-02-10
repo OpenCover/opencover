@@ -82,6 +82,9 @@
     <ClCompile Include="CodeCoverage_Thread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -150,6 +153,9 @@
     <ClInclude Include="ProfilerInfoBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenCover.Profiler.rc">
@@ -166,7 +172,6 @@
     <None Include="CodeCoverage.rgs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\bin\Common\OpenCover.Support.dll" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,20 +1,28 @@
 OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO), with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
 
-The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases) or from the OpenCover mirror site on [bitbucket](https://bitbucket.org/shaunwilde/opencover/downloads). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
+The latest releases can be downloaded from [releases](https://github.com/opencover/opencover/releases). **Alternatively** why not try the [nuget](http://nuget.org/packages/opencover) package (this is the most popular).
 
-| Build | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
+| | Active Integrations |
 | --- | --- |
-| **Coverage** | [![Coverage](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
-| **Nuget** | [![Nuget](https://img.shields.io/nuget/dt/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/v/opencover.svg)](http://nuget.org/packages/opencover) [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
-| **Lead Times** | [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/pr)](http://issuestats.com/github/opencover/opencover) [![Issue Stats](http://issuestats.com/github/opencover/opencover/badge/issue)](http://issuestats.com/github/opencover/opencover) |
+| **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
+| **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) |
+| **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
+| **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 
-[![Build History](https://ci-buildstats.azurewebsites.net/appveyor/chart/sawilde/opencover?branch=master&includeBuildsFromPullRequest=false)](https://ci.appveyor.com/project/sawilde/opencover)
+| | Disabled Integrations |
+| --- | --- |
+| **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=opencover) |
+| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) |
+| **Quality** | [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
 
-### Master 
+### Master
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
 
-### Team communication
-[![Join the chat at https://gitter.im/OpenCover/opencover](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/OpenCover/opencover?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+### Team slack (*new* Jan 2019)
+[![Slack](https://img.shields.io/badge/chat-%20slack%20-brightgreen.svg)](https://join.slack.com/t/opencover/shared_invite/enQtNTI4NDA5MDA4MDUzLTE1MTllZjdiYmVjZmZiMGVjNWNjZGM1OWNiY2QwODY1NDA5OGNiYTVkYWQxN2IwNzc5NTE0MGJiOTI5MzkzZDE)
+
+### Submissions and Community Licence Agreement
+You will be asked to agree to a CLA as part of the submission process; first pull request only and it's all automatic no printing and signing etc. You can read the agreement here - [OpenCover CLA](https://gist.github.com/sawilde/4820db0a6151a1144a0c) and you can read our [Q&A](https://github.com/OpenCover/opencover/wiki/Contributor-License-Agreement-Q&A) on the wiki as to why.
 
 ### WIKI
 Please review the [wiki pages](https://github.com/opencover/opencover/wiki/_pages) on how to use OpenCover and take particular interest in the [Usage guide](https://github.com/opencover/opencover/wiki/Usage).
@@ -25,7 +33,7 @@ Please raise issues on GitHub, if you can repeat the issue then please provide a
 [Dropbox](http://db.tt/VanqFDn) is very useful for sharing files alternatively you could create a [gist](https://gist.github.com/).
 
 ### Licence
-All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/License.md) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
+All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/LICENSE) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
@@ -42,7 +50,7 @@ Please refer to the wiki - [IIS Support](https://github.com/OpenCover/opencover/
 Please refer to the wiki - [DNX Support](https://github.com/OpenCover/opencover/wiki/DNX-Support)
 
 #### Win8/Win10 Application Support
-Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no call for it I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me. 
+Not yet [implemented](https://github.com/OpenCover/opencover/issues/144). Sorry no user call/demand for it, I assume the WPF way of separating model and UI has led to people getting all they need from unit-tests; I know how that is how it works for me.
 
 #### Service support
 Please refer to the wiki - [Service Support](https://github.com/OpenCover/opencover/wiki/Service-Support)
@@ -53,18 +61,19 @@ Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/op
 ### Building
 You will need:
 
-1. Visual Studio VS2013 (Community Edition) or later with C# and C++
-2. WiX 3.9 or later (http://wix.codeplex.com/releases/view/136891)
-3. SpecFlow (http://visualstudiogallery.msdn.microsoft.com/9915524d-7fb0-43c3-bb3c-a8a14fbd40ee)
-4. Windows SDK 8 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
+1. Visual Studio VS2017 (Community Edition) or later with C#, C++, .Net Core
+2. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
+3. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowforVisualStudio2017)
+4. Windows SDK 10 and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
+5. Microsoft .NET Framework 4.7.2 Developer Pack (https://dotnet.microsoft.com/download/visual-studio-sdks)
 
-All other software should be included with this repository. 
+All other software should be included with this repository.
 
 NANT scripts (encapsulated by the build.bat file) are used to build the project outside visual studio and will run all unit tests.
 
 To build the code in 32-bit Debug mode just run Build in the root of the project folder.
 
-To build a release package including installer, zip and nuget packages use 
+To build a release package including installer, zip and nuget packages use
 
 > build create-release
 
@@ -80,7 +89,7 @@ We have also suppied the [appveyor.yml](appveyor.yml) to make it easy for any fo
 ### Coverage
 The current OpenCover coverage (found by [dogfooding](http://en.wikipedia.org/wiki/Eating_your_own_dog_food) OpenCover on its own tests) can be viewed here
 
-[Code Coverage via Coveralls](https://coveralls.io/r/OpenCover/opencover)
+[![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover)
 
 ### Reports
 For local viewing of the output from OpenCover [start here.](https://github.com/opencover/opencover/wiki/Reports)
@@ -89,16 +98,16 @@ For local viewing of the output from OpenCover [start here.](https://github.com/
 No Git? Don't worry you can download the latest code as a [zip file](http://github.com/opencover/opencover/zipball/master).
 
 ### Thanks
-I would like to thank 
+I would like to thank
 
 * JetBrains for my Open Source [ReSharper licence](http://www.jetbrains.com/resharper/),
 <img src="http://www.jetbrains.com/company/docs/logo_jetbrains.png"/>
 
 * [AppVeyor](https://ci.appveyor.com/project/sawilde/opencover) for allowing free build CI services for Open Source projects,
 * [Coveralls](https://coveralls.io/r/OpenCover/opencover) for allowing free services for Open Source projects,
-* NDepend for my [NDepend licence](http://www.ndepend.com/),
-* the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the VS2013 Community Edition), 
+* NDepend for my [NDepend licence](http://www.ndepend.com/) - I don't use it nearly as much as I know I should do,
+* the guys at [CodeBetter](http://codebetter.com/), [Devlicious](http://devlicio.us/) and [Los Techies](http://lostechies.com/) who orignally arranged my MSDN licence all those years ago without which I doubt I'd have been able to start OpenCover (now no longer needed as we can build OpenCover using the Community Editions),
 * the [NextGenUG](http://www.nxtgenug.net/) and their free swag from where I got lots of useful tools,
 
 
-I'd also like to thank my family, employers, colleagues and friends for all their support. 
+I would also like to thank my family, employers, colleagues and friends for all their support.

@@ -1,8 +1,3 @@
-//
-// OpenCover - S Wilde
-//
-// This source code is released under the MIT License; see the accompanying license file.
-//
 #pragma once
 
 #define SEQ_BUFFER_SIZE 8000
@@ -51,6 +46,12 @@ enum MSG_IdType : ULONG
     IT_MethodEnter = 0x40000000,
     IT_MethodLeave = 0x80000000,
     IT_MethodTailcall = 0xC0000000,
+};
+
+enum MSG_AllocateBufferFailure : ULONG
+{
+	ABF_NotApplicable = 0,
+	ABF_ProfilerVersionMismatch = 1,
 };
 
 #pragma pack(push)
@@ -125,12 +126,15 @@ typedef struct _MSG_AllocateBuffer_Request
 {
     MSG_Type type;
     LONG lBufferSize;
+	DWORD dwVersionHigh;
+	DWORD dwVersionLow;
 } MSG_AllocateBuffer_Request;
 
 typedef struct _MSG_AllocateBuffer_Response
 {
-    BOOL bResponse;
+    BOOL allocated;
     ULONG ulBufferId;
+	MSG_AllocateBufferFailure reason;
 } MSG_AllocateBuffer_Response;
 
 typedef struct _MSG_CloseChannel_Request

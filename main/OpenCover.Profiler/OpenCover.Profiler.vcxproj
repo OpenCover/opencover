@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,11 +21,12 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B2CE418E-A5C8-4C46-9513-771414B3CA4C}</ProjectGuid>
     <Keyword>AtlProj</Keyword>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <GtestRunnerTaskEnabled>false</GtestRunnerTaskEnabled>
+    <WindowsTargetPlatformVersion>10.0.14393.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -34,7 +35,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -42,7 +43,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -50,7 +51,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -58,7 +59,7 @@
     <UseOfAtl>Static</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -84,12 +85,14 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
@@ -97,12 +100,14 @@
     <OutDir>$(SolutionDir)bin\$(Configuration)\x86\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IgnoreImportLibrary>true</IgnoreImportLibrary>
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Configuration)\x64\</OutDir>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <IncludePath>$(DotNetSdkRoot)..\4.7.2\Include\um;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -136,11 +141,12 @@
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\OpenCover.Profiler.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -172,7 +178,7 @@
       <SubSystem>Windows</SubSystem>
       <ModuleDefinitionFile>.\OpenCover.Profiler.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
@@ -212,11 +218,12 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
     </Xdcmake>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -250,7 +257,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>version.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Xdcmake>
       <OutputFile>$(SolutionDir)Docs\$(TargetName).xml</OutputFile>
@@ -295,6 +302,10 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <ClCompile Include="ProfilerCommunication.cpp" />
     <ClCompile Include="ExceptionHandler.cpp" />
@@ -306,6 +317,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="xdlldata.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -319,6 +331,10 @@
       </PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</GenerateXMLDocumentationFiles>
+      <GenerateXMLDocumentationFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateXMLDocumentationFiles>
     </ClCompile>
     <ClCompile Include="Operations.cpp" />
   </ItemGroup>
@@ -343,6 +359,7 @@
     <ClInclude Include="Synchronization.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="xdlldata.h" />
     <ClInclude Include="Operations.h" />
   </ItemGroup>
@@ -350,7 +367,6 @@
     <ResourceCompile Include="OpenCover.Profiler.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\Common\OpenCover.Support.dll" />
     <None Include="CodeCoverage.rgs" />
     <None Include="OpenCover.Profiler.def" />
     <None Include="OpenCover.Profiler.rgs" />

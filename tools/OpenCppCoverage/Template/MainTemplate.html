@@ -1,0 +1,68 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta charset="utf-8"/>
+        <title>{{TITLE}}</title>
+        <link rel="stylesheet" type="text/css" href="{{THIRD_PARTY_PATH}}/css/style.css"/>
+        <script src="{{THIRD_PARTY_PATH}}/RGraph/libraries/RGraph.common.core.js" type="text/javascript"></script>
+        <script src="{{THIRD_PARTY_PATH}}/RGraph/libraries/RGraph.common.dynamic.js" type="text/javascript"></script>
+        <script src="{{THIRD_PARTY_PATH}}/RGraph/libraries/RGraph.common.tooltips.js" type="text/javascript"></script>
+        <script src="{{THIRD_PARTY_PATH}}/RGraph/libraries/RGraph.pie.js" type="text/javascript"></script>
+        <script src="{{THIRD_PARTY_PATH}}/JQuery/jquery-1.11.1.min.js"></script>
+    </head>
+    <body>
+    <script type="text/javascript">
+        $(document).ready(function ()
+        {
+            {{#ITEMS}}
+            new RGraph.Pie('pi_{{ID}}', [{{EXECUTED_LINE}}, {{UNEXECUTED_LINE}}])
+                .set('labels', ['Cover {{COVER_RATE}}%','Uncover {{UNCOVER_RATE}}%'])
+                .set('colors', ['rgb(0,255,0)','rgb(255,0,0)'])
+                .set('linewidth', 1)
+                .set('shadow', true)
+                .set('tooltips', ['cover {{EXECUTED_LINE}} lines ({{COVER_RATE}}%)', 'uncover {{UNEXECUTED_LINE}} lines ({{UNCOVER_RATE}}%)'])
+                .set('tooltips.event', 'onmousemove')
+                .set('labels.sticks', true)
+                .set('labels.sticks.length', 10)
+                .draw();
+            {{/ITEMS}}
+
+      })
+    </script>    
+        <h1>
+        {{TITLE}}
+        </h1>
+        <h4>
+        {{MAIN_MESSAGE}}
+        </h4>
+        <table id="rounded-corner">
+            <thead>
+                <tr>
+                    <th scope="col" class="rounded-left">Coverage</th>
+                    <th scope="col">Total lines</th>
+                    <th scope="col" class="rounded-right">Items</th>
+                </tr>
+            </thead> 
+            <tbody>
+                {{#ITEMS}}
+                <tr>
+                    <td>
+            <canvas id="pi_{{ID}}" width="280" height="100">Cover {{COVER_RATE}}%</canvas>
+                    </td>            
+                    <td>{{TOTAL_LINE}}</td>
+                    <td>            
+                      {{#ITEM_LINK}} <a href="{{LINK}}">{{NAME}}</a> {{/ITEM_LINK}}
+                      {{#ITEM_NO_LINK}}{{NAME}}(File Not Found){{/ITEM_NO_LINK}}
+                    </td>
+                </tr>        
+                {{/ITEMS}}
+            </tbody>
+            <tfoot>
+                <tr>
+                <td colspan="2" class="rounded-foot-left"></td>
+                <td class="rounded-foot-right"></td>
+                </tr>
+            </tfoot>            
+        </table>
+    </body>
+</html>
