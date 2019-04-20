@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>OpenCover.Simple.Target.Core2</AssemblyName>
+    <OutputType>Exe</OutputType>
+    <PackageId>OpenCover.Simple.Target.Core2</PackageId>
+    <RuntimeIdentifiers>win10-x64;win8-x64;win10-x86;win8-x86</RuntimeIdentifiers>
+    <RuntimeFrameworkVersion>2.0.5</RuntimeFrameworkVersion>
+    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <StartupObject>OpenCover.Simple.Target.Program</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\OpenCover.Simple.Target.Core\Program.cs" />
+  </ItemGroup>
+  
+</Project>
