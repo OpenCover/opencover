@@ -132,6 +132,14 @@ namespace OpenCover.Test.Samples
                 throw new Exception();
             }
         }
+
+        public async Task HasSimpleAsyncAwait_Issue881()
+        {
+            await Task.Delay(100);
+            await Task.Delay(100);
+            await Task.Delay(100);
+            await Task.Delay(100);
+        }
     }
 
     class DeclaredMethodClass
