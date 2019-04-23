@@ -250,7 +250,7 @@ namespace OpenCover.Framework.Symbols
             if (methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null)
             {
                 var filePath = GetInstructionsWithSequencePoints(methodDefinition)
-                    .FirstOrDefault(x => x.Item2.Document != null && !x.Item2.IsHidden && x.Item2.StartLine != StepOverLineCode)
+                    .FirstOrDefault(x => x.Item2.Document != null && !x.Item2.IsHidden)
                     .Maybe(x => x.Item2.Document.Url);
                 return filePath;
             }
@@ -393,7 +393,7 @@ namespace OpenCover.Framework.Symbols
             {
                 UInt32 ordinal = 0;
                 list.AddRange(from x in GetInstructionsWithSequencePoints(methodDefinition)
-                    where !x.Item2.IsHidden && x.Item2.StartLine != StepOverLineCode
+                    where !x.Item2.IsHidden
                     let sp = x.Item2
                     select new SequencePoint
                     {
@@ -492,7 +492,7 @@ namespace OpenCover.Framework.Symbols
                     if (null == instruction.Next)
                         return;
 
-                    if (!BuildPointsForConditionalBranch(list, instruction, branchingInstructionLine, document, branchOffset, pathCounter, instructions, ref ordinal, methodDefinition)) 
+                    if (!LoadPointsForConditionalBranch(list, instruction, branchingInstructionLine, document, branchOffset, pathCounter, instructions, ref ordinal)) 
                         return;
                 }
             }
@@ -503,61 +503,39 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private bool BuildPointsForConditionalBranch(List<BranchPoint> list, Instruction instruction,
+        private bool LoadPointsForConditionalBranch(List<BranchPoint> list, Instruction instruction,
             int branchingInstructionLine, string document, int branchOffset, int pathCounter, 
-            Collection<Instruction> instructions, ref uint ordinal, MethodDefinition methodDefinition)
+            Collection<Instruction> instructions, ref uint ordinal)
         {
-            // Add Default branch (Path=0)
-
-            // Follow else/default instruction
-            var @else = instruction.Next;
-
-            var pathOffsetList = GetBranchPath(@else);
-
-            // add Path 0
-            var path0 = new BranchPoint
-            {
-                StartLine = branchingInstructionLine,
-                Document = document,
-                Offset = branchOffset,
-                Ordinal = ordinal++,
-                Path = pathCounter++,
-                OffsetPoints =
-                    pathOffsetList.Count > 1
-                        ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
-                        : new List<int>(),
-                EndOffset = pathOffsetList.Last()
-            };
-
-            // Add Conditional Branch (Path=1)
-            if (instruction.OpCode.Code != Code.Switch)
-            {
-                // Follow instruction at operand
-                var @then = instruction.Operand as Instruction;
-
-                if (@then == null)
-                    return false;
-
-                if (IgnoreBranchSequence(instruction, instructions, branchOffset))
-                    return false;
-
-                ordinal = BuildPointsForBranch(list, then, branchingInstructionLine, document, branchOffset,
-                    ordinal, pathCounter, path0, instructions, methodDefinition);
-            }
-            else // instruction.OpCode.Code == Code.Switch
+            // Add Conditional Branch (Path>=1)
+            if (instruction.OpCode.Code == Code.Switch)
             {
                 var branchInstructions = instruction.Operand as Instruction[];
                 if (branchInstructions == null || branchInstructions.Length == 0)
                     return false;
 
-                ordinal = BuildPointsForSwitchCases(list, path0, branchInstructions, branchingInstructionLine,
+                ordinal = BuildPointsForConditionalBranch(list, instruction, branchInstructions, branchingInstructionLine,
+                    document, branchOffset, ordinal, ref pathCounter);
+            }
+            else 
+            {
+                // Follow instruction at operand
+                var then = instruction.Operand as Instruction;
+
+                if (then == null)
+                    return false;
+
+                if (IgnoreConditionalBranchSequence(instruction, instructions, branchOffset))
+                    return false;
+
+                ordinal = BuildPointsForConditionalBranch(list, instruction, new[] { then }, branchingInstructionLine,
                     document, branchOffset, ordinal, ref pathCounter);
             }
             return true;
         }
 
         // some branches we just have to ignore
-        private bool IgnoreBranchSequence(Instruction instruction, Collection<Instruction> instructions, int branchOffset)
+        private bool IgnoreConditionalBranchSequence(Instruction instruction, Collection<Instruction> instructions, int branchOffset)
         {
             var ignoreSequences = new[]
             {
@@ -567,8 +545,8 @@ namespace OpenCover.Framework.Symbols
 
             if (ignoreSequences.Select(seq => seq.First()).Any(code => code == instruction.OpCode.Code))
             {
-                var pathOffsetList = GetBranchPath(instruction.Next);
-                var pathOffsetList1 = GetBranchPath(instruction.Operand as Instruction);
+                var pathOffsetList = GetConditionalBranchPath(instruction.Next);
+                var pathOffsetList1 = GetConditionalBranchPath(instruction.Operand as Instruction);
 
                 var offsets = new[]
                 {
@@ -595,39 +573,29 @@ namespace OpenCover.Framework.Symbols
             return false;
         }
 
-        private uint BuildPointsForBranch(List<BranchPoint> list, Instruction then, int branchingInstructionLine, string document,
-            int branchOffset, uint ordinal, int pathCounter, BranchPoint path0, Collection<Instruction> instructions, MethodDefinition methodDefinition)
+        private uint BuildPointsForConditionalBranch(List<BranchPoint> list, Instruction current, Instruction[] branchInstructions,
+            int branchingInstructionLine, string document, int branchOffset, uint ordinal, ref int pathCounter)
         {
-            var pathOffsetList1 = GetBranchPath(@then);
-
-            // Add path 1
-            var path1 = new BranchPoint
+            // add Path 0
+            var pathOffsetList = GetConditionalBranchPath(current.Next);
+            var path0 = new BranchPoint
             {
                 StartLine = branchingInstructionLine,
                 Document = document,
                 Offset = branchOffset,
                 Ordinal = ordinal++,
-                Path = pathCounter,
+                Path = pathCounter++,
                 OffsetPoints =
-                    pathOffsetList1.Count > 1
-                        ? pathOffsetList1.GetRange(0, pathOffsetList1.Count - 1)
+                    pathOffsetList.Count > 1
+                        ? pathOffsetList.GetRange(0, pathOffsetList.Count - 1)
                         : new List<int>(),
-                EndOffset = pathOffsetList1.Last()
+                EndOffset = pathOffsetList.Last()
             };
-
             list.Add(path0);
-            list.Add(path1);
 
-            return ordinal;
-        }
-
-        private uint BuildPointsForSwitchCases(List<BranchPoint> list, BranchPoint path0, Instruction[] branchInstructions,
-            int branchingInstructionLine, string document, int branchOffset, uint ordinal, ref int pathCounter)
-        {
             var counter = pathCounter;
-            list.Add(path0);
             // Add Conditional Branches (Path>0)
-            list.AddRange(branchInstructions.Select(GetBranchPath)
+            list.AddRange(branchInstructions.Select(GetConditionalBranchPath)
                 .Select(pathOffsetList1 => new BranchPoint
                 {
                     StartLine = branchingInstructionLine,
@@ -645,7 +613,7 @@ namespace OpenCover.Framework.Symbols
             return ordinal;
         }
 
-        private List<int> GetBranchPath(Instruction instruction)
+        private List<int> GetConditionalBranchPath(Instruction instruction)
         {
             var offsetList = new List<int>();
 
@@ -653,7 +621,7 @@ namespace OpenCover.Framework.Symbols
             {
                 var point = instruction;
                 offsetList.Add(point.Offset);
-                while ( point.OpCode == OpCodes.Br || point.OpCode == OpCodes.Br_S )
+                while (point.OpCode == OpCodes.Br || point.OpCode == OpCodes.Br_S)
                 {
                     var nextPoint = point.Operand as Instruction;
                     if (nextPoint != null)
@@ -696,8 +664,8 @@ namespace OpenCover.Framework.Symbols
         private static bool HasValidSequencePoint(Instruction instruction, MethodDefinition methodDefinition)
         {
             var sp = methodDefinition.DebugInformation.GetSequencePoint(instruction);
-            return sp != null && !sp.IsHidden && sp.StartLine != StepOverLineCode;
-        }
+            return sp != null && !sp.IsHidden;
+        }                                     
 
         private class InstructionByOffsetComparer : IComparer<Instruction>
         {
