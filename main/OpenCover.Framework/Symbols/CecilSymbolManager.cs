@@ -36,7 +36,6 @@ namespace OpenCover.Framework.Symbols
 
     internal class CecilSymbolManager : ISymbolManager
     {
-        private const int StepOverLineCode = 0xFEEFEE;
         private readonly ICommandLine _commandLine;
         private readonly IFilter _filter;
         private readonly ILog _logger;
@@ -251,7 +250,7 @@ namespace OpenCover.Framework.Symbols
             if (methodDefinition.SafeGetMethodBody() != null && methodDefinition.Body.Instructions != null)
             {
                 var filePath = GetInstructionsWithSequencePoints(methodDefinition)
-                    .FirstOrDefault(x => x.Item2.Document != null && x.Item2.StartLine != StepOverLineCode)
+                    .FirstOrDefault(x => x.Item2.Document != null && !x.Item2.IsHidden && x.Item2.StartLine != StepOverLineCode)
                     .Maybe(x => x.Item2.Document.Url);
                 return filePath;
             }
@@ -394,7 +393,7 @@ namespace OpenCover.Framework.Symbols
             {
                 UInt32 ordinal = 0;
                 list.AddRange(from x in GetInstructionsWithSequencePoints(methodDefinition)
-                    where x.Item2.StartLine != StepOverLineCode
+                    where !x.Item2.IsHidden && x.Item2.StartLine != StepOverLineCode
                     let sp = x.Item2
                     select new SequencePoint
                     {
@@ -414,7 +413,40 @@ namespace OpenCover.Framework.Symbols
             }
         }
 
-        private static readonly Regex IsMovenext = new Regex(@"\<[^\s>]+\>\w__\w(\w)?::MoveNext\(\)$", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private IList<ICollection<Instruction>> GetInstrumentedBlocks(MethodDefinition methodDefinition)
+        {
+            // get a list of instructions that are covered by the sequence points
+            var safeMethodBody = methodDefinition.SafeGetMethodBody();
+            if (safeMethodBody == null)
+                return null;
+            var instructions = safeMethodBody.Instructions;
+
+            var list = new List<ICollection<Instruction>>();
+
+            ICollection<Instruction> collection = null;
+            foreach (var instruction in instructions)
+            {
+                var sequencePoint = methodDefinition.DebugInformation
+                    .GetSequencePoint(instruction);
+
+                if (sequencePoint != null)
+                {
+                    if (collection != null)
+                        list.Add(collection);
+
+                    collection = sequencePoint.IsHidden ? null : new Collection<Instruction>();
+                }
+
+                if (collection != null)
+                    collection.Add(instruction);
+            }
+
+            if (collection != null)
+                list.Add(collection);
+
+            return list;
+        }
+
         private void GetBranchPointsForToken(int token, List<BranchPoint> list)
         {
             var methodDefinition = GetMethodDefinition(token);
@@ -427,21 +459,28 @@ namespace OpenCover.Framework.Symbols
                 if (safeMethodBody == null) 
                     return;
                 var instructions = safeMethodBody.Instructions;
-                
-                // if method is a generated MoveNext skip first branch (could be a switch or a branch)
-                var skipFirstBranch = IsMovenext.IsMatch(methodDefinition.FullName);
+
+                var instrumentedInstructions = GetInstrumentedBlocks(methodDefinition)
+                    .SelectMany(block => block.Select(instruction => instruction))
+                    .ToList();
 
                 foreach (var instruction in instructions.Where(instruction => instruction.OpCode.FlowControl == FlowControl.Cond_Branch))
                 {
-                    if (skipFirstBranch)
+                    if (!instrumentedInstructions.Contains(instruction))
                     {
-                        skipFirstBranch = false;
-                        continue;
+                        var jump = instruction.Operand as Instruction;
+                        if (jump != null && !instrumentedInstructions.Contains(jump))
+                            continue;
+
+                        var jumps = instruction.Operand as Instruction[];
+                        if (jumps != null)
+                        {
+                            var contains = jumps.Any(jmp => instrumentedInstructions.Contains(jmp));
+                            if (!contains)
+                                continue;
+                        }                       
                     }
-
-                    if (BranchIsInGeneratedFinallyBlock(instruction, methodDefinition)) 
-                        continue;
-
+                      
                     var pathCounter = 0;
 
                     // store branch origin offset
@@ -495,7 +534,11 @@ namespace OpenCover.Framework.Symbols
             {
                 // Follow instruction at operand
                 var @then = instruction.Operand as Instruction;
+
                 if (@then == null)
+                    return false;
+
+                if (IgnoreBranchSequence(instruction, instructions, branchOffset))
                     return false;
 
                 ordinal = BuildPointsForBranch(list, then, branchingInstructionLine, document, branchOffset,
@@ -511,6 +554,45 @@ namespace OpenCover.Framework.Symbols
                     document, branchOffset, ordinal, ref pathCounter);
             }
             return true;
+        }
+
+        // some branches we just have to ignore
+        private bool IgnoreBranchSequence(Instruction instruction, Collection<Instruction> instructions, int branchOffset)
+        {
+            var ignoreSequences = new[]
+            {
+                // we may need other samples
+                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld, Code.Newobj}, // CachedAnonymousMethodDelegate field allocation 
+            };
+
+            if (ignoreSequences.Select(seq => seq.First()).Any(code => code == instruction.OpCode.Code))
+            {
+                var pathOffsetList = GetBranchPath(instruction.Next);
+                var pathOffsetList1 = GetBranchPath(instruction.Operand as Instruction);
+
+                var offsets = new[]
+                {
+                    branchOffset,
+                    pathOffsetList.Last(),
+                    pathOffsetList1.Last()
+                };
+
+                var bs = offsets.Min();
+                var be = offsets.Max();
+
+                var range = instructions.Where(i => (i.Offset >= bs) && (i.Offset <= be)).ToList();
+
+                var match = ignoreSequences
+                    .Where(ignoreSequence => range.Count >= ignoreSequence.Length)
+                    .Any(ignoreSequence => range.Zip(ignoreSequence, (instr, code) => instr.OpCode.Code == code).All(x => x));
+
+                if (match)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private uint BuildPointsForBranch(List<BranchPoint> list, Instruction then, int branchingInstructionLine, string document,
@@ -533,40 +615,9 @@ namespace OpenCover.Framework.Symbols
                 EndOffset = pathOffsetList1.Last()
             };
 
-            // only add branch if branch does not match a known sequence 
-            // e.g. auto generated field assignment
-            // or encapsulates at least one sequence point
-            var offsets = new[]
-            {
-                path0.Offset,
-                path0.EndOffset,
-                path1.Offset,
-                path1.EndOffset
-            };
+            list.Add(path0);
+            list.Add(path1);
 
-            var ignoreSequences = new[]
-            {
-                // we may need other samples
-                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld, Code.Newobj}, // CachedAnonymousMethodDelegate field allocation 
-            };
-
-            var bs = offsets.Min();
-            var be = offsets.Max();
-
-            var range = instructions.Where(i => (i.Offset >= bs) && (i.Offset <= be)).ToList();
-
-            var match = ignoreSequences
-                .Where(ignoreSequence => range.Count >= ignoreSequence.Length)
-                .Any(ignoreSequence => range.Zip(ignoreSequence, (instruction, code) => instruction.OpCode.Code == code).All(x => x));
-
-            var count = range
-                .Count(i => methodDefinition.DebugInformation.GetSequencePoint(i) != null);
-
-            if (!match || count > 0)
-            {
-                list.Add(path0);
-                list.Add(path1);
-            }
             return ordinal;
         }
 
@@ -592,31 +643,6 @@ namespace OpenCover.Framework.Symbols
                 }));
             pathCounter = counter;
             return ordinal;
-        }
-
-        private static bool BranchIsInGeneratedFinallyBlock(Instruction branchInstruction, MethodDefinition methodDefinition)
-        {
-            if (!methodDefinition.Body.HasExceptionHandlers) 
-                return false;
-            
-            // a generated finally block will have no sequence points in its range
-            var handlers = methodDefinition.Body.ExceptionHandlers
-                .Where(e => e.HandlerType == ExceptionHandlerType.Finally)
-                .ToList();
-
-            return handlers
-                .Where(e => branchInstruction.Offset >= e.HandlerStart.Offset)
-                .Where( e =>branchInstruction.Offset < e.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, e.HandlerStart.Offset)))
-                .OrderByDescending(h => h.HandlerStart.Offset) // we need to work inside out
-                .Any(eh => !(GetInstructionsWithSequencePoints(methodDefinition)
-                    .Where(i => i.Item2.StartLine != StepOverLineCode)
-                    .Any(i => i.Item2.Offset >= eh.HandlerStart.Offset && i.Item2.Offset < eh.HandlerEnd.Maybe(h => h.Offset, GetOffsetOfNextEndfinally(methodDefinition.Body, eh.HandlerStart.Offset)))));
-        }
-
-        private static int GetOffsetOfNextEndfinally(MethodBody body, int startOffset)
-        {
-            var lastOffset = body.Instructions.LastOrDefault().Maybe(i => i.Offset, int.MaxValue);
-            return body.Instructions.FirstOrDefault(i => i.Offset >= startOffset && i.OpCode.Code == Code.Endfinally).Maybe(i => i.Offset, lastOffset);
         }
 
         private List<int> GetBranchPath(Instruction instruction)
@@ -670,7 +696,7 @@ namespace OpenCover.Framework.Symbols
         private static bool HasValidSequencePoint(Instruction instruction, MethodDefinition methodDefinition)
         {
             var sp = methodDefinition.DebugInformation.GetSequencePoint(instruction);
-            return sp != null && sp.StartLine != StepOverLineCode;
+            return sp != null && !sp.IsHidden && sp.StartLine != StepOverLineCode;
         }
 
         private class InstructionByOffsetComparer : IComparer<Instruction>
