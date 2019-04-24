@@ -535,12 +535,14 @@ namespace OpenCover.Framework.Symbols
         }
 
         // some branches we just have to ignore
+        private static readonly Regex CachedAnonymousDelegateFieldName = new Regex(@"^\<\>\d+__\d+_\d+$", RegexOptions.Compiled);
         private bool IgnoreConditionalBranchSequence(Instruction instruction, Collection<Instruction> instructions, int branchOffset)
         {
             var ignoreSequences = new[]
             {
+                // new[]{ Code.Nop, Code.Nop, Code.Nop, },
                 // we may need other samples
-                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld, Code.Newobj}, // CachedAnonymousMethodDelegate field allocation 
+                new[] {Code.Brtrue_S, Code.Pop, Code.Ldsfld, Code.Ldftn, Code.Newobj, Code.Dup, Code.Stsfld}, // CachedAnonymousMethodDelegate field allocation 
             };
 
             if (ignoreSequences.Select(seq => seq.First()).Any(code => code == instruction.OpCode.Code))
@@ -566,7 +568,17 @@ namespace OpenCover.Framework.Symbols
 
                 if (match)
                 {
-                    return true;
+                    // this is a final check on the field name
+                    var inst = instruction.Previous?.Previous;
+                    if (inst != null)
+                    {
+                        if (inst.OpCode.Code == Code.Ldsfld)
+                        {
+                            var definition = inst.Operand as FieldDefinition;
+                            var name = definition.Name;
+                            return CachedAnonymousDelegateFieldName.Match(name).Success;
+                        }
+                    }
                 }
             }
 

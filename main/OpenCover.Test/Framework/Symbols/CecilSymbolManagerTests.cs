@@ -204,24 +204,6 @@ namespace OpenCover.Test.Framework.Symbols
         }
 
         [Test]
-        public void GetBranchPointsForMethodToken_GeneratedBranches_DueToCachedAnonymousMethodDelegate_Ignored()
-        {
-            // arrange
-            _mockFilter
-                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(true);
-
-            var types = _reader.GetInstrumentableTypes();
-            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
-            var methods = _reader.GetMethodsForType(type, new File[0]);
-
-            // act
-            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::HasSimpleTaskWithLambda")).MetadataToken);
-
-            Assert.AreEqual(0, points.Length);
-        }
-
-        [Test]
         public void GetBranchPointsForMethodToken_TwoBranch()
         {
             // arrange
@@ -879,6 +861,29 @@ namespace OpenCover.Test.Framework.Symbols
             // assert
             Assert.IsNotNull(points);
             Assert.AreEqual(0, points.Length, "The branch points created by async/await (::MoveNext) should be ignored");
+        }
+
+        [Test]
+        [TestCase("HasCachedDelegateDueToFunction")]
+        [TestCase("HasCachedDelegateDueToSimpleAction")]
+        [TestCase("HasCachedDelegateDueToTask")]
+        [TestCase("HasCachedDelegateDueToActionWithArgs")]
+        [TestCase("HasCachedDelegateDueToFunctionWithArgs")]
+        public void GetBranchPointsForMethodToken_IgnoresGeneratedBranches_FromCachedDelegateDueTo_(string target)
+        {
+            // arrange
+            _mockFilter
+                .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
+                .Returns(true);
+
+            var types = _reader.GetInstrumentableTypes();
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
+            var methods = _reader.GetMethodsForType(type, new File[0]);
+
+            // act
+            var points = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains($"::{target}")).MetadataToken);
+
+            Assert.AreEqual(0, points.Length);
         }
     }
 }
