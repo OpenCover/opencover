@@ -62,6 +62,7 @@
   </target>
     
   <target name="build" description="Build all targets.">
+    <echo message="using ${msbuild.exe}" />
     <property name="configuration" value="debug" />
     <property name="platform" value="x64" />
     <call target="build.opencover" />

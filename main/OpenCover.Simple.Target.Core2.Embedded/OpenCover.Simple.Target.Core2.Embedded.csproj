@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <DebugType>embedded</DebugType>
-    <AssemblyName>OpenCover.Simple.Target.Core.Embedded</AssemblyName>
+    <AssemblyName>OpenCover.Simple.Target.Core2.Embedded</AssemblyName>
     <OutputType>Exe</OutputType>
-    <PackageId>OpenCover.Simple.Target.Core.Embedded</PackageId>
-    <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <PackageId>OpenCover.Simple.Target.Core2.Embedded</PackageId>
+    <RuntimeFrameworkVersion>2.0.5</RuntimeFrameworkVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <StartupObject>OpenCover.Simple.Target.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
