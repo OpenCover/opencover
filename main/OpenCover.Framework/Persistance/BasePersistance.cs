@@ -159,6 +159,8 @@ namespace OpenCover.Framework.Persistance
         {
             if (CoverageSession.Modules == null) 
                 return;
+            if (CommandLine.MergeByHash)
+                RemoveDuplicateModulesByHash();
             MarkSkippedMethods();
             TransformSequences();
             CalculateCoverage();
@@ -166,6 +168,11 @@ namespace OpenCover.Framework.Persistance
                 return;
             foreach (var skippedMethod in CommandLine.HideSkipped.OrderBy(x => x))
                 ProcessSkippedAction(skippedMethod);
+        }
+
+        private void RemoveDuplicateModulesByHash()
+        {
+            CoverageSession.Modules = CoverageSession.Modules.GroupBy(x => x.ModuleHash).Select(x => x.FirstOrDefault()).ToArray();
         }
 
         private void ProcessSkippedAction(SkippedMethod skippedMethod)
