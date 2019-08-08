@@ -172,7 +172,9 @@ namespace OpenCover.Framework.Persistance
 
         private void RemoveDuplicateModulesByHash()
         {
-            CoverageSession.Modules = CoverageSession.Modules.GroupBy(x => x.ModuleHash).Select(x => x.FirstOrDefault()).ToArray();
+            CoverageSession.Modules = CoverageSession.Modules
+                .GroupBy(x => x.ModuleHash)
+                .Select(x => x.FirstOrDefault()).ToArray();
         }
 
         private void ProcessSkippedAction(SkippedMethod skippedMethod)
