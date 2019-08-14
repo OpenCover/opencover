@@ -53,8 +53,8 @@
     <file src="main\bin\Release\System.Collections.Immutable.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
-    <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
-    <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
+    <file src="main\bin\Release\OpenCover.MSBuild.dll" target="build"/>
+    <file src="main\bin\Release\OpenCover.targets" target="build"/>
     <file src="main\transform\simple_report.xslt" target="transform"/>
     <file src="main\transform\transform.ps1" target="transform"/>
     <file src="main\bin\Release\x86\OpenCover.Simple.Target.exe" target="Samples\x86"/>
