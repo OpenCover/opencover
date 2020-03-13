@@ -38,7 +38,7 @@ All Original Software is licensed under the [MIT Licence](https://github.com/ope
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
 ### Integration Test support
-OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
+OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (Your Mileage May Vary).
 
 #### Mono support
 It isn't, sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the Windows platform.
