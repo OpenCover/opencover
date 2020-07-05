@@ -62,8 +62,7 @@ Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/op
 You will need:
 
 To build from the command line:
-1. Visual Studio VS2017 (Community Edition) with C#, C++, .Net Core
-- Visual Studio VS2019 not currently supported due to installer issues (WIX and Votive) - investigating...
+1. Visual Studio VS2017/VS2019 (Community Edition) with C#, C++, .Net Core
 2. .NET SDK 2.1.4 (https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.1.4-windows-x64-installer)
 - runtimes 1.1.112 and 2.0.5
 3. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
