@@ -18,9 +18,6 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 ### Master
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
 
-### Team slack (*new* Jan 2019)
-[![Slack](https://img.shields.io/badge/chat-%20slack%20-brightgreen.svg)](https://join.slack.com/t/opencover/shared_invite/enQtNTI4NDA5MDA4MDUzLTE1MTllZjdiYmVjZmZiMGVjNWNjZGM1OWNiY2QwODY1NDA5OGNiYTVkYWQxN2IwNzc5NTE0MGJiOTI5MzkzZDE)
-
 ### Submissions and Community Licence Agreement
 You will be asked to agree to a CLA as part of the submission process; first pull request only and it's all automatic no printing and signing etc. You can read the agreement here - [OpenCover CLA](https://gist.github.com/sawilde/4820db0a6151a1144a0c) and you can read our [Q&A](https://github.com/OpenCover/opencover/wiki/Contributor-License-Agreement-Q&A) on the wiki as to why.
 
@@ -36,6 +33,10 @@ Please raise issues on GitHub, if you can repeat the issue then please provide a
 All Original Software is licensed under the [MIT Licence](https://github.com/opencover/opencover/blob/master/LICENSE) and does not apply to any other 3rd party tools, utilities or code which may be used to develop this application.
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
+
+### Visual Studio Integration
+The following add-in for visual studio can be used to run and view coverage results within the IDE
+https://github.com/FortuneN/FineCodeCoverage
 
 ### Integration Test support
 OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
