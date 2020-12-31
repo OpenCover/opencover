@@ -31,9 +31,9 @@ namespace OpenCover.Specs
         public virtual void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "DotNetCore", "\tIn order to cut down on the number of .net core related suppport issues\r\n\tAs a p" +
-                    "roject owner\r\n\tI want to be able to run OpenCover against applications compiled " +
-                    "using the .net core framework", ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "DotNetCore", "\tIn order to cut down on the number of .net core related suppport issues\r\n\tI want" +
+                    " to be able to run OpenCover against applications compiled using supported .net " +
+                    "core frameworks", ProgrammingLanguage.CSharp, ((string[])(null)));
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -72,145 +72,67 @@ namespace OpenCover.Specs
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core application using oldstyle")]
-        public virtual void GetCoverageOfA_NetCoreApplicationUsingOldstyle()
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle")]
+        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyle()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core application using oldstyle", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle", null, ((string[])(null)));
+#line 5
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
 #line 6
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
+ testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 7
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
+                    ".2\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 8
- testRunner.And("I can find the target .net core \'1.1\' application \'OpenCover.Simple.Target.Core\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 9
- testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 10
  testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 1.1 application")]
-        public virtual void GetCoverageOfA_NetCore1_1Application()
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle, with debugType = port" +
+            "able")]
+        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyleWithDebugTypePortable()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 1.1 application", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle, with debugType = port" +
+                    "able", null, ((string[])(null)));
+#line 11
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
 #line 12
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
+ testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 13
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
+                    ".2.Portable\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 14
- testRunner.And("I can find the target .net core \'1.1\' application \'OpenCover.Simple.Target.Core\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 15
- testRunner.When("I execute OpenCover against the target application using the switch \'\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 16
  testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 1.1 application with debugType = portable")]
-        public virtual void GetCoverageOfA_NetCore1_1ApplicationWithDebugTypePortable()
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle, with debugType = embe" +
+            "dded")]
+        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyleWithDebugTypeEmbedded()
         {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 1.1 application with debugType = portable", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle, with debugType = embe" +
+                    "dded", null, ((string[])(null)));
+#line 17
+this.ScenarioInitialize(scenarioInfo);
+            this.ScenarioStart();
 #line 18
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
+ testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line 19
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
+                    ".2.Embedded\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line 20
- testRunner.And("I can find the target .net core \'1.1\' application \'OpenCover.Simple.Target.Core.P" +
-                    "ortable\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line 21
- testRunner.When("I execute OpenCover against the target application using the switch \'\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 22
- testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 1.1 application with debugType = embedded")]
-        public virtual void GetCoverageOfA_NetCore1_1ApplicationWithDebugTypeEmbedded()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 1.1 application with debugType = embedded", null, ((string[])(null)));
-#line 24
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line 25
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 26
- testRunner.And("I can find the target .net core \'1.1\' application \'OpenCover.Simple.Target.Core.E" +
-                    "mbedded\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 27
- testRunner.When("I execute OpenCover against the target application using the switch \'\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 28
- testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.0 application")]
-        public virtual void GetCoverageOfA_NetCore2_0Application()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.0 application", null, ((string[])(null)));
-#line 30
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line 31
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 32
- testRunner.And("I can find the target .net core \'2.0\' application \'OpenCover.Simple.Target.Core2\'" +
-                    "", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 33
- testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 34
- testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.0 application with debugType = portable")]
-        public virtual void GetCoverageOfA_NetCore2_0ApplicationWithDebugTypePortable()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.0 application with debugType = portable", null, ((string[])(null)));
-#line 36
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line 37
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 38
- testRunner.And("I can find the target .net core \'2.0\' application \'OpenCover.Simple.Target.Core2." +
-                    "Portable\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 39
- testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 40
- testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
-#line hidden
-            this.ScenarioCleanup();
-        }
-        
-        [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.0 application with debugType = embedded")]
-        public virtual void GetCoverageOfA_NetCore2_0ApplicationWithDebugTypeEmbedded()
-        {
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.0 application with debugType = embedded", null, ((string[])(null)));
-#line 42
-this.ScenarioInitialize(scenarioInfo);
-            this.ScenarioStart();
-#line 43
- testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
-#line 44
- testRunner.And("I can find the target .net core \'2.0\' application \'OpenCover.Simple.Target.Core2." +
-                    "Embedded\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
-#line 45
- testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
-#line 46
  testRunner.Then("I should have a results.xml file with a coverage greater than or equal to \'100\'%", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             this.ScenarioCleanup();
