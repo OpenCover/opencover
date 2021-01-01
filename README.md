@@ -6,20 +6,17 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | --- | --- |
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
 | **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) |
+| **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=OpenCover_opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=OpenCover_opencover) |
+| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=OpenCover_opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenCover_opencover) |
+| **Quality** | [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
 
 | | Disabled Integrations |
 | --- | --- |
-| **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=opencover) |
-| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=opencover) |
-| **Quality** | [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
 
 ### Master
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
-
-### Team slack (*new* Jan 2019)
-[![Slack](https://img.shields.io/badge/chat-%20slack%20-brightgreen.svg)](https://join.slack.com/t/opencover/shared_invite/enQtNTI4NDA5MDA4MDUzLTE1MTllZjdiYmVjZmZiMGVjNWNjZGM1OWNiY2QwODY1NDA5OGNiYTVkYWQxN2IwNzc5NTE0MGJiOTI5MzkzZDE)
 
 ### Submissions and Community Licence Agreement
 You will be asked to agree to a CLA as part of the submission process; first pull request only and it's all automatic no printing and signing etc. You can read the agreement here - [OpenCover CLA](https://gist.github.com/sawilde/4820db0a6151a1144a0c) and you can read our [Q&A](https://github.com/OpenCover/opencover/wiki/Contributor-License-Agreement-Q&A) on the wiki as to why.
@@ -37,8 +34,12 @@ All Original Software is licensed under the [MIT Licence](https://github.com/ope
 
 If anyone is aware of any licence violations that this code may be making please inform the developers so that the issue can be investigated and rectified.
 
+### Visual Studio Integration
+The following add-in for visual studio can be used to run and view coverage results within the IDE
+https://github.com/FortuneN/FineCodeCoverage
+
 ### Integration Test support
-OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
+OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (Your Mileage May Vary).
 
 #### Mono support
 It isn't, sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the Windows platform.
@@ -62,15 +63,14 @@ Please refer to the wiki - [Silverlight support](https://github.com/OpenCover/op
 You will need:
 
 To build from the command line:
-1. Visual Studio VS2017 (Community Edition) with C#, C++, .Net Core
-- Visual Studio VS2019 not currently supported due to installer issues (WIX and Votive) - investigating...
-2. .NET SDK 2.1.4 (https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.1.4-windows-x64-installer)
-- runtimes 1.1.112 and 2.0.5
-3. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2017 (https://marketplace.visualstudio.com/items?itemName=RobMensching.WixToolsetVisualStudio2017Extension)
-4. Windows SDK 10 (10.0.14393.0) and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
+1. Visual Studio VS2019 (Community Edition) with C#, C++, .Net Core
+2. .NET SDK 2.2.402 (https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.1.4-windows-x64-installer)
+- runtimes ???
+3. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2019 (https://marketplace.visualstudio.com/items?itemName=WixToolset.WixToolsetVisualStudio2019Extension)
+4. Windows SDK 10 (10.0.18362.0) and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
 To build and run from within visual studio:
-5. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowforVisualStudio2017)
+5. SpecFlow for Visual Studio 2017 (https://marketplace.visualstudio.com/items?itemName=TechTalkSpecFlowTeam.SpecFlowForVisualStudio)
 6. Microsoft .NET Framework 4.7.2 Developer Pack (https://dotnet.microsoft.com/download/visual-studio-sdks)
 
 All other software should be included with this repository.
