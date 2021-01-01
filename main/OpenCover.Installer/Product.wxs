@@ -45,6 +45,7 @@
       <ComponentRef Id="Autofac_3rdParty" />
       <ComponentRef Id="MonoCecil_3rdParty" />
       <ComponentRef Id="Gendarme_Signed_3rdParty" />
+      <ComponentRef Id="Microsoft_Bcl_AsyncInterfaces_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_Configuration_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_FileProviders_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_FileSystemGlobbing_3rdParty" />
@@ -52,7 +53,10 @@
       <ComponentRef Id="Newtonsoft_3rdParty" />
       <ComponentRef Id="Log4Net_3rdParty" />
       <ComponentRef Id="Sentry_3rdParty" />
+      <ComponentRef Id="System_Buffers_3rdParty" />
       <ComponentRef Id="System_Collections_Immutable_3rdParty" />
+      <ComponentRef Id="System_Diagnostics_DiagnosticSource_3rdParty" />
+      <ComponentRef Id="System_Threading_Tasks_Extensions_3rdParty" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />
       <ComponentRef Id="MSBuildFiles" />
