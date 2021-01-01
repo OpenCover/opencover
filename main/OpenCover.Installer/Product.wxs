@@ -56,7 +56,13 @@
       <ComponentRef Id="System_Buffers_3rdParty" />
       <ComponentRef Id="System_Collections_Immutable_3rdParty" />
       <ComponentRef Id="System_Diagnostics_DiagnosticSource_3rdParty" />
+      <ComponentRef Id="System_Memory_3rdParty" />
+      <ComponentRef Id="System_Numerics_Vectors_3rdParty" />
+      <ComponentRef Id="System_Runtime_CompilerServices_Unsafe_3rdParty" />
+      <ComponentRef Id="System_Text_Encodings_Web_3rdParty" />
+      <ComponentRef Id="System_Text_Json_3rdParty" />
       <ComponentRef Id="System_Threading_Tasks_Extensions_3rdParty" />
+      <ComponentRef Id="System_ValueTuple_3rdParty" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />
       <ComponentRef Id="MSBuildFiles" />

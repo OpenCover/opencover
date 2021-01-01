@@ -40,7 +40,13 @@
         <include name="System.Buffers.dll" />
         <include name="System.Collections.Immutable.dll" />
         <include name="System.Diagnostics.DiagnosticSource.dll" />
+        <include name="System.Memory.dll" />
+        <include name="System.Numerics.Vectors.dll" />
+        <include name="System.Runtime.CompilerServices.Unsafe.dll" />
+        <include name="System.Text.Encodings.Web.dll" />
+        <include name="System.Text.Json.dll" />
         <include name="System.Threading.Tasks.Extensions.dll" />
+        <include name="System.ValueTuple.dll" />
       </fileset>
       <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
         <include name="OpenCover.Profiler.dll" />

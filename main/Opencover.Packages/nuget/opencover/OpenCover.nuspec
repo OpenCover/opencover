@@ -55,7 +55,13 @@
     <file src="main\bin\Release\System.Buffers.dll" target="tools"/>
     <file src="main\bin\Release\System.Collections.Immutable.dll" target="tools"/>
     <file src="main\bin\Release\System.Diagnostics.DiagnosticSource.dll" target="tools"/>
+    <file src="main\bin\Release\System.Memory.dll" target="tools"/>
+    <file src="main\bin\Release\System.Numerics.Vectors.dll" target="tools"/>
+    <file src="main\bin\Release\System.Runtime.CompilerServices.Unsafe.dll" target="tools"/>
+    <file src="main\bin\Release\System.Text.Encodings.Web.dll" target="tools"/>
+    <file src="main\bin\Release\System.Text.Json.dll" target="tools"/>
     <file src="main\bin\Release\System.Threading.Tasks.Extensions.dll" target="tools"/>
+    <file src="main\bin\Release\System.ValueTuple.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="build"/>
