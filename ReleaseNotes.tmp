@@ -1,6 +1,7 @@
 Version [[version]]
 #877 remove incorrect redirects (bug)
 #964 address CVE-2018-1285 in log4net 2.0.8 (prj-mgmt)
+#910 import MSBuild project from NuGet package (feature)
 
 Version 4.7.922
 #855 change crash reporting framework to Sentry (feature/prj-mgmt)
