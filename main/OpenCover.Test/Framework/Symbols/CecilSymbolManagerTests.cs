@@ -525,12 +525,8 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-#if DEBUG
-            Assert.AreEqual(3, points.Length);
-#else
-            Assert.AreEqual(1, points.Length);
-#endif
 
+            Assert.AreEqual(3, points.Length);
         }
 
         [Test]
