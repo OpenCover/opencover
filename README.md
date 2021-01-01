@@ -39,7 +39,7 @@ The following add-in for visual studio can be used to run and view coverage resu
 https://github.com/FortuneN/FineCodeCoverage
 
 ### Integration Test support
-OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (You Mileage May Vary).
+OpenCover was initially created to support unit testing techniques such as TDD and tools like NUnit and MSTest. Over time others have found ways to use OpenCover for integration testing especially in tricky scenarios such as IIS and Windows Services. I'll put links here as to how people have achieved this however as they say YMMV (Your Mileage May Vary).
 
 #### Mono support
 It isn't, sorry - this tool uses the profiler API that is currently only available to .NET Frameworks running on the Windows platform.
