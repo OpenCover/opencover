@@ -50,35 +50,32 @@ namespace OpenCover.Framework.Persistance
         /// <param name="module"></param>
         public void PersistModule(Module module)
         {
-            if (module == null) 
-                return;
-            module.Classes = module.Classes ?? new Class[0];
-            if (CommandLine.MergeByHash)
+            lock (Protection)
             {
-                lock (Protection)
+                if (module == null)
+                    return;
+                module.Classes = module.Classes ?? new Class[0];
+                if (CommandLine.MergeByHash)
                 {
                     var modules = CoverageSession.Modules ?? new Module[0];
-                    lock (Protection)
+                    var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
+                    if (existingModule != null)
                     {
-                        var existingModule = modules.FirstOrDefault(x => x.ModuleHash == module.ModuleHash);
-                        if (existingModule != null)
+                        var exists = existingModule.Aliases
+                            .Any(x => x.Equals(module.ModulePath, StringComparison.InvariantCultureIgnoreCase));
+                        if (!exists)
                         {
-                            if (
-                                !existingModule.Aliases.Any(
-                                    x => x.Equals(module.ModulePath, StringComparison.InvariantCultureIgnoreCase)))
-                            {
-                                existingModule.Aliases.Add(module.ModulePath);
-                            }
-                            return;
+                            existingModule.Aliases.Add(module.ModulePath);
                         }
+                        return;
                     }
                 }
-            }
 
-            _moduleMethodMap[module] = new Dictionary<int, KeyValuePair<Class, Method>>();
-            BuildMethodMapForModule(module);
-            var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
-            CoverageSession.Modules = list.ToArray();
+                _moduleMethodMap[module] = new Dictionary<int, KeyValuePair<Class, Method>>();
+                BuildMethodMapForModule(module);
+                var list = new List<Module>(CoverageSession.Modules ?? new Module[0]) { module };
+                CoverageSession.Modules = list.ToArray();
+            }
         }
 
         /// <summary>

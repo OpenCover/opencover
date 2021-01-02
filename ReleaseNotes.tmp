@@ -3,6 +3,7 @@ Version [[version]]
 #964 address CVE-2018-1285 in log4net 2.0.8 (prj-mgmt)
 #910 import MSBuild project from NuGet package (feature)
 #953 update Sentry to latest version (prj-mgmt)
+#908 fix race condition causing modules to appear twice in output (bug)
 
 Version 4.7.922
 #855 change crash reporting framework to Sentry (feature/prj-mgmt)
