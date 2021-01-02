@@ -12,7 +12,9 @@
         <include name="Gendarme.Rules.Maintainability.dll" />
         <include name="log4net.dll" />
         <include name="log4net.config" />
+        <include name="Microsoft.Bcl.AsyncInterfaces.dll" />
         <include name="Microsoft.Extensions.Configuration.Abstractions.dll" />
+        <include name="Microsoft.Extensions.Configuration.Binder.dll" />
         <include name="Microsoft.Extensions.Configuration.dll" />
         <include name="Microsoft.Extensions.Configuration.FileExtensions.dll" />
         <include name="Microsoft.Extensions.Configuration.Json.dll" />
@@ -35,7 +37,16 @@
         <include name="Sentry.dll" />
         <include name="Sentry.PlatformAbstractions.dll" />
         <include name="Sentry.Protocol.dll" />
+        <include name="System.Buffers.dll" />
         <include name="System.Collections.Immutable.dll" />
+        <include name="System.Diagnostics.DiagnosticSource.dll" />
+        <include name="System.Memory.dll" />
+        <include name="System.Numerics.Vectors.dll" />
+        <include name="System.Runtime.CompilerServices.Unsafe.dll" />
+        <include name="System.Text.Encodings.Web.dll" />
+        <include name="System.Text.Json.dll" />
+        <include name="System.Threading.Tasks.Extensions.dll" />
+        <include name="System.ValueTuple.dll" />
       </fileset>
       <fileset basedir="${solution.folder}\bin\Release\x86" prefix="x86">
         <include name="OpenCover.Profiler.dll" />
