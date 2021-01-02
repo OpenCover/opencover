@@ -165,7 +165,7 @@ namespace OpenCover.Framework.Manager
             dictionary["CorClr_Profiler_Path"] = string.Empty;
 
             if (_commandLine.CommunicationTimeout > 0)
-                dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
+                dictionary["OpenCover_Profiler_CommWait"] = _commandLine.CommunicationTimeout.ToString();
 
             var profilerPath = ProfilerRegistration.GetProfilerPath(_commandLine.Registration);
             if (profilerPath != null)

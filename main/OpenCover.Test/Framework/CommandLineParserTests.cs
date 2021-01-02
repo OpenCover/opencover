@@ -786,9 +786,9 @@ namespace OpenCover.Test.Framework
         [Test]
         [TestCase(10000, 10000)]
         [TestCase(30000, 30000)]
-        [TestCase(60000, 60000)]
+        [TestCase(600000, 600000)]
         [TestCase(100, 10000)]
-        [TestCase(70000, 60000)]
+        [TestCase(700000, 600000)]
         public void HandlesCommunicationTimeout(int suppliedMillisconds, int expectedMiliseconds)
         {
             // arrange
