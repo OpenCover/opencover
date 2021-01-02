@@ -18,7 +18,7 @@ namespace Communication
 	private:
 
 	public:
-		ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low);
+		ProfilerCommunication(DWORD comm_wait, DWORD version_high, DWORD version_low);
 		
 		
 		bool Initialise(
@@ -64,7 +64,7 @@ namespace Communication
 		tstring _key;
 		tstring _namespace;
 		tstring _processName;
-		DWORD _short_wait;
+		DWORD _comm_wait;
 
 		template<class BR, class PR>
 		void RequestInformation(BR buildRequest, PR processResults, DWORD dwTimeout, tstring message);

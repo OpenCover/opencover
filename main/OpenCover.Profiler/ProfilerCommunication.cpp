@@ -7,19 +7,18 @@
 #include <sstream>
 
 #define ONERROR_GOEXIT(hr) if (FAILED(hr)) goto Exit
-#define COM_WAIT_LONG 60000
 #define COM_WAIT_VSHORT 3000
 
 #define MSG_UNION_SIZE sizeof(MSG_Union)
 namespace Communication
 {
-	ProfilerCommunication::ProfilerCommunication(DWORD short_wait, DWORD version_high, DWORD version_low)
+	ProfilerCommunication::ProfilerCommunication(DWORD comm_wait, DWORD version_high, DWORD version_low)
 	{
 		_bufferId = 0;
 		_pMSG = nullptr;
 		_pVisitPoints = nullptr;
 		_hostCommunicationActive = false;
-		_short_wait = short_wait;
+		_comm_wait = comm_wait;
 		_version_high = version_high;
 		_version_low = version_low;
 
@@ -341,9 +340,9 @@ namespace Communication
 
 			_memoryResults.FlushViewOfFile();
 
-			DWORD dwSignal = _eventProfilerHasResults.SignalAndWait(_eventResultsHaveBeenReceived, _short_wait);
+			DWORD dwSignal = _eventProfilerHasResults.SignalAndWait(_eventResultsHaveBeenReceived, _comm_wait);
 			if (WAIT_OBJECT_0 != dwSignal)
-				throw CommunicationException(dwSignal, _short_wait);
+				throw CommunicationException(dwSignal, _comm_wait);
 			_eventResultsHaveBeenReceived.Reset();
 		}
 		catch (const CommunicationException& ex) {
@@ -399,7 +398,7 @@ namespace Communication
 			::ZeroMemory(_pMSG, MSG_UNION_SIZE);
 			return hasMore;
 		}
-			, _short_wait
+			, _comm_wait
 			, _T("GetSequencePoints"));
 
 		return (points.size() != 0);
@@ -436,7 +435,7 @@ namespace Communication
 			::ZeroMemory(_pMSG, MSG_UNION_SIZE);
 			return hasMore;
 		}
-			, _short_wait
+			, _comm_wait
 			, _T("GetBranchPoints"));
 
 		return (points.size() != 0);
@@ -463,7 +462,7 @@ namespace Communication
 			::ZeroMemory(_pMSG, MSG_UNION_SIZE);
 			return FALSE;
 		}
-			, COM_WAIT_LONG
+			, _comm_wait
 			, _T("TrackAssembly"));
 
 		return response;
@@ -490,7 +489,7 @@ namespace Communication
 			::ZeroMemory(_pMSG, MSG_UNION_SIZE);
 			return FALSE;
 		}
-			, _short_wait
+			, _comm_wait
 			, _T("TrackMethod"));
 
 		return response;
@@ -562,7 +561,7 @@ namespace Communication
 			response = _pMSG->closeChannelResponse.bResponse == TRUE;
 			return FALSE;
 		}
-			, _short_wait
+			, _comm_wait
 			, _T("CloseChannel"));
 
 		return;
@@ -588,7 +587,7 @@ namespace Communication
 			response = _pMSG->trackProcessResponse.bResponse == TRUE;
 			return FALSE;
 		}
-			, _short_wait
+			, _comm_wait
 			, _T("TrackProcess"));
 
 		return response;
@@ -675,9 +674,9 @@ namespace Communication
 
 				if (hasMore)
 				{
-					dwSignal = _eventInformationReadByProfiler.SignalAndWait(_eventInformationReadyForProfiler, _short_wait);
+					dwSignal = _eventInformationReadByProfiler.SignalAndWait(_eventInformationReadyForProfiler, _comm_wait);
 					if (WAIT_OBJECT_0 != dwSignal)
-						throw CommunicationException(dwSignal, _short_wait);
+						throw CommunicationException(dwSignal, _comm_wait);
 
 					_eventInformationReadyForProfiler.Reset();
 				}

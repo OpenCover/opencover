@@ -86,7 +86,7 @@ namespace OpenCover.Test.Framework.Manager
             RunSimpleProcess(dict);
 
             // assert
-            Assert.Null(dict[@"OpenCover_Profiler_ShortWait"]);
+            Assert.Null(dict[@"OpenCover_Profiler_CommWait"]);
         }
 
         [Test]
@@ -100,8 +100,8 @@ namespace OpenCover.Test.Framework.Manager
             RunSimpleProcess(dict);
 
             // assert
-            Assert.NotNull(dict[@"OpenCover_Profiler_ShortWait"]);
-            Assert.AreEqual("10000", dict[@"OpenCover_Profiler_ShortWait"]);
+            Assert.NotNull(dict[@"OpenCover_Profiler_CommWait"]);
+            Assert.AreEqual("10000", dict[@"OpenCover_Profiler_CommWait"]);
         }
 
         [Test]
