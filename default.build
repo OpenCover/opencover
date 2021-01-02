@@ -43,7 +43,6 @@
   <include buildfile="${build.folder}/environment.build" />
   <include buildfile="${build.folder}/installer.build" />
   <include buildfile="${build.folder}/nuget_package.build" />
-  <include buildfile="${build.folder}/metrics.build" />
 
   <target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number, generate-release-notes, prepare-sample-project" />
 
@@ -67,8 +66,9 @@
   
   <target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
     <call target="copy-artefacts" />
-    <call target="chocolatey-package" />
     <call target="chocolatey-package-portable" />
+    <call target="chocolatey-package-install" />
+    <call target="chocolatey-package" />
     <call target="nuget-package" />
     <call target="set-rc-property" />
     <call target="nuget-package" />
