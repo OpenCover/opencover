@@ -444,6 +444,10 @@ namespace OpenCover.Console
                 Logger.InfoFormat("    output file and refer to the Usage guide (Usage.rtf) about filters.");
                 Logger.InfoFormat("    2) the profiler may not be registered correctly, please refer to the Usage");
                 Logger.InfoFormat("    guide and the -register switch.");
+                Logger.InfoFormat("    3) your assemblies under test were not be loaded, refer to the output xml");
+                Logger.InfoFormat("    and check your filters/code.");
+                Logger.InfoFormat("    4) you are targetting .net core and your assemblies under test were not");
+                Logger.InfoFormat("    instrumented, try using the -oldstyle switch.");
             }
         }
 
