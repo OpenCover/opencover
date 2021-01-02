@@ -448,6 +448,8 @@ namespace OpenCover.Console
                 Logger.InfoFormat("    and check your filters/code.");
                 Logger.InfoFormat("    4) you are targetting .net core and your assemblies under test were not");
                 Logger.InfoFormat("    instrumented, try using the -oldstyle switch.");
+                Logger.InfoFormat("    5) you are targetting 4.8 or .net core and your assemblies under test were");
+                Logger.InfoFormat("    not instrumented, try using the -register:path32 or -register:path64 switch.");
             }
         }
 
