@@ -1,8 +1,8 @@
 Welcome to OpenCover.
 
-OpenCover is an open source (MIT licence) code coverage utility for all .NET 
-Frameworks (2 and above, including Silverlight). It can handle all .NET 
-languages as long as the compiled assemblies use the .NET Runtime.
+OpenCover is an open source (MIT licence) code coverage utility for all(*) 
+.NET  Frameworks (2 and above, including Silverlight). It can handle all 
+.NET languages as long as the compiled assemblies use the .NET Runtime.
 
 It is most commonly used to gather coverage data of code that is being 
 exercised by unit testing i.e. nunit, mstest etc. 
@@ -20,6 +20,10 @@ has also been provided for your convenience.
 
 If you have any issues or feature requests for OpenCover please raise them 
 with the project owners on https://github.com/opencover/opencover.
+
+(*) OpenCover should have few issues with any application compiled against any
+of the .NET Full Frameworks. Applications targetting .Net Core may encounter 
+issues but using the `-oldstyle` switch usually works.
 
 Release Notes
  
