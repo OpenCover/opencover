@@ -10,6 +10,13 @@ namespace OpenCover.Specs.Steps
     [Binding]
     public class DotNetCoreSteps
     {
+        private readonly ScenarioContext _scenarioContext;
+
+        public DotNetCoreSteps(ScenarioContext scenarioContext)
+        {
+            _scenarioContext = scenarioContext;
+        }
+
         [Given(@"I can find the OpenCover application")]
         public void GivenICanFindTheOpenCoverApplication()
         {
@@ -20,7 +27,7 @@ namespace OpenCover.Specs.Steps
 #endif
             Assert.IsTrue(File.Exists(Path.Combine(targetFolder, "OpenCover.Console.exe")));
 
-            ScenarioContext.Current["TargetFolder"] = targetFolder;
+            _scenarioContext["TargetFolder"] = targetFolder;
         }
 
         [Given(@"I can find the target \.net core '(.*)' application '(.*)'")]
@@ -37,15 +44,15 @@ namespace OpenCover.Specs.Steps
 
             Assert.IsTrue(File.Exists(targetApp));
 
-            ScenarioContext.Current["TargetApp"] = targetApp;
+            _scenarioContext["TargetApp"] = targetApp;
         }
 
         [When(@"I execute OpenCover against the target application using the switch '(.*)'")]
         public void WhenIExecuteOpenCoverAgainstTheTargetApplicationUsingTheSwitch(string additionalSwitch)
         {
             var dotnetexe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"dotnet\dotnet.exe");
-            var targetApp = (string)ScenarioContext.Current["TargetApp"];
-            var targetFolder = (string)ScenarioContext.Current["TargetFolder"];
+            var targetApp = (string)_scenarioContext["TargetApp"];
+            var targetFolder = (string)_scenarioContext["TargetFolder"];
             var outputXml = Path.Combine(Path.GetDirectoryName(targetApp) ?? ".", "results.xml");
             if (File.Exists(outputXml))
                 File.Delete(outputXml);
@@ -68,13 +75,13 @@ namespace OpenCover.Specs.Steps
             
             Assert.True(File.Exists(outputXml));
 
-            ScenarioContext.Current["OutputXml"] = outputXml;
+            _scenarioContext["OutputXml"] = outputXml;
         }
 
         [Then(@"I should have a results\.xml file with a coverage greater than or equal to '(.*)'%")]
         public void ThenIShouldHaveAResults_XmlFileWithACoverageGreaterThanOrEqualTo(int coveragePercentage)
         {
-            var xml = File.ReadAllText((string) ScenarioContext.Current["OutputXml"]);
+            var xml = File.ReadAllText((string) _scenarioContext["OutputXml"]);
             var coverage = Utils.GetTotalCoverage(xml) ?? "-1";
             Assert.GreaterOrEqual(decimal.Parse(coverage), coveragePercentage);
         }
