@@ -18,7 +18,7 @@
   <property name="ci.buildNumber" value="0" unless="${property::exists('ci.buildNumber')}" />
   <property name="ci.fullBuildNumber" value="${environment::get-variable('APPVEYOR_BUILD_VERSION')}" if="${environment::variable-exists('APPVEYOR_BUILD_VERSION')}"/>
   <property name="ci.fullBuildNumber" value="0" unless="${property::exists('ci.fullBuildNumber')}" />
-  <property name="ci.gitSha" value="${environment::get-variable('APPVEYOR_REPO_COMMIT')}" if="${environment::variable-exists('APPVEYOR_REPO_COMMIT')}"/>
+  <property name="ci.gitSha" value="${string::substring(environment::get-variable('APPVEYOR_REPO_COMMIT'), 0, 7)}" if="${environment::variable-exists('APPVEYOR_REPO_COMMIT')}"/>
   <property name="ci.gitSha" value="0000000" unless="${property::exists('ci.gitSha')}" />
   <property name="coverity.folder" value="C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin" if="${directory::exists('C:\Projects\cov-analysis-win64-7.7.0.4\cov-analysis-win64-7.7.0.4\bin')}" />
   
@@ -43,10 +43,9 @@
   <include buildfile="${build.folder}/environment.build" />
   <include buildfile="${build.folder}/installer.build" />
   <include buildfile="${build.folder}/nuget_package.build" />
-  <include buildfile="${build.folder}/metrics.build" />
 
   <target name="build-environment" depends="get-os-version, create-snk, prepare-environment, get-version-number, generate-release-notes, prepare-sample-project" />
-
+  
   <target name="rebuild" depends="build-environment, clean, build, test" >
     <call target="test-cpp" if="${version::get-major(version::parse(machine.version))==6}" />
   </target>
@@ -55,7 +54,9 @@
     <echo>##teamcity[buildNumber '${buildnumber.version}']</echo>
     <call target="build-all-platforms" />
   </target>
-  
+
+  <target name="codeql-build" depends="build-environment build-release-platforms-x64" />
+
   <target name="copy-artefacts" >
     <move file="${solution.folder}/OpenCover.Installer/bin/Release/opencover.installer.msi" 
         tofile="${solution.folder}/bin/installer/opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi" />
@@ -67,8 +68,9 @@
   
   <target name="create-release" depends="clean-all, build-environment, build-release-platforms, test, test-cpp, create-zip-package">
     <call target="copy-artefacts" />
-    <call target="chocolatey-package" />
     <call target="chocolatey-package-portable" />
+    <call target="chocolatey-package-install" />
+    <call target="chocolatey-package" />
     <call target="nuget-package" />
     <call target="set-rc-property" />
     <call target="nuget-package" />

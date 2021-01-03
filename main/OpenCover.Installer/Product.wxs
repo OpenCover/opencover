@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" >
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension" >
+  
   <?include ..\..\build\Version\Version.wxi ?>
 
   <Product Id="*" Name="OpenCover" Language="1033" Version="$(var.Version)"
       Manufacturer="OpenCover" UpgradeCode="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6" >
-
+    
     <Package InstallerVersion="200" Compressed="yes" />
 
+    <Property Id="WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED">
+      <RegistrySearch Id="NET472Installed" Root="HKLM" Key="SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full" Name="Release" Type="raw" />
+    </Property>
+
+    <Condition Message="[ProductName] Requires .NET Framework 4.7.2 or later to be installed">
+      <![CDATA[Installed OR (WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED AND WIX_IS_NETFRAMEWORK_472_OR_LATER_INSTALLED >= "#461808")]]>
+    </Condition>
+    
     <Upgrade Id="2250c3f1-d9ba-44d8-b4db-25f91fe92dc6">
       <UpgradeVersion OnlyDetect="no" Property="PREVIOUSFOUND" Minimum="1.0.0.0" IncludeMinimum="yes"
                             Maximum="$(var.Version)" IncludeMaximum="no" />
@@ -45,6 +55,7 @@
       <ComponentRef Id="Autofac_3rdParty" />
       <ComponentRef Id="MonoCecil_3rdParty" />
       <ComponentRef Id="Gendarme_Signed_3rdParty" />
+      <ComponentRef Id="Microsoft_Bcl_AsyncInterfaces_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_Configuration_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_FileProviders_3rdParty" />
       <ComponentRef Id="Microsoft_Extensions_FileSystemGlobbing_3rdParty" />
@@ -52,7 +63,16 @@
       <ComponentRef Id="Newtonsoft_3rdParty" />
       <ComponentRef Id="Log4Net_3rdParty" />
       <ComponentRef Id="Sentry_3rdParty" />
+      <ComponentRef Id="System_Buffers_3rdParty" />
       <ComponentRef Id="System_Collections_Immutable_3rdParty" />
+      <ComponentRef Id="System_Diagnostics_DiagnosticSource_3rdParty" />
+      <ComponentRef Id="System_Memory_3rdParty" />
+      <ComponentRef Id="System_Numerics_Vectors_3rdParty" />
+      <ComponentRef Id="System_Runtime_CompilerServices_Unsafe_3rdParty" />
+      <ComponentRef Id="System_Text_Encodings_Web_3rdParty" />
+      <ComponentRef Id="System_Text_Json_3rdParty" />
+      <ComponentRef Id="System_Threading_Tasks_Extensions_3rdParty" />
+      <ComponentRef Id="System_ValueTuple_3rdParty" />
       <ComponentRef Id="X86Profiler" />
       <ComponentRef Id="X64Profiler" />
       <ComponentRef Id="MSBuildFiles" />

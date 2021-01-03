@@ -11,7 +11,7 @@ namespace OpenCover.Test.Framework.Service
 {
     [TestFixture]
     internal class ProfilerCommunicationTests :
-        UnityAutoMockContainerBase<IProfilerCommunication, ProfilerCommunication>
+        AutofacAutoMockContainerBase<IProfilerCommunication, ProfilerCommunication>
     {
         [Test]
         public void TrackAssembly_Adds_AssemblyToModel_If_FilterUseAssembly_Returns_True()

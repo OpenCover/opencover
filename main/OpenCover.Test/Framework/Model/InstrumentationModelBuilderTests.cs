@@ -14,7 +14,7 @@ namespace OpenCover.Test.Framework.Model
 {
     [TestFixture]
     internal class InstrumentationModelBuilderTests :
-        UnityAutoMockContainerBase<IInstrumentationModelBuilder, InstrumentationModelBuilder>
+        AutofacAutoMockContainerBase<IInstrumentationModelBuilder, InstrumentationModelBuilder>
     {
         [Test]
         public void BuildModuleModel_Gets_ModulePath_From_SymbolReader()

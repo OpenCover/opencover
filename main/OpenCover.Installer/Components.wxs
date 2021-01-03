@@ -25,11 +25,17 @@
         <File Id="LOG4NET_DLL" Source="..\bin\Release\log4net.dll" KeyPath="yes" />
         <File Id="LOG4NET_CONFIG" Source="..\bin\Release\log4net.config" />
       </Component>
+      <Component Id="Microsoft_Bcl_AsyncInterfaces_3rdParty" Guid="{6DD4D099-C0D6-45D2-AD3B-3129F9035806}">
+        <File Id="MICROSOFT_BCL_ASYNCINTERFACES_DLL"
+              Source="..\bin\Release\Microsoft.Bcl.AsyncInterfaces.dll" KeyPath="yes" />
+      </Component>
       <Component Id="Microsoft_Extensions_Configuration_3rdParty" Guid="{DE9A95C9-B6B7-4B49-92E8-33D085979714}">
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.Configuration.dll" KeyPath="yes" />
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_ABSTRACTIONS_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.Configuration.Abstractions.dll" />
+        <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_BINDER_DLL" 
+              Source="..\bin\Release\Microsoft.Extensions.Configuration.Binder.dll" />
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_FILEEXTENSIONS_DLL" 
               Source="..\bin\Release\Microsoft.Extensions.Configuration.FileExtensions.dll" />
         <File Id="MICROSOFT_EXTENSIONS_CONFIGURATION_JSON_DLL" 
@@ -77,9 +83,45 @@
         <File Id="SENTRY_PLATFORMABSTRACTIONS_DLL" Source="..\bin\Release\Sentry.PlatformAbstractions.dll" />
         <File Id="SENTRY_PROTOCOL_DLL" Source="..\bin\Release\Sentry.Protocol.dll" />
       </Component>
+      <Component Id="System_Buffers_3rdParty" Guid="{C16727FB-9A8E-4970-9890-A9C198236913}">
+        <File Id="SYSTEM_BUFFERS_DLL" 
+              Source="..\bin\Release\System.Buffers.dll" KeyPath="yes" />
+      </Component>
       <Component Id="System_Collections_Immutable_3rdParty" Guid="{BDAE1270-7079-403F-A6B2-22A358FF8C70}">
         <File Id="SYSTEM_COLLECTIONS_IMMUTABLE_DLL" 
               Source="..\bin\Release\System.Collections.Immutable.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Diagnostics_DiagnosticSource_3rdParty" Guid="{164B3C6D-A31B-4FC6-8C48-28E7E70CF93D}">
+        <File Id="SYSTEM_DIAGNOSTICS_DIAGNOSTICSOURCE_DLL" 
+              Source="..\bin\Release\System.Diagnostics.DiagnosticSource.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Memory_3rdParty" Guid="{0F1BEE35-095A-4A8A-9801-FAF90E776AE5}">
+        <File Id="SYSTEM_MEMORY_DLL"
+              Source="..\bin\Release\System.Memory.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Numerics_Vectors_3rdParty" Guid="{8E3CA3FF-5DA6-46FC-81C8-E2A20CC30894}">
+        <File Id="SYSTEM_NUMERICS_VECTORS_DLL"
+              Source="..\bin\Release\System.Numerics.Vectors.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Runtime_CompilerServices_Unsafe_3rdParty" Guid="{716AD7AC-AB14-4BAB-B10E-CA7E5AB32D4C}">
+        <File Id="SYSTEM_RUNTIME_COMPILERSERVICES_UNSAFE_DLL"
+              Source="..\bin\Release\System.Runtime.CompilerServices.Unsafe.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Text_Encodings_Web_3rdParty" Guid="{FEB1E4B2-D6B8-437A-AFCF-C78E850E30E8}">
+        <File Id="SYSTEM_TEXT_ENCODINGS_WEB_DLL"
+              Source="..\bin\Release\System.Text.Encodings.Web.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Text_Json_3rdParty" Guid="{7B175765-2481-4B71-805B-CAA8AC2A2D82}">
+        <File Id="SYSTEM_TEXT_JSON_DLL"
+              Source="..\bin\Release\System.Text.Json.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_Threading_Tasks_Extensions_3rdParty" Guid="{C7F4E943-D204-4673-BFEF-AFBD533F70D4}">
+        <File Id="SYSTEM_THREADING_TASKS_EXTENSIONS_DLL" 
+              Source="..\bin\Release\System.Threading.Tasks.Extensions.dll" KeyPath="yes" />
+      </Component>
+      <Component Id="System_ValueTuple_3rdParty" Guid="{FD60FC59-B7B6-41E5-AA4E-1DD3782AF252}">
+        <File Id="SYSTEM_VALUETUPLE_DLL"
+              Source="..\bin\Release\System.ValueTuple.dll" KeyPath="yes" />
       </Component>
       <Component Id="SampleCmds" Guid="{4D7F8200-EC80-49A2-92FB-2083E8FC469D}">
         <File Id="SAMPLE_CMD" Source="Assets\Sample.cmd" Name="Sample.cmd" KeyPath="yes" />

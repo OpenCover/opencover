@@ -25,7 +25,9 @@
     <file src="main\bin\Release\Gendarme.Rules.Maintainability.dll" target="tools"/>
     <file src="main\bin\Release\log4net.config" target="tools"/>
     <file src="main\bin\Release\log4net.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Bcl.AsyncInterfaces.dll" target="tools"/>
     <file src="main\bin\Release\Microsoft.Extensions.Configuration.Abstractions.dll" target="tools"/>
+    <file src="main\bin\Release\Microsoft.Extensions.Configuration.Binder.dll" target="tools"/>
     <file src="main\bin\Release\Microsoft.Extensions.Configuration.dll" target="tools"/>
     <file src="main\bin\Release\Microsoft.Extensions.Configuration.FileExtensions.dll" target="tools"/>
     <file src="main\bin\Release\Microsoft.Extensions.Configuration.Json.dll" target="tools"/>
@@ -50,11 +52,20 @@
     <file src="main\bin\Release\Sentry.dll" target="tools"/>
     <file src="main\bin\Release\Sentry.PlatformAbstractions.dll" target="tools"/>
     <file src="main\bin\Release\Sentry.Protocol.dll" target="tools"/>
+    <file src="main\bin\Release\System.Buffers.dll" target="tools"/>
     <file src="main\bin\Release\System.Collections.Immutable.dll" target="tools"/>
+    <file src="main\bin\Release\System.Diagnostics.DiagnosticSource.dll" target="tools"/>
+    <file src="main\bin\Release\System.Memory.dll" target="tools"/>
+    <file src="main\bin\Release\System.Numerics.Vectors.dll" target="tools"/>
+    <file src="main\bin\Release\System.Runtime.CompilerServices.Unsafe.dll" target="tools"/>
+    <file src="main\bin\Release\System.Text.Encodings.Web.dll" target="tools"/>
+    <file src="main\bin\Release\System.Text.Json.dll" target="tools"/>
+    <file src="main\bin\Release\System.Threading.Tasks.Extensions.dll" target="tools"/>
+    <file src="main\bin\Release\System.ValueTuple.dll" target="tools"/>
     <file src="main\OpenCover.Documentation\Usage.rtf" target="docs"/>
     <file src="ReleaseNotes.txt" target="docs" />
-    <file src="main\bin\Release\OpenCover.MSBuild.dll" target="MSBuild"/>
-    <file src="main\bin\Release\OpenCover.targets" target="MSBuild"/>
+    <file src="main\bin\Release\OpenCover.MSBuild.dll" target="build"/>
+    <file src="main\bin\Release\OpenCover.targets" target="build"/>
     <file src="main\transform\simple_report.xslt" target="transform"/>
     <file src="main\transform\transform.ps1" target="transform"/>
     <file src="main\bin\Release\x86\OpenCover.Simple.Target.exe" target="Samples\x86"/>
