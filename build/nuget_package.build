@@ -41,20 +41,19 @@
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
       </filterchain>
     </copy>
-    <delete file="samples\SampleSln\nuget\packages.config" />
-    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\nuget\packages.config" >
-      <filterchain>
-        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-      </filterchain>
-    </copy>
     
     <delete file="samples\SampleSln.zip" />
     <exec program="${tools.folder}/7-Zip/7za.exe" if="${directory::exists('samples\SampleSln')}">
       <arg value="a" />
       <arg value="samples\SampleSln.zip" />
+      <arg value="samples\SampleSln\readme.txt"/>
       <arg value="samples\SampleSln\coverage.bat"/>
+      <arg value="samples\SampleSln\restore.bat"/>
       <arg value="samples\SampleSln\BomSample.sln"/>
-      <arg value="samples\SampleSln\nuget\packages.config"/>
+      <arg value="samples\SampleSln\.nuget\NuGet.exe"/>
+      <arg value="samples\SampleSln\.nuget\NuGet.Config"/>
+      <arg value="samples\SampleSln\.nuget\Nuget.targets"/>
+      <arg value="samples\SampleSln\.nuget\packages.config"/>
       <arg value="samples\SampleSln\packages\repositories.config"/>
       <arg value="samples\SampleSln\Bom\Bom.csproj"/>
       <arg value="samples\SampleSln\Bom\BomManager.cs"/>
