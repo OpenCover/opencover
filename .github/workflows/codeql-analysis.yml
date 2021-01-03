@@ -57,7 +57,7 @@ jobs:
         
     - name: Build OpenCover x64
       run: |
-        build.bat build-environment build-release-platforms-x64
+        build.bat codeql-build
       shell: cmd
 
     - name: Perform CodeQL Analysis
