@@ -139,9 +139,9 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
-            builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-excludebyattribute:<attributefilter>[;<attributefilter>][;<attributefilter>]]");
+            builder.AppendLine("    [-excludebyfile:<filefilter>[;<filefilter>][;<filefilter>]]");
+            builder.AppendLine("    [-coverbytest:<dllfilter>[;<dllfilter>][;<dllfilter>]]");
             builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
             var skips = string.Join("|", Enum.GetNames(typeof(SkippedMethod)).Where(x => x != "Unknown"));
             builder.AppendLine(string.Format("    [-hideskipped:{0}|All,[{0}|All]]", skips));
