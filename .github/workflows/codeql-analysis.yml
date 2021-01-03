@@ -59,7 +59,10 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    - run: build.bat build-release-platforms-x64
+    - name: Build OpenCover x64
+      run: |
+        build.bat build-release-platforms-x64
+      shell: cmd
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
