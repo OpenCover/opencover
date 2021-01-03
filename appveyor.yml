@@ -119,7 +119,7 @@ deploy:
   tag: $(appveyor_build_version)-rc
   release: OpenCover (Release Candidiate) $(appveyor_build_version)
   auth_token:
-    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
+    secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
   artifact: Installer, ZipArchive
   prerelease: true
   on:
@@ -128,7 +128,7 @@ deploy:
   tag: $(appveyor_build_version)
   release: OpenCover (Release) $(appveyor_build_version)
   auth_token:
-    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
+    secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
   artifact: Installer, ZipArchive
   on:
     branch: release
