@@ -21,7 +21,7 @@ namespace OpenCover.Test.Framework.Persistance
 
     [TestFixture]
     public class BasePersistenceTests :
-        UnityAutoMockContainerBase<IPersistance, BasePersistanceStub>
+        AutofacAutoMockContainerBase<IPersistance, BasePersistanceStub>
     {
         private static readonly SkippedMethod[] _skippedReasonsModules =
         {

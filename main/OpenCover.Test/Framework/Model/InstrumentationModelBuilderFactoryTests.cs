@@ -12,7 +12,7 @@ namespace OpenCover.Test.Framework.Model
 {
     [TestFixture]
     internal class InstrumentationModelBuilderFactoryTests
-        : UnityAutoMockContainerBase<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>
+        : AutofacAutoMockContainerBase<IInstrumentationModelBuilderFactory, InstrumentationModelBuilderFactory>
     {
         [Test]
         public void CreateModelBuilder_Creates_Model()
