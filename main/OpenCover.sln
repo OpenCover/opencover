@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{4337F24C
 	ProjectSection(SolutionItems) = preProject
 		..\build\environment.build = ..\build\environment.build
 		..\build\installer.build = ..\build\installer.build
+		..\build\nuget_package.build = ..\build\nuget_package.build
 		..\build\opencover.build = ..\build\opencover.build
 		..\build\version.build = ..\build\version.build
 	EndProjectSection

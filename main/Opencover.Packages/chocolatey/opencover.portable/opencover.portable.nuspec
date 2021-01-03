@@ -4,7 +4,7 @@
     <id>opencover.portable</id>
     <version>1.0.0</version>
     <title>OpenCover (Portable) - an open source code coverage tool for .NET</title>
-    <authors>shaun wilde</authors>
+    <authors>OpenCover, shaun wilde</authors>
     <owners>shaun wilde</owners>
     <licenseUrl>https://github.com/OpenCover/opencover/blob/master/LICENSE</licenseUrl>
     <iconUrl>https://github.com/opencover/opencover/raw/master/main/Icons/128.png</iconUrl>

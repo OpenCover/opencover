@@ -1,4 +1,4 @@
-$packageName = 'opencover'
+$packageName = 'opencover.install'
 $installerType = 'msi'
 $silentArgs= '/quiet'
 $url = 'https://github.com/OpenCover/opencover/releases/download/[[version]]/opencover.[[version]].msi'
