@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Autofac;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework.Communication;
@@ -13,14 +14,14 @@ namespace OpenCover.Test.Framework.Communication
 {
     [TestFixture]
     public class MessageHandlerTests :
-        UnityAutoMockContainerBase<IMessageHandler, MessageHandler>
+        AutofacAutoMockContainerBase<IMessageHandler, MessageHandler>
     {
         private Mock<IManagedCommunicationBlock> _mockCommunicationBlock;
         private GCHandle _pinned;
 
-        public override void OnSetup()
+        public override void OnSetup(ContainerBuilder cfg)
         {
-            base.OnSetup();
+            base.OnSetup(cfg);
 
             var data = new byte[0];
             _pinned = GCHandle.Alloc(data, GCHandleType.Pinned);

@@ -7,8 +7,8 @@ namespace OpenCover.Test.MoqFramework
     public class Stub : IStub { }
 
     [TestFixture]
-    public class UnityAutoMockContainerBaseTests
-         : UnityAutoMockContainerBase<IStub, Stub>
+    public class AutofacAutoMockContainerBaseTests
+         : AutofacAutoMockContainerBase<IStub, Stub>
     {
         [Test]
         public void Does_Instance_Return_Instantiated_Object()

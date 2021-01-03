@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Threading;
+using Autofac;
 using Moq;
 using NUnit.Framework;
 using OpenCover.Framework;
@@ -16,18 +17,20 @@ namespace OpenCover.Test.Framework.Manager
 {
     [TestFixture]
     public class ProfilerManagerTests :
-        UnityAutoMockContainerBase<IProfilerManager, ProfilerManager>
+        AutofacAutoMockContainerBase<IProfilerManager, ProfilerManager>
     {
         private IMemoryManager _manager;
         private string _key;
 
-        public override void OnSetup()
+        public override void OnSetup(ContainerBuilder cfg)
         {
+            base.OnSetup(cfg);
+
             _key = (new Random().Next()).ToString();
             _manager = new MemoryManager();
             _manager.Initialise("Local", _key, Enumerable.Empty<string>());
             _manager.AllocateMemoryBuffer(65536, out _);
-            Container.RegisterInstance(_manager);
+            cfg.RegisterInstance(_manager);
         }
 
         public override void OnTeardown()
