@@ -468,17 +468,15 @@ namespace OpenCover.Framework.Symbols
                 {
                     if (!instrumentedInstructions.Contains(instruction))
                     {
-                        var jump = instruction.Operand as Instruction;
-                        if (jump != null && !instrumentedInstructions.Contains(jump))
+                        if (instruction.Operand is Instruction jump && !instrumentedInstructions.Contains(jump))
                             continue;
 
-                        var jumps = instruction.Operand as Instruction[];
-                        if (jumps != null)
+                        if (instruction.Operand is Instruction[] jumps)
                         {
                             var contains = jumps.Any(jmp => instrumentedInstructions.Contains(jmp));
                             if (!contains)
                                 continue;
-                        }                       
+                        }
                     }
                       
                     var pathCounter = 0;
@@ -510,8 +508,7 @@ namespace OpenCover.Framework.Symbols
             // Add Conditional Branch (Path>=1)
             if (instruction.OpCode.Code == Code.Switch)
             {
-                var branchInstructions = instruction.Operand as Instruction[];
-                if (branchInstructions == null || branchInstructions.Length == 0)
+                if (!(instruction.Operand is Instruction[] branchInstructions) || branchInstructions.Length == 0)
                     return false;
 
                 ordinal = BuildPointsForConditionalBranch(list, instruction, branchInstructions, branchingInstructionLine,
@@ -520,9 +517,7 @@ namespace OpenCover.Framework.Symbols
             else 
             {
                 // Follow instruction at operand
-                var then = instruction.Operand as Instruction;
-
-                if (then == null)
+                if (!(instruction.Operand is Instruction then))
                     return false;
 
                 if (IgnoreConditionalBranchSequence(instruction, instructions, branchOffset))
@@ -632,8 +627,7 @@ namespace OpenCover.Framework.Symbols
                 offsetList.Add(point.Offset);
                 while (point.OpCode == OpCodes.Br || point.OpCode == OpCodes.Br_S)
                 {
-                    var nextPoint = point.Operand as Instruction;
-                    if (nextPoint != null)
+                    if (point.Operand is Instruction nextPoint)
                     {
                         point = nextPoint;
                         offsetList.Add(point.Offset);
