@@ -570,14 +570,11 @@ namespace OpenCover.Framework.Symbols
                 {
                     // this is a final check on the field name
                     var inst = instruction.Previous?.Previous;
-                    if (inst != null)
+                    if (inst?.OpCode.Code == Code.Ldsfld)
                     {
-                        if (inst.OpCode.Code == Code.Ldsfld)
-                        {
-                            var definition = inst.Operand as FieldDefinition;
-                            var name = definition.Name;
-                            return CachedAnonymousDelegateFieldName.Match(name).Success;
-                        }
+                        var definition = inst.Operand as FieldReference;
+                        var name = definition.Name;
+                        return CachedAnonymousDelegateFieldName.Match(name).Success;
                     }
                 }
             }
