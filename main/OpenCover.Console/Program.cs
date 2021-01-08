@@ -149,9 +149,20 @@ namespace OpenCover.Console
         {
             const string processName = "svchost.exe";
             var wmiQuery = $"select CommandLine, ProcessId from Win32_Process where Name='{processName}'";
-            var searcher = new ManagementObjectSearcher(wmiQuery);
-            var retObjectCollection = searcher.Get();
-            foreach (var retObject in retObjectCollection)
+            bool found = false;
+            using (var searcher = new ManagementObjectSearcher(wmiQuery))
+            using (var objectCollection = searcher.Get())
+            {
+                StopIISsvcs(objectCollection);
+                found = StartIISsvcs(found, objectCollection);
+            }
+            // Return the found state
+            return found;
+        }
+
+        private static void StopIISsvcs(ManagementObjectCollection objectCollection)
+        {
+            foreach (var retObject in objectCollection)
             {
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
@@ -171,7 +182,10 @@ namespace OpenCover.Console
                     }
                 }
             }
+        }
 
+        private static bool StartIISsvcs(bool found, ManagementObjectCollection objectCollection)
+        {
             // Wait three seconds for the svchost to start
             // TODO, make this configurable
             var secondstowait = 3;
@@ -179,11 +193,9 @@ namespace OpenCover.Console
             // Wait for successfull restart of the svchost
             Stopwatch s = new Stopwatch();
             s.Start();
-            bool found = false;
             while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
-                retObjectCollection = searcher.Get();
-                foreach (var retObject in retObjectCollection)
+                foreach (var retObject in objectCollection)
                 {
                     var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
                     if (cmdLine.EndsWith("-k iissvcs"))
@@ -198,11 +210,8 @@ namespace OpenCover.Console
                     break;
             }
             s.Stop();
-
-            // Return the found state
             return found;
         }
-        
 
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
