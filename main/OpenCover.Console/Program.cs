@@ -83,6 +83,13 @@ namespace OpenCover.Console
                 }
             }
 
+#if DEBUG
+            if (Debugger.IsAttached)
+            {
+                System.Console.ReadLine();
+            }
+#endif
+
             return returnCode;
         }
 
