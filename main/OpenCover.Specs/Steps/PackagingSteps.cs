@@ -144,7 +144,7 @@ namespace OpenCover.Specs.Steps
             WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(binFolder, string.Empty);
         }
 
-        [When(@"I execute the deployed OpenCover against the (x\d\d) target application in subfolder (.*)")]
+        [When(@"I execute the deployed OpenCover against the (x\d\d) target application, using the (.*) subfolder")]
         public void WhenIExecuteTheDeployedOpenCoverAgainstTheXTargetApplicationInSubfolder(string binFolder, string subfolder)
         {
             var folder = (string)_scenarioContext["targetFolder"];
@@ -157,7 +157,7 @@ namespace OpenCover.Specs.Steps
                 File.Delete(outputXml);
 
             var openCover = Path.Combine(folder, subfolder, "OpenCover.Console.exe");
-            var target = Path.Combine(folder, string.Format(@"Samples\{0}\OpenCover.Simple.Target.exe", binFolder));
+            var target = Path.Combine(folder, subfolder, string.Format(@"Samples\{0}\OpenCover.Simple.Target.exe", binFolder));
             var startInfo = new ProcessStartInfo(openCover)
             {
                 Arguments = string.Format(@"-register:user ""-target:{0}"" ""-output:{1}""", target, outputXml),

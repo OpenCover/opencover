@@ -150,7 +150,13 @@
     </exec>
         
   </target>
-    
+  
+  <target name="test-bdd-release" >
+    <property name="configuration" value="release" />
+    <property name="platform" value="x64" />
+    <call target="test-bdd" />
+  </target>
+  
   <target name="test-cpp" depends="test-cpp-internal" />
     
   <target name="test-cpp-internal" description="Run C++ tests" >

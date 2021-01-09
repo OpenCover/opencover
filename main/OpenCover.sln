@@ -109,11 +109,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.2.Embedded", "OpenCover.Simple.Target.Core.2.2.Embedded\OpenCover.Simple.Target.Core.2.2.Embedded.csproj", "{3E9D9683-FFBA-407C-898F-8CB5B80ACF29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.3.1", "OpenCover.Simple.Target.Core.3.1\OpenCover.Simple.Target.Core.3.1.csproj", "{430012FA-1A96-4D46-9211-38163ECB3E69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.3.1", "OpenCover.Simple.Target.Core.3.1\OpenCover.Simple.Target.Core.3.1.csproj", "{430012FA-1A96-4D46-9211-38163ECB3E69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.3.1.Embedded", "OpenCover.Simple.Target.Core.3.1.Embedded\OpenCover.Simple.Target.Core.3.1.Embedded.csproj", "{9E4C874B-E0D6-401A-9758-221F5553A5D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.3.1.Embedded", "OpenCover.Simple.Target.Core.3.1.Embedded\OpenCover.Simple.Target.Core.3.1.Embedded.csproj", "{9E4C874B-E0D6-401A-9758-221F5553A5D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.3.1.Portable", "OpenCover.Simple.Target.Core.3.1.Portable\OpenCover.Simple.Target.Core.3.1.Portable.csproj", "{B8393633-E01A-452E-8848-464C27DC4C07}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.3.1.Portable", "OpenCover.Simple.Target.Core.3.1.Portable\OpenCover.Simple.Target.Core.3.1.Portable.csproj", "{B8393633-E01A-452E-8848-464C27DC4C07}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.5.0", "OpenCover.Simple.Target.Core.5.0\OpenCover.Simple.Target.Core.5.0.csproj", "{5331BFDB-B1D6-48D4-9D6F-08F593650474}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.5.0.Portable", "OpenCover.Simple.Target.Core.5.0.Portable\OpenCover.Simple.Target.Core.5.0.Portable.csproj", "{658DBB03-563F-4399-AAF3-7243BA1393D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.5.0.Embedded", "OpenCover.Simple.Target.Core.5.0.Embedded\OpenCover.Simple.Target.Core.5.0.Embedded.csproj", "{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -280,6 +286,30 @@ Global
 		{B8393633-E01A-452E-8848-464C27DC4C07}.Release|x64.Build.0 = Release|Any CPU
 		{B8393633-E01A-452E-8848-464C27DC4C07}.Release|x86.ActiveCfg = Release|Any CPU
 		{B8393633-E01A-452E-8848-464C27DC4C07}.Release|x86.Build.0 = Release|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Debug|x64.Build.0 = Debug|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Debug|x86.Build.0 = Debug|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Release|x64.ActiveCfg = Release|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Release|x64.Build.0 = Release|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Release|x86.ActiveCfg = Release|Any CPU
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474}.Release|x86.Build.0 = Release|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Debug|x64.Build.0 = Debug|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Debug|x86.Build.0 = Debug|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Release|x64.ActiveCfg = Release|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Release|x64.Build.0 = Release|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Release|x86.ActiveCfg = Release|Any CPU
+		{658DBB03-563F-4399-AAF3-7243BA1393D1}.Release|x86.Build.0 = Release|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Debug|x64.Build.0 = Debug|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Debug|x86.Build.0 = Debug|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x64.ActiveCfg = Release|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x64.Build.0 = Release|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x86.ActiveCfg = Release|Any CPU
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -307,6 +337,9 @@ Global
 		{430012FA-1A96-4D46-9211-38163ECB3E69} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{9E4C874B-E0D6-401A-9758-221F5553A5D4} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{B8393633-E01A-452E-8848-464C27DC4C07} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
+		{5331BFDB-B1D6-48D4-9D6F-08F593650474} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
+		{658DBB03-563F-4399-AAF3-7243BA1393D1} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
+		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}

@@ -1,7 +1,6 @@
 Feature: Packaging
 	In order to avoid deployment issues
-	As a software packager
-	I want to be sure that opencover runs after installation
+	I want to be sure that opencover runs after package installation
 
 @ziptag
 Scenario: Run OpenCover after installing from zip file
@@ -15,8 +14,8 @@ Scenario: Run OpenCover after installing from zip file
 Scenario: Run OpenCover after installing from a nuget package
 	Given I have a valid nugetpackage in the output folder
 	And I unpack that package into a deployment folder
-	When I execute the deployed OpenCover against the x86 target application in subfolder tools
-	And I execute the deployed OpenCover against the x64 target application in subfolder tools
+	When I execute the deployed OpenCover against the x86 target application, using the tools subfolder
+	And I execute the deployed OpenCover against the x64 target application, using the tools subfolder
 	Then the coverage results should be the same
 
 @msitag
