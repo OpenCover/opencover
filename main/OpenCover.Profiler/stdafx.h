@@ -44,3 +44,4 @@
 #endif
 
 #include "ReleaseTrace.h"
+#include <inttypes.h>
