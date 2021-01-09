@@ -56,6 +56,8 @@
 // when it's fused.
 #include <gtest/gtest.h>
 
+#include <inttypes.h>
+
 /*
 #define _TEST_METHOD_EX_EXPANDER(_testMethod)\
 _testMethod { try

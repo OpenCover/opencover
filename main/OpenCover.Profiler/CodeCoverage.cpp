@@ -330,7 +330,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         if (m_allowModules[modulePath])
         {
-            RELTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
+            RELTRACE(_T("::JITCompilationStarted(%" PRIxPTR ", ...) => %d, %" PRIxPTR " => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
 
             std::vector<SequencePoint> seqPoints;
             std::vector<BranchPoint> brPoints;
