@@ -4,7 +4,7 @@
     <id>OpenCover</id>
     <version>1.0.0.0</version>
     <title>OpenCover - an open source code coverage tool for .NET</title>
-    <authors>shaun wilde</authors>
+    <authors>shaun wilde, OpenCover</authors>
     <owners>shaun wilde</owners>
     <license type="expression">MIT</license>
     <iconUrl>https://github.com/opencover/opencover/raw/master/main/Icons/128.png</iconUrl>
@@ -66,12 +66,12 @@
     <file src="ReleaseNotes.txt" target="docs" />
     <file src="main\bin\Release\OpenCover.MSBuild.dll" target="build"/>
     <file src="main\bin\Release\OpenCover.targets" target="build"/>
-    <file src="main\transform\simple_report.xslt" target="transform"/>
-    <file src="main\transform\transform.ps1" target="transform"/>
-    <file src="main\bin\Release\x86\OpenCover.Simple.Target.exe" target="Samples\x86"/>
-    <file src="main\bin\Release\x86\OpenCover.Simple.Target.pdb" target="Samples\x86"/>
-    <file src="main\bin\Release\x64\OpenCover.Simple.Target.exe" target="Samples\x64"/>
-    <file src="main\bin\Release\x64\OpenCover.Simple.Target.pdb" target="Samples\x64"/>
+    <file src="main\transform\simple_report.xslt" target="tools\transform"/>
+    <file src="main\transform\transform.ps1" target="tools\transform"/>
+    <file src="main\bin\Release\x86\OpenCover.Simple.Target.exe" target="tools\Samples\x86"/>
+    <file src="main\bin\Release\x86\OpenCover.Simple.Target.pdb" target="tools\Samples\x86"/>
+    <file src="main\bin\Release\x64\OpenCover.Simple.Target.exe" target="tools\Samples\x64"/>
+    <file src="main\bin\Release\x64\OpenCover.Simple.Target.pdb" target="tools\Samples\x64"/>
     
     <!-- a sample solution using opencover, nunit and reportgenerator -->
     <file src="samples\SampleSln.zip" target="tools\SampleSln"/>
