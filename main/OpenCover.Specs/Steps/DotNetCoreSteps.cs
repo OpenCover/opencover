@@ -33,10 +33,15 @@ namespace OpenCover.Specs.Steps
         [Given(@"I can find the target \.net core '(.*)' application '(.*)'")]
         public void GivenICanFindTheTarget_NetCoreApplication(string version, string application)
         {
+            var assemblyLocation = Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location);
 #if DEBUG
-            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp{version}"));
+            var targetPath = Path.GetFullPath(Path.Combine(assemblyLocation ?? ".", $@"..\..\..\{application}\bin\Debug\netcoreapp{version}"));
+            if (!Directory.Exists(targetPath))
+                targetPath = Path.GetFullPath(Path.Combine(assemblyLocation ?? ".", $@"..\..\..\{application}\bin\Debug\net{version}"));
 #else
-            var targetPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(typeof(DotNetCoreSteps).Assembly.Location) ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp{version}"));
+            var targetPath = Path.GetFullPath(Path.Combine(assemblyLocation ?? ".", $@"..\..\..\{application}\bin\Release\netcoreapp{version}"));
+            if (!Directory.Exists(targetPath))
+                targetPath = Path.GetFullPath(Path.Combine(assemblyLocation ?? ".", $@"..\..\..\{application}\bin\Release\net{version}"));
 #endif
             var targetApp = Directory.EnumerateFiles(targetPath, $"{application}.dll", SearchOption.AllDirectories).FirstOrDefault();
 
