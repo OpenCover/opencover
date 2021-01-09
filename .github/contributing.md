@@ -6,7 +6,7 @@ OpenCover is open to all and we encourage the community to contribute in the pro
 
 OpenCover isn't perfect and it will have issues we do our best to stay on top of them but we occasionaly take a break from development to do other things. 
 
-If you are raising an issue please check that you are using the latest version from either our [releases](https://github.com/OpenCover/opencover/releases) or [nuget](https://www.nuget.org/packages/OpenCover/). If the issue persists then please try to supply as much detail as you can and ifpossible supply a sample that we can use to repeat the issue described.  
+If you are raising an issue please check that you are using the latest version from either our [releases](https://github.com/OpenCover/opencover/releases) or [nuget](https://www.nuget.org/packages/OpenCover/). If the issue persists then please try to supply as much detail as you can and if possible supply a sample that we can use to repeat the issue described.  
 
 If you are requesting a feature, please supply why it is useful and what the benefits are. OpenCover was developed to meet a need to have a code coverage tool and so if we haven't yet implemented something we need to be sold on the idea.
 
