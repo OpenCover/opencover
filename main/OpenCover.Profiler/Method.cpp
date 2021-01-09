@@ -126,7 +126,7 @@ namespace Instrumentation
 		if (m_exceptions.size() > 0)
 		{
 			Align<DWORD>();
-			IMAGE_COR_ILMETHOD_SECT_FAT section;
+			IMAGE_COR_ILMETHOD_SECT_FAT section{};
 			section.Kind = CorILMethod_Sect_FatFormat;
 			section.Kind |= CorILMethod_Sect_EHTable;
 			section.DataSize = (m_exceptions.size() * 24) + 4;
@@ -284,7 +284,7 @@ namespace Instrumentation
 	{
 		if ((m_header.Flags & CorILMethod_MoreSects) == CorILMethod_MoreSects)
 		{
-			BYTE flags;
+			BYTE flags = 0;
 			do
 			{
 				Align<DWORD>(); // must be DWORD aligned
@@ -438,22 +438,22 @@ namespace Instrumentation
 			}
 			else if (details.operandSize == Byte)
 			{
-				RELTRACE(_T("(IL_%04X) IL_%04X %s %02X"),
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %02" PRIxPTR),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 			}
 			else if (details.operandSize == Word)
 			{
-				RELTRACE(_T("(IL_%04X) IL_%04X %s %04X"),
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %04" PRIxPTR),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 			}
 			else if (details.operandSize == Dword)
 			{
-				RELTRACE(_T("(IL_%04X) IL_%04X %s %08X"),
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %08" PRIxPTR),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 			}
 			else
 			{
-				RELTRACE(_T("(IL_%04X) IL_%04X %s %X"),
+				RELTRACE(_T("(IL_%04X) IL_%04X %s %" PRIxPTR),
 					(*it)->m_origOffset, (*it)->m_offset, details.stringName, (*it)->m_operand);
 			}
 			
