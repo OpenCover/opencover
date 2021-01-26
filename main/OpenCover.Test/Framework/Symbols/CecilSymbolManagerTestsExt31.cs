@@ -7,10 +7,12 @@ using OpenCover.Framework.Symbols;
 using log4net;
 using System.Linq;
 using File = OpenCover.Framework.Model.File;
+using System;
 
 namespace OpenCover.Test.Framework.Symbols
 {
     [TestFixture]
+    [Explicit("Investigate")]
     public class CecilSymbolManagerTestsExt31
     {
         private CecilSymbolManager _reader;
