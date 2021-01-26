@@ -7,6 +7,7 @@ using OpenCover.Framework.Symbols;
 using log4net;
 using System.Linq;
 using File = OpenCover.Framework.Model.File;
+using System;
 
 namespace OpenCover.Test.Framework.Symbols
 {
@@ -46,6 +47,10 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
+            foreach(var t in types)
+            {
+                Console.WriteLine($"{t.FullName}");
+            }
             var type = types.First(x => x.FullName.EndsWith("SwitchExpression"));
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
