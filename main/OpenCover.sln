@@ -50,6 +50,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCo
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover.Test\OpenCover.Test.csproj", "{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511} = {A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6} = {AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -121,7 +125,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.5.0.Embedded", "OpenCover.Simple.Target.Core.5.0.Embedded\OpenCover.Simple.Target.Core.5.0.Embedded.csproj", "{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test.Samples.3.1", "OpenCover.Test.Samples.3.1\OpenCover.Test.Samples.3.1.csproj", "{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Test.Samples.3.1", "OpenCover.Test.Samples.3.1\OpenCover.Test.Samples.3.1.csproj", "{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OpenCover.Test.Samples.Fs.3.1", "OpenCover.Test.Samples.Fs.3.1\OpenCover.Test.Samples.Fs.3.1.fsproj", "{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -320,6 +326,14 @@ Global
 		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x64.Build.0 = Release|Any CPU
 		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x86.ActiveCfg = Release|Any CPU
 		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x86.Build.0 = Release|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Debug|x64.Build.0 = Debug|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Debug|x86.Build.0 = Debug|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Release|x64.ActiveCfg = Release|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Release|x64.Build.0 = Release|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Release|x86.ActiveCfg = Release|Any CPU
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -351,9 +365,10 @@ Global
 		{658DBB03-563F-4399-AAF3-7243BA1393D1} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
+		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
 	EndGlobalSection
 EndGlobal
