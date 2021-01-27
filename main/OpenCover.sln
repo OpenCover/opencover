@@ -117,9 +117,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.5.0", "OpenCover.Simple.Target.Core.5.0\OpenCover.Simple.Target.Core.5.0.csproj", "{5331BFDB-B1D6-48D4-9D6F-08F593650474}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.5.0.Portable", "OpenCover.Simple.Target.Core.5.0.Portable\OpenCover.Simple.Target.Core.5.0.Portable.csproj", "{658DBB03-563F-4399-AAF3-7243BA1393D1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.5.0.Portable", "OpenCover.Simple.Target.Core.5.0.Portable\OpenCover.Simple.Target.Core.5.0.Portable.csproj", "{658DBB03-563F-4399-AAF3-7243BA1393D1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Simple.Target.Core.5.0.Embedded", "OpenCover.Simple.Target.Core.5.0.Embedded\OpenCover.Simple.Target.Core.5.0.Embedded.csproj", "{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.5.0.Embedded", "OpenCover.Simple.Target.Core.5.0.Embedded\OpenCover.Simple.Target.Core.5.0.Embedded.csproj", "{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test.Samples.3.1", "OpenCover.Test.Samples.3.1\OpenCover.Test.Samples.3.1.csproj", "{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -310,6 +312,14 @@ Global
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x64.Build.0 = Release|Any CPU
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x86.ActiveCfg = Release|Any CPU
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2}.Release|x86.Build.0 = Release|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Debug|x64.Build.0 = Debug|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Debug|x86.Build.0 = Debug|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x64.ActiveCfg = Release|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x64.Build.0 = Release|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x86.ActiveCfg = Release|Any CPU
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -340,9 +350,10 @@ Global
 		{5331BFDB-B1D6-48D4-9D6F-08F593650474} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{658DBB03-563F-4399-AAF3-7243BA1393D1} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 	EndGlobalSection
 EndGlobal

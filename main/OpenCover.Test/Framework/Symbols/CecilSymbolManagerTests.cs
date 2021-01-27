@@ -43,7 +43,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             _mockSymbolFileHelper
                 .Setup(x => x.GetSymbolFileLocations(It.IsAny<string>(), _mockCommandLine.Object))
-                .Returns(new [] { Path.Combine(assemblyPath, "OpenCover.Test.pdb") });
+                .Returns(new[] { Path.Combine(assemblyPath, "OpenCover.Test.pdb") });
 
             _reader = new CecilSymbolManager(_mockCommandLine.Object, _mockFilter.Object, _mockLogger.Object, null, _mockSymbolFileHelper.Object);
             _reader.Initialise(_location, "OpenCover.Test");
@@ -194,7 +194,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.First(x => x.FullName == typeof (DeclaredConstructorClass).FullName);
+            var type = types.First(x => x.FullName == typeof(DeclaredConstructorClass).FullName);
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // act
@@ -248,7 +248,7 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(32, points[0].StartLine);
             Assert.AreEqual(32, points[1].StartLine);
-        }        
+        }
 
         [Test]
         public void GetBranchPointsForMethodToken_Switch()
@@ -269,9 +269,9 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.IsNotNull(points);
             Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
-            Assert.AreEqual(points[0].Offset, points[2].Offset);            
+            Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
-            
+
             Assert.AreEqual(44, points[0].StartLine);
             Assert.AreEqual(44, points[1].StartLine);
             Assert.AreEqual(44, points[2].StartLine);
@@ -299,7 +299,7 @@ namespace OpenCover.Test.Framework.Symbols
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(3, points[3].Path);
-            
+
             Assert.AreEqual(58, points[0].StartLine);
             Assert.AreEqual(58, points[1].StartLine);
             Assert.AreEqual(58, points[2].StartLine);
@@ -351,7 +351,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             // assert
             Assert.IsNotNull(points);
-            Assert.AreEqual(4, points.Length); 
+            Assert.AreEqual(4, points.Length);
             Assert.AreEqual(points[0].Offset, points[1].Offset);
             Assert.AreEqual(points[0].Offset, points[2].Offset);
             Assert.AreEqual(points[0].Offset, points[3].Offset);
@@ -419,7 +419,7 @@ namespace OpenCover.Test.Framework.Symbols
             var val = _reader.SourceAssembly;
 
             // assert
-            Assert.IsNull(val);    
+            Assert.IsNull(val);
         }
 
         [Test]
@@ -469,7 +469,7 @@ namespace OpenCover.Test.Framework.Symbols
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
             // assert
-            Assert.AreEqual(0, methods.Count(x=>x.IsGetter));
+            Assert.AreEqual(0, methods.Count(x => x.IsGetter));
         }
 
         [Test]
@@ -537,7 +537,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Setup(x => x.InstrumentClass(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(true);
 
-            var token = typeof (Concrete).MetadataToken;
+            var token = typeof(Concrete).MetadataToken;
             _mockFilter
                 .Setup(x => x.ExcludeByAttribute(It.Is<IMemberDefinition>(y => y.MetadataToken.ToInt32() == token)))
                 .Returns(true);
@@ -619,7 +619,7 @@ namespace OpenCover.Test.Framework.Symbols
 
             var types = _reader.GetInstrumentableTypes();
             var target = types.First(x => x.FullName == typeof(Concrete).FullName);
-            var methods = _reader.GetMethodsForType(target, new File[0] );
+            var methods = _reader.GetMethodsForType(target, new File[0]);
 
             Assert.True(methods.Any());
             Assert.True(methods.First(y => y.FullName.EndsWith("::Method()")).SkippedDueTo == SkippedMethod.Attribute);
@@ -794,7 +794,7 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var nested = typeof (Iterator).GetNestedTypes(BindingFlags.NonPublic).First();
+            var nested = typeof(Iterator).GetNestedTypes(BindingFlags.NonPublic).First();
             var type = types.First(x => x.FullName.EndsWith(nested.Name));
             var methods = _reader.GetMethodsForType(type, new File[0]);
             var method = methods.First(x => x.FullName.EndsWith("::MoveNext()"));

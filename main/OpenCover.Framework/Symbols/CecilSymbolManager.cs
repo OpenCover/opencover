@@ -187,6 +187,7 @@ namespace OpenCover.Framework.Symbols
             if (!methodDefinition.HasBody || !methodDefinition.DebugInformation.HasSequencePoints) yield break;
             if (methodDefinition.SafeGetMethodBody() == null) yield break;
 
+            var list = new List<Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>>();
             using (var iter = methodDefinition.Body.Instructions.OrderBy(x => x.Offset).GetEnumerator())
             foreach (var sequencePoint in methodDefinition.DebugInformation.SequencePoints.OrderBy(x => x.Offset))
             {
@@ -194,11 +195,56 @@ namespace OpenCover.Framework.Symbols
                 {
                     if (iter.Current.Offset == sequencePoint.Offset)
                     {
-                        yield return new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint);
+                        list.Add(new Tuple<Instruction, Mono.Cecil.Cil.SequencePoint>(iter.Current, sequencePoint));
                         break;
                     }
                 }
             }
+
+            foreach(var item in list)
+            {
+                if (!IgnoreSequencePointAtOffset(methodDefinition.Body.Instructions, item.Item1.Offset))
+                    yield return item;
+            }
+        }
+
+        private static bool IgnoreSequencePointAtOffset(ICollection<Instruction> instructions, int offset)
+        {
+            foreach (var instruction in instructions)
+            {
+                if (IsEmptyBranch(instruction))
+                {
+                    var dest = (Instruction)instruction.Operand;
+                    var next = instruction.Next;
+                    while (next.Offset < dest.Offset)
+                    {
+                        if (offset == next.Offset)
+                            return true;
+                        next = next.Next;
+                    }
+                }
+            }
+            return false;
+        } 
+
+        private static bool IsEmptyBranch(Instruction instruction)
+        {
+            if (instruction.OpCode.FlowControl == FlowControl.Cond_Branch)
+            {
+                if (instruction.OpCode.Code == Code.Brtrue_S)
+                {
+                    var dest = (Instruction)instruction.Operand;
+                    var next = instruction.Next;
+                    while (next.Offset < dest.Offset)
+                    {
+                        if (next.OpCode.Code != Code.Nop)
+                            return false;
+                        next = next.Next;
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static Class BuildClass(IFilter filter, string assemblyName, TypeDefinition typeDefinition)
@@ -522,6 +568,9 @@ namespace OpenCover.Framework.Symbols
 
                 if (IgnoreConditionalBranchSequence(instruction, instructions, branchOffset))
                     return false;
+
+                if (IsEmptyBranch(instruction))
+                    return true;
 
                 ordinal = BuildPointsForConditionalBranch(list, instruction, new[] { then }, branchingInstructionLine,
                     document, branchOffset, ordinal, ref pathCounter);
