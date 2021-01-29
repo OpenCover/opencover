@@ -655,8 +655,8 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             _mockFilter
-                .Setup(x => x.IsAutoImplementedProperty(It.IsAny<MethodDefinition>()))
-                .Returns<MethodDefinition>(filter.IsAutoImplementedProperty);
+                .Setup(x => x.IsAutoImplementedProperty(It.IsAny<MethodDefinition>(), It.IsAny<TypeDefinition>()))
+                .Returns<MethodDefinition, TypeDefinition>(filter.IsAutoImplementedProperty);
 
             _mockCommandLine.Setup(x => x.SkipAutoImplementedProperties).Returns(true);
 

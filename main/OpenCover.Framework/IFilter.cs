@@ -92,8 +92,9 @@ namespace OpenCover.Framework
         /// Is the method an auto-implemented property get/set
         /// </summary>
         /// <param name="method"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        bool IsAutoImplementedProperty(MethodDefinition method);
+        bool IsAutoImplementedProperty(MethodDefinition method, TypeDefinition type);
 
         /// <summary>
         /// Is the method an F# implementation detail

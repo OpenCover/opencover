@@ -11,6 +11,7 @@ Version [[version]]
 #914, #725 additional messaging around no coverage (prj-mgmt)
 #993 fix issue with FieldReference handling preventing assembly from loading (bug)
 #960 ignore empty branches created by unoptimised code (feature)
+#809 ignore fsharp auto properties
 
 Version 4.7.922
 #855 change crash reporting framework to Sentry (feature/prj-mgmt)

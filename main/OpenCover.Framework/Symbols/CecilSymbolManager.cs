@@ -324,7 +324,7 @@ namespace OpenCover.Framework.Symbols
                 if (methodDefinition.IsAbstract || methodDefinition.IsGetter || methodDefinition.IsSetter) 
                     continue;
 
-                var method = BuildMethod(files, filter, methodDefinition, false, commandLine);
+                var method = BuildMethod(files, filter, methodDefinition, false, commandLine, typeDefinition);
                 methods.Add(method);
             }
         }
@@ -337,19 +337,19 @@ namespace OpenCover.Framework.Symbols
                 
                 if (propertyDefinition.GetMethod != null && !propertyDefinition.GetMethod.IsAbstract)
                 {
-                    var method = BuildMethod(files, filter, propertyDefinition.GetMethod, skipped, commandLine);
+                    var method = BuildMethod(files, filter, propertyDefinition.GetMethod, skipped, commandLine, typeDefinition);
                     methods.Add(method);
                 }
 
                 if (propertyDefinition.SetMethod != null && !propertyDefinition.SetMethod.IsAbstract)
                 {
-                    var method = BuildMethod(files, filter, propertyDefinition.SetMethod, skipped, commandLine);
+                    var method = BuildMethod(files, filter, propertyDefinition.SetMethod, skipped, commandLine, typeDefinition);
                     methods.Add(method);
                 }
             }
         }
 
-        private static Method BuildMethod(IEnumerable<File> files, IFilter filter, MethodDefinition methodDefinition, bool alreadySkippedDueToAttr, ICommandLine commandLine)
+        private static Method BuildMethod(IEnumerable<File> files, IFilter filter, MethodDefinition methodDefinition, bool alreadySkippedDueToAttr, ICommandLine commandLine, TypeDefinition typeDefinition)
         {
             var method = new Method
             {
@@ -371,7 +371,7 @@ namespace OpenCover.Framework.Symbols
                 method.MarkAsSkipped(SkippedMethod.Attribute);
             else if (filter.ExcludeByFile(GetFirstFile(methodDefinition)))
                 method.MarkAsSkipped(SkippedMethod.File);
-            else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition))
+            else if (commandLine.SkipAutoImplementedProperties && filter.IsAutoImplementedProperty(methodDefinition, typeDefinition))
                 method.MarkAsSkipped(SkippedMethod.AutoImplementedProperty);
             else if (filter.IsFSharpInternal(methodDefinition))
                 method.MarkAsSkipped(SkippedMethod.FSharpInternal);
