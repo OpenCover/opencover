@@ -47,14 +47,15 @@ namespace OpenCover.Test.Framework.Symbols
                 .Returns(true);
 
             var types = _reader.GetInstrumentableTypes();
-            var type = types.First(x => x.FullName.EndsWith("Program"));
+            var type = types.First(x => x.FullName.EndsWith("Issue807"));
             var methods = _reader.GetMethodsForType(type, new File[0]);
 
-            var branchPoints = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::main")).MetadataToken);
+            var branchPoints = _reader.GetBranchPointsForToken(methods.First(x => x.FullName.Contains("::example")).MetadataToken);
+            var sequencePoints = _reader.GetSequencePointsForToken(methods.First(x => x.FullName.Contains("::example")).MetadataToken);
+
             Assert.AreEqual(0, branchPoints.Count());
 
-            var sequencePoints = _reader.GetSequencePointsForToken(methods.First(x => x.FullName.Contains("::main")).MetadataToken);
-            Assert.AreEqual(3, sequencePoints.Count());
+            Assert.AreEqual(2, sequencePoints.Count());
         }
     }
 }

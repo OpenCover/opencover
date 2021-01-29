@@ -22,7 +22,6 @@
   
   <ItemGroup>
     <Compile Include="Library.fs" />
-    <Compile Include="Program.fs" />
   </ItemGroup>
 
 </Project>

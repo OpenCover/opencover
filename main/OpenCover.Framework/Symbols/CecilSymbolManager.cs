@@ -212,7 +212,7 @@ namespace OpenCover.Framework.Symbols
         {
             foreach (var instruction in instructions)
             {
-                if (IsEmptyBranch(instruction))
+                if (IsEmptyConditionalBranch(instruction))
                 {
                     var dest = (Instruction)instruction.Operand;
                     var next = instruction.Next;
@@ -227,17 +227,21 @@ namespace OpenCover.Framework.Symbols
             return false;
         } 
 
-        private static bool IsEmptyBranch(Instruction instruction)
+        private static bool IsEmptyConditionalBranch(Instruction instruction)
         {
+            // an "empty" condtional branch is one that has a `next` path that only contains a limited set of instructions 
+            // - they are usually short paths with just one of the following instructions
+            var emptyInstructions = new Code[]{ Code.Nop, Code.Br_S };
+
             if (instruction.OpCode.FlowControl == FlowControl.Cond_Branch)
             {
-                if (instruction.OpCode.Code == Code.Brtrue_S)
+                if (instruction.OpCode.Code == Code.Brtrue_S || instruction.OpCode.Code == Code.Brfalse_S)
                 {
                     var dest = (Instruction)instruction.Operand;
                     var next = instruction.Next;
                     while (next.Offset < dest.Offset)
                     {
-                        if (next.OpCode.Code != Code.Nop)
+                        if (!emptyInstructions.Contains(next.OpCode.Code))
                             return false;
                         next = next.Next;
                     }
@@ -506,7 +510,8 @@ namespace OpenCover.Framework.Symbols
                     return;
                 var instructions = safeMethodBody.Instructions;
 
-                var instrumentedInstructions = GetInstrumentedBlocks(methodDefinition)
+                var instrumentedBlocks = GetInstrumentedBlocks(methodDefinition);
+                var instrumentedInstructions = instrumentedBlocks
                     .SelectMany(block => block.Select(instruction => instruction))
                     .ToList();
 
@@ -524,12 +529,14 @@ namespace OpenCover.Framework.Symbols
                                 continue;
                         }
                     }
-                      
+
                     var pathCounter = 0;
 
                     // store branch origin offset
                     var branchOffset = instruction.Offset;
-                    var closestSeqPt = FindClosestInstructionWithSequencePoint(methodDefinition.Body, instruction).Maybe(i => methodDefinition.DebugInformation.GetSequencePoint(i));
+                    var closestSeqPt = FindClosestInstructionWithSequencePoint(methodDefinition.Body, instruction)
+                        .Maybe(i => methodDefinition.DebugInformation.GetSequencePoint(i));
+
                     var branchingInstructionLine = closestSeqPt.Maybe(x => x.StartLine, -1);
                     var document = closestSeqPt.Maybe(x => x.Document.Url);
 
@@ -569,7 +576,7 @@ namespace OpenCover.Framework.Symbols
                 if (IgnoreConditionalBranchSequence(instruction, instructions, branchOffset))
                     return false;
 
-                if (IsEmptyBranch(instruction))
+                if (IsEmptyConditionalBranch(instruction))
                     return true;
 
                 ordinal = BuildPointsForConditionalBranch(list, instruction, new[] { then }, branchingInstructionLine,
