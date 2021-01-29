@@ -326,12 +326,18 @@ namespace OpenCover.Framework
         /// Is the method an auto-implemented property get/set
         /// </summary>
         /// <param name="method"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public bool IsAutoImplementedProperty(MethodDefinition method)
+        public bool IsAutoImplementedProperty(MethodDefinition method, TypeDefinition type)
         {
-            if ((method.IsSetter || method.IsGetter) && method.HasCustomAttributes)
+            if (method.IsSetter || method.IsGetter)
             {
-                return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
+                if (method.HasCustomAttributes)
+                {
+                    return method.CustomAttributes.Any(x => x.AttributeType.FullName == typeof(CompilerGeneratedAttribute).FullName);
+                }
+                var name = method.Name.Replace("get_", "").Replace("set_", "");
+                return type.Fields.Any(f => f.Name == $"{name}@");
             }
             return false;
         }

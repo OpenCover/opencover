@@ -6,13 +6,13 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>C:\prj\opencover\main\bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>C:\prj\opencover\main\bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\</OutputPath>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <Optimize>false</Optimize>

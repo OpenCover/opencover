@@ -50,6 +50,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Console", "OpenCo
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.Test", "OpenCover.Test\OpenCover.Test.csproj", "{BDFCE9C6-A116-45AF-94DC-F491D0CE8EB2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511} = {A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}
+		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6} = {AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCover.Test.Profiler", "OpenCover.Test.Profiler\OpenCover.Test.Profiler.vcxproj", "{0FBC382D-AB5A-4C10-B573-10B4FFB02EFC}"
 	ProjectSection(ProjectDependencies) = postProject
