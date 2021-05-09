@@ -50,10 +50,10 @@ jobs:
     # ℹ️ Command-line programs to run using the OS shell.
     # 📚 https://git.io/JvXDl
 
-    - name: Setup .NET Core 5.0.101
+    - name: Setup .NET Core 5.0.201
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.101'
+        dotnet-version: '5.0.201'
         
     - name: Build OpenCover x64
       run: |
