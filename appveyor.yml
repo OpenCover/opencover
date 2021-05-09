@@ -1,6 +1,6 @@
 version: 4.7.{build}
 skip_tags: true
-image: Visual Studio 2019
+image: Previous Visual Studio 2019
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
