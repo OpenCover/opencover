@@ -127,14 +127,14 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
     safe_mode_ = m_tracingEnabled || (_tcslen(safeMode) != 0);
     ATLTRACE(_T("    ::Initialize(...) => safeMode = %s (%s)"), safe_mode_ ? _T("true") : _T("false"), safeMode);
 
-    TCHAR shortwait[1024] = { 0 };
-    if (::GetEnvironmentVariable(_T("OpenCover_Profiler_ShortWait"), shortwait, 1024) > 0) {
-        _shortwait = _tcstoul(shortwait, nullptr, 10);
-        if (_shortwait < 10000) 
-            _shortwait = 10000;
-        if (_shortwait > 60000)
-            _shortwait = 60000;
-        ATLTRACE(_T("    ::Initialize(...) => shortwait = %ul"), _shortwait);
+    TCHAR commwait[1024] = { 0 };
+    if (::GetEnvironmentVariable(_T("OpenCover_Profiler_CommWait"), commwait, 1024) > 0) {
+        _commwait = _tcstoul(commwait, nullptr, 10);
+        if (_commwait < 10000)
+            _commwait = 10000;
+        if (_commwait > 600000)
+            _commwait = 600000;
+        ATLTRACE(_T("    ::Initialize(...) => shortwait = %ul"), _commwait);
     }
 
 	DWORD dwVersionHigh, dwVersionLow;
@@ -144,7 +144,7 @@ HRESULT CCodeCoverage::OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk){
 
 	enableDiagnostics_ = (tstring(diagnostics) == _T("true"));
 
-    _host = std::make_shared<Communication::ProfilerCommunication>(_shortwait, dwVersionHigh, dwVersionLow);
+    _host = std::make_shared<Communication::ProfilerCommunication>(_commwait, dwVersionHigh, dwVersionLow);
 
 	int sendVisitPointsTimerInterval = getSendVisitPointsTimerInterval();
 
@@ -330,7 +330,7 @@ HRESULT STDMETHODCALLTYPE CCodeCoverage::JITCompilationStarted(
 
         if (m_allowModules[modulePath])
         {
-            RELTRACE(_T("::JITCompilationStarted(%X, ...) => %d, %X => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
+            RELTRACE(_T("::JITCompilationStarted(%" PRIxPTR ", ...) => %d, %" PRIxPTR " => %s"), functionId, functionToken, moduleId, W2CT(modulePath.c_str()));
 
             std::vector<SequencePoint> seqPoints;
             std::vector<BranchPoint> brPoints;

@@ -1,6 +1,6 @@
 version: 4.7.{build}
 skip_tags: true
-image: Visual Studio 2017
+image: Visual Studio 2019
 shallow_clone: true
 environment:
   COVERALLS_REPO_TOKEN:
@@ -68,6 +68,8 @@ artifacts:
   name: Chocolatey
 - path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
   name: ChocolateyPortable
+- path: main/bin/packages/chocolatey/opencover.install/*.nupkg
+  name: ChocolateyInstall
 - path: cov-int/build-log.txt
   name: Coverity
 - path: GenericCoverage.xml
@@ -77,9 +79,17 @@ artifacts:
 deploy:
 - provider: NuGet
   api_key:
-    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
+    secure: pIYB18F1Lfq/UWtYjWH1CaKuuLc2dLHxeRwH5xO3BZsv4pMce5ETtqglUWa96TWp
   skip_symbols: true
   artifact: Nuget
+  on:
+    branch: release
+- provider: NuGet
+  server: https://chocolatey.org/
+  api_key:
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: ChocolateyInstall
   on:
     branch: release
 - provider: NuGet
@@ -100,7 +110,7 @@ deploy:
     branch: release
 - provider: NuGet
   api_key:
-    secure: rSx36T78ZXIqD2Tk/DatbUP05MiHgxTWjOIGquhzWeTJX0VEB4Mn2TZyi0zMtGIL
+    secure: pIYB18F1Lfq/UWtYjWH1CaKuuLc2dLHxeRwH5xO3BZsv4pMce5ETtqglUWa96TWp
   skip_symbols: true
   artifact: NugetCandidate
   on:
@@ -109,7 +119,7 @@ deploy:
   tag: $(appveyor_build_version)-rc
   release: OpenCover (Release Candidiate) $(appveyor_build_version)
   auth_token:
-    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
+    secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
   artifact: Installer, ZipArchive
   prerelease: true
   on:
@@ -118,7 +128,7 @@ deploy:
   tag: $(appveyor_build_version)
   release: OpenCover (Release) $(appveyor_build_version)
   auth_token:
-    secure: thjVnm0YNqFzuRd6kLGj0bKHlPfPbRNOj3clihjeQP4MnJItTRLMogx+pC5w43Nd
+    secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
   artifact: Installer, ZipArchive
   on:
     branch: release

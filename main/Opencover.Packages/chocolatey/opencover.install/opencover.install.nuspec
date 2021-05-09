@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>openCover.install</id>
+    <version>1.0.0.0</version>
+    <title>OpenCover - an open source code coverage tool for .NET</title>
+    <authors>OpenCover, shaun wilde</authors>
+    <owners>shaun wilde</owners>
+    <licenseUrl>https://github.com/OpenCover/opencover/blob/master/LICENSE</licenseUrl>
+    <iconUrl>https://github.com/opencover/opencover/raw/master/main/Icons/128.png</iconUrl>
+    <projectUrl>https://github.com/opencover/opencover</projectUrl>
+    <projectSourceUrl>https://github.com/OpenCover/opencover</projectSourceUrl>
+    <docsUrl>https://github.com/OpenCover/opencover/wiki</docsUrl>
+    <bugTrackerUrl>https://github.com/OpenCover/opencover/issues</bugTrackerUrl>
+    <packageSourceUrl>https://github.com/OpenCover/OpenCover</packageSourceUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above (including Silverlight). Also capable of handling 32 and 64 bit processes. Use ReportGenerator for best viewing results (also available via Nuget).</description>
+    <summary>An open source code coverage tool (branch and sequence point) for all .NET Frameworks 2 and above. Also capable of handling 32 and 64 bit processes.</summary>
+    <language>en-US</language>
+    <tags>Code-Coverage Reporting Testing TDD Utility admin</tags>
+  </metadata>
+  <files>
+    <file src="tools\chocolateyInstall.ps1" target="tools" />
+  </files>
+</package>

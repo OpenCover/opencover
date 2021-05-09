@@ -1,4 +1,19 @@
+Requires .NET Framework 4.7.2
+
 Version [[version]]
+#877 remove incorrect redirects (bug)
+#964 address CVE-2018-1285 in log4net 2.0.8 (prj-mgmt)
+#910 import MSBuild project from NuGet package (feature)
+#953 update Sentry to latest version (prj-mgmt)
+#908 fix race condition causing modules to appear twice in output (bug)
+#930 add .Net framework 4.7.2 detection to installer (prj-mgmt)
+#728 extend max configuable comm timeout to 600s (bug/feature)
+#914, #725 additional messaging around no coverage (prj-mgmt)
+#993 fix issue with FieldReference handling preventing assembly from loading (bug)
+#960 ignore empty branches created by unoptimised code (feature)
+#809 ignore fsharp auto properties
+
+Version 4.7.922
 #855 change crash reporting framework to Sentry (feature/prj-mgmt)
 #735 apply checksums to chocolatey packages (feature/prj-mgmt)
 #825 handle pdb mismatch and continue (fix)

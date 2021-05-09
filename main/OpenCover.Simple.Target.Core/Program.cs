@@ -23,7 +23,7 @@ namespace OpenCover.Simple.Target
             // The factorial function itself
             var factorial = Fix(F);
 
-            for (int j = 0; j < 1000; j++)
+            for (int j = 0; j < 100; j++)
             {
                 for (var i = 0; i < 12; i++)
                 {

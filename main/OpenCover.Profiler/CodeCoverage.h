@@ -42,8 +42,10 @@ public:
         m_cuckooCriticalToken = 0;
         m_cuckooSafeToken = 0;
         m_infoHook = nullptr;
-        _shortwait = 10000;
+        _commwait = 10000;
         chained_module_ = nullptr;
+        enableDiagnostics_ = false;
+        safe_mode_ = true;
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_CODECOVERAGE)
@@ -93,7 +95,7 @@ private:
 
 private:
     std::shared_ptr<Communication::ProfilerCommunication> _host;
-    ULONG _shortwait;
+    ULONG _commwait;
 	HRESULT OpenCoverInitialise(IUnknown *pICorProfilerInfoUnk);
 
 	ipv static GetInstrumentPointVisit();
@@ -125,7 +127,7 @@ private:
     std::unordered_map<std::wstring, std::wstring> m_allowModulesAssemblyMap;
 
     COR_PRF_RUNTIME_TYPE m_runtimeType;
-    ASSEMBLYMETADATA m_runtimeVersion;
+    ASSEMBLYMETADATA m_runtimeVersion = {};
 
     bool m_useOldStyle;
 	ULONG m_threshold;

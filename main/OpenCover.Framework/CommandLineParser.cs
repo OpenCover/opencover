@@ -139,9 +139,9 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-mergebyhash]");
             builder.AppendLine("    [-showunvisited]");
             builder.AppendLine("    [-returntargetcode[:<opencoverreturncodeoffset>]]");
-            builder.AppendLine("    [-excludebyattribute:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-excludebyfile:<filter>[;<filter>][;<filter>]]");
-            builder.AppendLine("    [-coverbytest:<filter>[;<filter>][;<filter>]]");
+            builder.AppendLine("    [-excludebyattribute:<attributefilter>[;<attributefilter>][;<attributefilter>]]");
+            builder.AppendLine("    [-excludebyfile:<filefilter>[;<filefilter>][;<filefilter>]]");
+            builder.AppendLine("    [-coverbytest:<dllfilter>[;<dllfilter>][;<dllfilter>]]");
             builder.AppendLine("    [[\"]-excludedirs:<excludedir>[;<excludedir>][;<excludedir>][\"]]");
             var skips = string.Join("|", Enum.GetNames(typeof(SkippedMethod)).Where(x => x != "Unknown"));
             builder.AppendLine(string.Format("    [-hideskipped:{0}|All,[{0}|All]]", skips));
@@ -245,7 +245,7 @@ namespace OpenCover.Framework
                     case "communicationtimeout":
                         CommunicationTimeout = ExtractValue<int>("communicationtimeout", () =>
                         { throw new InvalidOperationException(string.Format("The communication timeout must be an integer: {0}", GetArgumentValue("communicationtimeout"))); });
-                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 60000), 10000);
+                        CommunicationTimeout = Math.Max(Math.Min(CommunicationTimeout, 600000), 10000);
                         break;
                     case "filter":
                         Filters = ExtractFilters(GetArgumentValue("filter"));

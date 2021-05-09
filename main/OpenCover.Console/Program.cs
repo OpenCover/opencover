@@ -83,6 +83,13 @@ namespace OpenCover.Console
                 }
             }
 
+#if DEBUG
+            if (Debugger.IsAttached)
+            {
+                System.Console.ReadLine();
+            }
+#endif
+
             return returnCode;
         }
 
@@ -142,9 +149,20 @@ namespace OpenCover.Console
         {
             const string processName = "svchost.exe";
             var wmiQuery = $"select CommandLine, ProcessId from Win32_Process where Name='{processName}'";
-            var searcher = new ManagementObjectSearcher(wmiQuery);
-            var retObjectCollection = searcher.Get();
-            foreach (var retObject in retObjectCollection)
+            bool found = false;
+            using (var searcher = new ManagementObjectSearcher(wmiQuery))
+            using (var objectCollection = searcher.Get())
+            {
+                StopIISsvcs(objectCollection);
+                found = StartIISsvcs(found, objectCollection);
+            }
+            // Return the found state
+            return found;
+        }
+
+        private static void StopIISsvcs(ManagementObjectCollection objectCollection)
+        {
+            foreach (var retObject in objectCollection)
             {
                 var cmdLine = (string)retObject["CommandLine"];
                 if (cmdLine.EndsWith("-k iissvcs"))
@@ -164,7 +182,10 @@ namespace OpenCover.Console
                     }
                 }
             }
+        }
 
+        private static bool StartIISsvcs(bool found, ManagementObjectCollection objectCollection)
+        {
             // Wait three seconds for the svchost to start
             // TODO, make this configurable
             var secondstowait = 3;
@@ -172,11 +193,9 @@ namespace OpenCover.Console
             // Wait for successfull restart of the svchost
             Stopwatch s = new Stopwatch();
             s.Start();
-            bool found = false;
             while (s.Elapsed < TimeSpan.FromSeconds(secondstowait))
             {
-                retObjectCollection = searcher.Get();
-                foreach (var retObject in retObjectCollection)
+                foreach (var retObject in objectCollection)
                 {
                     var cmdLine = (string)retObject["CommandLine"] ?? string.Empty;
                     if (cmdLine.EndsWith("-k iissvcs"))
@@ -191,11 +210,8 @@ namespace OpenCover.Console
                     break;
             }
             s.Stop();
-
-            // Return the found state
             return found;
         }
-        
 
         private static void RunService(CommandLineParser parser, Action<StringDictionary> environment, ILog logger)
         {
@@ -444,6 +460,12 @@ namespace OpenCover.Console
                 Logger.InfoFormat("    output file and refer to the Usage guide (Usage.rtf) about filters.");
                 Logger.InfoFormat("    2) the profiler may not be registered correctly, please refer to the Usage");
                 Logger.InfoFormat("    guide and the -register switch.");
+                Logger.InfoFormat("    3) your assemblies under test were not be loaded, refer to the output xml");
+                Logger.InfoFormat("    and check your filters/code.");
+                Logger.InfoFormat("    4) you are targetting .net core and your assemblies under test were not");
+                Logger.InfoFormat("    instrumented, try using the -oldstyle switch.");
+                Logger.InfoFormat("    5) you are targetting 4.8 or .net core and your assemblies under test were");
+                Logger.InfoFormat("    not instrumented, try using the -register:path32 or -register:path64 switch.");
             }
         }
 

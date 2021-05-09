@@ -15,8 +15,9 @@
   <property name="exclude-admin-only" value="--where:cat!=AdminOnly" />
   <property name="exclude-admin-only" value="" if="${appveyor=='True'}" />
 
-  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin')}" />
-  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2017/Professional/MSBuild/15.0/Bin')}" unless="${property::exists('msbuild.exe')}" />
+  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/')}" />
+  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2019/Professional/MSBuild/Current/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2019/Professional/MSBuild/Current/Bin/')}" unless="${property::exists('msbuild.exe')}" />
+  <property name="msbuild.exe" value="${program.files.x86}/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin/MSBuild.exe" if="${directory::exists(program.files.x86 + '/Microsoft Visual Studio/2019/Enterprise/MSBuild/Current/Bin')}" unless="${property::exists('msbuild.exe')}" />
   <property name="msbuild.exe" value="${netfx4.folder}/MSBuild.exe" unless="${property::exists('msbuild.exe')}"/>
 
   <property name="dotnet.exe" value="c:\dotnet\dotnet.exe" if="${directory::exists('c:\dotnet')}" />
@@ -62,6 +63,7 @@
   </target>
     
   <target name="build" description="Build all targets.">
+    <echo message="using ${msbuild.exe}" />
     <property name="configuration" value="debug" />
     <property name="platform" value="x64" />
     <call target="build.opencover" />
@@ -148,7 +150,13 @@
     </exec>
         
   </target>
-    
+  
+  <target name="test-bdd-release" >
+    <property name="configuration" value="release" />
+    <property name="platform" value="x64" />
+    <call target="test-bdd" />
+  </target>
+  
   <target name="test-cpp" depends="test-cpp-internal" />
     
   <target name="test-cpp-internal" description="Run C++ tests" >

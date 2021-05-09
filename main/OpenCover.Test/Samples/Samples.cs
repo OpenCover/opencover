@@ -120,11 +120,6 @@ namespace OpenCover.Test.Samples
             return value;
         }
 
-        public void HasSimpleTaskWithLambda()
-        {
-            var t = new Task(() => { });
-        }
-
         public string UsingWithException_Issue243()
         {
             using (var ms = new MemoryStream()) // IL generates a finally block for using to dispose the stream
@@ -132,6 +127,44 @@ namespace OpenCover.Test.Samples
                 throw new Exception();
             }
         }
+
+        public async Task HasSimpleAsyncAwait_Issue881()
+        {
+            await Task.Delay(100);
+            await Task.Delay(100);
+            await Task.Delay(100);
+            await Task.Delay(100);
+        }
+
+        public void HasCachedDelegateDueToFunction()
+        {
+            var func = new Func<int>(() => int.MaxValue);
+            var x = func();
+        }
+
+        public void HasCachedDelegateDueToSimpleAction()
+        {
+            var func = new Action(() => { });
+            func();
+        }
+
+        public void HasCachedDelegateDueToActionWithArgs()
+        {
+            var func = new Action<int>(x => { });
+            func(1);
+        }
+
+        public void HasCachedDelegateDueToTask()
+        {
+            var func = new Task(() => { });
+        }
+
+        public void HasCachedDelegateDueToFunctionWithArgs()
+        {
+            var func = new Func<int, int>(z => z > 1000 ? 1 : 0);
+            var x = func(1);
+        }
+
     }
 
     class DeclaredMethodClass

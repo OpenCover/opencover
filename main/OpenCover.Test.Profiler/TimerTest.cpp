@@ -43,9 +43,9 @@ TEST_F(TimerTest, CanStartTimerAndExecuteExpectedNumberOfTimes)
 	timer->Start([&]()
 	{
 		++counter;
-	}, 20);
+	}, 200);
 
-	Sleep(110);
+	Sleep(1100);
 	delete timer;
 
 	ASSERT_EQ(5, counter);
@@ -59,18 +59,18 @@ TEST_F(TimerTest, CanStartStopRestartTimerAndExecuteExpectedNumberOfTimes)
 	timer->Start([&]()
 	{
 		++counter;
-	}, 20);
+	}, 200);
 
-	Sleep(110);
+	Sleep(1100);
 
 	timer->Stop();
 
 	timer->Start([&]()
 	{
 		++counter;
-	}, 20);
+	}, 200);
 
-	Sleep(110);
+	Sleep(1100);
 
 	timer->Stop();
 
@@ -87,18 +87,18 @@ TEST_F(TimerTest, CanStartNewTimerWithoutStoppingOld)
 	timer->Start([&]()
 	{
 		++counter;
-	}, 20);
+	}, 200);
 
-	Sleep(110);
+	Sleep(1100);
 
 	ASSERT_EQ(5, counter);
 
 	timer->Start([&]()
 	{
 		++counter;
-	}, 50);
+	}, 500);
 
-	Sleep(110);
+	Sleep(1100);
 
 	timer->Stop();
 

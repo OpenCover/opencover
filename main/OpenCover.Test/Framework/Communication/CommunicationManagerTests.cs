@@ -12,7 +12,7 @@ namespace OpenCover.Test.Framework.Communication
 {
     [TestFixture]
     public class CommunicationManagerTests :
-        UnityAutoMockContainerBase<ICommunicationManager, CommunicationManager>
+        AutofacAutoMockContainerBase<ICommunicationManager, CommunicationManager>
     {
         [Test]
         public void When_Complete_Casacde_Call()

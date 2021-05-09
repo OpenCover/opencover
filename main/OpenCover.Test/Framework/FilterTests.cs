@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -747,7 +748,7 @@ namespace OpenCover.Test.Framework
                 .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("AutoProperty")))
             {
                 wasTested = true;
-                Assert.IsTrue(filter.IsAutoImplementedProperty(methodDefinition));
+                Assert.IsTrue(filter.IsAutoImplementedProperty(methodDefinition, type));
             }
             Assert.IsTrue(wasTested);
 
@@ -756,7 +757,28 @@ namespace OpenCover.Test.Framework
                 .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("PropertyWithBackingField")))
             {
                 wasTested = true;
-                Assert.IsFalse(filter.IsAutoImplementedProperty(methodDefinition));
+                Assert.IsFalse(filter.IsAutoImplementedProperty(methodDefinition, type));
+            }
+            Assert.IsTrue(wasTested);
+        }
+
+        [Test]
+        public void CanIdentify_AutoImplementedPropertiesFSharp()
+        {
+            // arrange
+            var assemblyPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            var location = Path.Combine(assemblyPath, "netcoreapp3.1", "OpenCover.Test.Samples.Fs.3.1.dll");
+            var sourceAssembly = AssemblyDefinition.ReadAssembly(location);
+            var type = sourceAssembly.MainModule.Types.First(x => x.FullName.EndsWith("ClassWithAutoProperty"));
+
+            // act/assert
+            var filter = new Filter(false);
+            var wasTested = false;
+            foreach (var methodDefinition in type.Methods
+                .Where(x => x.IsGetter || x.IsSetter).Where(x => x.Name.EndsWith("AutoProperty")))
+            {
+                wasTested = true;
+                Assert.IsTrue(filter.IsAutoImplementedProperty(methodDefinition, type));
             }
             Assert.IsTrue(wasTested);
         }

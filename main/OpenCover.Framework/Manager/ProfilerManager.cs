@@ -1,4 +1,4 @@
-﻿//
+//
 // OpenCover - S Wilde
 //
 // This source code is released under the MIT License; see the accompanying license file.
@@ -20,8 +20,8 @@ using OpenCover.Framework.Utility;
 namespace OpenCover.Framework.Manager
 {
     /// <summary>
-    /// This is the core manager for integrating the host the target 
-    /// application and the profiler 
+    /// This is the core manager for integrating the host the target
+    /// application and the profiler
     /// </summary>
     /// <remarks>It probably does too much!</remarks>
     public class ProfilerManager : IProfilerManager
@@ -165,7 +165,7 @@ namespace OpenCover.Framework.Manager
             dictionary["CorClr_Profiler_Path"] = string.Empty;
 
             if (_commandLine.CommunicationTimeout > 0)
-                dictionary["OpenCover_Profiler_ShortWait"] = _commandLine.CommunicationTimeout.ToString();
+                dictionary["OpenCover_Profiler_CommWait"] = _commandLine.CommunicationTimeout.ToString();
 
             var profilerPath = ProfilerRegistration.GetProfilerPath(_commandLine.Registration);
             if (profilerPath != null)
@@ -173,6 +173,13 @@ namespace OpenCover.Framework.Manager
                 dictionary["Cor_Profiler_Path"] = profilerPath;
                 dictionary["CorClr_Profiler_Path"] = profilerPath;
             }
+
+            // new versions of clr and coreclr don't need us to "guess" the profiler bitness : we might as well include these
+            dictionary["Cor_Profiler_Path_32"] = ProfilerRegistration.GetProfilerPath(Registration.Path32);
+            dictionary["Cor_Profiler_Path_64"] = ProfilerRegistration.GetProfilerPath(Registration.Path64);
+            dictionary["CoreClr_Profiler_Path_32"] = ProfilerRegistration.GetProfilerPath(Registration.Path32);
+            dictionary["CoreClr_Profiler_Path_64"] = ProfilerRegistration.GetProfilerPath(Registration.Path64);
+
             dictionary["OpenCover_SendVisitPointsTimerInterval"] = _commandLine.SendVisitPointsTimerInterval.ToString();
         }
 
@@ -336,9 +343,9 @@ namespace OpenCover.Framework.Manager
                         break;
                     case 1:
                         var data = _communicationManager.HandleMemoryBlock(block.MemoryBlock);
-                        // don't let the queue get too big as using too much memory causes 
-                        // problems i.e. the target process closes down but the host takes 
-                        // ages to shutdown; this is a compromise. 
+                        // don't let the queue get too big as using too much memory causes
+                        // problems i.e. the target process closes down but the host takes
+                        // ages to shutdown; this is a compromise.
                         _messageQueue.Enqueue(data);
                         if (_messageQueue.Count > 400)
                         {

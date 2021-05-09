@@ -5,9 +5,10 @@
   <property name="nuget.exe" value="${nuget.folder}/NuGet.exe" />
   <property name="out.folder" value="${solution.folder}\bin\packages\nuget\opencover" />
 
-  <property name="choco.folder" value="${solution.folder}/packages/chocolatey.0.10.11/tools/chocolateyInstall" />
+  <property name="choco.folder" value="${solution.folder}/packages/chocolatey.0.10.14/tools/chocolateyInstall" />
   <property name="choco.exe" value="${choco.folder}/choco.exe" />
   <property name="chocolatey.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover" />
+  <property name="chocolatey.install.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover.install" />
   <property name="chocolatey.portable.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover.portable" />
   <property name="checksum.exe" value="${choco.folder}/tools/checksum.exe" />
 
@@ -40,20 +41,19 @@
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
       </filterchain>
     </copy>
-    <delete file="samples\SampleSln\nuget\packages.config" />
-    <copy file="samples\SampleSln\.nuget\packages.config.tmp" tofile="samples\SampleSln\nuget\packages.config" >
-      <filterchain>
-        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-      </filterchain>
-    </copy>
     
     <delete file="samples\SampleSln.zip" />
     <exec program="${tools.folder}/7-Zip/7za.exe" if="${directory::exists('samples\SampleSln')}">
       <arg value="a" />
       <arg value="samples\SampleSln.zip" />
+      <arg value="samples\SampleSln\readme.txt"/>
       <arg value="samples\SampleSln\coverage.bat"/>
+      <arg value="samples\SampleSln\restore.bat"/>
       <arg value="samples\SampleSln\BomSample.sln"/>
-      <arg value="samples\SampleSln\nuget\packages.config"/>
+      <arg value="samples\SampleSln\.nuget\NuGet.exe"/>
+      <arg value="samples\SampleSln\.nuget\NuGet.Config"/>
+      <arg value="samples\SampleSln\.nuget\Nuget.targets"/>
+      <arg value="samples\SampleSln\.nuget\packages.config"/>
       <arg value="samples\SampleSln\packages\repositories.config"/>
       <arg value="samples\SampleSln\Bom\Bom.csproj"/>
       <arg value="samples\SampleSln\Bom\BomManager.cs"/>
@@ -93,14 +93,6 @@
 
   <target name="chocolatey-package" depends="get-version-number, get-installer-checksum" >
     
-    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" />
-    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover\tools\chocolateyInstall.ps1" >
-      <filterchain>
-        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
-      </filterchain>
-    </copy>
-    
     <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
     <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     
@@ -112,7 +104,7 @@
     
     <move todir="${chocolatey.output.folder}" >
       <fileset basedir=".">
-          <include name="*.nupkg" />
+        <include name="*.nupkg" />
       </fileset>
     </move>
     
@@ -153,7 +145,34 @@
     
     <move todir="${chocolatey.portable.output.folder}" >
       <fileset basedir=".">
-          <include name="*.nupkg" />
+        <include name="*.nupkg" />
+      </fileset>
+    </move>
+    
+  </target>
+
+  <target name="chocolatey-package-install" depends="get-version-number, get-zip-checksum" >
+    
+    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" />
+    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
+      </filterchain>
+    </copy>
+    
+    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
+    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
+    
+    <mkdir dir="${chocolatey.output.folder}" />
+    <mkdir dir="${choco.folder}\lib" />
+    
+    <exec program="${choco.exe}" 
+      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\OpenCover.install.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+    
+    <move todir="${chocolatey.install.output.folder}" >
+      <fileset basedir=".">
+        <include name="*.nupkg" />
       </fileset>
     </move>
     
