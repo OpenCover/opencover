@@ -9,14 +9,8 @@ The latest releases can be downloaded from [releases](https://github.com/opencov
 | **Build** | [![Build status](https://img.shields.io/appveyor/ci/sawilde/opencover.svg)](https://ci.appveyor.com/project/sawilde/opencover) |
 | **Coverage** | <sup>Coveralls</sup> [![Coveralls](https://img.shields.io/coveralls/OpenCover/opencover/master.svg)](https://coveralls.io/r/OpenCover/opencover) |
 | **Quality** | [![Coverity](https://scan.coverity.com/projects/3921/badge.svg)](https://scan.coverity.com/projects/opencover-opencover) |
-| **Quality** | [![CodeQL](https://github.com/opencover/opencover/workflows/CodeQL/badge.svg)](https://github.com/OpenCover/opencover/security/code-scanning?query=tool%3ACodeQL) |
 | **Nuget** | [![Nuget](https://buildstats.info/nuget/opencover)](http://nuget.org/packages/opencover)  [![Nuget](https://img.shields.io/nuget/vpre/opencover.svg)](http://nuget.org/packages/opencover) |
 | **Agreements** | [![CLA assistant](https://cla-assistant.io/readme/badge/OpenCover/opencover)](https://cla-assistant.io/OpenCover/opencover) |
-
-| | Disabled Integrations |
-| --- | --- |
-| **Coverage** | <sup>SonarCloud</sup> [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=OpenCover_opencover&metric=coverage)](https://sonarcloud.io/dashboard?id=OpenCover_opencover) |
-| **Quality** | [![SonarCloud](https://sonarcloud.io/api/project_badges/measure?project=OpenCover_opencover&metric=alert_status)](https://sonarcloud.io/dashboard?id=OpenCover_opencover) |
 
 ### Master
 The primary repo for the project is [on GitHub](https://github.com/opencover/opencover/) and is also where the [wiki](https://github.com/OpenCover/opencover/wiki) and [issues](https://github.com/OpenCover/opencover/wiki) are managed from.
