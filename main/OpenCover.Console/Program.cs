@@ -34,10 +34,14 @@ namespace OpenCover.Console
 
             using (SentrySdk.Init("https://6a7f2885b8544c7d8615df6c8064df4a@sentry.io/1369963"))
             {
+                var version = typeof(Program).Assembly.GetName().Version;
+                System.Console.WriteLine($"Launching OpenCover {version}");
                 try
                 {
                     if (!ParseCommandLine(args, out CommandLineParser parser))
                         return parser.ReturnCodeOffset + 1;
+
+                    System.Console.CancelKeyPress += (sender, e) => e.Cancel = parser.IgnoreCtrlC;
 
                     LogManager.GetRepository().Threshold = parser.LogLevel;
 

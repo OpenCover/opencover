@@ -955,5 +955,18 @@ namespace OpenCover.Test.Framework
             // assert
             Assert.IsTrue(parser.DiagMode);
         }
+
+        [Test]
+        public void DetectsIgnoreCtrlCArgument()
+        {
+            // arrange  
+            var parser = new CommandLineParser(new[] { "-ignorectrlc", RequiredArgs });
+
+            // act
+            parser.ExtractAndValidateArguments();
+
+            // assert
+            Assert.IsTrue(parser.IgnoreCtrlC);
+        }
     }
 }
