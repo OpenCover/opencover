@@ -1,6 +1,9 @@
 Requires .NET Framework 4.7.2
 
 Version [[version]]
+#1027 option to ignore ctrl+c key press, when ctrl+c is being used to close the target process
+
+Version 4.7.1189
 #877 remove incorrect redirects (bug)
 #964 address CVE-2018-1285 in log4net 2.0.8 (prj-mgmt)
 #910 import MSBuild project from NuGet package (feature)

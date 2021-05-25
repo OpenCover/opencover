@@ -115,6 +115,7 @@ namespace OpenCover.Framework
             SafeMode = true;
             DiagMode = false;
             SendVisitPointsTimerInterval = 0;
+            IgnoreCtrlC = false;
         }
 
         /// <summary>
@@ -155,6 +156,7 @@ namespace OpenCover.Framework
             builder.AppendLine("    [-oldstyle]");
             builder.AppendLine("    [-safemode:on|off|yes|no]");
             builder.AppendLine("    [-diagmode]");
+            builder.AppendLine("    [-ignorectrlc]");
             builder.AppendLine("    [-sendvisitpointstimerinterval: 0 (no timer) | 1-maxint (timer interval in msec)");
             builder.AppendLine("    -version");
             builder.AppendLine("or");
@@ -310,6 +312,9 @@ namespace OpenCover.Framework
                         break;
                     case "diagmode":
                         DiagMode = true;
+                        break;
+                    case "ignorectrlc":
+                        IgnoreCtrlC = true;
                         break;
                     case "sendvisitpointstimerinterval":
                         SendVisitPointsTimerInterval = ExtractValue<uint>("sendvisitpointstimerinterval", () =>
@@ -623,6 +628,8 @@ namespace OpenCover.Framework
         /// Enable SendVisitPoints timer interval in msec (0 means do not run timer)
         /// </summary>
         public uint SendVisitPointsTimerInterval { get; private set; }
+
+        public bool IgnoreCtrlC { get; private set; }
     }
 
 }
