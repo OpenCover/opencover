@@ -58,18 +58,22 @@ test: off
 artifacts:
 - path: main/bin/installer/*.msi
   name: Installer
+- path: main/bin/installer/*.txt
+  name: InstallerHash
 - path: main/bin/zip/*.zip
   name: ZipArchive
+- path: main/bin/zip/*.txt
+  name: ZipArchiveHash
 - path: main/bin/packages/nuget/opencover/*.nupkg
   name: Nuget
 - path: main/bin/packages/nuget/opencover-rc/*.nupkg
   name: NugetCandidate
 - path: main/bin/packages/chocolatey/opencover/*.nupkg
   name: Chocolatey
-- path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
-  name: ChocolateyPortable
 - path: main/bin/packages/chocolatey/opencover.install/*.nupkg
   name: ChocolateyInstall
+- path: main/bin/packages/chocolatey/opencover.portable/*.nupkg
+  name: ChocolateyPortable
 - path: cov-int/build-log.txt
   name: Coverity
 - path: GenericCoverage.xml
@@ -109,6 +113,14 @@ deploy:
   on:
     branch: release
 - provider: NuGet
+  server: https://chocolatey.org/
+  api_key:
+    secure: BbmHnhpI/e+m2xmR/5jxmOqKbQdcYG8RuF7iWT86SbCLIxPhMotbHprgBtw8dA4n
+  skip_symbols: true
+  artifact: ChocolateyInstall
+  on:
+    branch: release
+- provider: NuGet
   api_key:
     secure: pIYB18F1Lfq/UWtYjWH1CaKuuLc2dLHxeRwH5xO3BZsv4pMce5ETtqglUWa96TWp
   skip_symbols: true
@@ -120,7 +132,7 @@ deploy:
   release: OpenCover (Release Candidiate) $(appveyor_build_version)
   auth_token:
     secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
-  artifact: Installer, ZipArchive
+  artifact: Installer, ZipArchive, InstallerHash, ZipArchiveHash
   prerelease: true
   on:
     branch: rc
@@ -129,7 +141,7 @@ deploy:
   release: OpenCover (Release) $(appveyor_build_version)
   auth_token:
     secure: T8hG3PcjoJoYaCr7ND6wFfzJdje9TYqbvBl9pFmh3EmI6relJrXzAGAooe9lBYjt
-  artifact: Installer, ZipArchive
+  artifact: Installer, ZipArchive, InstallerHash, ZipArchiveHash
   on:
     branch: release
 - provider: NuGet
@@ -139,12 +151,6 @@ deploy:
   artifact: NugetCandidate
   on:
     branch: master
-notifications:
-- provider: Webhook
-  url: https://webhooks.gitter.im/e/700bdb95a55f23095db9
-  on_build_success: true
-  on_build_failure: true
-  on_build_status_changed: true
 on_success:
 - ps: >-
     if ($env:APPVEYOR_SCHEDULED_BUILD -ne "True" -and $env:APPVEYOR_REPO_BRANCH -ne "coverity")

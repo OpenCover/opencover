@@ -12,7 +12,15 @@
   <property name="chocolatey.portable.output.folder" value="${solution.folder}\bin\packages\chocolatey\opencover.portable" />
   <property name="checksum.exe" value="${choco.folder}/tools/checksum.exe" />
 
-   <target name="generate-release-notes" depends="get-version-number" >
+  <property
+    name="checksum.installer.output.file"
+    value="${solution.folder}\bin\installer\checksum.installer.txt" />
+
+  <property
+    name="checksum.zip.output.file"
+    value="${solution.folder}\bin\zip\checksum.zip.txt" />
+
+  <target name="generate-release-notes" depends="get-version-number" >
     <delete file="ReleaseNotes.txt" />
     <copy file="ReleaseNotes.tmp" tofile="ReleaseNotes.txt" >
       <filterchain>
@@ -76,23 +84,12 @@
     <exec program="${nuget.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\nuget\opencover\OpenCover.nuspec -BasePath ${root.folder} -OutputDirectory ${nugetpackage.folder} -Version ${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}${buildnumber.rc}" />
   </target>
-    
-  <target name="get-installer-checksum">
-    <property
-      name="checksum.output.file"
-      value="${solution.folder}\OpenCover.Packages\chocolatey\opencover\checksum.txt" />
-    <exec program="${checksum.exe}" output="${checksum.output.file}">
-      <arg value='-t:sha256' />
-      <arg value='-f="${solution.folder}\bin\installer\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi"' />
-    </exec>
-    <loadfile
-      file="${checksum.output.file}"
-      property="checksum" />
-    <delete file="${checksum.output.file}" />
-  </target>
-
-  <target name="chocolatey-package" depends="get-version-number, get-installer-checksum" >
-    
+  
+  <target name="chocolatey-package-all" 
+    depends="chocolatey-package, chocolatey-package-install, chocolatey-package-portable" /> 
+  
+  <target name="chocolatey-package" depends="get-version-number" >
+        
     <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
     <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
     
@@ -102,7 +99,58 @@
     <exec program="${choco.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover\OpenCover.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
     
-    <move todir="${chocolatey.output.folder}" >
+    <move todir="${chocolatey.output.folder}" flatten="true" >
+      <fileset basedir=".">
+          <include name="*.nupkg" />
+      </fileset>
+    </move>
+    
+  </target>
+  
+  <target name="get-installer-checksum">
+    
+    <exec program="${checksum.exe}" output="${checksum.installer.output.file}">
+      <arg value='-t:sha256' />
+      <arg value='-f="${solution.folder}\bin\installer\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi"' />
+    </exec>
+      
+    <loadfile
+      file="${checksum.installer.output.file}"
+      property="checksum.installer" />
+      
+    <property name="checksum.installer" 
+      value="${string::trim(checksum.installer)}" />
+          
+    <echo message="Installer CheckSum is '${checksum.installer}'" />
+    
+    <exec program="${checksum.exe}">
+      <arg value='-t:sha256' />
+      <arg value='-c:${checksum.installer}' />
+      <arg value='-f="${solution.folder}\bin\installer\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.msi"' />
+    </exec>
+
+  </target>
+
+  <target name="chocolatey-package-install" depends="get-version-number, get-installer-checksum" >
+    
+    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" />
+    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" >
+      <filterchain>
+        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+        <replacestring from="[[checksum]]" to="${checksum.installer}" />
+      </filterchain>
+    </copy>
+    
+    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
+    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
+    
+    <mkdir dir="${chocolatey.install.output.folder}" />
+    <mkdir dir="${choco.folder}\lib" />
+    
+    <exec program="${choco.exe}" 
+      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\openCover.install.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
+    
+    <move todir="${chocolatey.install.output.folder}" flatten="true" >
       <fileset basedir=".">
         <include name="*.nupkg" />
       </fileset>
@@ -111,17 +159,27 @@
   </target>
 
   <target name="get-zip-checksum">
-    <property
-      name="checksum.output.file"
-      value="${solution.folder}\OpenCover.Packages\chocolatey\opencover\checksum.txt" />
-    <exec program="${checksum.exe}" output="${checksum.output.file}">
+
+    <exec program="${checksum.exe}" output="${checksum.zip.output.file}">
       <arg value='-t:sha256' />
       <arg value='-f="${solution.folder}\bin\zip\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip"' />
     </exec>
+
     <loadfile
-      file="${checksum.output.file}"
-      property="checksum" />
-    <delete file="${checksum.output.file}" />
+      file="${checksum.zip.output.file}"
+      property="checksum.zip" />
+      
+    <property name="checksum.zip" 
+      value="${string::trim(checksum.zip)}" />
+	
+    <echo message="Installer CheckSum is '${checksum.zip}'" />
+	
+    <exec program="${checksum.exe}" >
+      <arg value='-t:sha256' />
+      <arg value='-c:${checksum.zip}' />
+      <arg value='-f="${solution.folder}\bin\zip\opencover.${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}.zip"' />
+    </exec>
+
   </target>
 
   <target name="chocolatey-package-portable" depends="get-version-number, get-zip-checksum" >
@@ -130,7 +188,7 @@
     <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\tools\chocolateyInstall.ps1" >
       <filterchain>
         <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
+        <replacestring from="[[checksum]]" to="${checksum.zip}" />
       </filterchain>
     </copy>
     
@@ -143,35 +201,8 @@
     <exec program="${choco.exe}" 
       commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.portable\OpenCover.portable.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
     
-    <move todir="${chocolatey.portable.output.folder}" >
-      <fileset basedir=".">
-        <include name="*.nupkg" />
-      </fileset>
-    </move>
-    
-  </target>
-
-  <target name="chocolatey-package-install" depends="get-version-number, get-zip-checksum" >
-    
-    <delete file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" />
-    <copy file="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1.tmp" tofile="${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\tools\chocolateyInstall.ps1" >
-      <filterchain>
-        <replacestring from="[[version]]" to="${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-        <replacestring from="[[checksum]]" to="${string::trim(checksum)}" />
-      </filterchain>
-    </copy>
-    
-    <property name="buildnumber.rc" value="${buildnumber.ci}" if="${property::exists('buildnumber.ci')}"/>
-    <property name="buildnumber.rc" value="" unless="${property::exists('buildnumber.rc')}"/>
-    
-    <mkdir dir="${chocolatey.output.folder}" />
-    <mkdir dir="${choco.folder}\lib" />
-    
-    <exec program="${choco.exe}" 
-      commandline="pack ${solution.folder}\OpenCover.Packages\chocolatey\opencover.install\OpenCover.install.nuspec --Version=${buildnumber.major}.${buildnumber.minor}.${buildnumber.build}" />
-    
-    <move todir="${chocolatey.install.output.folder}" >
-      <fileset basedir=".">
+    <move todir="${chocolatey.portable.output.folder}" flatten="true">
+      <fileset basedir="." >
         <include name="*.nupkg" />
       </fileset>
     </move>

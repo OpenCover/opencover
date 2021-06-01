@@ -3,7 +3,7 @@
   <metadata>
     <id>openCover.install</id>
     <version>1.0.0.0</version>
-    <title>OpenCover - an open source code coverage tool for .NET</title>
+    <title>OpenCover (Installer) - an open source code coverage tool for .NET</title>
     <authors>OpenCover, shaun wilde</authors>
     <owners>shaun wilde</owners>
     <licenseUrl>https://github.com/OpenCover/opencover/blob/master/LICENSE</licenseUrl>
