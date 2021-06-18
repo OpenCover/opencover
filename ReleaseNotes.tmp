@@ -1,7 +1,11 @@
 Requires .NET Framework 4.7.2
 
 Version [[version]]
-#1027 option to ignore ctrl+c key press, when ctrl+c is being used to close the target process
+#1029 address issues with chocolatey packages (prj-mgmt)
+#1038 update required .net version for appveyor build (prj-mgmt)
+
+Version 4.7.1204
+#1027 option to ignore ctrl+c key press, when ctrl+c is being used to close the target process (feature)
 
 Version 4.7.1189
 #877 remove incorrect redirects (bug)
