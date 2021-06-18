@@ -20,6 +20,7 @@
     <tags>Code-Coverage Reporting Testing TDD Utility admin</tags>
     <dependencies>
       <dependency id="opencover.install" />
+      <dependency id="dotnet4.7.2" />
     </dependencies>
   </metadata>
 </package>
