@@ -76,12 +76,12 @@ namespace OpenCover.Specs
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle")]
-        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyle()
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.1 application using oldstyle")]
+        public virtual void GetCoverageOfA_NetCore2_1ApplicationUsingOldstyle()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle", null, tagsOfScenario, argumentsOfScenario);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.1 application using oldstyle", null, tagsOfScenario, argumentsOfScenario);
 #line 5
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -106,8 +106,8 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 7
- testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
-                        ".2\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I can find the target .net core \'2.1\' application \'OpenCover.Simple.Target.Core.2" +
+                        ".1\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 8
  testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -120,13 +120,13 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle, with debugType = port" +
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.1 application using oldstyle, with debugType = port" +
             "able")]
-        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyleWithDebugTypePortable()
+        public virtual void GetCoverageOfA_NetCore2_1ApplicationUsingOldstyleWithDebugTypePortable()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle, with debugType = port" +
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.1 application using oldstyle, with debugType = port" +
                     "able", null, tagsOfScenario, argumentsOfScenario);
 #line 11
 this.ScenarioInitialize(scenarioInfo);
@@ -152,8 +152,8 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 13
- testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
-                        ".2.Portable\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I can find the target .net core \'2.1\' application \'OpenCover.Simple.Target.Core.2" +
+                        ".1.Portable\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 14
  testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
@@ -166,13 +166,13 @@ this.ScenarioInitialize(scenarioInfo);
         }
         
         [NUnit.Framework.TestAttribute()]
-        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.2 application using oldstyle, with debugType = embe" +
+        [NUnit.Framework.DescriptionAttribute("Get coverage of a .net core 2.1 application using oldstyle, with debugType = embe" +
             "dded")]
-        public virtual void GetCoverageOfA_NetCore2_2ApplicationUsingOldstyleWithDebugTypeEmbedded()
+        public virtual void GetCoverageOfA_NetCore2_1ApplicationUsingOldstyleWithDebugTypeEmbedded()
         {
             string[] tagsOfScenario = ((string[])(null));
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.2 application using oldstyle, with debugType = embe" +
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get coverage of a .net core 2.1 application using oldstyle, with debugType = embe" +
                     "dded", null, tagsOfScenario, argumentsOfScenario);
 #line 17
 this.ScenarioInitialize(scenarioInfo);
@@ -198,8 +198,8 @@ this.ScenarioInitialize(scenarioInfo);
  testRunner.Given("I can find the OpenCover application", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 19
- testRunner.And("I can find the target .net core \'2.2\' application \'OpenCover.Simple.Target.Core.2" +
-                        ".2.Embedded\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.And("I can find the target .net core \'2.1\' application \'OpenCover.Simple.Target.Core.2" +
+                        ".1.Embedded\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 20
  testRunner.When("I execute OpenCover against the target application using the switch \'-oldstyle\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");

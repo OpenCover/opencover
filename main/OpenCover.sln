@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{46A374
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		..\default.build = ..\default.build
+		global.json = global.json
+		..\README.md = ..\README.md
 		..\ReleaseNotes.tmp = ..\ReleaseNotes.tmp
 	EndProjectSection
 EndProject
@@ -107,11 +109,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.UITest", "OpenCov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCover.3rdParty.Signer", "OpenCover.3rdParty.Signer\OpenCover.3rdParty.Signer.csproj", "{0B94C4BF-762B-4722-BF5A-30E7F6D2CB7E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.2", "OpenCover.Simple.Target.Core.2.2\OpenCover.Simple.Target.Core.2.2.csproj", "{EA16643C-C74B-4CB7-A7B9-4E127FE875E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.1", "OpenCover.Simple.Target.Core.2.1\OpenCover.Simple.Target.Core.2.1.csproj", "{EA16643C-C74B-4CB7-A7B9-4E127FE875E9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.2.Portable", "OpenCover.Simple.Target.Core.2.2.Portable\OpenCover.Simple.Target.Core.2.2.Portable.csproj", "{86998CD7-E01C-4F1C-AE62-0114D3DC5F37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.1.Portable", "OpenCover.Simple.Target.Core.2.1.Portable\OpenCover.Simple.Target.Core.2.1.Portable.csproj", "{86998CD7-E01C-4F1C-AE62-0114D3DC5F37}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.2.Embedded", "OpenCover.Simple.Target.Core.2.2.Embedded\OpenCover.Simple.Target.Core.2.2.Embedded.csproj", "{3E9D9683-FFBA-407C-898F-8CB5B80ACF29}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.2.1.Embedded", "OpenCover.Simple.Target.Core.2.1.Embedded\OpenCover.Simple.Target.Core.2.1.Embedded.csproj", "{3E9D9683-FFBA-407C-898F-8CB5B80ACF29}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Core.3.1", "OpenCover.Simple.Target.Core.3.1\OpenCover.Simple.Target.Core.3.1.csproj", "{430012FA-1A96-4D46-9211-38163ECB3E69}"
 EndProject
@@ -127,7 +129,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Simple.Target.Cor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCover.Test.Samples.3.1", "OpenCover.Test.Samples.3.1\OpenCover.Test.Samples.3.1.csproj", "{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "OpenCover.Test.Samples.Fs.3.1", "OpenCover.Test.Samples.Fs.3.1\OpenCover.Test.Samples.Fs.3.1.fsproj", "{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "OpenCover.Test.Samples.Fs.3.1", "OpenCover.Test.Samples.Fs.3.1\OpenCover.Test.Samples.Fs.3.1.fsproj", "{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Packages", "Packages", "{CA59F56B-2923-426C-8EEC-61438435E808}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chocolatey", "Chocolatey", "{2A6CBE8B-F634-4C56-9071-9ECDC26BDB7F}"
+	ProjectSection(SolutionItems) = preProject
+		Opencover.Packages\chocolatey\opencover.install\opencover.install.nuspec = Opencover.Packages\chocolatey\opencover.install\opencover.install.nuspec
+		Opencover.Packages\chocolatey\opencover\OpenCover.nuspec = Opencover.Packages\chocolatey\opencover\OpenCover.nuspec
+		Opencover.Packages\chocolatey\opencover.portable\opencover.portable.nuspec = Opencover.Packages\chocolatey\opencover.portable\opencover.portable.nuspec
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -366,6 +377,8 @@ Global
 		{C2D112ED-11E4-4081-AFEF-655CDD5D4FB2} = {BB3EABCA-7978-4809-A5CF-51F85860DD55}
 		{AA843E86-E2A0-4FFF-8F5A-2C0CC7CE86A6} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
+		{CA59F56B-2923-426C-8EEC-61438435E808} = {46A37479-1892-496B-98AB-6826E97D12F7}
+		{2A6CBE8B-F634-4C56-9071-9ECDC26BDB7F} = {CA59F56B-2923-426C-8EEC-61438435E808}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
