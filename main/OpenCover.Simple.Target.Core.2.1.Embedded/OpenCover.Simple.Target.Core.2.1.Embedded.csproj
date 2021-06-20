@@ -1,29 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>OpenCover.Test.Samples.Fs._3._1</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>OpenCover.Simple.Target.Core._2._1.Embedded</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\bin\Debug\</OutputPath>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\bin\Release\</OutputPath>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <Compile Include="Library.fs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="5.0.1" />
+    <Compile Include="..\OpenCover.Simple.Target.Core\Program.cs" Link="Program.cs" />
   </ItemGroup>
 
 </Project>

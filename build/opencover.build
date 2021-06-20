@@ -3,7 +3,7 @@
  
   <property name="configuration" value="debug" unless="${property::exists('configuration')}" />
   <property name="platform" value="x86" unless="${property::exists('platform')}" />
-  <property name="nunit.path" value="${solution.folder}/packages/NUnit.ConsoleRunner.3.9.0/tools"/>
+  <property name="nunit.path" value="${solution.folder}/packages/NUnit.ConsoleRunner.3.12.0/tools"/>
   <property name="windows-path" value="${string::to-lower(environment::get-variable('PATH'))}"/>
   <property name="nunit-in-path" value="${string::contains(windows-path, 'nunit')}"/>
   <property name="open-cover-test-console32" value="${solution.folder}/bin/${configuration}/x86/OpenCover.Test.Profiler.exe"/>

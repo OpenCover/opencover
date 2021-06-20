@@ -65,8 +65,14 @@ You will need:
 
 To build from the command line:
 1. Visual Studio VS2019 (Community Edition) with C#, C++, .Net Core
-2. .NET SDK 2.2.402 (https://dotnet.microsoft.com/download/thank-you/dotnet-sdk-2.1.4-windows-x64-installer)
-- runtimes ???
+2. .NET SDKs (https://dotnet.microsoft.com/download/visual-studio-sdks)
+
+```
+2.1.816 (* - LTS Version)
+3.1.410 (* - LTS version)
+5.0.301 (* - this is specified in the global.json)
+```
+
 3. WiX 3.11 or later (http://wixtoolset.org/releases/) and Votive 2019 (https://marketplace.visualstudio.com/items?itemName=WixToolset.WixToolsetVisualStudio2019Extension)
 4. Windows SDK 10 (10.0.18362.0) and .NET Framework Tools (https://msdn.microsoft.com/en-us/windows/desktop/bg162891.aspx)
 
