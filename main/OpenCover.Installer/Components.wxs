@@ -80,8 +80,6 @@
       </Component>
       <Component Id="Sentry_3rdParty" Guid="{EFE11E23-1C22-4E76-A162-393AFAA1717B}">
         <File Id="SENTRY_DLL" Source="..\bin\Release\Sentry.dll" KeyPath="yes" />
-        <File Id="SENTRY_PLATFORMABSTRACTIONS_DLL" Source="..\bin\Release\Sentry.PlatformAbstractions.dll" />
-        <File Id="SENTRY_PROTOCOL_DLL" Source="..\bin\Release\Sentry.Protocol.dll" />
       </Component>
       <Component Id="System_Buffers_3rdParty" Guid="{C16727FB-9A8E-4970-9890-A9C198236913}">
         <File Id="SYSTEM_BUFFERS_DLL" 

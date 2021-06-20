@@ -140,6 +140,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chocolatey", "Chocolatey", 
 		Opencover.Packages\chocolatey\opencover.portable\opencover.portable.nuspec = Opencover.Packages\chocolatey\opencover.portable\opencover.portable.nuspec
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Nuget", "Nuget", "{107C9BFF-AEF7-4EAF-AECE-DFE2A2E52097}"
+	ProjectSection(SolutionItems) = preProject
+		Opencover.Packages\nuget\opencover\OpenCover.nuspec = Opencover.Packages\nuget\opencover\OpenCover.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -379,9 +384,10 @@ Global
 		{A4EDBE60-B4C2-4284-8F84-CE7E6AAAB511} = {B791B5A9-DF44-474A-A10A-E4654F8792D7}
 		{CA59F56B-2923-426C-8EEC-61438435E808} = {46A37479-1892-496B-98AB-6826E97D12F7}
 		{2A6CBE8B-F634-4C56-9071-9ECDC26BDB7F} = {CA59F56B-2923-426C-8EEC-61438435E808}
+		{107C9BFF-AEF7-4EAF-AECE-DFE2A2E52097} = {CA59F56B-2923-426C-8EEC-61438435E808}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {07668570-E91E-4CCA-A9BF-EC3A83011035}
 	EndGlobalSection
 EndGlobal

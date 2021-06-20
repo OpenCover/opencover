@@ -35,8 +35,6 @@
         <include name="OpenCover.Framework.dll" />
         <include name="OpenCover.Framework.pdb" />
         <include name="Sentry.dll" />
-        <include name="Sentry.PlatformAbstractions.dll" />
-        <include name="Sentry.Protocol.dll" />
         <include name="System.Buffers.dll" />
         <include name="System.Collections.Immutable.dll" />
         <include name="System.Diagnostics.DiagnosticSource.dll" />
