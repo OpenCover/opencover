@@ -1,3 +1,14 @@
+* Putting OpenCover into archive mode
+
+A long time ago OpenCover met a need and then slowly expanded on the request of others (and some crazy ideas of my own), in the last few years the development of OpenCover has been sporadic as I have pursued other interests. Now with the numerous releases of .NET core and the availability of other tools such at [AltCover](https://www.nuget.org/packages/altcover/)* that fill that same product space I feel the time has come to park OpenCover. 
+
+(*) I use AltCover myself as I am often using linux based containers as my target environment
+
+Q. What about security patches/releases?
+A. I have activated dependabot and if necessary I may occasionally dust off the Windows box and boot up Visual Studio Community 2019 and apply the suggested fix; it is possible to manage commits and releases just through GitHub and AppVeyor.  
+
+* Description
+
 OpenCover is a code coverage tool for .NET 2 and above (Windows OSs only - no MONO)<sup>*</sup>, with support for 32 and 64 processes and covers both branch and sequence points. OpenCover was started after attempts to make PartCover support 64-bit processes got just a [little too complicated](http://blog.many-monkeys.com/open_cover_first_beta_release/).
 
 * OpenCover should have few issues with any application compiled against any of the .NET Full Frameworks. Applications targetting .Net Core may encounter issues but using the `-oldstyle` switch usually works.
