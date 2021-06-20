@@ -629,6 +629,9 @@ namespace OpenCover.Framework
         /// </summary>
         public uint SendVisitPointsTimerInterval { get; private set; }
 
+        /// <summary>
+        /// Inform penCover to ignore Ctrl+C and allow the target program to process it instead
+        /// </summary>
         public bool IgnoreCtrlC { get; private set; }
     }
 
